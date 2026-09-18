@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="CommsMessage" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/components/comms_message.gd" id="1_msg"]
+
+[resource]
+script = ExtResource("1_msg")
+id = &"msg_control_ack"
+sender = "MISSION CONTROL"
+date_text = "DAY 0001 06:00"
+body = "Wake acknowledged. Activation report entered in the queue. No corrections.
+
+Queue time to your position is measured in weeks. Do not expect real-time traffic. Continue scheduled maintenance and log by shift.
+
+MISSION CONTROL"
+direction = &"in"
+arrival_day = 1

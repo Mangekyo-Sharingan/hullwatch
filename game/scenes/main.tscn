@@ -38,6 +38,14 @@
 [ext_resource type="Script" path="res://src/world/analogue_filter.gd" id="57_analogue_filter"]
 [ext_resource type="Resource" path="res://src/data/wear/lighting_ballast.tres" id="58_lighting_ballast"]
 [ext_resource type="Resource" path="res://src/data/wear/water_pump_main.tres" id="59_water_pump"]
+[ext_resource type="Script" path="res://src/systems/comms.gd" id="60_comms"]
+[ext_resource type="Script" path="res://src/components/comms_message.gd" id="61_comms_message"]
+[ext_resource type="Resource" path="res://src/data/comms/msg_control_ack.tres" id="62_msg_ack"]
+[ext_resource type="Resource" path="res://src/data/comms/msg_control_manifest.tres" id="63_msg_manifest"]
+[ext_resource type="Resource" path="res://src/data/comms/msg_control_ping.tres" id="64_msg_ping"]
+[ext_resource type="Resource" path="res://src/data/comms/out_status_report.tres" id="65_out_status"]
+[ext_resource type="Resource" path="res://src/data/comms/out_rotation_query.tres" id="66_out_rotation"]
+[ext_resource type="Resource" path="res://src/data/comms/msg_reply_rotation.tres" id="67_msg_reply"]
 [ext_resource type="Script" path="res://src/ui/settings_menu.gd" id="53_settings_menu"]
 
 [sub_resource type="Environment" id="Environment_1"]
@@ -182,6 +190,10 @@ script = ExtResource("22_vitals")
 [node name="WaterSystem" type="Node" parent="Systems"]
 script = ExtResource("45_water")
 wear_components = Array[ExtResource("9_j8jky")]([ExtResource("59_water_pump")])
+
+[node name="CommsSystem" type="Node" parent="Systems"]
+script = ExtResource("60_comms")
+messages = Array[ExtResource("61_comms_message")]([ExtResource("62_msg_ack"), ExtResource("63_msg_manifest"), ExtResource("64_msg_ping"), ExtResource("65_out_status"), ExtResource("66_out_rotation"), ExtResource("67_msg_reply")])
 
 [node name="UI" type="Node" parent="."]
 

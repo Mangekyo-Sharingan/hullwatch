@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="CommsMessage" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/components/comms_message.gd" id="1_msg"]
+
+[resource]
+script = ExtResource("1_msg")
+id = &"msg_reply_rotation"
+sender = "MISSION CONTROL"
+date_text = "DAY 0011 04:40"
+body = "Rotation status: unchanged. Relief window remains as filed, no change to the manifest.
+
+Service window extended. No relief craft is expected before stores reach reserve levels. Reconcile consumption and continue maintenance per the manual.
+
+MISSION CONTROL"
+direction = &"in"
+arrival_day = 0

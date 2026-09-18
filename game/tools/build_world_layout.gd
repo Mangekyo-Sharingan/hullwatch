@@ -100,6 +100,14 @@ const PROPS: Array[Dictionary] = [
 		"resources": {"log_entry": LOG_ENTRY},
 	},
 	{
+		"name": "CommsTerminal",
+		"script": "res://src/interactables/comms_terminal.gd",
+		"position": Vector3(3.0, 1.2, -18.7),
+		"size": Vector3(0.15, 0.5, 0.6),
+		"material": MATERIAL_SCREEN_GLOW,
+		"exports": {},
+	},
+	{
 		"name": "ArchiveTerminal",
 		"script": "res://src/interactables/log_terminal.gd",
 		"position": Vector3(-2.0, 1.2, -18.7),

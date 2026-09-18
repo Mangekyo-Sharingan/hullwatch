@@ -9,7 +9,7 @@ Guide for AI coding agents working in this repository. Read this first, then `do
 - Repo root: `E:\Projekt\Misc\OperationSpacer`
 - Godot project root: `game/`
 - Production spec: `docs/PRODUCTION_SPEC.md` (authoritative for design intent)
-- Status: **post-v0.6.0 expansion + diagnostics**: cramped faceted 8-space station, xenon-metal structural material, analogue-horror filter, CRT screens, warm practical lighting. **Diagnostics (spec §4.3)**: faults are hidden until a carried multimeter is used at a probe; wear % requires the scanner; the scrubber housing requires the wrench. Seven wear components all installed. Real captures in `docs/store/`. Main open item: external playtest of v0.6.0; next feature: comms/narrative
+- Status: **post-v0.6.0 expansion + diagnostics + comms**: cramped faceted 8-space station, xenon-metal material, analogue-horror filter, CRT screens, practical lighting, hidden faults diagnosed with tools (spec §4.3), and a comms system with weeks of latency, unread traffic, and the one late reply (spec §4.1/§5). Real captures in `docs/store/` (7). Main open item: external playtest of v0.6.0
 - Asset shortlist for the M3 art pass: `docs/ASSET_SOURCES.md` — acquire at M3, not before
 
 ## Tech Stack
@@ -80,6 +80,7 @@ Run from repo root. The engine binary is local, so no PATH setup is needed.
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_crt_panels.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_diagnostics.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_diagnostics_api.gd
+& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_comms.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_scene_loop.gd
 
 # Regenerate the localization string table after changing user-facing UI strings

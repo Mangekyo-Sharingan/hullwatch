@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CommsMessage" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/components/comms_message.gd" id="1_msg"]
+
+[resource]
+script = ExtResource("1_msg")
+id = &"out_status_report"
+sender = "OPERATOR"
+body = "OPERATOR STATUS REPORT
+Power, atmosphere and thermal nominal. No faults outstanding. Maintenance current.
+
+Acknowledgement requested."
+direction = &"out"

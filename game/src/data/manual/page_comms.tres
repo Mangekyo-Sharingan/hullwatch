@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ManualPage" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/components/manual_page.gd" id="1_page"]
+
+[resource]
+script = ExtResource("1_page")
+title = "COMMS"
+body = "TRAFFIC TAKES WEEKS. The terminal queues outbound messages and files replies when they arrive. A reply may never come. Plan as if it will not.
+
+SENDING. Select a draft on the left to transmit it. Status reports are routine and usually answered. Questions are not.
+
+READING. Unread traffic is marked with an asterisk. Highlight a message to read it.
+
+Do not wait on the radio. The ship does not."

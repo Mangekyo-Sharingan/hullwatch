@@ -35,10 +35,11 @@ func _test_manual_book() -> void:
 	_check(book != null, "manual book loads")
 	if book == null:
 		return
-	_check(book.pages.size() == 7, "manual has seven pages")
+	_check(book.pages.size() == 8, "manual has eight pages")
 	_check(book.pages[0].title == "OPERATIONS", "operations page is first")
 	_check(book.pages[5].title == "SYMPTOMS", "symptoms page is sixth")
-	_check(book.pages[6].title == "DIAGNOSTICS", "diagnostics page is last")
+	_check(book.pages[6].title == "DIAGNOSTICS", "diagnostics page is seventh")
+	_check(book.pages[7].title == "COMMS", "comms page is last")
 	var total_chars: int = 0
 	for page: ManualPage in book.pages:
 		_check(not page.title.is_empty() and page.body.length() > 80, "page '%s' has substance" % page.title)
@@ -56,7 +57,7 @@ func _test_binder() -> void:
 	binder.interact(null)
 	_check(binder.is_open() and binder.get_current_page_title() == "OPERATIONS", "binder opens on the first page")
 	var menu: ScrollMenu = binder.get_menu()
-	_check(menu != null and menu.get_items().size() == 7, "binder menu lists every page")
+	_check(menu != null and menu.get_items().size() == 8, "binder menu lists every page")
 
 	menu.move_selection(1)
 	_check(binder.get_current_page_title() == "POWER", "browsing moves the highlighted page")
@@ -67,7 +68,7 @@ func _test_binder() -> void:
 	_check(binder.get_current_page_title() == "POWER", "selected page stays displayed")
 
 	menu.move_selection(-2)
-	_check(binder.get_current_page_title() == "DIAGNOSTICS", "browsing wraps around the page list")
+	_check(binder.get_current_page_title() == "COMMS", "browsing wraps around the page list")
 	_check(binder.get_interaction_prompt() == "Close manual", "prompt offers close while open")
 
 	binder.interact(null)

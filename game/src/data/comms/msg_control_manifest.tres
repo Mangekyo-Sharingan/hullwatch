@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="CommsMessage" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/components/comms_message.gd" id="1_msg"]
+
+[resource]
+script = ExtResource("1_msg")
+id = &"msg_control_manifest"
+sender = "MISSION CONTROL"
+date_text = "DAY 0002 19:20"
+body = "Rotation manifest reviewed against the current cycle. No corrections.
+
+Continue scheduled maintenance per the manual. Next scheduled traffic on your file: telemetry summary.
+
+MISSION CONTROL"
+direction = &"in"
+arrival_day = 2

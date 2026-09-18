@@ -29,6 +29,13 @@ func _run() -> void:
 	await _capture(player, Vector3(0.0, 0.1, -15.0), 0.0, "shot_cockpit.png")
 	await _capture(player, Vector3(-2.8, 0.1, 0.2), 0.0, "shot_storage.png")
 	await _capture(player, Vector3(0.2, 0.1, -5.6), PI, "shot_corridor_south.png")
+	var comms_terminal: Node = _main.get_node_or_null("WorldLayout/Props/CommsTerminal")
+	if comms_terminal != null:
+		player.global_position = Vector3(3.0, 0.1, -16.6)
+		player.rotation.y = 0.0
+		await process_frame
+		comms_terminal.call("interact", player)
+		await _capture(player, Vector3(3.0, 0.1, -16.6), 0.0, "shot_comms.png")
 
 	print("PASS: capture_screenshots -> ", ProjectSettings.globalize_path(OUTPUT_DIR))
 	quit(0)
