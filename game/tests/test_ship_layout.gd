@@ -1,8 +1,10 @@
-## M4 layout regression: the generated ship geometry exists and every doorway is ray-passable.
+## M7.3 layout regression: the faceted hull exists, doorway gaps are ray-passable, the
+## corridor cross-section matches the flat-bottom hexagon profile, and walls block.
 extends SceneTree
 
 const GEOMETRY_PATH: String = "res://scenes/ship_geometry.tscn"
 const XENON_MATERIAL_PATH: String = "res://src/data/materials/mat_xenon_metal.tres"
+const FLOOR_MATERIAL_PATH: String = "res://src/data/materials/mat_floor_grate.tres"
 const RAY_Y: float = 1.2
 
 const EXPECTED_SPACES: Array[StringName] = [
@@ -44,17 +46,6 @@ const DOORWAYS: Array = [
 	[Vector3(0.0, RAY_Y, 2.4), Vector3(0.0, RAY_Y, 1.0), "EngineBay"],
 ]
 
-const CHAMFER_ROOMS: Array[StringName] = [
-	&"Cockpit",
-	&"Quarters",
-	&"LifeSupport",
-	&"Galley",
-	&"WaterCloset",
-	&"Storage",
-	&"Airlock",
-	&"EngineBay",
-]
-
 const SOLID_CONTROLS: Array = [
 	[Vector3(0.0, RAY_Y, -12.0), Vector3(-1.4, RAY_Y, -12.0), "corridor west wall beside quarters"],
 	[Vector3(0.0, RAY_Y, -7.5), Vector3(1.4, RAY_Y, -7.5), "corridor east wall beside galley"],
@@ -66,6 +57,13 @@ const SOLID_CONTROLS: Array = [
 	[Vector3(-6.2, RAY_Y, -1.8), Vector3(-7.4, RAY_Y, -1.8), "airlock west wall beside the outer gap"],
 	[Vector3(0.0, RAY_Y, -16.5), Vector3(0.0, RAY_Y, -19.5), "cockpit north wall"],
 	[Vector3(0.0, RAY_Y, 4.7), Vector3(0.0, RAY_Y, 8.5), "engine bay south wall"],
+]
+
+## Corridor cross-section sweeps: [y, clear half-width, blocked half-width].
+const PROFILE_SWEEPS: Array = [
+	[1.5, 0.55, 0.62],
+	[0.2, 0.62, 0.70],
+	[2.6, 0.58, 0.66],
 ]
 
 var _failures: int = 0
@@ -98,13 +96,12 @@ func _run() -> void:
 	await physics_frame
 
 	_test_spaces_exist()
-	_test_floors_have_collision()
+	_test_shell_collision()
 	_test_doorways_passable()
 	_test_solid_walls_block()
-	_test_corridor_is_narrow()
-	_test_chamfered_corners()
-	_test_faceted_corridor()
-	_test_xenon_structural_material()
+	_test_corridor_profile()
+	_test_floor_and_ceiling()
+	_test_surface_materials()
 
 	_geometry.free()
 	_finish()
@@ -116,13 +113,17 @@ func _test_spaces_exist() -> void:
 		_check(space != null, "space exists: %s" % space_name)
 
 
-func _test_floors_have_collision() -> void:
+func _test_shell_collision() -> void:
 	for space_name: StringName in EXPECTED_SPACES:
 		var space: Node = _geometry.get_node_or_null(NodePath(String(space_name)))
 		if space == null:
 			continue
-		var floor_shape: CollisionShape3D = _find_floor_shape(space)
-		_check(floor_shape != null and floor_shape.shape != null, "space has floor collision: %s" % space_name)
+		var shape_node: CollisionShape3D = space.get_node_or_null(^"ShellShape") as CollisionShape3D
+		if shape_node == null or not (shape_node.shape is ConcavePolygonShape3D):
+			_check(false, "space has a shell collision: %s" % space_name)
+			continue
+		var shape: ConcavePolygonShape3D = shape_node.shape as ConcavePolygonShape3D
+		_check(shape.get_faces().size() >= 3, "space shell has faces: %s" % space_name)
 
 
 func _test_doorways_passable() -> void:
@@ -130,7 +131,7 @@ func _test_doorways_passable() -> void:
 		var from: Vector3 = doorway[0]
 		var to: Vector3 = doorway[1]
 		var label: String = doorway[2]
-		_check(not _ray_hits(from, to), "doorway %s -> corridor is free of geometry" % label)
+		_check(not _ray_hits(from, to), "doorway %s is free of geometry" % label)
 
 
 func _test_solid_walls_block() -> void:
@@ -141,36 +142,35 @@ func _test_solid_walls_block() -> void:
 		_check(_ray_hits(from, to), "control: ray into %s hits" % label)
 
 
-func _test_corridor_is_narrow() -> void:
-	_check(not _ray_hits(Vector3(-0.64, RAY_Y, -5.0), Vector3(0.64, RAY_Y, -5.0)), "corridor spine is clear across x[-0.64, 0.64] at y=1.2 (canted walls: true clear width ~1.32 m)")
-	_check(_ray_hits(Vector3(-1.0, RAY_Y, -5.0), Vector3(1.0, RAY_Y, -5.0)), "corridor spine is blocked across x[-1.0, 1.0] (clear width <= 1.5 m)")
+func _test_corridor_profile() -> void:
+	for sweep: Array in PROFILE_SWEEPS:
+		var y: float = sweep[0]
+		var clear: float = sweep[1]
+		var blocked: float = sweep[2]
+		_check(
+			not _ray_hits(Vector3(-clear, y, -5.0), Vector3(clear, y, -5.0)),
+			"corridor clear across x[%.2f, %.2f] at y=%.1f" % [-clear, clear, y]
+		)
+		_check(
+			_ray_hits(Vector3(-blocked, y, -5.0), Vector3(blocked, y, -5.0)),
+			"corridor blocked across x[%.2f, %.2f] at y=%.1f" % [-blocked, blocked, y]
+		)
+	_check(not _ray_hits(Vector3(0.0, 0.5, -5.0), Vector3(0.0, 1.0, -5.0)), "corridor floor band is walkable")
+	_check(not _ray_hits(Vector3(0.0, 2.4, -5.0), Vector3(0.0, 2.6, -5.0)), "corridor headroom exists")
 
 
-func _test_chamfered_corners() -> void:
-	for room_id: StringName in CHAMFER_ROOMS:
-		var room: Node = _geometry.get_node_or_null(NodePath(String(room_id)))
-		if room == null:
-			_check(false, "chamfer room exists: %s" % room_id)
-			continue
-		_check(_count_mesh_parts(room, "Chamfer") >= 4, "%s has four chamfer corner panels" % room_id)
+func _test_floor_and_ceiling() -> void:
+	_check(_ray_hits(Vector3(0.0, 1.0, -5.0), Vector3(0.0, -0.5, -5.0)), "corridor floor is solid")
+	_check(_ray_hits(Vector3(0.0, 2.0, -5.0), Vector3(0.0, 3.4, -5.0)), "corridor ceiling is solid")
+	_check(_ray_hits(Vector3(0.0, 1.0, -16.5), Vector3(0.0, -0.5, -16.5)), "cockpit floor is solid")
+	_check(not _ray_hits(Vector3(-3.15, 1.0, -10.4), Vector3(-3.15, 0.02, -10.4)), "quarters head space above the floor is free")
 
 
-func _test_faceted_corridor() -> void:
-	var corridor: Node = _geometry.get_node_or_null(NodePath("Corridor"))
-	if corridor == null:
-		_check(false, "chamfer corridor exists")
-		return
-	_check(_count_mesh_parts(corridor, "Cant") >= 1, "corridor has canted wall panels")
-	_check(_count_mesh_parts(corridor, "Header") >= 1, "corridor has upper header walls")
-
-
-func _test_xenon_structural_material() -> void:
-	var sample: MeshInstance3D = _geometry.get_node_or_null(NodePath("Cockpit/WallNMesh")) as MeshInstance3D
-	_check(sample != null, "sampled structural wall mesh exists")
-	if sample == null:
-		return
-	var material: Material = sample.material_override
-	_check(material != null and material.resource_path == XENON_MATERIAL_PATH, "sampled structural wall uses the xenon-metal material")
+func _test_surface_materials() -> void:
+	var walls: MeshInstance3D = _geometry.get_node_or_null(NodePath("Cockpit/WallsMesh")) as MeshInstance3D
+	_check(walls != null and walls.material_override != null and walls.material_override.resource_path == XENON_MATERIAL_PATH, "cockpit walls use the xenon-metal material")
+	var floor: MeshInstance3D = _geometry.get_node_or_null(NodePath("Cockpit/FloorMesh")) as MeshInstance3D
+	_check(floor != null and floor.material_override != null and floor.material_override.resource_path == FLOOR_MATERIAL_PATH, "cockpit floor uses the floor-grate material")
 
 
 func _ray_hits(from: Vector3, to: Vector3) -> bool:
@@ -179,25 +179,6 @@ func _ray_hits(from: Vector3, to: Vector3) -> bool:
 	params.collide_with_bodies = true
 	var space_state: PhysicsDirectSpaceState3D = root.world_3d.direct_space_state
 	return not space_state.intersect_ray(params).is_empty()
-
-
-func _find_floor_shape(node: Node) -> CollisionShape3D:
-	for child: Node in node.get_children():
-		if child is CollisionShape3D and child.name.begins_with("Floor"):
-			return child as CollisionShape3D
-		var nested: CollisionShape3D = _find_floor_shape(child)
-		if nested != null:
-			return nested
-	return null
-
-
-func _count_mesh_parts(node: Node, prefix: String) -> int:
-	var count: int = 0
-	for child: Node in node.get_children():
-		if child is MeshInstance3D and child.name.begins_with(prefix):
-			count += 1
-		count += _count_mesh_parts(child, prefix)
-	return count
 
 
 func _find_root_child(node_name: StringName) -> Node:
