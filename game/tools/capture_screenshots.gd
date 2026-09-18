@@ -56,6 +56,10 @@ func _run() -> void:
 		comms_terminal.call("interact", player)
 		await _capture(player, Vector3(3.0, 0.1, -16.6), 0.0, "shot_comms.png")
 
+	await _capture(player, Vector3(-8.1, 0.1, -6.0), 0.0, "shot_eva_platform.png")
+	await _capture(player, Vector3(-6.0, 3.7, -6.0), PI * 0.5, "shot_hull_deck.png")
+	await _capture(player, Vector3(1.5, 0.2, 11.5), PI, "shot_aft_ramp.png")
+
 	print("PASS: capture_screenshots -> ", ProjectSettings.globalize_path(OUTPUT_DIR))
 	quit(0)
 

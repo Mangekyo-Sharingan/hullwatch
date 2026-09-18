@@ -135,6 +135,19 @@ const SPACES: Array[Dictionary] = [
 	},
 ]
 
+const HULL_PLAN_MIN: Vector2 = Vector2(-7.0, -19.0)
+const HULL_PLAN_MAX: Vector2 = Vector2(5.1, 8.0)
+const HULL_CHAMFER: float = 1.8
+const HULL_BAND: float = 0.45
+const HULL_BOTTOM: float = -0.4
+const DECK_BOTTOM: float = 3.2
+const DECK_TOP: float = 3.6
+const CATWALK_MARGIN: float = 1.45
+const CATWALK_TOP: float = 0.0
+const CATWALK_BOTTOM: float = -0.15
+const AIRLOCK_GAP_FROM: float = -1.7
+const AIRLOCK_GAP_TO: float = -0.7
+
 var _root: Node3D
 var _materials: Dictionary = {}
 var _failures: int = 0
@@ -162,6 +175,7 @@ func _build() -> void:
 	_root.name = "ShipGeometry"
 	for spec: Dictionary in SPACES:
 		_build_space(spec)
+	_build_hull_exterior()
 	_build_dressing()
 
 
@@ -497,6 +511,183 @@ func _make_surface_node(node_name: String, surface: Dictionary, material_path: S
 	return node
 
 
+## Faceted outer hull: chamfered plan band with the airlock doorway, keel and deck caps,
+## the perimeter catwalk, an aft deck with a roof ramp, railings and hardpoint markers.
+func _build_hull_exterior() -> void:
+	var hull: StaticBody3D = StaticBody3D.new()
+	hull.name = "HullExterior"
+	_root.add_child(hull)
+	var shell: Dictionary = _surface()
+	var decks: Dictionary = _surface()
+	var collision: Array[Vector3] = []
+	var plan: PackedVector2Array = HullProfile.rectangle_outline(HULL_PLAN_MIN, HULL_PLAN_MAX, HULL_CHAMFER)
+	var outer: PackedVector2Array = HullProfile.offset_polygon(plan, HULL_BAND)
+	for edge_index: int in plan.size():
+		_add_hull_band(shell, plan, outer, edge_index, collision)
+	_add_prism(decks, shell, plan, -0.85, HULL_BOTTOM, collision)
+	_add_prism(decks, shell, outer, DECK_BOTTOM, DECK_TOP, collision)
+	_add_catwalk(decks, shell, collision)
+	_add_aft_deck(decks, shell, collision)
+	_add_ramp(decks, shell, collision)
+	_add_railings(hull)
+	_add_hardpoints(hull)
+	hull.add_child(_make_surface_node("Hull", shell, MATERIAL_XENON, collision))
+	hull.add_child(_make_surface_node("Deck", decks, MATERIAL_FLOOR, collision))
+	var shape: ConcavePolygonShape3D = ConcavePolygonShape3D.new()
+	shape.set_faces(PackedVector3Array(collision))
+	var shape_node: CollisionShape3D = CollisionShape3D.new()
+	shape_node.name = "ShellShape"
+	shape_node.shape = shape
+	hull.add_child(shape_node)
+
+
+func _add_hull_band(surface: Dictionary, plan: PackedVector2Array, outer: PackedVector2Array, edge_index: int, collision: Array[Vector3]) -> void:
+	var count: int = plan.size()
+	var a: Vector2 = plan[edge_index]
+	var b: Vector2 = plan[(edge_index + 1) % count]
+	var oa: Vector2 = outer[edge_index]
+	var ob: Vector2 = outer[(edge_index + 1) % count]
+	var outward: Vector2 = _outward(a, b)
+	var outward_3d: Vector3 = Vector3(outward.x, 0.0, outward.y)
+	var direction_3d: Vector3 = Vector3(b.x - a.x, 0.0, b.y - a.y).normalized()
+	var spans: Array = [Vector2(0.0, 1.0)]
+	if edge_index == 6:
+		spans = _spans_without_gaps(plan, edge_index, [{"edge": 6, "from": AIRLOCK_GAP_FROM, "to": AIRLOCK_GAP_TO}])
+	for span: Vector2 in spans:
+		var in_a: Vector3 = Vector3(a.lerp(b, span.x).x, HULL_BOTTOM, a.lerp(b, span.x).y)
+		var in_b: Vector3 = Vector3(a.lerp(b, span.y).x, HULL_BOTTOM, a.lerp(b, span.y).y)
+		var in_a2: Vector3 = Vector3(in_a.x, DECK_BOTTOM, in_a.z)
+		var in_b2: Vector3 = Vector3(in_b.x, DECK_BOTTOM, in_b.z)
+		var out_a: Vector3 = Vector3(oa.lerp(ob, span.x).x, HULL_BOTTOM, oa.lerp(ob, span.x).y)
+		var out_b: Vector3 = Vector3(oa.lerp(ob, span.y).x, HULL_BOTTOM, oa.lerp(ob, span.y).y)
+		var out_a2: Vector3 = Vector3(out_a.x, DECK_BOTTOM, out_a.z)
+		var out_b2: Vector3 = Vector3(out_b.x, DECK_BOTTOM, out_b.z)
+		_add_quad(surface, in_a, in_b, in_b2, in_a2, -outward_3d, collision)
+		_add_quad(surface, out_a, out_b, out_b2, out_a2, outward_3d, collision)
+		_add_quad(surface, in_a, in_b, out_b, out_a, Vector3.DOWN, collision)
+		_add_quad(surface, in_a2, in_b2, out_b2, out_a2, Vector3.UP, collision)
+	if edge_index == 6:
+		var gap_span: Vector2 = _gap_span(plan, edge_index, AIRLOCK_GAP_FROM, AIRLOCK_GAP_TO)
+		_add_jamb(surface, plan, outer, edge_index, gap_span.x, HULL_BOTTOM, DOOR_TOP, direction_3d, collision)
+		_add_jamb(surface, plan, outer, edge_index, gap_span.y, HULL_BOTTOM, DOOR_TOP, -direction_3d, collision)
+		var inner_gap_a: Vector2 = a.lerp(b, gap_span.x)
+		var inner_gap_b: Vector2 = a.lerp(b, gap_span.y)
+		var outer_gap_a: Vector2 = oa.lerp(ob, gap_span.x)
+		var outer_gap_b: Vector2 = oa.lerp(ob, gap_span.y)
+		_add_quad(
+			surface,
+			Vector3(inner_gap_a.x, DOOR_TOP, inner_gap_a.y), Vector3(inner_gap_b.x, DOOR_TOP, inner_gap_b.y),
+			Vector3(outer_gap_b.x, DOOR_TOP, outer_gap_b.y), Vector3(outer_gap_a.x, DOOR_TOP, outer_gap_a.y),
+			Vector3.DOWN, collision
+		)
+		_add_quad(
+			surface,
+			Vector3(inner_gap_a.x, CATWALK_TOP, inner_gap_a.y), Vector3(inner_gap_b.x, CATWALK_TOP, inner_gap_b.y),
+			Vector3(outer_gap_b.x, CATWALK_TOP, outer_gap_b.y), Vector3(outer_gap_a.x, CATWALK_TOP, outer_gap_a.y),
+			Vector3.UP, collision
+		)
+		_add_quad(
+			surface,
+			Vector3(inner_gap_a.x, CATWALK_BOTTOM, inner_gap_a.y), Vector3(inner_gap_b.x, CATWALK_BOTTOM, inner_gap_b.y),
+			Vector3(outer_gap_b.x, CATWALK_BOTTOM, outer_gap_b.y), Vector3(outer_gap_a.x, CATWALK_BOTTOM, outer_gap_a.y),
+			Vector3.DOWN, collision
+		)
+
+
+## Prism between a plan polygon and its outward offset: caps go to `caps`, sides to `sides`.
+func _add_prism(caps: Dictionary, sides: Dictionary, polygon: PackedVector2Array, y_bottom: float, y_top: float, collision: Array[Vector3]) -> void:
+	_add_cap(caps, polygon, y_bottom, y_top, collision)
+	for edge_index: int in polygon.size():
+		var a: Vector2 = polygon[edge_index]
+		var b: Vector2 = polygon[(edge_index + 1) % polygon.size()]
+		var outward_3d: Vector3 = Vector3(_outward(a, b).x, 0.0, _outward(a, b).y)
+		_add_quad(
+			sides,
+			Vector3(a.x, y_bottom, a.y), Vector3(b.x, y_bottom, b.y),
+			Vector3(b.x, y_top, b.y), Vector3(a.x, y_top, a.y),
+			outward_3d, collision
+		)
+
+
+func _add_catwalk(decks: Dictionary, sides: Dictionary, collision: Array[Vector3]) -> void:
+	var outer_min: Vector2 = HULL_PLAN_MIN - Vector2(CATWALK_MARGIN, CATWALK_MARGIN)
+	var outer_max: Vector2 = HULL_PLAN_MAX + Vector2(CATWALK_MARGIN, CATWALK_MARGIN)
+	var inner_min: Vector2 = HULL_PLAN_MIN - Vector2(HULL_BAND, HULL_BAND)
+	var inner_max: Vector2 = HULL_PLAN_MAX + Vector2(HULL_BAND, HULL_BAND)
+	_add_slab(decks, sides, Vector2(outer_min.x, outer_min.y), Vector2(outer_max.x, inner_min.y), collision)
+	_add_slab(decks, sides, Vector2(outer_min.x, inner_max.y), Vector2(outer_max.x, outer_max.y), collision)
+	_add_slab(decks, sides, Vector2(outer_min.x, inner_min.y), Vector2(inner_min.x, inner_max.y), collision)
+	_add_slab(decks, sides, Vector2(inner_max.x, inner_min.y), Vector2(outer_max.x, inner_max.y), collision)
+
+
+func _add_aft_deck(decks: Dictionary, sides: Dictionary, collision: Array[Vector3]) -> void:
+	_add_slab(decks, sides, Vector2(-4.0, 9.9), Vector2(2.4, 15.0), collision)
+	_add_slab(sides, sides, Vector2(-4.0, 9.9), Vector2(2.4, 15.0), collision, -1.0, CATWALK_BOTTOM)
+
+
+func _add_ramp(decks: Dictionary, sides: Dictionary, collision: Array[Vector3]) -> void:
+	var corners: Array[Vector3] = [
+		Vector3(1.2, -0.16, 14.5), Vector3(2.4, -0.16, 14.5), Vector3(2.4, 3.42, 8.45), Vector3(1.2, 3.42, 8.45),
+		Vector3(1.2, 0.0, 14.5), Vector3(2.4, 0.0, 14.5), Vector3(2.4, 3.58, 8.45), Vector3(1.2, 3.58, 8.45),
+	]
+	_add_hexahedron(decks, corners, collision)
+
+
+func _add_slab(caps: Dictionary, sides: Dictionary, min_xz: Vector2, max_xz: Vector2, collision: Array[Vector3], y_bottom: float = CATWALK_BOTTOM, y_top: float = CATWALK_TOP) -> void:
+	var rect: PackedVector2Array = HullProfile.rectangle_outline(min_xz, max_xz, 0.0)
+	_add_prism(caps, sides, rect, y_bottom, y_top, collision)
+
+
+func _add_hexahedron(surface: Dictionary, corners: Array[Vector3], collision: Array[Vector3]) -> void:
+	var centroid: Vector3 = Vector3.ZERO
+	for corner: Vector3 in corners:
+		centroid += corner
+	centroid /= float(corners.size())
+	var faces: Array = [[0, 1, 2, 3], [4, 5, 6, 7], [0, 1, 5, 4], [1, 2, 6, 5], [2, 3, 7, 6], [3, 0, 4, 7]]
+	for face: Array in faces:
+		var points: Array[Vector3] = [corners[face[0]], corners[face[1]], corners[face[2]], corners[face[3]]]
+		var center: Vector3 = (points[0] + points[1] + points[2] + points[3]) / 4.0
+		var hint: Vector3 = (center - centroid).normalized()
+		_add_quad(surface, points[0], points[1], points[2], points[3], hint, collision)
+
+
+func _add_railings(hull: StaticBody3D) -> void:
+	var bars: Array[Array] = [
+		[Vector3(-8.83, 1.0, -5.5), Vector3(0.06, 0.08, 30.8)],
+		[Vector3(6.93, 1.0, -5.5), Vector3(0.06, 0.08, 30.8)],
+		[Vector3(-0.95, 1.0, -20.83), Vector3(15.9, 0.08, 0.06)],
+		[Vector3(-0.95, 1.0, 9.83), Vector3(15.9, 0.08, 0.06)],
+		[Vector3(-3.93, 1.0, 12.45), Vector3(0.06, 0.08, 5.1)],
+		[Vector3(2.33, 1.0, 12.45), Vector3(0.06, 0.08, 5.1)],
+		[Vector3(-0.8, 1.0, 14.93), Vector3(6.4, 0.08, 0.06)],
+	]
+	for i: int in bars.size():
+		var entry: Array = bars[i]
+		var bar: MeshInstance3D = MeshInstance3D.new()
+		bar.name = "Railing%d" % i
+		var mesh: BoxMesh = BoxMesh.new()
+		mesh.size = entry[1]
+		bar.mesh = mesh
+		bar.material_override = _materials[MATERIAL_CONDUIT] as Material
+		bar.position = entry[0]
+		hull.add_child(bar)
+
+
+func _add_hardpoints(hull: StaticBody3D) -> void:
+	var points: Array[Vector3] = [
+		Vector3(-3.6, DECK_TOP, -13.5),
+		Vector3(3.6, DECK_TOP, -13.5),
+		Vector3(-3.6, DECK_TOP, 3.0),
+		Vector3(3.6, DECK_TOP, 3.0),
+	]
+	for i: int in points.size():
+		var marker: Node3D = Node3D.new()
+		marker.name = "Hardpoint%s" % String.chr(65 + i)
+		marker.position = points[i]
+		marker.add_to_group(&"hardpoint")
+		hull.add_child(marker)
+
+
 ## Visual greeble only (no collision): ceiling light strips, corridor ribs, conduit runs.
 func _build_dressing() -> void:
 	_add_dressing("Corridor", "Strip", Vector3(0, 2.94, -6.3), Vector3(0.22, 0.04, 14.2), MATERIAL_STRIP)
@@ -618,6 +809,22 @@ func _verify() -> bool:
 			_failures += 1
 			print("FAIL: no floor mesh in ", space_name)
 		parts += _count_parts(space)
+	var hull: Node = instance.get_node_or_null(^"HullExterior")
+	if hull == null:
+		_failures += 1
+		print("FAIL: missing HullExterior")
+	else:
+		var hull_shape: CollisionShape3D = hull.get_node_or_null(^"ShellShape") as CollisionShape3D
+		if hull_shape == null or not (hull_shape.shape is ConcavePolygonShape3D):
+			_failures += 1
+			print("FAIL: HullExterior has no shell collision")
+		var hardpoint_count: int = 0
+		for child: Node in hull.get_children():
+			if String(child.name).begins_with("Hardpoint"):
+				hardpoint_count += 1
+		if hardpoint_count < 4:
+			_failures += 1
+			print("FAIL: expected four hardpoint markers, found ", hardpoint_count, " among ", hull.get_child_count(), " hull children")
 	print("OK: spaces=", SPACE_NAMES.size(), " parts=", parts)
 	instance.free()
 	return _failures == 0
