@@ -490,8 +490,8 @@ func _add_tri(surface: Dictionary, a: Vector3, b: Vector3, c: Vector3, normal_hi
 	indices.append(base + 2)
 	if collision != null:
 		collision.append(a)
-		collision.append(b)
 		collision.append(c)
+		collision.append(b)
 
 
 func _make_surface_node(node_name: String, surface: Dictionary, material_path: String, collision: Array[Vector3]) -> MeshInstance3D:

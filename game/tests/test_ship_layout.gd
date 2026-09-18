@@ -101,6 +101,7 @@ func _run() -> void:
 	_test_solid_walls_block()
 	_test_corridor_profile()
 	_test_floor_and_ceiling()
+	_test_wall_planes()
 	_test_surface_materials()
 
 	_geometry.free()
@@ -160,10 +161,27 @@ func _test_corridor_profile() -> void:
 
 
 func _test_floor_and_ceiling() -> void:
-	_check(_ray_hits(Vector3(0.0, 1.0, -5.0), Vector3(0.0, -0.5, -5.0)), "corridor floor is solid")
-	_check(_ray_hits(Vector3(0.0, 2.0, -5.0), Vector3(0.0, 3.4, -5.0)), "corridor ceiling is solid")
-	_check(_ray_hits(Vector3(0.0, 1.0, -16.5), Vector3(0.0, -0.5, -16.5)), "cockpit floor is solid")
-	_check(not _ray_hits(Vector3(-3.15, 1.0, -10.4), Vector3(-3.15, 0.02, -10.4)), "quarters head space above the floor is free")
+	var floor_hit: Dictionary = _ray_result(Vector3(0.0, 1.0, -5.0), Vector3(0.0, -0.5, -5.0))
+	_check(not floor_hit.is_empty(), "corridor floor is solid")
+	if not floor_hit.is_empty():
+		_check(absf(float((floor_hit["position"] as Vector3).y)) < 0.02, "corridor floor surface is at deck height")
+		_check((floor_hit["normal"] as Vector3).dot(Vector3.UP) > 0.9, "corridor floor faces up")
+	var ceiling_hit: Dictionary = _ray_result(Vector3(0.0, 2.0, -5.0), Vector3(0.0, 3.4, -5.0))
+	_check(not ceiling_hit.is_empty(), "corridor ceiling is solid")
+	if not ceiling_hit.is_empty():
+		_check(absf(float((ceiling_hit["position"] as Vector3).y) - 3.0) < 0.02, "corridor ceiling surface is at head height")
+		_check((ceiling_hit["normal"] as Vector3).dot(Vector3.DOWN) > 0.9, "corridor ceiling faces down")
+	var quarters_hit: Dictionary = _ray_result(Vector3(-3.15, 1.0, -10.4), Vector3(-3.15, -0.5, -10.4))
+	_check(not quarters_hit.is_empty() and absf(float((quarters_hit["position"] as Vector3).y)) < 0.02, "quarters floor surface is at deck height")
+
+
+func _test_wall_planes() -> void:
+	var wall_hit: Dictionary = _ray_result(Vector3(0.0, RAY_Y, -12.0), Vector3(-1.4, RAY_Y, -12.0))
+	_check(not wall_hit.is_empty(), "corridor west wall is solid")
+	if not wall_hit.is_empty():
+		var hit_x: float = float((wall_hit["position"] as Vector3).x)
+		_check(hit_x > -0.62 and hit_x < -0.50, "corridor west wall face sits at the canted profile (x=%.3f)" % hit_x)
+		_check((wall_hit["normal"] as Vector3).dot(Vector3.RIGHT) > 0.9, "corridor west wall faces into the corridor")
 
 
 func _test_surface_materials() -> void:
@@ -174,11 +192,15 @@ func _test_surface_materials() -> void:
 
 
 func _ray_hits(from: Vector3, to: Vector3) -> bool:
+	return not _ray_result(from, to).is_empty()
+
+
+func _ray_result(from: Vector3, to: Vector3) -> Dictionary:
 	var params: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(from, to)
 	params.collide_with_areas = false
 	params.collide_with_bodies = true
 	var space_state: PhysicsDirectSpaceState3D = root.world_3d.direct_space_state
-	return not space_state.intersect_ray(params).is_empty()
+	return space_state.intersect_ray(params)
 
 
 func _find_root_child(node_name: StringName) -> Node:

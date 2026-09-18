@@ -29,6 +29,13 @@ Start a **fresh save** — the hull changed a lot.
 The airlock is through the storage hold (west wall). Suit locker inside; the control panel
 cycles the lock. Outside: tether (T), boots (Q), flashlight (F), look before you leap.
 
+## Hotfix (same day)
+- Fixed: the generated hull's collision triangles were wound the wrong way for Godot's
+  physics, so the operator stood on the **underside** of floor slabs and movement was
+  blocked. Collision now uses the corrected winding, and the layout test asserts the
+  position and facing of floor, ceiling and wall surfaces instead of just "something
+  was hit". Re-download the exe if you grabbed the first upload.
+
 ## Known gaps (honest list)
 - Exterior lighting is dark and flat; the look pass is scheduled after the feature milestones.
 - The roof ramp is steeper than it should be, and the aft deck's support is a plain block.
