@@ -1,0 +1,26 @@
+# Godot
+game/.godot/
+game/android/
+*.translation
+
+# Godot exports
+game/export/
+game/builds/
+export_presets.cfg
+
+# Local engine binaries
+Engine/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/
+.idea/
+
+# Vendored tooling
+tools/godot-mcp/
+
+# Temp
+*.tmp
+*.log
