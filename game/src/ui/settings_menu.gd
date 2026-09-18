@@ -26,6 +26,8 @@ func _ready() -> void:
 	_connect_settings()
 	visible = false
 	_refresh_labels()
+	_apply_ui_scale()
+	UiScale.connect_settings(self, _on_ui_scale_changed)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -84,6 +86,16 @@ func _connect_settings() -> void:
 
 func _on_settings_changed(_key: StringName, _value: Variant) -> void:
 	_refresh_labels()
+
+
+func _apply_ui_scale() -> void:
+	if _menu != null:
+		_menu._apply_ui_scale()
+
+
+func _on_ui_scale_changed(key: StringName, _value: Variant) -> void:
+	if key == &"ui_scale":
+		_apply_ui_scale()
 
 
 func _on_option_selected(index: int) -> void:

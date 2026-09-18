@@ -8,6 +8,7 @@ const CROUCH_HEAD_Y: float = 1.0
 const BOOTS_LOST_GRACE: float = 0.15
 const NORMAL_EPSILON: float = 0.000001
 const BASE_MOUSE_SENSITIVITY: float = 0.002
+const STRIDE_LENGTH_M: float = 1.2
 
 @export var walk_speed: float = 3.0
 @export var crouch_speed: float = 1.5
@@ -32,6 +33,8 @@ var _boots_lost_time: float = 0.0
 var _crouched: bool = false
 var _pitch: float = 0.0
 var _invert_y: bool = false
+var _step_distance: float = 0.0
+var _step_index: int = 0
 
 
 func _ready() -> void:
@@ -53,6 +56,8 @@ func _physics_process(delta: float) -> void:
 	else:
 		_process_free(delta)
 	move_and_slide()
+	if _boots_engaged and is_on_floor():
+		advance_footsteps(get_planar_speed() * delta)
 
 
 func is_boots_engaged() -> bool:
@@ -61,6 +66,28 @@ func is_boots_engaged() -> bool:
 
 func is_invert_y() -> bool:
 	return _invert_y
+
+
+func advance_footsteps(distance_m: float) -> int:
+	if not is_finite(distance_m) or distance_m <= 0.0:
+		return 0
+	_step_distance += distance_m
+	var steps: int = 0
+	while _step_distance >= STRIDE_LENGTH_M:
+		_step_distance -= STRIDE_LENGTH_M
+		_emit_sim_event(&"footstep", {"variant": _step_index % 3})
+		_step_index += 1
+		steps += 1
+	return steps
+
+
+func get_step_count() -> int:
+	return _step_index
+
+
+func get_planar_speed() -> float:
+	var vertical_speed: float = velocity.dot(up_direction)
+	return (velocity - up_direction * vertical_speed).length()
 
 
 func engage_boots() -> bool:
@@ -243,3 +270,22 @@ func _try_interact() -> void:
 	var collider: Object = _interact_ray.get_collider()
 	if collider != null and collider.has_method(&"interact"):
 		collider.call(&"interact", self)
+
+
+func _emit_sim_event(event_name: StringName, payload: Dictionary = {}) -> void:
+	var event_bus: Node = _get_autoload(&"EventBus")
+	if event_bus != null:
+		event_bus.call("emit_event", event_name, payload)
+
+
+func _get_autoload(autoload_name: StringName) -> Node:
+	if is_inside_tree():
+		return get_node_or_null(NodePath("/root/" + String(autoload_name)))
+	var main_loop: MainLoop = Engine.get_main_loop()
+	if main_loop is SceneTree:
+		var scene_root: Window = (main_loop as SceneTree).root
+		if scene_root != null:
+			for child: Node in scene_root.get_children():
+				if child.name == autoload_name:
+					return child
+	return null

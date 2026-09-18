@@ -7,10 +7,9 @@ script = ExtResource("1_page")
 title = "POWER"
 body = "GENERATION is a 500 W RTG. The battery holds 4000 Wh. Circuits are ranked by priority; when demand exceeds supply the ship sheds the least critical circuit first.
 
-PRIORITY ORDER
-  0  LIFE SUPPORT   (never shed)
-  1  SCRUBBER
-  2  LIGHTING
+PRIORITY ORDER (least critical sheds first)
+  LIFE SUPPORT is never shed
+  LIGHTING sheds before the SCRUBBER
 
 BROWNOUT. If the battery empties, everything except priority 0 drops. Take non-essential circuits offline at the breaker panel before that happens.
 

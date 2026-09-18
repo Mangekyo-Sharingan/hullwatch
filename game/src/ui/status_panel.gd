@@ -3,6 +3,7 @@ class_name StatusPanel
 extends Interactable
 
 const REFRESH_SECONDS: float = 0.25
+const BASE_FONT_SIZE: int = 18
 
 @export var compartment_id: StringName = &"main"
 
@@ -10,6 +11,11 @@ var _open: bool = false
 var _ui: CanvasLayer
 var _label: Label
 var _refresh_accumulator: float = 0.0
+
+
+func _ready() -> void:
+	_apply_ui_scale()
+	UiScale.connect_settings(self, _on_ui_scale_changed)
 
 
 func get_interaction_prompt() -> String:
@@ -36,6 +42,12 @@ func _handle_interact(_player: Node) -> void:
 
 func is_open() -> bool:
 	return _open
+
+
+func get_content_font_size() -> int:
+	if _label == null:
+		return 0
+	return _label.get_theme_font_size(&"font_size")
 
 
 func build_readout() -> PackedStringArray:
@@ -223,8 +235,18 @@ func _ensure_ui() -> void:
 	panel.add_theme_stylebox_override("panel", style)
 	layer.add_child(panel)
 	_label = Label.new()
-	_label.add_theme_font_size_override("font_size", 18)
+	_label.add_theme_font_size_override("font_size", UiScale.size(self, BASE_FONT_SIZE))
 	_label.add_theme_color_override("font_color", Color(0.55, 0.78, 0.72, 1.0))
 	panel.add_child(_label)
 	layer.visible = false
 	_ui = layer
+
+
+func _apply_ui_scale() -> void:
+	if _label != null:
+		_label.add_theme_font_size_override("font_size", UiScale.size(self, BASE_FONT_SIZE))
+
+
+func _on_ui_scale_changed(key: StringName, _value: Variant) -> void:
+	if key == &"ui_scale":
+		_apply_ui_scale()

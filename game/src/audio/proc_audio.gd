@@ -128,6 +128,49 @@ static func make_drone(seconds: float = 2.0) -> AudioStreamWAV:
 	return _to_wav(_crossfade_loop(samples, _LOOP_CROSSFADE_SECONDS), true)
 
 
+static func make_footstep(variant: int = 0) -> AudioStreamWAV:
+	var index: int = clampi(variant, 0, 2)
+	var sample_count: int = _sample_count(0.12 + 0.02 * float(index))
+	var rng := RandomNumberGenerator.new()
+	rng.seed = _RNG_SEED + 10 + index
+	var samples := PackedFloat32Array()
+	samples.resize(sample_count)
+	var body_freq: float = _snap_freq(86.0 + 15.0 * float(index), sample_count)
+	var ring_freq: float = _snap_freq(196.0 + 24.0 * float(index), sample_count)
+	var body_decay: float = 26.0 - 4.0 * float(index)
+	for i: int in sample_count:
+		var t: float = float(i) / float(MIX_RATE)
+		var progress: float = float(i) / float(maxi(sample_count - 1, 1))
+		var body: float = sin(TAU * body_freq * t) * exp(-progress * body_decay)
+		var ring: float = sin(TAU * ring_freq * t) * exp(-progress * body_decay * 1.8)
+		var transient: float = rng.randf_range(-1.0, 1.0) * exp(-progress * 60.0)
+		samples[i] = body * 0.62 + ring * 0.26 + transient * 0.28
+	return _to_wav(samples, false)
+
+
+static func make_breath_loop(seconds: float = 3.2) -> AudioStreamWAV:
+	var total: int = _sample_count(seconds) + _crossfade_samples(seconds)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = _RNG_SEED + 5
+	var samples := PackedFloat32Array()
+	samples.resize(total)
+	var duration: float = float(total) / float(MIX_RATE)
+	var low: float = 0.0
+	var band: float = 0.0
+	for i: int in total:
+		var t: float = float(i) / float(MIX_RATE)
+		var phase: float = t / duration
+		var white: float = rng.randf_range(-1.0, 1.0)
+		low = lerpf(low, white, 0.05)
+		band = lerpf(band, white, 0.30)
+		var breath_noise: float = 0.7 * low + 0.45 * (band - low)
+		var inhale: float = sin(PI * clampf(phase / 0.5, 0.0, 1.0))
+		var exhale: float = sin(PI * clampf((phase - 0.5) / 0.5, 0.0, 1.0))
+		var envelope: float = maxf(inhale * 0.7, exhale)
+		samples[i] = breath_noise * envelope * 0.55
+	return _to_wav(_crossfade_loop(samples, _LOOP_CROSSFADE_SECONDS), true)
+
+
 static func _to_wav(samples: PackedFloat32Array, loop: bool) -> AudioStreamWAV:
 	var bytes := PackedByteArray()
 	bytes.resize(samples.size() * 2)

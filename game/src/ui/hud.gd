@@ -3,11 +3,14 @@ extends CanvasLayer
 
 const PLAYER_GROUP: StringName = &"player"
 const INTERACT_RAY_PATH: NodePath = ^"Head/Camera3D/InteractRay"
+const BASE_FONT_SIZE: int = 18
 
 
 func _ready() -> void:
 	layer = 5
 	_build_ui()
+	_apply_ui_scale()
+	UiScale.connect_settings(self, _on_ui_scale_changed)
 
 
 func _process(_delta: float) -> void:
@@ -26,6 +29,12 @@ func get_prompt_text() -> String:
 	if _prompt == null:
 		return ""
 	return _prompt.text
+
+
+func get_prompt_font_size() -> int:
+	if _prompt == null:
+		return 0
+	return _prompt.get_theme_font_size(&"font_size")
 
 
 var _crosshair: Control
@@ -59,9 +68,19 @@ func _build_ui() -> void:
 	_prompt.offset_top = -96.0
 	_prompt.offset_bottom = -62.0
 	_prompt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_prompt.add_theme_font_size_override("font_size", 18)
+	_prompt.add_theme_font_size_override("font_size", UiScale.size(self, BASE_FONT_SIZE))
 	_prompt.add_theme_color_override("font_color", Color(0.85, 0.9, 0.86, 1.0))
 	_prompt.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 1.0))
 	_prompt.add_theme_constant_override("outline_size", 4)
 	_prompt.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_prompt)
+
+
+func _apply_ui_scale() -> void:
+	if _prompt != null:
+		_prompt.add_theme_font_size_override("font_size", UiScale.size(self, BASE_FONT_SIZE))
+
+
+func _on_ui_scale_changed(key: StringName, _value: Variant) -> void:
+	if key == &"ui_scale":
+		_apply_ui_scale()

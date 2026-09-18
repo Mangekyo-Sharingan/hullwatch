@@ -1,6 +1,8 @@
 ## Calm leg-completion overlay. Shows when the nav system reports the final waypoint reached.
 extends CanvasLayer
 
+const BASE_FONT_SIZE: int = 30
+
 var _fade: ColorRect
 var _label: Label
 var _visible: bool = false
@@ -10,6 +12,8 @@ var _text: String = ""
 func _ready() -> void:
 	layer = 18
 	_build_ui()
+	_apply_ui_scale()
+	UiScale.connect_settings(self, _on_ui_scale_changed)
 	var event_bus: Node = get_node_or_null(^"/root/EventBus")
 	if event_bus != null:
 		event_bus.connect(&"sim_event", _on_sim_event)
@@ -64,7 +68,17 @@ func _build_ui() -> void:
 	_label.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_label.add_theme_font_size_override("font_size", 30)
+	_label.add_theme_font_size_override("font_size", UiScale.size(self, BASE_FONT_SIZE))
 	_label.add_theme_color_override("font_color", Color(0.72, 0.78, 0.72, 1.0))
 	_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_label)
+
+
+func _apply_ui_scale() -> void:
+	if _label != null:
+		_label.add_theme_font_size_override("font_size", UiScale.size(self, BASE_FONT_SIZE))
+
+
+func _on_ui_scale_changed(key: StringName, _value: Variant) -> void:
+	if key == &"ui_scale":
+		_apply_ui_scale()

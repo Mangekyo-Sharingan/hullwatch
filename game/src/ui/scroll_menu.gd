@@ -10,6 +10,9 @@ const HINT_TEXT: String = "WHEEL: BROWSE    WHEEL CLICK: SELECT"
 const COLOR_HIGHLIGHT: Color = Color(1.0, 0.85, 0.55, 1.0)
 const COLOR_NORMAL: Color = Color(0.72, 0.76, 0.7, 1.0)
 const COLOR_SELECTED: Color = Color(0.55, 0.78, 0.72, 1.0)
+const BASE_TITLE_FONT_SIZE: int = 16
+const BASE_HINT_FONT_SIZE: int = 11
+const BASE_ROW_FONT_SIZE: int = 14
 
 var _items: PackedStringArray = PackedStringArray()
 var _index: int = 0
@@ -36,7 +39,7 @@ func _ready() -> void:
 	add_child(column)
 	_title_label = Label.new()
 	_title_label.name = "MenuTitle"
-	_title_label.add_theme_font_size_override("font_size", 16)
+	_title_label.add_theme_font_size_override("font_size", UiScale.size(self, BASE_TITLE_FONT_SIZE))
 	_title_label.add_theme_color_override("font_color", Color(0.85, 0.8, 0.6, 1.0))
 	column.add_child(_title_label)
 	_list = VBoxContainer.new()
@@ -46,10 +49,12 @@ func _ready() -> void:
 	_hint_label = Label.new()
 	_hint_label.name = "Hint"
 	_hint_label.text = HINT_TEXT
-	_hint_label.add_theme_font_size_override("font_size", 11)
+	_hint_label.add_theme_font_size_override("font_size", UiScale.size(self, BASE_HINT_FONT_SIZE))
 	_hint_label.add_theme_color_override("font_color", Color(0.55, 0.6, 0.55, 1.0))
 	column.add_child(_hint_label)
 	visible = false
+	_apply_ui_scale()
+	UiScale.connect_settings(self, _on_ui_scale_changed)
 
 
 func setup(title: String, items: PackedStringArray, wrap: bool = true) -> void:
@@ -94,6 +99,12 @@ func get_highlighted_index() -> int:
 
 func get_selected_index() -> int:
 	return _selected
+
+
+func get_row_font_size() -> int:
+	if _rows.is_empty():
+		return UiScale.size(self, BASE_ROW_FONT_SIZE)
+	return _rows[0].get_theme_font_size(&"font_size")
 
 
 func get_highlighted_text() -> String:
@@ -156,7 +167,7 @@ func _rebuild_rows() -> void:
 	for item: String in _items:
 		var row := Label.new()
 		row.name = "Option%d" % _rows.size()
-		row.add_theme_font_size_override("font_size", 14)
+		row.add_theme_font_size_override("font_size", UiScale.size(self, BASE_ROW_FONT_SIZE))
 		_list.add_child(row)
 		_rows.append(row)
 	_refresh_rows()
@@ -174,3 +185,18 @@ func _refresh_rows() -> void:
 			row.add_theme_color_override("font_color", COLOR_HIGHLIGHT)
 		else:
 			row.add_theme_color_override("font_color", COLOR_NORMAL)
+
+
+func _apply_ui_scale() -> void:
+	if _title_label != null:
+		_title_label.add_theme_font_size_override("font_size", UiScale.size(self, BASE_TITLE_FONT_SIZE))
+	if _hint_label != null:
+		_hint_label.add_theme_font_size_override("font_size", UiScale.size(self, BASE_HINT_FONT_SIZE))
+	for row: Label in _rows:
+		if row != null:
+			row.add_theme_font_size_override("font_size", UiScale.size(self, BASE_ROW_FONT_SIZE))
+
+
+func _on_ui_scale_changed(key: StringName, _value: Variant) -> void:
+	if key == &"ui_scale":
+		_apply_ui_scale()

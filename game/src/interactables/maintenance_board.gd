@@ -3,6 +3,7 @@ class_name MaintenanceBoard
 extends Interactable
 
 const MAX_ENTRIES: int = 24
+const BASE_FONT_SIZE: int = 14
 const WATCHED: Array[StringName] = [
 	&"component_failed",
 	&"component_repaired",
@@ -24,6 +25,8 @@ var _label: Label
 
 
 func _ready() -> void:
+	_apply_ui_scale()
+	UiScale.connect_settings(self, _on_ui_scale_changed)
 	var event_bus: Node = _get_autoload(&"EventBus")
 	if event_bus != null:
 		event_bus.connect(&"sim_event", _on_sim_event)
@@ -95,6 +98,16 @@ func _refresh() -> void:
 		_label.text = "\n".join(build_readout())
 
 
+func _apply_ui_scale() -> void:
+	if _label != null:
+		_label.add_theme_font_size_override("font_size", UiScale.size(self, BASE_FONT_SIZE))
+
+
+func _on_ui_scale_changed(key: StringName, _value: Variant) -> void:
+	if key == &"ui_scale":
+		_apply_ui_scale()
+
+
 func _ensure_ui() -> void:
 	if _ui != null:
 		return
@@ -117,7 +130,7 @@ func _ensure_ui() -> void:
 	panel.add_theme_stylebox_override("panel", style)
 	layer.add_child(panel)
 	_label = Label.new()
-	_label.add_theme_font_size_override("font_size", 14)
+	_label.add_theme_font_size_override("font_size", UiScale.size(self, BASE_FONT_SIZE))
 	_label.add_theme_color_override("font_color", Color(0.85, 0.8, 0.6, 1.0))
 	panel.add_child(_label)
 	layer.visible = false

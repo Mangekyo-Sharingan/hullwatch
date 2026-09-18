@@ -2,11 +2,18 @@
 class_name ManualBinder
 extends Interactable
 
+const BASE_FONT_SIZE: int = 15
+
 @export var book: ManualBook
 
 var _menu: ScrollMenu
 var _content: Label
 var _root: HBoxContainer
+
+
+func _ready() -> void:
+	_apply_ui_scale()
+	UiScale.connect_settings(self, _on_ui_scale_changed)
 
 
 func get_interaction_prompt() -> String:
@@ -91,6 +98,18 @@ func _refresh_content() -> void:
 		_content.text = "\n".join(build_readout())
 
 
+func _apply_ui_scale() -> void:
+	if _content != null:
+		_content.add_theme_font_size_override("font_size", UiScale.size(self, BASE_FONT_SIZE))
+	if _menu != null:
+		_menu._apply_ui_scale()
+
+
+func _on_ui_scale_changed(key: StringName, _value: Variant) -> void:
+	if key == &"ui_scale":
+		_apply_ui_scale()
+
+
 func _ensure_ui() -> void:
 	if _root != null:
 		return
@@ -124,7 +143,7 @@ func _ensure_ui() -> void:
 	row.add_child(content_panel)
 	_content = Label.new()
 	_content.name = "PageContent"
-	_content.add_theme_font_size_override("font_size", 15)
+	_content.add_theme_font_size_override("font_size", UiScale.size(self, BASE_FONT_SIZE))
 	_content.add_theme_color_override("font_color", Color(0.88, 0.83, 0.68, 1.0))
 	content_panel.add_child(_content)
 	_root = row

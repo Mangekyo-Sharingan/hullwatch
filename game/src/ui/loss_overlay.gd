@@ -4,6 +4,7 @@ extends CanvasLayer
 
 const VITALS_GROUP: StringName = &"vitals_system"
 const UNKNOWN_CAUSE: String = "UNKNOWN"
+const BASE_FONT_SIZE: int = 30
 
 var _label: Label
 var _cause: StringName = &""
@@ -14,6 +15,8 @@ var _shown: bool = false
 func _ready() -> void:
 	layer = 18
 	_build_ui()
+	_apply_ui_scale()
+	UiScale.connect_settings(self, _on_ui_scale_changed)
 	_connect_event_bus()
 
 
@@ -86,10 +89,20 @@ func _build_ui() -> void:
 	_label.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_label.add_theme_font_size_override("font_size", 30)
+	_label.add_theme_font_size_override("font_size", UiScale.size(self, BASE_FONT_SIZE))
 	_label.add_theme_color_override("font_color", Color(0.78, 0.82, 0.8, 1.0))
 	_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_label)
+
+
+func _apply_ui_scale() -> void:
+	if _label != null:
+		_label.add_theme_font_size_override("font_size", UiScale.size(self, BASE_FONT_SIZE))
+
+
+func _on_ui_scale_changed(key: StringName, _value: Variant) -> void:
+	if key == &"ui_scale":
+		_apply_ui_scale()
 
 
 func _connect_event_bus() -> void:
