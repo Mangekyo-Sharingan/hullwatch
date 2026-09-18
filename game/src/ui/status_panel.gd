@@ -121,21 +121,37 @@ func _water_lines() -> PackedStringArray:
 func _nav_lines() -> PackedStringArray:
 	var lines: PackedStringArray = PackedStringArray()
 	var nav: Node = _get_system(&"nav_system")
-	if nav == null:
-		return lines
-	var status: Dictionary = nav.call("get_status")
-	if bool(status["arrived"]):
-		lines.append("NAV  ALL LEGS COMPLETE")
-		return lines
-	var plotted: String = "NONE"
-	if StringName(status["plotted_waypoint"]) != &"":
-		plotted = String(status["plotted_waypoint"]).to_upper()
-	lines.append("NAV  LEG %d  NEXT %s" % [int(status["current_leg"]) + 1, String(status["current_waypoint"]).to_upper()])
-	lines.append("  FUEL %d KG  PLOTTED %s  DRIFT %d%%" % [
-		int(roundf(float(status["fuel_mass_kg"]))),
-		plotted,
-		int(roundf(float(status["course_error"]) * 100.0)),
-	])
+	if nav != null:
+		var status: Dictionary = nav.call("get_status")
+		if bool(status["arrived"]):
+			lines.append("NAV  ALL LEGS COMPLETE")
+		else:
+			var plotted: String = "NONE"
+			if StringName(status["plotted_waypoint"]) != &"":
+				plotted = String(status["plotted_waypoint"]).to_upper()
+			lines.append("NAV  LEG %d  NEXT %s" % [int(status["current_leg"]) + 1, String(status["current_waypoint"]).to_upper()])
+			lines.append("  FUEL %d KG  PLOTTED %s  DRIFT %d%%" % [
+				int(roundf(float(status["fuel_mass_kg"]))),
+				plotted,
+				int(roundf(float(status["course_error"]) * 100.0)),
+			])
+	var sector: Node = _get_system(&"sector_system")
+	if sector != null and sector.has_method(&"get_contacts"):
+		var contacts: Array = sector.call("get_contacts")
+		if contacts.is_empty():
+			lines.append("  CONTACTS NONE IN RANGE")
+		else:
+			lines.append("  CONTACTS %d  NEAREST %d M" % [
+				contacts.size(),
+				int(roundf(float((contacts[0] as Dictionary).get("distance_m", 0.0)))),
+			])
+			for i: int in mini(contacts.size(), 3):
+				var contact: Dictionary = contacts[i]
+				lines.append("    %s  %s  %d M" % [
+					String(contact.get("kind", "")).to_upper(),
+					String(contact.get("id", "")),
+					int(roundf(float(contact.get("distance_m", 0.0)))),
+				])
 	return lines
 
 

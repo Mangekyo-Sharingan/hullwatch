@@ -18,6 +18,7 @@ const EVENT_CUES: Dictionary = {
 	&"probe_diagnosis": &"beep",
 	&"diagnosis_clear": &"beep",
 	&"message_received": &"beep",
+	&"scanner_ping": &"beep",
 	&"sleep_started": &"drone",
 	&"slept": &"thunk",
 	&"footstep": &"footstep",

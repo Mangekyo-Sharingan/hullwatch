@@ -224,6 +224,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			drop_carried()
 	elif event.is_action_pressed(&"flashlight"):
 		_flashlight.visible = not _flashlight.visible
+	elif event.is_action_pressed(&"primary"):
+		_scan_ping()
 	elif event.is_action_pressed(&"toggle_tether"):
 		_toggle_tether()
 
@@ -298,6 +300,26 @@ func _apply_tether() -> void:
 	var outward_speed: float = velocity.dot(-direction_out)
 	if outward_speed > 0.0:
 		velocity += direction_out * outward_speed
+
+
+func _scan_ping() -> void:
+	if get_carried_item_id() != &"scanner":
+		return
+	var tree: SceneTree = get_tree()
+	if tree == null:
+		return
+	var sector: Node = tree.get_first_node_in_group(&"sector_system")
+	if sector == null or not sector.has_method(&"get_nearest_contact"):
+		return
+	var contact: Dictionary = sector.call("get_nearest_contact")
+	if contact.is_empty():
+		_emit_sim_event(&"scanner_ping", {"distance_m": -1.0, "kind": &""})
+		return
+	_emit_sim_event(&"scanner_ping", {
+		"distance_m": float(contact.get("distance_m", 0.0)),
+		"kind": contact.get("kind", &""),
+		"id": contact.get("id", ""),
+	})
 
 
 func _apply_settings() -> void:

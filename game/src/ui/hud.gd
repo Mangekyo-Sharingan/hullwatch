@@ -116,9 +116,18 @@ func _message_for(event_name: StringName, payload: Dictionary) -> String:
 			return "COMPONENT FAILED: %s" % String(payload.get("component_id", &"")).to_upper()
 		&"message_received":
 			return "NEW TRAFFIC: %s" % String(payload.get("sender", "")).to_upper()
+		&"scanner_ping":
+			return _scanner_ping_text(payload)
 		&"procedure_error":
 			return _procedure_error_text(StringName(payload.get("reason", &"")))
 	return ""
+
+
+func _scanner_ping_text(payload: Dictionary) -> String:
+	var kind: String = String(payload.get("kind", ""))
+	if kind.is_empty():
+		return "PING: NO CONTACTS IN RANGE"
+	return "PING: %s  %.0f m" % [kind.to_upper(), float(payload.get("distance_m", 0.0))]
 
 
 func _system_label(payload: Dictionary) -> String:

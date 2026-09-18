@@ -76,6 +76,14 @@ func get_chunk_size() -> float:
 	return CHUNK_SIZE_M
 
 
+## Nearest active contact, or an empty dictionary when nothing is in range.
+func get_nearest_contact() -> Dictionary:
+	var contacts: Array[Dictionary] = get_contacts()
+	if contacts.is_empty():
+		return {}
+	return contacts[0]
+
+
 ## Deterministic integer hash of chunk coordinates + the field seed.
 func chunk_hash(cx: int, cy: int, cz: int) -> int:
 	var h: int = field_seed
