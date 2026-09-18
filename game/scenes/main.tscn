@@ -51,6 +51,7 @@
 [ext_resource type="Resource" path="res://src/data/atmosphere/compartment_airlock.tres" id="69_compartment_airlock"]
 [ext_resource type="Script" path="res://src/systems/airlock.gd" id="70_airlock"]
 [ext_resource type="Shader" path="res://src/shaders/space_sky.gdshader" id="71_space_sky"]
+[ext_resource type="Script" path="res://src/systems/sector.gd" id="72_sector"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_sky"]
 shader = ExtResource("71_space_sky")
@@ -219,6 +220,9 @@ messages = Array[ExtResource("61_comms_message")]([ExtResource("62_msg_ack"), Ex
 
 [node name="AirlockSystem" type="Node" parent="Systems"]
 script = ExtResource("70_airlock")
+
+[node name="SectorSystem" type="Node" parent="Systems"]
+script = ExtResource("72_sector")
 
 [node name="UI" type="Node" parent="."]
 

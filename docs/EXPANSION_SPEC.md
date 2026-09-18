@@ -114,6 +114,16 @@ are met. No feature lands without a test that fails without it.
 **Status:** all M7 sub-steps landed (M7.1–M7.7). The exterior is reachable, the lock cycles,
 the suit and tether protect the walker, and the deep field / destinations start at M8.
 
+### M8 sub-steps (deep field)
+
+| Sub-step | Deliverable | Exit criteria |
+|---|---|---|
+| **M8.1 — Sector field sim** | `SectorSystem`: seeded chunk corridor along the drift axis (~2% content), asteroid/debris/anomaly data objects, active stream list, contacts with enter/leave events, save/load | Same seed → identical field; density within 1–3% over 7 days; active set bounded; save/load reproduces it; `test_sector` green |
+| **M8.2 — Scene streaming** | `FieldStreamer` binds visuals + collision to active objects (faceted asteroid meshes, anomaly placeholders), spawn/despawn leak-free, profiler budget | Objects appear/leave as the ship drifts; node count bounded; scene profiler holds |
+| **M8.3 — Detection** | Nav console `CONTACTS` list (range/bearing/kind), handheld scanner ping (HUD toast + nearest contact) | Contacts listed sorted by range; ping works from EVA; tests |
+| **M8.4 — Close approach** | Hybrid traversal: manual approach burn in the nav console toward a contact (fuel + time), hold at standoff distance | Approach closes range, costs fuel, clamps at standoff, refuses without fuel; tests |
+| **M8.5 — Verification** | 7-day end-to-end scenario, EVA reachability from standoff, captures, docs | Loop passes headless; docs/captures updated |
+
 ## Test strategy
 
 - M7: airlock cycle state machine, vacuum exposure → vitals, tether constraint, exterior
