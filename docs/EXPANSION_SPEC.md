@@ -111,6 +111,9 @@ are met. No feature lands without a test that fails without it.
 | **M7.6 — Tether & HUD** | `toggle_tether` action; `TetherAnchor`/`TetherZone` auto-clip; player constraint + release/re-clip; HUD EVA readout (suit O2, tether distance, airlock state); toast reasons; manual EVA page | Tether clamp/release/auto-clip tested; HUD states tested; EVA round trip playable |
 | **M7.7 — Verification** | `test_eva_flow.gd` end-to-end; scene save/load incl. airlock + suit; captures 11–13 for docs; AGENTS/brain updates | Full loop passes headless; save/load round-trips; captures reviewed |
 
+**Status:** all M7 sub-steps landed (M7.1–M7.7). The exterior is reachable, the lock cycles,
+the suit and tether protect the walker, and the deep field / destinations start at M8.
+
 ## Test strategy
 
 - M7: airlock cycle state machine, vacuum exposure → vitals, tether constraint, exterior

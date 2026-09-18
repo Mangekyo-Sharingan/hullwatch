@@ -46,6 +46,7 @@ First-Person, Management, Realistic
 
 ## Assets on hand
 - `docs/store/screenshot_01..10.png` — real in-game captures (quarters, corridor, life support, cockpit, storage, corridor south, comms terminal, status panel, probe feedback, manual open)
+- `docs/store/screenshot_11..13.png` — exterior captures (EVA platform, hull deck, aft ramp)
 - `docs/store/capsule_main_1232x706.png`
 - `docs/store/capsule_small_616x353.png`
 - `docs/store/capsule_header_460x215.png`
