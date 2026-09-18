@@ -124,7 +124,7 @@ the suit and tether protect the walker, and the deep field / destinations start 
 | **M8.4 — Close approach** | Hybrid traversal: manual approach burn in the nav console toward a contact (fuel + time), hold at standoff distance | Approach closes range, costs fuel, clamps at standoff, refuses without fuel; tests |
 | **M8.5 — Verification** | 7-day end-to-end scenario, EVA reachability from standoff, captures, docs | Loop passes headless; docs/captures updated |
 
-**Status:** M8.1 (sector sim), M8.2 (field streamer) and M8.3 (detection: status-panel contact list + scanner ping) landed; M8.4 close approach next.
+**Status:** **M8 complete (M8.1–M8.5).** Verification lives in `test_approach` (seven days of drift → contact → fuel-gated approach → standoff hold with drift stopped → resume → refusal without fuel → mid-hold save/load) plus `test_sector`, `test_field_streamer` and `test_detection`. Scene captures of field objects are deferred to the next playtest build (objects need game-hours of drift to come into view). M9 materials & fabrication is next.
 
 ## Test strategy
 
