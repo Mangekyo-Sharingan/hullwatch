@@ -9,7 +9,7 @@ Guide for AI coding agents working in this repository. Read this first, then `do
 - Repo root: `E:\Projekt\Misc\OperationSpacer`
 - Godot project root: `game/`
 - Production spec: `docs/PRODUCTION_SPEC.md` (authoritative for design intent)
-- Status: **M4 alpha — content-complete small ship** (playtest still pending). 5 modules + corridors (habitat, cockpit, engine bay, water closet, storage) with 6 atmosphere compartments, doors + isolation, water/reclamation system, 5 procedures (filter swap, breaker, sealant patch, reclaimer service, O2 candle), win-state overlay on final waypoint
+- Status: **M5 beta** (playtest still pending). M4 content-complete small ship + settings/accessibility menu (persisted ConfigFile), save migration v1→v2 (`SAVE_VERSION = 2`, `meta.play_hours`), localization prep (`tools/extract_strings.gd` → `assets/locale/strings.csv`, 44 strings; see `docs/LOCALIZATION.md`)
 - Asset shortlist for the M3 art pass: `docs/ASSET_SOURCES.md` — acquire at M3, not before
 
 ## Tech Stack
@@ -62,7 +62,13 @@ Run from repo root. The engine binary is local, so no PATH setup is needed.
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_ship_layout.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_door.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_m4_extras.gd
+& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_settings.gd
+& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_save_migration.gd
+& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_localization.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_scene_loop.gd
+
+# Regenerate the localization string table after changing user-facing UI strings
+& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tools/extract_strings.gd
 
 # Refresh the global class cache after adding new `class_name` scripts (needed before --script test runs)
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --import

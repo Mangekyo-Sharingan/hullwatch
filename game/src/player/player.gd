@@ -7,6 +7,7 @@ const STAND_HEAD_Y: float = 1.6
 const CROUCH_HEAD_Y: float = 1.0
 const BOOTS_LOST_GRACE: float = 0.15
 const NORMAL_EPSILON: float = 0.000001
+const BASE_MOUSE_SENSITIVITY: float = 0.002
 
 @export var walk_speed: float = 3.0
 @export var crouch_speed: float = 1.5
@@ -17,7 +18,7 @@ const NORMAL_EPSILON: float = 0.000001
 @export var push_off_speed: float = 1.6
 @export var thruster_accel: float = 1.2
 @export var free_damping: float = 0.05
-@export var mouse_sensitivity: float = 0.002
+@export var mouse_sensitivity: float = BASE_MOUSE_SENSITIVITY
 @export var pitch_limit_deg: float = 89.0
 
 @onready var _head: Node3D = $Head
@@ -30,6 +31,7 @@ var _boots_engaged: bool = true
 var _boots_lost_time: float = 0.0
 var _crouched: bool = false
 var _pitch: float = 0.0
+var _invert_y: bool = false
 
 
 func _ready() -> void:
@@ -39,6 +41,7 @@ func _ready() -> void:
 	up_direction = Vector3.UP
 	motion_mode = CharacterBody3D.MOTION_MODE_GROUNDED
 	add_to_group(&"player")
+	_apply_settings()
 	if DisplayServer.get_name() != "headless":
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
@@ -54,6 +57,10 @@ func _physics_process(delta: float) -> void:
 
 func is_boots_engaged() -> bool:
 	return _boots_engaged
+
+
+func is_invert_y() -> bool:
+	return _invert_y
 
 
 func engage_boots() -> bool:
@@ -96,7 +103,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		var motion: InputEventMouseMotion = event as InputEventMouseMotion
 		rotate_object_local(Vector3.UP, -motion.relative.x * mouse_sensitivity)
 		var pitch_limit: float = deg_to_rad(pitch_limit_deg)
-		_pitch = clampf(_pitch - motion.relative.y * mouse_sensitivity, -pitch_limit, pitch_limit)
+		var direction: float = 1.0 if not _invert_y else -1.0
+		_pitch = clampf(_pitch - motion.relative.y * mouse_sensitivity * direction, -pitch_limit, pitch_limit)
 		_head.rotation.x = _pitch
 	elif event.is_action_pressed(&"toggle_boots"):
 		if _boots_engaged:
@@ -112,11 +120,25 @@ func _unhandled_input(event: InputEvent) -> void:
 		_try_interact()
 	elif event.is_action_pressed(&"flashlight"):
 		_flashlight.visible = not _flashlight.visible
-	elif event.is_action_pressed(&"pause") and DisplayServer.get_name() != "headless":
-		if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
-			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-		else:
-			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+
+
+func _apply_settings() -> void:
+	var settings: Node = get_node_or_null(^"/root/GameSettings")
+	if settings == null or not settings.has_method(&"get_value"):
+		return
+	mouse_sensitivity = BASE_MOUSE_SENSITIVITY * float(
+		settings.call(&"get_value", &"mouse_sensitivity_multiplier")
+	)
+	_invert_y = bool(settings.call(&"get_value", &"invert_y"))
+	if settings.has_signal(&"settings_changed") and not settings.is_connected(&"settings_changed", _on_setting_changed):
+		settings.connect(&"settings_changed", _on_setting_changed)
+
+
+func _on_setting_changed(key: StringName, value: Variant) -> void:
+	if key == &"mouse_sensitivity_multiplier":
+		mouse_sensitivity = BASE_MOUSE_SENSITIVITY * float(value)
+	elif key == &"invert_y":
+		_invert_y = bool(value)
 
 
 func _process_engaged(delta: float) -> void:

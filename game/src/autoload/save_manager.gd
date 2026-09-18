@@ -2,12 +2,13 @@
 ## Autoload name: SaveManager. No class_name on purpose — it would conflict with the autoload.
 extends Node
 
-const SAVE_VERSION: int = 1
+const SAVE_VERSION: int = 2
 const SAVE_DIR: String = "user://saves"
 const SLOT_COUNT: int = 3
 const SYSTEM_GROUPS: Array[StringName] = [&"power_system", &"atmosphere_system", &"stores_system", &"thermal_system", &"hull_system", &"nav_system", &"vitals_system", &"water_system"]
 
 var _last_error: String = ""
+var _meta: Dictionary = {}
 
 
 func get_last_error() -> String:
@@ -34,7 +35,10 @@ func save_to_dict() -> Dictionary:
 		clock_state = sim_clock.call("save_state")
 	return {
 		"save_version": SAVE_VERSION,
-		"created_unix": int(Time.get_unix_time_from_system()),
+		"meta": {
+			"created_unix": int(Time.get_unix_time_from_system()),
+			"play_hours": float(clock_state.get("sim_seconds", 0.0)) / 3600.0,
+		},
 		"clock": clock_state,
 		"systems": systems,
 		"interactables": interactables,
@@ -48,6 +52,11 @@ func load_from_dict(data: Dictionary) -> bool:
 		_last_error = "save_version_unsupported"
 		return false
 	data = _migrate(data)
+	var meta: Variant = data.get("meta", {})
+	if meta is Dictionary:
+		_meta = meta
+	else:
+		_meta = {}
 	var clock_state: Dictionary = data.get("clock", {})
 	var sim_clock: Node = get_node_or_null(^"/root/SimClock")
 	if sim_clock != null and sim_clock.has_method(&"load_state") and not clock_state.is_empty():
@@ -145,6 +154,18 @@ func _slot_path(slot: int) -> String:
 
 ## Version migration hook: shape changes between versions land here, keyed by source version.
 func _migrate(data: Dictionary) -> Dictionary:
+	var version: int = int(data.get("save_version", 0))
+	if version == 1:
+		var play_hours: float = 0.0
+		var old_clock: Variant = data.get("clock", {})
+		if old_clock is Dictionary:
+			play_hours = float(old_clock.get("sim_seconds", 0.0)) / 3600.0
+		data["meta"] = {
+			"created_unix": int(data.get("created_unix", 0)),
+			"play_hours": play_hours,
+		}
+		data.erase("created_unix")
+		data["save_version"] = 2
 	return data
 
 

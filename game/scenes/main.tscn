@@ -1,4 +1,4 @@
-[gd_scene load_steps=104 format=3]
+[gd_scene load_steps=105 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/player.tscn" id="1_player"]
 [ext_resource type="Script" path="res://src/systems/power.gd" id="2_power"]
@@ -52,6 +52,7 @@
 [ext_resource type="Resource" path="res://src/data/atmosphere/compartment_corridor.tres" id="50_compartment_corridor"]
 [ext_resource type="Resource" path="res://src/data/atmosphere/compartment_engine_bay.tres" id="51_compartment_engine_bay"]
 [ext_resource type="Resource" path="res://src/data/atmosphere/compartment_water_closet.tres" id="52_compartment_water_closet"]
+[ext_resource type="Script" path="res://src/ui/settings_menu.gd" id="53_settings_menu"]
 
 [sub_resource type="Environment" id="Environment_1"]
 background_mode = 1
@@ -577,3 +578,6 @@ script = ExtResource("28_loss_overlay")
 
 [node name="LegCompleteOverlay" type="CanvasLayer" parent="UI"]
 script = ExtResource("48_leg_overlay")
+
+[node name="SettingsMenu" type="CanvasLayer" parent="UI"]
+script = ExtResource("53_settings_menu")

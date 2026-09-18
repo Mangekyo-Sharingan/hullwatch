@@ -22,6 +22,7 @@ SimClock="*res://src/autoload/sim_clock.gd"
 EventBus="*res://src/autoload/event_bus.gd"
 AudioDirector="*res://src/autoload/audio_director.gd"
 SaveManager="*res://src/autoload/save_manager.gd"
+GameSettings="*res://src/autoload/settings.gd"
 
 [debug]
 
@@ -31,6 +32,10 @@ gdscript/warnings/untyped_declaration=1
 
 window/size/viewport_width=1920
 window/size/viewport_height=1080
+
+[internationalization]
+
+locale/translations=PackedStringArray("res://assets/locale/strings.en.translation")
 
 [editor_plugins]
 
@@ -98,3 +103,4 @@ secondary={
 "events": Array[InputEvent]([Object(InputEventMouseButton,"resource_local_to_scene":false,"resource_name":"","device":32,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"button_mask":0,"position":Vector2(0, 0),"global_position":Vector2(0, 0),"factor":1.0,"button_index":2,"canceled":false,"pressed":false,"double_click":false,"script":null)
 ])
 }
+
