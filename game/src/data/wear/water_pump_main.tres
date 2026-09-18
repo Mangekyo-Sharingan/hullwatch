@@ -1,0 +1,40 @@
+[gd_resource type="Resource" script_class="WearComponent" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://src/components/wear_component.gd" id="1"]
+[ext_resource type="Script" path="res://src/components/failure_mode.gd" id="2"]
+
+[sub_resource type="Resource" id="FailureMode_pump_impeller_wear"]
+script = ExtResource("2")
+id = &"pump_impeller_wear"
+display_name = "Impeller Wear"
+base_mtbf_hours = 3000.0
+wear_multiplier = 1.0
+max_condition = 1.0
+environmental_factors = {
+"load": 2.5
+}
+severity = 1
+symptoms = Array[StringName]([&"low_flow", &"pump_groan"])
+
+[sub_resource type="Resource" id="FailureMode_pump_seize"]
+script = ExtResource("2")
+id = &"pump_seize"
+display_name = "Pump Seize"
+base_mtbf_hours = 4200.0
+wear_multiplier = 1.0
+max_condition = 1.0
+environmental_factors = {
+"load": 2.5
+}
+severity = 3
+symptoms = Array[StringName]([&"pump_stopped", &"reclaimer_dry"])]
+
+[resource]
+script = ExtResource("1")
+component_id = &"water_pump_main"
+display_name = "Water Reclaimer Pump"
+condition = 1.0
+hours_operated = 0.0
+wear_rate_per_hour = 0.00015
+load = 1.0
+failure_modes = Array[FailureMode]([SubResource("FailureMode_pump_impeller_wear"), SubResource("FailureMode_pump_seize")])

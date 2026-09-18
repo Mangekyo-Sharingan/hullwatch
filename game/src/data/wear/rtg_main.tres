@@ -11,7 +11,8 @@ base_mtbf_hours = 3200.0
 wear_multiplier = 1.0
 max_condition = 1.0
 environmental_factors = {
-"heat": 3.0
+"heat": 3.0,
+"humidity": 2.0
 }
 severity = 2
 symptoms = Array[StringName]([&"voltage_sag", &"thermal_whine"])
@@ -24,7 +25,8 @@ base_mtbf_hours = 2400.0
 wear_multiplier = 1.0
 max_condition = 1.0
 environmental_factors = {
-"heat": 3.0
+"heat": 3.0,
+"humidity": 2.0
 }
 severity = 3
 symptoms = Array[StringName]([&"no_output", &"cold_casing"])

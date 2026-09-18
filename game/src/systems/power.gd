@@ -25,6 +25,7 @@ var _served_w: float = 0.0
 var _rng: RandomNumberGenerator
 var _condition_bucket: Dictionary = {}
 var _failure_restore: Dictionary = {}
+var _wear_environment: Dictionary = {}
 
 
 func _ready() -> void:
@@ -390,18 +391,23 @@ func load_state(state: Dictionary) -> void:
 	_reapply_failed_effects()
 
 
+func get_wear_environment() -> Dictionary:
+	return _wear_environment
+
+
 func _tick_wear(delta_hours: float) -> void:
-	if wear_components.is_empty():
-		return
-	var environment: Dictionary = {
+	_wear_environment = {
 		"heat": _heat_factor(),
 		"load": _load_factor(),
 		"vibration": 0.0,
+		"humidity": _humidity_factor(),
 	}
+	if wear_components.is_empty():
+		return
 	for component: WearComponent in wear_components:
 		if component == null:
 			continue
-		var failed_mode_id: StringName = component.tick_sim(delta_hours, environment, _wear_rng())
+		var failed_mode_id: StringName = component.tick_sim(delta_hours, _wear_environment, _wear_rng())
 		if failed_mode_id != &"":
 			_apply_failure_effect(component, failed_mode_id)
 			_emit_component_failed(component.component_id, failed_mode_id)
@@ -447,6 +453,23 @@ func _load_factor() -> float:
 	return clampf(_served_w / maxf(get_generation_w(), 1.0), 0.0, 1.0)
 
 
+func _humidity_factor() -> float:
+	var atmosphere: Node = _first_node_in_group(&"atmosphere_system")
+	if atmosphere == null or not atmosphere.has_method(&"get_status"):
+		return 0.0
+	var status: Variant = atmosphere.call("get_status")
+	if not (status is Dictionary):
+		return 0.0
+	var compartments: Variant = (status as Dictionary).get("compartments", {})
+	if not (compartments is Dictionary):
+		return 0.0
+	var highest_fraction: float = 0.0
+	for value: Variant in (compartments as Dictionary).values():
+		if value is Dictionary:
+			highest_fraction = maxf(highest_fraction, float((value as Dictionary).get("humidity_fraction", 0.0)))
+	return clampf(highest_fraction, 0.0, 1.0)
+
+
 func _first_node_in_group(group_name: StringName) -> Node:
 	var tree: SceneTree = get_tree()
 	if tree == null:
@@ -473,6 +496,14 @@ func _apply_failure_effect(component: WearComponent, failure_mode_id: StringName
 			if not _failure_restore.has(component.component_id):
 				_failure_restore[component.component_id] = {"kind": "battery_max_discharge_w", "value": battery_max_discharge_w}
 			battery_max_discharge_w = float(_failure_restore[component.component_id]["value"]) * 0.5
+		&"ballast_open":
+			if not _failure_restore.has(component.component_id):
+				_failure_restore[component.component_id] = {"kind": "load_override", "target": "lighting", "value": _get_effective_load(&"lighting")}
+			_load_overrides[&"lighting"] = 0.0
+		&"ballast_short":
+			if not _failure_restore.has(component.component_id):
+				_failure_restore[component.component_id] = {"kind": "load_override", "target": "lighting", "value": _get_effective_load(&"lighting")}
+			_load_overrides[&"lighting"] = float(_failure_restore[component.component_id]["value"]) * 1.5
 		_:
 			pass
 
@@ -504,6 +535,10 @@ func _restore_failure_effect(component_id: StringName) -> void:
 			battery_charge_wh = clampf(battery_charge_wh, 0.0, battery_capacity_wh)
 		"battery_max_discharge_w":
 			battery_max_discharge_w = maxf(float(restore.get("value", battery_max_discharge_w)), 0.0)
+		"load_override":
+			var override_id: StringName = StringName(String(restore.get("target", "")))
+			if override_id != &"":
+				_load_overrides.erase(override_id)
 		_:
 			pass
 	_failure_restore.erase(component_id)

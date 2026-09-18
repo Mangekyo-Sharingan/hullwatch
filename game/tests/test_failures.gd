@@ -32,6 +32,7 @@ func _run() -> void:
 	_test_power_force_failure_effects()
 	_test_power_repair_restores()
 	_test_battery_failure_effects()
+	_test_lighting_ballast_effects()
 	_test_atmosphere_failure_effects()
 	_test_condition_crossing_events()
 	_test_save_load_round_trip()
@@ -130,6 +131,28 @@ func _test_battery_failure_effects() -> void:
 	_check(absf(power.battery_max_discharge_w - 1000.0) < 1e-6, "battery: cell_short halves max discharge")
 	power.repair_component(&"battery_main", 1.0)
 	_check(absf(power.battery_max_discharge_w - 2000.0) < 1e-6, "battery: repair restores max discharge")
+	power.free()
+
+
+func _test_lighting_ballast_effects() -> void:
+	_failed_events.clear()
+	var modes: Array[FailureMode] = [_make_mode(&"ballast_open", 1000000.0, 0.0), _make_mode(&"ballast_short", 1000000.0, 0.0)]
+	var component: WearComponent = _make_component(&"lighting_ballast", modes, 0.0002, 1.0)
+	var components: Array[WearComponent] = [component]
+	var circuits: Array[PowerCircuit] = [_make_circuit(&"lighting", 200.0, 5)]
+	var power: PowerSystem = PowerSystem.new()
+	power.circuit_defs = circuits
+	power.generators = {&"rtg_main": 500.0}
+	power.wear_components = components
+	root.add_child(power)
+	_check(power.force_failure(&"lighting_ballast", &"ballast_open"), "ballast: force_failure ballast_open accepted")
+	_check(absf(power.get_circuit_load(&"lighting")) < 1e-6, "ballast: open ballast cuts lighting load to zero")
+	_check(power.repair_component(&"lighting_ballast", 1.0), "ballast: repair accepted after open")
+	_check(absf(power.get_circuit_load(&"lighting") - 200.0) < 1e-6, "ballast: repair removes the open override")
+	_check(power.force_failure(&"lighting_ballast", &"ballast_short"), "ballast: force_failure ballast_short accepted")
+	_check(absf(power.get_circuit_load(&"lighting") - 300.0) < 1e-6, "ballast: short raises lighting load by half")
+	_check(power.repair_component(&"lighting_ballast", 1.0), "ballast: repair accepted after short")
+	_check(absf(power.get_circuit_load(&"lighting") - 200.0) < 1e-6, "ballast: repair removes the short override")
 	power.free()
 
 

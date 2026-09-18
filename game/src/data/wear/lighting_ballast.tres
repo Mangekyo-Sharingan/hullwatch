@@ -1,0 +1,40 @@
+[gd_resource type="Resource" script_class="WearComponent" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://src/components/wear_component.gd" id="1"]
+[ext_resource type="Script" path="res://src/components/failure_mode.gd" id="2"]
+
+[sub_resource type="Resource" id="FailureMode_ballast_open"]
+script = ExtResource("2")
+id = &"ballast_open"
+display_name = "Ballast Open"
+base_mtbf_hours = 2600.0
+wear_multiplier = 1.0
+max_condition = 1.0
+environmental_factors = {
+"humidity": 2.0
+}
+severity = 2
+symptoms = Array[StringName]([&"dark_cabin", &"lamp_out"])
+
+[sub_resource type="Resource" id="FailureMode_ballast_short"]
+script = ExtResource("2")
+id = &"ballast_short"
+display_name = "Ballast Short"
+base_mtbf_hours = 3400.0
+wear_multiplier = 1.0
+max_condition = 1.0
+environmental_factors = {
+"humidity": 2.0
+}
+severity = 3
+symptoms = Array[StringName]([&"lamp_flicker", &"load_surge"])
+
+[resource]
+script = ExtResource("1")
+component_id = &"lighting_ballast"
+display_name = "Lighting Ballast"
+condition = 1.0
+hours_operated = 0.0
+wear_rate_per_hour = 0.0002
+load = 1.0
+failure_modes = Array[FailureMode]([SubResource("FailureMode_ballast_open"), SubResource("FailureMode_ballast_short")])

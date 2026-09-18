@@ -18,17 +18,26 @@ const CONTAMINATION_REARM: float = 0.4
 @export var contamination: float = 0.0
 @export var contamination_per_hour: float = 0.002
 @export var circuit_id: StringName = &"life_support"
+@export var wear_components: Array[WearComponent] = []
+@export var wear_seed: int = 20260923
 
 var reclaimer_powered: bool = true
 
 var _low_latched: bool = false
 var _depleted_latched: bool = false
 var _contaminated_latched: bool = false
+var _rng: RandomNumberGenerator
+var _condition_bucket: Dictionary = {}
+var _failure_restore: Dictionary = {}
+var _capacity_multiplier: float = 1.0
+var _wear_environment: Dictionary = {}
+var _processing_duty: float = 0.0
 
 
 func _ready() -> void:
 	system_id = &"water"
 	add_to_group(&"water_system")
+	_wear_rng()
 	super._ready()
 
 
@@ -39,6 +48,7 @@ func sim_tick(delta_hours: float) -> void:
 	_tick_consumption(delta_hours)
 	_tick_reclaimer(delta_hours)
 	_update_event_flags()
+	_tick_wear(delta_hours)
 
 
 func set_reclaimer_powered(powered: bool) -> void:
@@ -72,9 +82,49 @@ func get_status() -> Dictionary:
 		"greywater_l": greywater_l,
 		"contamination": contamination,
 		"reclaimer_powered": reclaimer_powered,
-		"reclaimer_active": _is_reclaimer_effective() and greywater_l > 0.0,
+		"reclaimer_active": _is_reclaimer_effective() and greywater_l > 0.0 and _capacity_multiplier > 0.0,
 		"efficiency": reclaimer_efficiency * (1.0 - contamination),
+		"capacity_multiplier": _capacity_multiplier,
 	}
+
+
+func repair_component(component_id: StringName, quality: float) -> bool:
+	var component: WearComponent = _find_wear_component(component_id)
+	if component == null:
+		push_error("WaterSystem.repair_component: unknown component_id '%s'." % String(component_id))
+		return false
+	component.apply_repair(quality)
+	if not component.is_failed():
+		_restore_failure_effect(component.component_id)
+	_condition_bucket[component.component_id] = _condition_bucket_for(component.condition)
+	_emit_component_repaired(component.component_id, clampf(quality, 0.0, 1.0))
+	return true
+
+
+func get_wear_status() -> Dictionary:
+	var status: Dictionary = {}
+	for component: WearComponent in wear_components:
+		if component == null or component.component_id == &"":
+			continue
+		status[String(component.component_id)] = component.get_status()
+	return status
+
+
+func force_failure(component_id: StringName, failure_mode_id: StringName) -> bool:
+	var component: WearComponent = _find_wear_component(component_id)
+	if component == null or failure_mode_id == &"":
+		push_error("WaterSystem.force_failure: unknown component_id '%s' or empty failure_mode_id." % String(component_id))
+		return false
+	if component.is_failed():
+		return false
+	component.failed_mode = failure_mode_id
+	_apply_failure_effect(component, failure_mode_id)
+	_emit_component_failed(component.component_id, failure_mode_id)
+	return true
+
+
+func get_wear_environment() -> Dictionary:
+	return _wear_environment
 
 
 func save_state() -> Dictionary:
@@ -88,6 +138,9 @@ func save_state() -> Dictionary:
 		"water_low_latched": _low_latched,
 		"water_depleted_latched": _depleted_latched,
 		"water_contaminated_latched": _contaminated_latched,
+		"wear": _wear_save_entries(),
+		"wear_rng_state": str(_wear_rng().state),
+		"failure_restore": _failure_restore_save(),
 	}
 
 
@@ -99,6 +152,11 @@ func load_state(state: Dictionary) -> void:
 	_low_latched = bool(state.get("water_low_latched", _low_latched))
 	_depleted_latched = bool(state.get("water_depleted_latched", _depleted_latched))
 	_contaminated_latched = bool(state.get("water_contaminated_latched", _contaminated_latched))
+	_load_wear(state.get("wear", []))
+	_load_failure_restore(state.get("failure_restore", {}))
+	if state.has("wear_rng_state"):
+		_wear_rng().state = int(str(state.get("wear_rng_state", _wear_rng().state)))
+	_reapply_failed_effects()
 
 
 func _tick_consumption(delta_hours: float) -> void:
@@ -112,11 +170,14 @@ func _tick_consumption(delta_hours: float) -> void:
 
 
 func _tick_reclaimer(delta_hours: float) -> void:
+	_processing_duty = 0.0
 	if not _is_reclaimer_effective() or greywater_l <= 0.0:
 		return
-	var processed_l: float = minf(reclaimer_capacity_l_per_hour * delta_hours, greywater_l)
+	var capacity_l_per_hour: float = reclaimer_capacity_l_per_hour * _capacity_multiplier
+	var processed_l: float = minf(capacity_l_per_hour * delta_hours, greywater_l)
 	if processed_l <= 0.0:
 		return
+	_processing_duty = 1.0
 	greywater_l = maxf(greywater_l - processed_l, 0.0)
 	var efficiency: float = reclaimer_efficiency * (1.0 - contamination)
 	potable_l = minf(potable_l + processed_l * efficiency, potable_capacity_l)
@@ -185,3 +246,181 @@ func _first_node_in_group(group_name: StringName) -> Node:
 	if tree == null:
 		return null
 	return tree.get_first_node_in_group(group_name)
+
+
+func _tick_wear(delta_hours: float) -> void:
+	_wear_environment = {
+		"load": clampf(_processing_duty, 0.0, 1.0),
+		"heat": _heat_factor(),
+		"humidity": 0.0,
+	}
+	if wear_components.is_empty():
+		return
+	for component: WearComponent in wear_components:
+		if component == null:
+			continue
+		var failed_mode_id: StringName = component.tick_sim(delta_hours, _wear_environment, _wear_rng())
+		if failed_mode_id != &"":
+			_apply_failure_effect(component, failed_mode_id)
+			_emit_component_failed(component.component_id, failed_mode_id)
+		_emit_condition_crossings(component)
+
+
+func _wear_rng() -> RandomNumberGenerator:
+	if _rng == null:
+		_rng = RandomNumberGenerator.new()
+		_rng.seed = wear_seed
+	return _rng
+
+
+func _find_wear_component(component_id: StringName) -> WearComponent:
+	for component: WearComponent in wear_components:
+		if component != null and component.component_id == component_id:
+			return component
+	return null
+
+
+func _heat_factor() -> float:
+	var thermal: Node = _first_node_in_group(&"thermal_system")
+	if thermal == null or not thermal.has_method(&"get_status"):
+		return 0.0
+	var status: Variant = thermal.call("get_status")
+	if not (status is Dictionary):
+		return 0.0
+	var compartments: Variant = (status as Dictionary).get("compartments", {})
+	if not (compartments is Dictionary):
+		return 0.0
+	var hottest_c: float = 20.0
+	var found: bool = false
+	for value: Variant in (compartments as Dictionary).values():
+		if value is Dictionary and (value as Dictionary).has("temperature_c"):
+			hottest_c = maxf(hottest_c, float((value as Dictionary)["temperature_c"]))
+			found = true
+	if not found:
+		return 0.0
+	return clampf((hottest_c - 20.0) / 40.0, 0.0, 1.0)
+
+
+func _apply_failure_effect(component: WearComponent, failure_mode_id: StringName) -> void:
+	match failure_mode_id:
+		&"pump_impeller_wear":
+			if not _failure_restore.has(component.component_id):
+				_failure_restore[component.component_id] = {"kind": "capacity_multiplier", "target": "", "value": _capacity_multiplier}
+			_capacity_multiplier = 0.3
+		&"pump_seize":
+			if not _failure_restore.has(component.component_id):
+				_failure_restore[component.component_id] = {"kind": "capacity_multiplier", "target": "", "value": _capacity_multiplier}
+			_capacity_multiplier = 0.0
+		_:
+			pass
+
+
+func _restore_failure_effect(component_id: StringName) -> void:
+	if not _failure_restore.has(component_id):
+		return
+	var restore: Dictionary = _failure_restore[component_id]
+	match String(restore.get("kind", "")):
+		"capacity_multiplier":
+			_capacity_multiplier = clampf(float(restore.get("value", _capacity_multiplier)), 0.0, 1.0)
+		_:
+			pass
+	_failure_restore.erase(component_id)
+
+
+func _reapply_failed_effects() -> void:
+	_capacity_multiplier = 1.0
+	for component: WearComponent in wear_components:
+		if component != null and component.is_failed():
+			_apply_failure_effect(component, component.failed_mode)
+
+
+func _emit_component_failed(component_id: StringName, failure_mode_id: StringName) -> void:
+	var event_bus: Node = _get_autoload(&"EventBus")
+	if event_bus != null:
+		event_bus.emit_signal(&"component_failed", component_id, failure_mode_id)
+	emit_sim_event(&"component_failed", {"component_id": component_id, "failure_mode_id": failure_mode_id})
+
+
+func _emit_component_repaired(component_id: StringName, quality: float) -> void:
+	var event_bus: Node = _get_autoload(&"EventBus")
+	if event_bus != null:
+		event_bus.emit_signal(&"component_repaired", component_id, quality)
+	emit_sim_event(&"component_repaired", {"component_id": component_id, "quality": quality})
+
+
+func _emit_condition_crossings(component: WearComponent) -> void:
+	var bucket: int = _condition_bucket_for(component.condition)
+	if not _condition_bucket.has(component.component_id):
+		_condition_bucket[component.component_id] = bucket
+		return
+	if bucket >= int(_condition_bucket[component.component_id]):
+		_condition_bucket[component.component_id] = bucket
+		return
+	_condition_bucket[component.component_id] = bucket
+	var event_bus: Node = _get_autoload(&"EventBus")
+	if event_bus != null:
+		event_bus.emit_signal(&"component_condition_changed", component.component_id, component.condition)
+
+
+func _condition_bucket_for(condition: float) -> int:
+	return int(floor(clampf(condition, 0.0, 1.0) * 10.0 + 1e-9))
+
+
+func _load_wear(entries: Variant) -> void:
+	if not (entries is Array):
+		return
+	for entry: Variant in (entries as Array):
+		if not (entry is Dictionary):
+			continue
+		var data: Dictionary = entry
+		var component: WearComponent = _find_wear_component(StringName(String(data.get("component_id", ""))))
+		if component == null:
+			continue
+		component.condition = clampf(float(data.get("condition", component.condition)), 0.0, 1.0)
+		component.hours_operated = maxf(float(data.get("hours_operated", component.hours_operated)), 0.0)
+		component.load = float(data.get("load", component.load))
+		component.failed_mode = StringName(String(data.get("failed_mode", "")))
+		_condition_bucket[component.component_id] = _condition_bucket_for(component.condition)
+
+
+func _load_failure_restore(saved: Variant) -> void:
+	_failure_restore.clear()
+	if not (saved is Dictionary):
+		return
+	for key: Variant in (saved as Dictionary):
+		var entry: Variant = (saved as Dictionary)[key]
+		if not (entry is Dictionary):
+			continue
+		var data: Dictionary = entry
+		_failure_restore[StringName(String(key))] = {
+			"kind": String(data.get("kind", "")),
+			"target": String(data.get("target", "")),
+			"value": float(data.get("value", 0.0)),
+		}
+
+
+func _wear_save_entries() -> Array:
+	var entries: Array = []
+	for component: WearComponent in wear_components:
+		if component == null:
+			continue
+		entries.append({
+			"component_id": String(component.component_id),
+			"condition": component.condition,
+			"hours_operated": component.hours_operated,
+			"load": component.load,
+			"failed_mode": String(component.failed_mode),
+		})
+	return entries
+
+
+func _failure_restore_save() -> Dictionary:
+	var saved: Dictionary = {}
+	for component_id: Variant in _failure_restore:
+		var entry: Dictionary = _failure_restore[component_id]
+		saved[String(component_id)] = {
+			"kind": String(entry.get("kind", "")),
+			"target": String(entry.get("target", "")),
+			"value": float(entry.get("value", 0.0)),
+		}
+	return saved

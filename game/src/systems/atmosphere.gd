@@ -14,10 +14,15 @@ const MIX_RATE_PER_HOUR: float = 6.0
 const PRESSURE_EMIT_DELTA_KPA: float = 0.05
 const CO2_EMIT_DELTA_PPM: float = 25.0
 const O2_EMIT_DELTA_FRACTION: float = 0.001
+const HUMIDITY_EMIT_DELTA_FRACTION: float = 0.05
 
 @export var compartment_defs: Array[CompartmentConfig] = []
 @export var wear_components: Array[WearComponent] = []
 @export var wear_seed: int = 20260919
+@export var humidity_per_occupant_g_per_hour: float = 60.0
+@export var humidity_per_candle_g_per_hour: float = 40.0
+@export var scrubber_dehumidify_g_per_hour: float = 90.0
+@export var humidity_capacity_g: float = 600.0
 
 var _compartments: Dictionary = {}
 var _connections: Dictionary = {}
@@ -218,10 +223,12 @@ func _create_state(config: CompartmentConfig) -> Dictionary:
 		"candle_burn_remaining_hours": 0.0,
 		"filter_condition": clampf(config.initial_filter_condition, 0.0, 1.0),
 		"filter_installed": true,
+		"humidity_g": humidity_capacity_g * 0.5,
 	}
 	state["last_pressure_kpa"] = _pressure_for(state)
 	state["last_o2_fraction"] = _o2_fraction_for(state)
 	state["last_co2_ppm"] = _co2_ppm_for(state)
+	state["last_humidity_fraction"] = _humidity_fraction_for(state)
 	return state
 
 
@@ -234,23 +241,29 @@ func _tick_compartment(compartment_id: StringName, hours: float) -> void:
 		var co2_mol: float = float(occupants) * CO2_KG_PER_HOUR_PER_OCCUPANT / MOLAR_MASS_CO2 * hours
 		state["n_o2"] = maxf(float(state["n_o2"]) - o2_mol, 0.0)
 		state["n_co2"] = maxf(float(state["n_co2"]) + co2_mol, 0.0)
+		state["humidity_g"] = maxf(float(state["humidity_g"]) + float(occupants) * humidity_per_occupant_g_per_hour * hours, 0.0)
 	if bool(state["scrubber_powered"]) and bool(state["filter_installed"]):
 		var efficiency: float = float(state["scrubber_efficiency"]) * float(state["filter_condition"]) * _efficiency_multiplier
 		var capacity_mol: float = config.scrubber_capacity_kg_per_hour * efficiency * hours / MOLAR_MASS_CO2
 		state["n_co2"] = maxf(float(state["n_co2"]) - minf(capacity_mol, float(state["n_co2"])), 0.0)
 		state["filter_condition"] = maxf(float(state["filter_condition"]) - config.filter_wear_rate_per_hour * hours, 0.0)
+		var humidity_efficiency: float = float(state["scrubber_efficiency"]) * _efficiency_multiplier
+		var dehumidified_g: float = minf(float(state["humidity_g"]), scrubber_dehumidify_g_per_hour * humidity_efficiency * hours)
+		state["humidity_g"] = maxf(float(state["humidity_g"]) - dehumidified_g, 0.0)
 	var remaining_burn: float = float(state["candle_burn_remaining_hours"])
 	if remaining_burn > 0.0:
 		var burn_hours: float = minf(hours, remaining_burn)
 		var candle_kg_per_hour: float = config.o2_candle_kg / maxf(config.o2_candle_burn_hours, 0.001)
 		state["n_o2"] = maxf(float(state["n_o2"]) + candle_kg_per_hour * burn_hours / MOLAR_MASS_O2, 0.0)
 		state["candle_burn_remaining_hours"] = remaining_burn - burn_hours
+		state["humidity_g"] = maxf(float(state["humidity_g"]) + humidity_per_candle_g_per_hour * burn_hours, 0.0)
 	var leak_rate: float = float(state["leak_rate_per_hour"])
 	if leak_rate > 0.0:
 		var factor: float = exp(-leak_rate * hours)
 		state["n_o2"] = maxf(float(state["n_o2"]) * factor, 0.0)
 		state["n_co2"] = maxf(float(state["n_co2"]) * factor, 0.0)
 		state["n_n2"] = maxf(float(state["n_n2"]) * factor, 0.0)
+		state["humidity_g"] = maxf(float(state["humidity_g"]) * factor, 0.0)
 
 
 func _mix_connected(hours: float) -> void:
@@ -296,6 +309,10 @@ func _emit_changes(compartment_id: StringName) -> void:
 		state["last_co2_ppm"] = co2_ppm
 		state["last_o2_fraction"] = o2_fraction
 		_emit_atmosphere_changed(compartment_id, o2_fraction, co2_ppm)
+	var humidity_fraction: float = _humidity_fraction_for(state)
+	if absf(humidity_fraction - float(state["last_humidity_fraction"])) >= HUMIDITY_EMIT_DELTA_FRACTION:
+		state["last_humidity_fraction"] = humidity_fraction
+		_emit_humidity_changed(compartment_id, humidity_fraction)
 
 
 func _status_for(state: Dictionary) -> Dictionary:
@@ -314,6 +331,8 @@ func _status_for(state: Dictionary) -> Dictionary:
 		"candle_burn_remaining_hours": state["candle_burn_remaining_hours"],
 		"filter_condition": state["filter_condition"],
 		"filter_installed": state["filter_installed"],
+		"humidity_g": float(state["humidity_g"]),
+		"humidity_fraction": _humidity_fraction_for(state),
 	}
 
 
@@ -356,6 +375,12 @@ func _co2_ppm_for(state: Dictionary) -> float:
 	return float(state["n_co2"]) / total * 1e6
 
 
+func _humidity_fraction_for(state: Dictionary) -> float:
+	if humidity_capacity_g <= 0.0:
+		return 0.0
+	return clampf(float(state["humidity_g"]) / humidity_capacity_g, 0.0, 1.0)
+
+
 func _emit_pressure_changed(compartment_id: StringName, pressure_kpa: float) -> void:
 	var event_bus: Node = _get_autoload(&"EventBus")
 	if event_bus != null:
@@ -366,6 +391,13 @@ func _emit_atmosphere_changed(compartment_id: StringName, o2_fraction: float, co
 	var event_bus: Node = _get_autoload(&"EventBus")
 	if event_bus != null:
 		event_bus.emit_signal(&"compartment_atmosphere_changed", compartment_id, o2_fraction, co2_ppm)
+
+
+func _emit_humidity_changed(compartment_id: StringName, humidity_fraction: float) -> void:
+	var event_bus: Node = _get_autoload(&"EventBus")
+	if event_bus != null:
+		event_bus.emit_signal(&"compartment_humidity_changed", compartment_id, humidity_fraction)
+	emit_sim_event(&"compartment_humidity_changed", {"compartment_id": compartment_id, "humidity_fraction": humidity_fraction})
 
 
 func save_state() -> Dictionary:
@@ -385,9 +417,11 @@ func save_state() -> Dictionary:
 			"candle_burn_remaining_hours": float(state["candle_burn_remaining_hours"]),
 			"filter_condition": float(state["filter_condition"]),
 			"filter_installed": bool(state["filter_installed"]),
+			"humidity_g": float(state["humidity_g"]),
 			"last_pressure_kpa": float(state["last_pressure_kpa"]),
 			"last_o2_fraction": float(state["last_o2_fraction"]),
 			"last_co2_ppm": float(state["last_co2_ppm"]),
+			"last_humidity_fraction": float(state["last_humidity_fraction"]),
 		}
 	return {
 		"system_id": String(system_id),
@@ -410,12 +444,18 @@ func load_state(state: Dictionary) -> void:
 		for field_name: Variant in ["n_o2", "n_co2", "n_n2", "scrubber_efficiency", "leak_rate_per_hour", "candle_burn_remaining_hours", "filter_condition", "last_pressure_kpa", "last_o2_fraction", "last_co2_ppm"]:
 			if loaded.has(field_name):
 				target[field_name] = float(loaded[field_name])
+		if loaded.has("humidity_g"):
+			target["humidity_g"] = maxf(float(loaded["humidity_g"]), 0.0)
 		for field_name: Variant in ["occupants", "candles_remaining"]:
 			if loaded.has(field_name):
 				target[field_name] = int(loaded[field_name])
 		for field_name: Variant in ["scrubber_powered", "isolated", "filter_installed"]:
 			if loaded.has(field_name):
 				target[field_name] = bool(loaded[field_name])
+		if loaded.has("last_humidity_fraction"):
+			target["last_humidity_fraction"] = float(loaded["last_humidity_fraction"])
+		else:
+			target["last_humidity_fraction"] = _humidity_fraction_for(target)
 	_load_wear(state.get("wear", []))
 	if state.has("wear_rng_state"):
 		var rng: RandomNumberGenerator = _wear_rng()

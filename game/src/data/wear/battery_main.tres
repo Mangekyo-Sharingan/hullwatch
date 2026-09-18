@@ -11,7 +11,8 @@ base_mtbf_hours = 3000.0
 wear_multiplier = 1.0
 max_condition = 1.0
 environmental_factors = {
-"heat": 2.5
+"heat": 2.5,
+"humidity": 1.5
 }
 severity = 1
 symptoms = Array[StringName]([&"reduced_runtime", &"slow_charge"])
@@ -24,7 +25,8 @@ base_mtbf_hours = 2600.0
 wear_multiplier = 1.0
 max_condition = 1.0
 environmental_factors = {
-"heat": 2.5
+"heat": 2.5,
+"humidity": 1.5
 }
 severity = 3
 symptoms = Array[StringName]([&"self_discharge", &"hot_cell"])

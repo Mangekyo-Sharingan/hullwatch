@@ -35,6 +35,7 @@ func _run() -> void:
 	_test_hull_seam_split()
 	_test_condition_crossings()
 	_test_save_load_round_trip()
+	_test_water_pump_effects()
 
 	_despawn_all()
 	_finish()
@@ -225,6 +226,65 @@ func _test_save_load_round_trip() -> void:
 		_check(hull_restored.get_puncture_count(&"storage") == 1, "save: guarded punctures round trip")
 		_check(hull_restored.repair_component(&"hull_plating_main", 1.0), "save: hull repair after load accepted")
 		_check(is_equal_approx(float(hull_restored.get_status()["puncture_rate_multiplier"]), 1.0), "save: stored pre-failure multiplier restores after load")
+
+
+func _test_water_pump_effects() -> void:
+	_failed_events.clear()
+	var modes: Array[FailureMode] = [_make_mode(&"pump_impeller_wear", 1.0e9), _make_mode(&"pump_seize", 1.0e9)]
+	var pump: WearComponent = WearComponent.new()
+	pump.component_id = &"water_pump_main"
+	pump.wear_rate_per_hour = 0.00015
+	pump.failure_modes = modes
+	var components: Array[WearComponent] = [pump]
+	var water := WaterSystem.new()
+	water.wear_components = components
+	_spawn(water)
+	water.set_reclaimer_powered(true)
+	water.greywater_l = 20.0
+	water.sim_tick(1.0)
+	var healthy_potable: float = water.potable_l
+	_check(healthy_potable > 0.0, "water pump: healthy reclaimer recovers potable")
+	_check(water.force_failure(&"water_pump_main", &"pump_impeller_wear"), "water pump: force_failure impeller wear accepted")
+	_check(_failed_events.size() == 1, "water pump: typed component_failed emitted once")
+	if _failed_events.size() == 1:
+		_check(_failed_events[0]["failure_mode_id"] == &"pump_impeller_wear", "water pump: component_failed carries the mode id")
+	water.greywater_l = 20.0
+	water.potable_l = 0.0
+	water.contamination = 0.0
+	water.sim_tick(1.0)
+	_check(water.potable_l > 0.0, "water pump: worn impeller still moves some water")
+	_check(water.potable_l < healthy_potable, "water pump: worn impeller moves less than a healthy pump")
+	_check(water.repair_component(&"water_pump_main", 1.0), "water pump: repair accepted")
+	_check(absf(float(water.get_status()["capacity_multiplier"]) - 1.0) < 1e-9, "water pump: repair restores the capacity multiplier")
+	_check(water.force_failure(&"water_pump_main", &"pump_seize"), "water pump: force_failure seize accepted")
+	water.greywater_l = 20.0
+	water.potable_l = 0.0
+	water.sim_tick(1.0)
+	_check(is_equal_approx(water.potable_l, 0.0), "water pump: seized pump moves no water")
+	_check(is_equal_approx(water.greywater_l, 20.0), "water pump: seized pump leaves greywater untouched")
+	_check(not bool(water.get_status()["reclaimer_active"]), "water pump: seized pump reports inactive")
+	_check(water.repair_component(&"water_pump_main", 1.0), "water pump: repair after seize accepted")
+
+	water.force_failure(&"water_pump_main", &"pump_impeller_wear")
+	var saved: Dictionary = water.save_state()
+	_check(saved.has("wear") and saved.has("failure_restore"), "water pump: save carries wear fields")
+	_check(saved["wear_rng_state"] is String, "water pump: wear_rng_state is stringified")
+	_check(saved["failure_restore"].has("water_pump_main"), "water pump: failure_restore captures the pump")
+	var parsed_value: Variant = JSON.parse_string(JSON.stringify(saved))
+	_check(parsed_value is Dictionary, "water pump: save state is JSON-safe")
+	if parsed_value is Dictionary:
+		var restored_pump: WearComponent = WearComponent.new()
+		restored_pump.component_id = &"water_pump_main"
+		restored_pump.wear_rate_per_hour = 0.00015
+		restored_pump.failure_modes = modes
+		var restored_components: Array[WearComponent] = [restored_pump]
+		var restored := WaterSystem.new()
+		restored.wear_components = restored_components
+		_spawn(restored)
+		restored.load_state(parsed_value)
+		_check(absf(float(restored.get_status()["capacity_multiplier"]) - 0.3) < 1e-9, "water pump: failed effect reapplied after load")
+		_check(restored.repair_component(&"water_pump_main", 1.0), "water pump: repair after load accepted")
+		_check(absf(float(restored.get_status()["capacity_multiplier"]) - 1.0) < 1e-9, "water pump: pre-failure capacity restores after load")
 
 
 func _spawn_thermal(initial_temperature_c: float, modes: Array[FailureMode], seed_value: int, wear_rate: float) -> ThermalSystem:
