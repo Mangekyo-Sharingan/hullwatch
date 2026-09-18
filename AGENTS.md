@@ -9,7 +9,7 @@ Guide for AI coding agents working in this repository. Read this first, then `do
 - Repo root: `E:\Projekt\Misc\OperationSpacer`
 - Godot project root: `game/`
 - Production spec: `docs/PRODUCTION_SPEC.md` (authoritative for design intent)
-- Status: **post-v0.6.0 expansion + reference look pass**: cramped 8-space station (generated geometry + generated props/zones/links), analogue-horror filter (tuned to the Starpath/terminal reference), CRT-styled diegetic screens, warm practical lighting with dark ambient, generated greeble (light strips, ribs, conduits). Real in-game captures live in `docs/store/` (via `tools/capture_screenshots.gd`, windowed). External playtest of the v0.6.0 build is the main open item; next features: tools/diagnostics + comms/narrative
+- Status: **post-v0.6.0 expansion + reference look pass**: cramped faceted 8-space station (chamfered corners, canted corridor walls, generated geometry + props/zones/links), xenon-metal structural material (grown-alloy fiction, see spec §6.1), analogue-horror filter, CRT-styled diegetic screens, warm practical lighting with dark ambient, generated greeble. Real in-game captures live in `docs/store/` (via `tools/capture_screenshots.gd`, windowed). External playtest of the v0.6.0 build is the main open item; next features: tools/diagnostics + comms/narrative
 - Asset shortlist for the M3 art pass: `docs/ASSET_SOURCES.md` — acquire at M3, not before
 
 ## Tech Stack

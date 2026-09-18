@@ -2,6 +2,7 @@
 extends SceneTree
 
 const GEOMETRY_PATH: String = "res://scenes/ship_geometry.tscn"
+const XENON_MATERIAL_PATH: String = "res://src/data/materials/mat_xenon_metal.tres"
 const RAY_Y: float = 1.2
 
 const EXPECTED_SPACES: Array[StringName] = [
@@ -26,17 +27,27 @@ const ROOM_CENTERS: Dictionary = {
 	&"EngineBay": Vector3(0.0, RAY_Y, 4.7),
 }
 
-## One ray per doorway: room center -> a point on the corridor centerline (x = 0)
-## at the doorway. The side rooms are offset along the spine, so a ray to the
-## spine's geometric center would clip a corridor wall instead of the opening.
+## One ray per doorway, aimed through the opening: from a point on the room side of the
+## gap (0.8 m inside, at the doorway's lateral centre) to the corridor centerline. Room
+## centers clip chamfered corners on diagonal doorways, so the origin is doorway-local.
 const DOORWAYS: Array = [
-	[&"Cockpit", Vector3(0.0, RAY_Y, -13.5)],
-	[&"Quarters", Vector3(0.0, RAY_Y, -10.0)],
-	[&"LifeSupport", Vector3(0.0, RAY_Y, -6.0)],
-	[&"Galley", Vector3(0.0, RAY_Y, -5.6)],
-	[&"WaterCloset", Vector3(0.0, RAY_Y, -1.6)],
-	[&"Storage", Vector3(0.0, RAY_Y, -1.2)],
-	[&"EngineBay", Vector3(0.0, RAY_Y, 1.0)],
+	[Vector3(0.0, RAY_Y, -15.2), Vector3(0.0, RAY_Y, -13.5), "Cockpit"],
+	[Vector3(-1.7, RAY_Y, -10.0), Vector3(0.0, RAY_Y, -10.0), "Quarters"],
+	[Vector3(-1.7, RAY_Y, -6.0), Vector3(0.0, RAY_Y, -6.0), "LifeSupport"],
+	[Vector3(1.7, RAY_Y, -5.6), Vector3(0.0, RAY_Y, -5.6), "Galley"],
+	[Vector3(1.7, RAY_Y, -1.6), Vector3(0.0, RAY_Y, -1.6), "WaterCloset"],
+	[Vector3(-1.7, RAY_Y, -1.2), Vector3(0.0, RAY_Y, -1.2), "Storage"],
+	[Vector3(0.0, RAY_Y, 2.4), Vector3(0.0, RAY_Y, 1.0), "EngineBay"],
+]
+
+const CHAMFER_ROOMS: Array[StringName] = [
+	&"Cockpit",
+	&"Quarters",
+	&"LifeSupport",
+	&"Galley",
+	&"WaterCloset",
+	&"Storage",
+	&"EngineBay",
 ]
 
 const SOLID_CONTROLS: Array = [
@@ -85,6 +96,9 @@ func _run() -> void:
 	_test_doorways_passable()
 	_test_solid_walls_block()
 	_test_corridor_is_narrow()
+	_test_chamfered_corners()
+	_test_faceted_corridor()
+	_test_xenon_structural_material()
 
 	_geometry.free()
 	_finish()
@@ -107,10 +121,10 @@ func _test_floors_have_collision() -> void:
 
 func _test_doorways_passable() -> void:
 	for doorway: Array in DOORWAYS:
-		var room_id: StringName = doorway[0]
-		var corridor_point: Vector3 = doorway[1]
-		var from: Vector3 = ROOM_CENTERS[room_id]
-		_check(not _ray_hits(from, corridor_point), "doorway %s -> corridor is free of geometry" % room_id)
+		var from: Vector3 = doorway[0]
+		var to: Vector3 = doorway[1]
+		var label: String = doorway[2]
+		_check(not _ray_hits(from, to), "doorway %s -> corridor is free of geometry" % label)
 
 
 func _test_solid_walls_block() -> void:
@@ -122,8 +136,35 @@ func _test_solid_walls_block() -> void:
 
 
 func _test_corridor_is_narrow() -> void:
-	_check(not _ray_hits(Vector3(-0.7, RAY_Y, -5.0), Vector3(0.7, RAY_Y, -5.0)), "corridor spine is clear across x[-0.7, 0.7]")
+	_check(not _ray_hits(Vector3(-0.64, RAY_Y, -5.0), Vector3(0.64, RAY_Y, -5.0)), "corridor spine is clear across x[-0.64, 0.64] at y=1.2 (canted walls: true clear width ~1.32 m)")
 	_check(_ray_hits(Vector3(-1.0, RAY_Y, -5.0), Vector3(1.0, RAY_Y, -5.0)), "corridor spine is blocked across x[-1.0, 1.0] (clear width <= 1.5 m)")
+
+
+func _test_chamfered_corners() -> void:
+	for room_id: StringName in CHAMFER_ROOMS:
+		var room: Node = _geometry.get_node_or_null(NodePath(String(room_id)))
+		if room == null:
+			_check(false, "chamfer room exists: %s" % room_id)
+			continue
+		_check(_count_mesh_parts(room, "Chamfer") >= 4, "%s has four chamfer corner panels" % room_id)
+
+
+func _test_faceted_corridor() -> void:
+	var corridor: Node = _geometry.get_node_or_null(NodePath("Corridor"))
+	if corridor == null:
+		_check(false, "chamfer corridor exists")
+		return
+	_check(_count_mesh_parts(corridor, "Cant") >= 1, "corridor has canted wall panels")
+	_check(_count_mesh_parts(corridor, "Header") >= 1, "corridor has upper header walls")
+
+
+func _test_xenon_structural_material() -> void:
+	var sample: MeshInstance3D = _geometry.get_node_or_null(NodePath("Cockpit/WallNMesh")) as MeshInstance3D
+	_check(sample != null, "sampled structural wall mesh exists")
+	if sample == null:
+		return
+	var material: Material = sample.material_override
+	_check(material != null and material.resource_path == XENON_MATERIAL_PATH, "sampled structural wall uses the xenon-metal material")
 
 
 func _ray_hits(from: Vector3, to: Vector3) -> bool:
@@ -142,6 +183,15 @@ func _find_floor_shape(node: Node) -> CollisionShape3D:
 		if nested != null:
 			return nested
 	return null
+
+
+func _count_mesh_parts(node: Node, prefix: String) -> int:
+	var count: int = 0
+	for child: Node in node.get_children():
+		if child is MeshInstance3D and child.name.begins_with(prefix):
+			count += 1
+		count += _count_mesh_parts(child, prefix)
+	return count
 
 
 func _find_root_child(node_name: StringName) -> Node:

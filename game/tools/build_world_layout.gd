@@ -16,6 +16,7 @@ const MATERIAL_SCREEN_GLOW: String = "res://src/data/materials/mat_screen_glow.t
 
 const MANUAL_BOOK: String = "res://src/data/manual/manual_book.tres"
 const LOG_ENTRY: String = "res://src/data/logs/log_01.tres"
+const LOG_ENTRY_2: String = "res://src/data/logs/log_02.tres"
 
 const KIT_CONTAINER: String = "res://assets/models/kenney_space_station_kit/Models/GLB format/container.glb"
 const KIT_COMPUTER: String = "res://assets/models/kenney_space_station_kit/Models/GLB format/computer-system.glb"
@@ -33,7 +34,7 @@ const MATERIAL_PATHS: Array[String] = [
 	MATERIAL_SCREEN_GLOW,
 ]
 
-const RESOURCE_PATHS: Array[String] = [MANUAL_BOOK, LOG_ENTRY]
+const RESOURCE_PATHS: Array[String] = [MANUAL_BOOK, LOG_ENTRY, LOG_ENTRY_2]
 
 const KIT_PATHS: Array[String] = [KIT_CONTAINER, KIT_COMPUTER, KIT_DISPLAY]
 
@@ -97,6 +98,15 @@ const PROPS: Array[Dictionary] = [
 		"material": MATERIAL_SCREEN_GLOW,
 		"exports": {},
 		"resources": {"log_entry": LOG_ENTRY},
+	},
+	{
+		"name": "ArchiveTerminal",
+		"script": "res://src/interactables/log_terminal.gd",
+		"position": Vector3(-2.0, 1.2, -18.7),
+		"size": Vector3(0.15, 0.5, 0.6),
+		"material": MATERIAL_SCREEN_GLOW,
+		"exports": {},
+		"resources": {"log_entry": LOG_ENTRY_2},
 	},
 	{
 		"name": "NavConsole",

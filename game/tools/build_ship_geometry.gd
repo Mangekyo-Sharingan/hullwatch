@@ -13,6 +13,7 @@ const MATERIAL_WALL_CONTAINER: String = "res://src/data/materials/mat_wall_conta
 const MATERIAL_CEILING: String = "res://src/data/materials/mat_panel_scratched.tres"
 const MATERIAL_STRIP: String = "res://src/data/materials/mat_light_strip.tres"
 const MATERIAL_CONDUIT: String = "res://src/data/materials/mat_metal_rusted.tres"
+const MATERIAL_XENON: String = "res://src/data/materials/mat_xenon_metal.tres"
 
 const WALL_THICKNESS: float = 0.2
 const ROOM_HEIGHT: float = 3.0
@@ -45,7 +46,7 @@ func _initialize() -> void:
 
 
 func _load_materials() -> void:
-	for path: String in [MATERIAL_FLOOR, MATERIAL_WALL_PAINTED, MATERIAL_WALL_CONTAINER, MATERIAL_CEILING, MATERIAL_STRIP, MATERIAL_CONDUIT]:
+	for path: String in [MATERIAL_FLOOR, MATERIAL_WALL_PAINTED, MATERIAL_WALL_CONTAINER, MATERIAL_CEILING, MATERIAL_STRIP, MATERIAL_CONDUIT, MATERIAL_XENON]:
 		var material: Material = load(path) as Material
 		if material == null:
 			_failures += 1
@@ -75,13 +76,14 @@ func _make_space(space_name: String) -> StaticBody3D:
 	return space
 
 
-func _add_part(space: Node3D, part_name: String, center: Vector3, size: Vector3, material_path: String) -> void:
+func _add_part(space: Node3D, part_name: String, center: Vector3, size: Vector3, material_path: String, rotation_degrees: Vector3 = Vector3.ZERO) -> void:
 	var shape: BoxShape3D = BoxShape3D.new()
 	shape.size = size
 	var shape_node: CollisionShape3D = CollisionShape3D.new()
 	shape_node.name = part_name + "Shape"
 	shape_node.shape = shape
 	shape_node.position = center
+	shape_node.rotation_degrees = rotation_degrees
 	space.add_child(shape_node)
 	var mesh: BoxMesh = BoxMesh.new()
 	mesh.size = size
@@ -90,6 +92,7 @@ func _add_part(space: Node3D, part_name: String, center: Vector3, size: Vector3,
 	mesh_node.mesh = mesh
 	mesh_node.material_override = _materials[material_path] as Material
 	mesh_node.position = center
+	mesh_node.rotation_degrees = rotation_degrees
 	space.add_child(mesh_node)
 
 
@@ -98,11 +101,39 @@ func _add_floor(space: StaticBody3D, center_x: float, center_z: float, size_x: f
 
 
 func _add_ceiling(space: StaticBody3D, center_x: float, center_z: float, size_x: float, size_z: float) -> void:
-	_add_part(space, "Ceiling", Vector3(center_x, CEILING_CENTER_Y, center_z), Vector3(size_x, SLAB_THICKNESS, size_z), MATERIAL_CEILING)
+	_add_part(space, "Ceiling", Vector3(center_x, CEILING_CENTER_Y, center_z), Vector3(size_x, SLAB_THICKNESS, size_z), MATERIAL_XENON)
 
 
 func _add_wall(space: StaticBody3D, part_name: String, center_x: float, center_z: float, size_x: float, size_z: float, material_path: String) -> void:
 	_add_part(space, part_name, Vector3(center_x, WALL_CENTER_Y, center_z), Vector3(size_x, ROOM_HEIGHT, size_z), material_path)
+
+
+## Faceted corridor side segment: short lower wall, an inward-leaning cant and an upper
+## header, split with the same spans the flat side walls used. `side` is -1 for west, +1 east.
+func _add_corridor_segment(space: StaticBody3D, side_name: String, segment: String, side: float, center_z: float, span: float) -> void:
+	var cant_angle: float = rad_to_deg(atan(0.35 / 1.8))
+	_add_part(space, "Wall%s_%s" % [side_name, segment], Vector3(0.8 * side, 0.4, center_z), Vector3(0.2, 0.8, span), MATERIAL_XENON)
+	_add_part(space, "Cant%s_%s" % [side_name, segment], Vector3(0.625 * side, 1.7, center_z), Vector3(0.12, 1.8, span), MATERIAL_XENON, Vector3(0.0, 0.0, cant_angle * side))
+	_add_part(space, "Header%s_%s" % [side_name, segment], Vector3(0.45 * side, 2.8, center_z), Vector3(0.2, 0.4, span), MATERIAL_XENON)
+
+
+## Four 45-degree corner chamfer panels for a room interior x[x_min, x_max] z[z_min, z_max].
+func _add_chamfers(space: StaticBody3D, x_min: float, z_min: float, x_max: float, z_max: float, cut: float = 0.9) -> void:
+	var offset: float = cut * 0.5
+	var names: Array[String] = ["A", "B", "C", "D"]
+	var edge_x: Array[float] = [x_min, x_max, x_max, x_min]
+	var edge_z: Array[float] = [z_min, z_min, z_max, z_max]
+	var dx: Array[float] = [1.0, -1.0, -1.0, 1.0]
+	var dz: Array[float] = [1.0, 1.0, -1.0, -1.0]
+	for i: int in names.size():
+		_add_part(
+			space,
+			"Chamfer" + names[i],
+			Vector3(edge_x[i] + offset * dx[i], WALL_CENTER_Y, edge_z[i] + offset * dz[i]),
+			Vector3(cut * sqrt(2.0), ROOM_HEIGHT, 0.2),
+			MATERIAL_XENON,
+			Vector3(0.0, 45.0 * dx[i] * dz[i], 0.0)
+		)
 
 
 ## COCKPIT interior x[-3.4, 3.4], z[-18.8, -14.2]. South wall split around the 1.4 m corridor doorway.
@@ -110,26 +141,28 @@ func _build_cockpit() -> void:
 	var space: StaticBody3D = _make_space("Cockpit")
 	_add_floor(space, 0.0, -16.5, 7.2, 5.0)
 	_add_ceiling(space, 0.0, -16.5, 7.2, 5.0)
-	_add_wall(space, "WallN", 0.0, -18.9, 7.2, WALL_THICKNESS, MATERIAL_WALL_PAINTED)
-	_add_wall(space, "WallE", 3.5, -16.5, WALL_THICKNESS, 5.0, MATERIAL_WALL_PAINTED)
-	_add_wall(space, "WallW", -3.5, -16.5, WALL_THICKNESS, 5.0, MATERIAL_WALL_PAINTED)
-	_add_wall(space, "WallS_A", -2.15, -14.1, 2.9, WALL_THICKNESS, MATERIAL_WALL_PAINTED)
-	_add_wall(space, "WallS_B", 2.15, -14.1, 2.9, WALL_THICKNESS, MATERIAL_WALL_PAINTED)
+	_add_wall(space, "WallN", 0.0, -18.9, 7.2, WALL_THICKNESS, MATERIAL_XENON)
+	_add_wall(space, "WallE", 3.5, -16.5, WALL_THICKNESS, 5.0, MATERIAL_XENON)
+	_add_wall(space, "WallW", -3.5, -16.5, WALL_THICKNESS, 5.0, MATERIAL_XENON)
+	_add_wall(space, "WallS_A", -2.15, -14.1, 2.9, WALL_THICKNESS, MATERIAL_XENON)
+	_add_wall(space, "WallS_B", 2.15, -14.1, 2.9, WALL_THICKNESS, MATERIAL_XENON)
+	_add_chamfers(space, -3.4, -18.8, 3.4, -14.2)
 
 
-## CORRIDOR spine interior x[-0.7, 0.7], z[-14.0, 1.4]. Side walls are split around every
-## east/west doorway gap; the cockpit south wall and engine-bay north wall close the ends.
+## CORRIDOR spine interior x[-0.7, 0.7], z[-14.0, 1.4]. Each side is a faceted cross-section
+## (lower wall, inward-leaning cant, upper header) split around every east/west doorway gap;
+## the cockpit south wall and engine-bay north wall close the ends.
 func _build_corridor() -> void:
 	var space: StaticBody3D = _make_space("Corridor")
 	_add_floor(space, 0.0, -6.3, 1.8, 15.8)
-	_add_ceiling(space, 0.0, -6.3, 1.8, 15.8)
-	_add_wall(space, "WallW_A", -0.8, -12.4, WALL_THICKNESS, 3.6, MATERIAL_WALL_CONTAINER)
-	_add_wall(space, "WallW_B", -0.8, -8.0, WALL_THICKNESS, 2.8, MATERIAL_WALL_CONTAINER)
-	_add_wall(space, "WallW_C", -0.8, -3.6, WALL_THICKNESS, 3.6, MATERIAL_WALL_CONTAINER)
-	_add_wall(space, "WallW_D", -0.8, 0.5, WALL_THICKNESS, 2.2, MATERIAL_WALL_CONTAINER)
-	_add_wall(space, "WallE_A", 0.8, -10.2, WALL_THICKNESS, 8.0, MATERIAL_WALL_CONTAINER)
-	_add_wall(space, "WallE_B", 0.8, -3.6, WALL_THICKNESS, 2.8, MATERIAL_WALL_CONTAINER)
-	_add_wall(space, "WallE_C", 0.8, 0.3, WALL_THICKNESS, 2.6, MATERIAL_WALL_CONTAINER)
+	_add_ceiling(space, 0.0, -6.3, 1.3, 15.8)
+	_add_corridor_segment(space, "W", "A", -1.0, -12.4, 3.6)
+	_add_corridor_segment(space, "W", "B", -1.0, -8.0, 2.8)
+	_add_corridor_segment(space, "W", "C", -1.0, -3.6, 3.6)
+	_add_corridor_segment(space, "W", "D", -1.0, 0.5, 2.2)
+	_add_corridor_segment(space, "E", "A", 1.0, -10.2, 8.0)
+	_add_corridor_segment(space, "E", "B", 1.0, -3.6, 2.8)
+	_add_corridor_segment(space, "E", "C", 1.0, 0.3, 2.6)
 
 
 ## QUARTERS interior x[-5.4, -0.9], z[-12.6, -8.2]. East side is the corridor wall;
@@ -138,9 +171,10 @@ func _build_quarters() -> void:
 	var space: StaticBody3D = _make_space("Quarters")
 	_add_floor(space, -3.25, -10.4, 4.7, 4.8)
 	_add_ceiling(space, -3.25, -10.4, 4.7, 4.8)
-	_add_wall(space, "WallN", -3.2, -12.7, 4.8, WALL_THICKNESS, MATERIAL_WALL_PAINTED)
-	_add_wall(space, "WallS", -3.2, -8.1, 4.8, WALL_THICKNESS, MATERIAL_WALL_PAINTED)
-	_add_wall(space, "WallW", -5.5, -10.4, WALL_THICKNESS, 4.8, MATERIAL_WALL_PAINTED)
+	_add_wall(space, "WallN", -3.2, -12.7, 4.8, WALL_THICKNESS, MATERIAL_XENON)
+	_add_wall(space, "WallS", -3.2, -8.1, 4.8, WALL_THICKNESS, MATERIAL_XENON)
+	_add_wall(space, "WallW", -5.5, -10.4, WALL_THICKNESS, 4.8, MATERIAL_XENON)
+	_add_chamfers(space, -5.4, -12.6, -0.9, -8.2)
 
 
 ## LIFE_SUPPORT interior x[-4.4, -0.9], z[-7.6, -5.0]. East side is the corridor wall;
@@ -149,9 +183,10 @@ func _build_life_support() -> void:
 	var space: StaticBody3D = _make_space("LifeSupport")
 	_add_floor(space, -2.75, -6.3, 3.7, 3.0)
 	_add_ceiling(space, -2.75, -6.3, 3.7, 3.0)
-	_add_wall(space, "WallN", -2.7, -7.7, 3.8, WALL_THICKNESS, MATERIAL_WALL_CONTAINER)
-	_add_wall(space, "WallS", -2.7, -4.9, 3.8, WALL_THICKNESS, MATERIAL_WALL_CONTAINER)
-	_add_wall(space, "WallW", -4.5, -6.3, WALL_THICKNESS, 3.0, MATERIAL_WALL_CONTAINER)
+	_add_wall(space, "WallN", -2.7, -7.7, 3.8, WALL_THICKNESS, MATERIAL_XENON)
+	_add_wall(space, "WallS", -2.7, -4.9, 3.8, WALL_THICKNESS, MATERIAL_XENON)
+	_add_wall(space, "WallW", -4.5, -6.3, WALL_THICKNESS, 3.0, MATERIAL_XENON)
+	_add_chamfers(space, -4.4, -7.6, -0.9, -5.0)
 
 
 ## GALLEY interior x[0.9, 4.9], z[-7.6, -4.0]. West side is the corridor wall;
@@ -160,9 +195,10 @@ func _build_galley() -> void:
 	var space: StaticBody3D = _make_space("Galley")
 	_add_floor(space, 3.0, -5.8, 4.2, 4.0)
 	_add_ceiling(space, 3.0, -5.8, 4.2, 4.0)
-	_add_wall(space, "WallN", 2.95, -7.7, 4.3, WALL_THICKNESS, MATERIAL_WALL_PAINTED)
-	_add_wall(space, "WallS", 2.95, -3.9, 4.3, WALL_THICKNESS, MATERIAL_WALL_PAINTED)
-	_add_wall(space, "WallE", 5.0, -5.8, WALL_THICKNESS, 4.0, MATERIAL_WALL_PAINTED)
+	_add_wall(space, "WallN", 2.95, -7.7, 4.3, WALL_THICKNESS, MATERIAL_XENON)
+	_add_wall(space, "WallS", 2.95, -3.9, 4.3, WALL_THICKNESS, MATERIAL_XENON)
+	_add_wall(space, "WallE", 5.0, -5.8, WALL_THICKNESS, 4.0, MATERIAL_XENON)
+	_add_chamfers(space, 0.9, -7.6, 4.9, -4.0)
 
 
 ## WATER_CLOSET interior x[0.9, 3.5], z[-3.0, -0.8]. West side is the corridor wall;
@@ -171,9 +207,10 @@ func _build_water_closet() -> void:
 	var space: StaticBody3D = _make_space("WaterCloset")
 	_add_floor(space, 2.3, -1.9, 2.8, 2.6)
 	_add_ceiling(space, 2.3, -1.9, 2.8, 2.6)
-	_add_wall(space, "WallN", 2.25, -3.1, 2.9, WALL_THICKNESS, MATERIAL_WALL_PAINTED)
-	_add_wall(space, "WallS", 2.25, -0.7, 2.9, WALL_THICKNESS, MATERIAL_WALL_PAINTED)
-	_add_wall(space, "WallE", 3.6, -1.9, WALL_THICKNESS, 2.6, MATERIAL_WALL_PAINTED)
+	_add_wall(space, "WallN", 2.25, -3.1, 2.9, WALL_THICKNESS, MATERIAL_XENON)
+	_add_wall(space, "WallS", 2.25, -0.7, 2.9, WALL_THICKNESS, MATERIAL_XENON)
+	_add_wall(space, "WallE", 3.6, -1.9, WALL_THICKNESS, 2.6, MATERIAL_XENON)
+	_add_chamfers(space, 0.9, -3.0, 3.5, -0.8, 0.25)
 
 
 ## STORAGE interior x[-4.6, -0.9], z[-3.0, 0.6]. East side is the corridor wall;
@@ -182,9 +219,10 @@ func _build_storage() -> void:
 	var space: StaticBody3D = _make_space("Storage")
 	_add_floor(space, -2.85, -1.2, 3.9, 4.0)
 	_add_ceiling(space, -2.85, -1.2, 3.9, 4.0)
-	_add_wall(space, "WallN", -2.8, -3.1, 4.0, WALL_THICKNESS, MATERIAL_WALL_CONTAINER)
-	_add_wall(space, "WallS", -2.8, 0.7, 4.0, WALL_THICKNESS, MATERIAL_WALL_CONTAINER)
-	_add_wall(space, "WallW", -4.7, -1.2, WALL_THICKNESS, 4.0, MATERIAL_WALL_CONTAINER)
+	_add_wall(space, "WallN", -2.8, -3.1, 4.0, WALL_THICKNESS, MATERIAL_XENON)
+	_add_wall(space, "WallS", -2.8, 0.7, 4.0, WALL_THICKNESS, MATERIAL_XENON)
+	_add_wall(space, "WallW", -4.7, -1.2, WALL_THICKNESS, 4.0, MATERIAL_XENON)
+	_add_chamfers(space, -4.6, -3.0, -0.9, 0.6)
 
 
 ## ENGINE_BAY interior x[-3.6, 3.6], z[1.6, 7.8]. North wall split around the 1.4 m corridor doorway.
@@ -192,11 +230,12 @@ func _build_engine_bay() -> void:
 	var space: StaticBody3D = _make_space("EngineBay")
 	_add_floor(space, 0.0, 4.7, 7.6, 6.6)
 	_add_ceiling(space, 0.0, 4.7, 7.6, 6.6)
-	_add_wall(space, "WallS", 0.0, 7.9, 7.6, WALL_THICKNESS, MATERIAL_WALL_CONTAINER)
-	_add_wall(space, "WallE", 3.7, 4.7, WALL_THICKNESS, 6.6, MATERIAL_WALL_CONTAINER)
-	_add_wall(space, "WallW", -3.7, 4.7, WALL_THICKNESS, 6.6, MATERIAL_WALL_CONTAINER)
-	_add_wall(space, "WallN_A", -2.25, 1.5, 3.1, WALL_THICKNESS, MATERIAL_WALL_CONTAINER)
-	_add_wall(space, "WallN_B", 2.25, 1.5, 3.1, WALL_THICKNESS, MATERIAL_WALL_CONTAINER)
+	_add_wall(space, "WallS", 0.0, 7.9, 7.6, WALL_THICKNESS, MATERIAL_XENON)
+	_add_wall(space, "WallE", 3.7, 4.7, WALL_THICKNESS, 6.6, MATERIAL_XENON)
+	_add_wall(space, "WallW", -3.7, 4.7, WALL_THICKNESS, 6.6, MATERIAL_XENON)
+	_add_wall(space, "WallN_A", -2.25, 1.5, 3.1, WALL_THICKNESS, MATERIAL_XENON)
+	_add_wall(space, "WallN_B", 2.25, 1.5, 3.1, WALL_THICKNESS, MATERIAL_XENON)
+	_add_chamfers(space, -3.6, 1.6, 3.6, 7.8)
 
 
 ## Visual greeble only (no collision): ceiling light strips, corridor ribs, conduit runs.
@@ -211,10 +250,10 @@ func _build_dressing() -> void:
 	_add_dressing("EngineBay", "Strip", Vector3(0, 2.94, 4.7), Vector3(6.6, 0.04, 0.22), MATERIAL_STRIP)
 	var spine_z: Array[float] = [-13.0, -10.6, -8.2, -5.8, -3.4, -1.0, 1.2]
 	for i: int in spine_z.size():
-		_add_dressing("Corridor", "RibW%d" % i, Vector3(-0.66, 1.3, spine_z[i]), Vector3(0.08, 2.5, 0.12), MATERIAL_WALL_CONTAINER)
-		_add_dressing("Corridor", "RibE%d" % i, Vector3(0.66, 1.3, spine_z[i]), Vector3(0.08, 2.5, 0.12), MATERIAL_WALL_CONTAINER)
-	_add_dressing("Corridor", "ConduitW", Vector3(-0.55, 2.78, -6.3), Vector3(0.07, 0.07, 15.0), MATERIAL_CONDUIT)
-	_add_dressing("Corridor", "ConduitE", Vector3(0.55, 2.78, -6.3), Vector3(0.07, 0.07, 15.0), MATERIAL_CONDUIT)
+		_add_dressing("Corridor", "RibW%d" % i, Vector3(-0.66, 0.8, spine_z[i]), Vector3(0.08, 1.6, 0.12), MATERIAL_XENON)
+		_add_dressing("Corridor", "RibE%d" % i, Vector3(0.66, 0.8, spine_z[i]), Vector3(0.08, 1.6, 0.12), MATERIAL_XENON)
+	_add_dressing("Corridor", "ConduitW", Vector3(-0.34, 2.72, -6.3), Vector3(0.07, 0.07, 15.0), MATERIAL_CONDUIT)
+	_add_dressing("Corridor", "ConduitE", Vector3(0.34, 2.72, -6.3), Vector3(0.07, 0.07, 15.0), MATERIAL_CONDUIT)
 
 
 func _add_dressing(space_name: String, part_name: String, center: Vector3, size: Vector3, material_path: String) -> void:
@@ -332,3 +371,4 @@ func _count_parts(node: Node) -> int:
 			count += 1
 		count += _count_parts(child)
 	return count
+

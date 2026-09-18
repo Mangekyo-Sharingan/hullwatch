@@ -165,6 +165,7 @@ Design rule: every cascade is *traceable* by an attentive player. No randomness 
 - **Spaces:** cramped, purposeful decks. Every object has a job. Cleanliness tells story (a freshly tidied module means something).
 - **The ship is the set:** one continuous interior for the whole game (MVP: one module), density over quantity.
 - **Post:** film grain, subtle chromatic aberration, CRT shader on screens, heavy vignette only when simulation state justifies it.
+- **Xenon-metal (signature material):** the ship's structure is a *grown*, seamless xenon-metal lattice — an alloy no yard can manufacture or duplicate. It reads as dense, faintly mottled graphite with a cold sheen at grazing angles. The fiction's deliberate split: miraculous structural materials, 1980s-era computers, toggles and 5-inch disks bolted on top of them. Repairs improvise; the frame itself is untouchable.
 
 ### 6.2 Asset Pipeline
 
