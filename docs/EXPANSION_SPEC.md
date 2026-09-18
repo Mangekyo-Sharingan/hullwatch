@@ -52,7 +52,7 @@ the related v1 non-goals in `PRODUCTION_SPEC.md` §8.3.
 | # | Week | Deliverable | Exit criteria |
 |---|---|---|---|
 | **M7 — EVA & open hull** | 1 | Generated exterior hull + airlock module, space backdrop (starfield, distant bodies), suit + vacuum exposure, tether, exterior walkable with boots | Suit up → cycle airlock → walk the hull tethered → re-enter; airlock/vacuum/tether headless tests; save/load clean |
-| **M8 — Deep field** | 2 | Chunked procedural field around the drifting ship, ~98% empty; asteroids/anomalies/debris; contacts detection (console + scanner ping) | 7 headless sim days → deterministic density + seeds; contacts appear; stream in/out leak-free; one contact reachable by EVA |
+| **M8 — Deep field** | 2 | Chunked procedural field around the drifting ship, ~98% empty; asteroids/anomalies/debris; contacts detection (console + scanner ping); manual close-approach thrusters (hybrid traversal) | 7 headless sim days → deterministic density + seeds; contacts appear; stream in/out leak-free; one contact reachable by EVA |
 | **M9 — Materials & fabrication** | 3 | Mineable asteroids (ice/ore/metal/exotic), handheld cutter + sample hauling, cargo hold, anomaly salvage, Fabricator recipes (filter, sealant, O2 candle, water filter, ration, spares) | Month-long scenario sustained on mined inputs alone; fabrication gated by power; cargo mass persists in save |
 | **M10 — Ship expansion** | 4 | Exterior hardpoints + module catalog: greenhouse (renewable food), workshop, expanded storage, aux battery, med bay; EVA construction flow; new compartments auto-register in atmosphere/thermal/power | Build greenhouse → renewable food in scenario; module save/load; geometry regenerates deterministically |
 | **M11 — Destinations** | 5 | Star chart (planets/stars), course-setting, multi-day transit with events + fuel, arrival content (sector swap, sky, special resources, comms beats) | Voyage to a planet and a star in scenario; fuel consumption; arrival content differs per destination; save/load |
@@ -87,10 +87,15 @@ migration tests cover the gap.
 | Field performance | Chunk budget + far-object simplification; profilers exist (`profile_scene.gd`) |
 | Save growth | New systems fold into existing versioned groups; migration tests from v2 |
 
-## Open decisions (asked before M7 build)
+## Resolved decisions (2026-09-18, user-confirmed)
 
-1. Traversal control: auto-drift + course-setting (recommended) vs manual piloting.
-2. Extraction: handheld tools + canisters (recommended) vs ship-mounted manipulator arm.
-3. Expansion: buildable modules at fixed hardpoints (recommended) vs freeform hull building.
-4. Space tone: strictly environmental hazards (recommended) vs occasional eerie scripted
-   anomalies (still no entity).
+1. **Traversal — hybrid:** the ship auto-drifts by default (content streams past); the player
+   sets course to destinations and rides multi-day transits. **Manual thrusters exist for
+   close approach/docking maneuvers only** (introduced with the M8 field work, used for M11
+   arrivals) — no full piloting layer.
+2. **Extraction — handheld first, ship arm later:** M9 ships EVA tools + sample canisters
+   hauled through the airlock; a ship-mounted manipulator arm becomes a later module/upgrade.
+3. **Expansion — hardpoints now, freeform later:** EA uses fixed exterior hardpoints + an
+   authored module catalog; freeform hull building is post-EA.
+4. **Space tone — environmental only:** vacuum, fuel, distance, silence, strange sensor
+   readings. No entity, no scripted supernatural beats.
