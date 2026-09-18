@@ -1,6 +1,6 @@
-# Shipping Checklist (M6)
+# Shipping Checklist
 
-State as of M6 — items marked TODO are honest gaps, not paperwork.
+State as of the v0.7.0 test build — items marked TODO are honest gaps, not paperwork.
 
 ## Build pipeline
 - [x] `build.ps1` produces a single-file Windows build (`build/windows/Hullwatch.exe`, PCK embedded)
@@ -13,15 +13,18 @@ State as of M6 — items marked TODO are honest gaps, not paperwork.
 
 ## Game content
 - [x] Playable loop: walk, repair, sleep, stabilize, travel legs
-- [x] 6 compartments, 5 procedures, wear + failures, cascades, save/load
+- [x] 8 ship spaces, 5 procedures, wear + failures, cascades, save/load
+- [x] Carry/pickup system (procedures + diagnostic tools)
+- [x] Food/hunger (ration stores wired into vitals)
+- [x] Humidity/condensation model with cascades
+- [x] Diagnostics: tools gate fault modes and wear readouts (spec §4.3)
+- [x] Comms narrative: latency, unread traffic, the late reply (spec §4.1/§5)
 - [x] Win state (final waypoint) + loss states with mercy recovery
-- [ ] External playtest (spec §8.5 success test: manual-only survival) — still pending
+- [ ] External playtest of current content (spec §8.5 success test: manual-only survival) — v0.6.0 round returned; v0.7.0 round pending
 - [ ] Balance pass across a full 3-day session on real hardware
-- [ ] Carry/pickup system (MVP must-have, currently deferred)
-- [ ] Food/hunger (stores abstracted only)
 
 ## Technical
-- [x] 29 headless suites green; runtime clean
+- [x] 44 headless suites green; runtime clean
 - [x] Versioned saves with migration (v1 → v2) + migration tests
 - [x] Settings persisted (ConfigFile) with validated ranges
 - [x] Localization prep: 44 extracted strings, CSV translation registered
@@ -37,7 +40,8 @@ State as of M6 — items marked TODO are honest gaps, not paperwork.
 
 ## Store
 - [x] Draft store copy (`docs/STORE_PAGE.md`)
-- [x] Placeholder capsules + screenshot cards (`docs/store/*.png`)
-- [ ] Real key art + in-game screenshots (capture during playtest)
+- [x] Capsule set (`docs/store/capsule_*.png`)
+- [x] Real in-game screenshots (`docs/store/screenshot_01..10.png`)
+- [ ] Real key art (capsules are still generated)
 - [ ] Steamworks (or itch.io) account + depot configuration
-- [x] Public GitHub release with the test build attached (`v0.6.0`)
+- [x] Public GitHub releases with test builds attached (`v0.6.0`, `v0.7.0`)

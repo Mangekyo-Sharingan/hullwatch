@@ -9,8 +9,8 @@ Guide for AI coding agents working in this repository. Read this first, then `do
 - Repo root: `E:\Projekt\Misc\OperationSpacer`
 - Godot project root: `game/`
 - Production spec: `docs/PRODUCTION_SPEC.md` (authoritative for design intent)
-- Status: **post-v0.6.0 expansion + diagnostics + comms + playtest fixes**: cramped faceted 8-space station, xenon-metal material, analogue-horror filter, CRT screens, practical lighting, hidden faults diagnosed with tools (spec §4.3), a comms system with weeks of latency and the one late reply (spec §4.1/§5), and a playtest-fix pass: **every readout closes with E or Esc from anywhere**, probe/scanner results print a HUD line with a beep, the probe prompt names the carried tool, and the readout hint says how to close. Real captures in `docs/store/` (10).
-- **Builds vs. source:** the only public release is **v0.6.0**, which predates diagnostics, comms and the playtest fixes. The last external playtest used that stale build (no scanner existed in it). Always `.\build.ps1` and verify the feature exists in the exe before handing a build to a tester. **Next: cut v0.7.0 from current `main` for the next playtest.**
+- Status: **v0.7.0 released for playtest** — cramped faceted 8-space station, xenon-metal material, analogue-horror filter, CRT screens, practical lighting, hidden faults diagnosed with tools (spec §4.3), a comms system with weeks of latency and the one late reply (spec §4.1/§5), and the v0.6.0 playtest fixes (every readout closes with E or Esc from anywhere, tool results print a HUD line with a beep, the probe prompt names the carried tool). Real captures in `docs/store/` (10). Next: the v0.7.0 playtest feedback round.
+- **Builds vs. source:** `v0.7.0` is the current playtest build (GitHub release, exe attached); `v0.6.0` predates diagnostics/comms and produced the first feedback round only. Always `.\build.ps1` and verify the feature is present in the exe before handing a build to a tester.
 - Asset shortlist for the M3 art pass: `docs/ASSET_SOURCES.md` — acquire at M3, not before
 
 ## Tech Stack
