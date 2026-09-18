@@ -50,10 +50,17 @@
 [ext_resource type="Resource" path="res://src/data/power/circuit_airlock.tres" id="68_circuit_airlock"]
 [ext_resource type="Resource" path="res://src/data/atmosphere/compartment_airlock.tres" id="69_compartment_airlock"]
 [ext_resource type="Script" path="res://src/systems/airlock.gd" id="70_airlock"]
+[ext_resource type="Shader" path="res://src/shaders/space_sky.gdshader" id="71_space_sky"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_sky"]
+shader = ExtResource("71_space_sky")
+
+[sub_resource type="Sky" id="Sky_space"]
+sky_material = SubResource("ShaderMaterial_sky")
 
 [sub_resource type="Environment" id="Environment_1"]
-background_mode = 1
-background_color = Color(0.012, 0.014, 0.018, 1)
+background_mode = 2
+sky = SubResource("Sky_space")
 ambient_light_source = 2
 ambient_light_color = Color(0.055, 0.06, 0.07, 1)
 ambient_light_energy = 0.16
@@ -68,6 +75,12 @@ environment = SubResource("Environment_1")
 transform = Transform3D(0.866, 0, -0.5, -0.3536, 0.7071, -0.6124, 0.3536, 0.7071, 0.6124, 0, 4, 0)
 light_color = Color(0.55, 0.62, 0.78, 1)
 light_energy = 0.1
+
+[node name="StarLight" type="DirectionalLight3D" parent="."]
+rotation_degrees = Vector3(-38, 168, 0)
+light_color = Color(1, 0.92, 0.8, 1)
+light_energy = 0.45
+light_specular = 0.4
 
 [node name="CabinLight" type="OmniLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.8, -4.0)

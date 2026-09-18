@@ -39,6 +39,7 @@ func _run() -> void:
 	_check(readout.contains("RTG_MAIN"), "panel reports live component condition in-world")
 
 	_test_world_wiring(main, atmosphere)
+	_test_space_backdrop(main)
 
 	transition.fade_out_seconds = 0.05
 	transition.fade_in_seconds = 0.05
@@ -96,6 +97,15 @@ func _test_world_wiring(main: Node, atmosphere: Node) -> void:
 	_check(door_count == 9, "all nine doors are wired")
 	_check(link_count == 8, "all eight compartment links are wired")
 	_check(missing.is_empty(), "every zone, door and link maps to a registered compartment (%s)" % ", ".join(missing))
+
+
+func _test_space_backdrop(main: Node) -> void:
+	var environment_node: WorldEnvironment = main.get_node_or_null(^"WorldEnvironment") as WorldEnvironment
+	var environment: Environment = environment_node.environment if environment_node != null else null
+	_check(environment != null and environment.background_mode == Environment.BG_SKY, "environment renders a space sky")
+	_check(environment != null and environment.sky != null and environment.sky.sky_material is ShaderMaterial, "sky uses the starfield shader")
+	var star_light: DirectionalLight3D = main.get_node_or_null(^"StarLight") as DirectionalLight3D
+	_check(star_light != null and star_light.light_energy > 0.0, "star light illuminates the exterior")
 
 
 func _finish() -> void:

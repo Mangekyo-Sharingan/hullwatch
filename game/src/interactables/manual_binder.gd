@@ -27,6 +27,8 @@ func is_open() -> bool:
 func close() -> void:
 	if _menu != null:
 		_menu.close()
+	if _root != null:
+		_root.visible = false
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -73,6 +75,8 @@ func _handle_interact(_player: Node) -> void:
 		return
 	_menu.setup("OPERATOR'S MANUAL", _page_titles())
 	_menu.open()
+	if _root != null:
+		_root.visible = true
 	_refresh_content()
 	_emit_sim_event(&"manual_opened", {})
 

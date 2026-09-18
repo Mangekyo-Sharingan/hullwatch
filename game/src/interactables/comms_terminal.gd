@@ -19,6 +19,8 @@ func is_open() -> bool:
 func close() -> void:
 	if _menu != null:
 		_menu.close()
+	if _root != null:
+		_root.visible = false
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -71,6 +73,8 @@ func _handle_interact(_player: Node) -> void:
 	_refresh_menu()
 	_menu.open()
 	_refresh_content()
+	if _root != null:
+		_root.visible = true
 
 
 func _on_selected(index: int) -> void:
