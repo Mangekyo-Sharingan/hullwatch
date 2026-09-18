@@ -29,6 +29,7 @@ func setup_clock() -> void:
 	_capture_typed(&"component_condition_changed", ["component_id", "condition"])
 	_capture_typed(&"compartment_pressure_changed", ["compartment_id", "pressure_kpa"])
 	_capture_typed(&"compartment_atmosphere_changed", ["compartment_id", "o2_fraction", "co2_ppm"])
+	_capture_typed(&"airlock_state_changed", ["airlock_id", "state"])
 
 
 func make_circuit(circuit_id: StringName, load_w: float, priority: int) -> PowerCircuit:

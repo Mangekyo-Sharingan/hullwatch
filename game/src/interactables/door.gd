@@ -5,6 +5,8 @@ extends Interactable
 @export var compartment_a: StringName = &""
 @export var compartment_b: StringName = &""
 @export var open_offset: Vector3 = Vector3(0, 2.1, 0)
+@export var airlock_id: StringName = &""
+@export var airlock_side: StringName = &""
 
 var _open: bool = false
 var _slab: MeshInstance3D
@@ -34,7 +36,22 @@ func get_interaction_prompt() -> String:
 
 
 func _handle_interact(_player: Node) -> void:
+	if airlock_id != &"":
+		var airlock: Node = _get_system(&"airlock_system")
+		if airlock != null and airlock.has_method(&"request_door"):
+			if bool(airlock.call("request_door", airlock_side, not _open)):
+				_set_open(not _open)
+			else:
+				_emit_airlock_refusal(airlock)
+			return
 	_set_open(not _open)
+
+
+func _emit_airlock_refusal(airlock: Node) -> void:
+	var reason: StringName = &"airlock_interlock"
+	if airlock.has_method(&"get_door_refusal"):
+		reason = StringName(airlock.call("get_door_refusal", airlock_side, not _open))
+	_emit_sim_event(&"procedure_error", {"reason": reason, "airlock_id": airlock_id})
 
 
 func _set_open(open: bool) -> void:
@@ -53,6 +70,8 @@ func _apply_open_state() -> void:
 
 
 func _sync_isolation() -> void:
+	if airlock_id != &"":
+		return
 	var atmosphere: Node = _get_system(&"atmosphere_system")
 	if atmosphere == null or not atmosphere.has_method(&"set_isolated"):
 		return
@@ -75,3 +94,6 @@ func save_state() -> Dictionary:
 func load_state(state: Dictionary) -> void:
 	super.load_state(state)
 	_set_open(bool(state.get("open", _open)))
+	var airlock: Node = _get_system(&"airlock_system")
+	if airlock != null and airlock.has_method(&"force_door_state"):
+		airlock.call("force_door_state", airlock_side, _open)

@@ -18,6 +18,7 @@ const MILD_DAMAGE_SCALE: float = 0.25
 @export var food_part_id: StringName = &"food_ration"
 @export var rations_per_occupant_per_day: float = 1.0
 @export var starvation_damage_per_hour: float = 0.15
+@export var vacuum_damage_per_hour: float = 0.5
 
 var condition: float = 0.0
 
@@ -42,6 +43,7 @@ func sim_tick(delta_hours: float) -> void:
 	var environment: Dictionary = _read_environment()
 	if environment.is_empty():
 		return
+	_resolve_vacuum_protection(environment, delta_hours)
 	_tick_rations(environment, delta_hours)
 	_tick_condition(environment, delta_hours)
 	_tick_cognition(environment)
@@ -138,11 +140,23 @@ func _read_environment() -> Dictionary:
 		"compartment_id": manned_id,
 		"o2_fraction": float(manned_status.get("o2_fraction", 1.0)),
 		"co2_ppm": float(manned_status.get("co2_ppm", 0.0)),
+		"pressure_kpa": float(manned_status.get("pressure_kpa", 101.325)),
 		"temperature_c": float((thermal_status as Dictionary).get("temperature_c", 21.0)),
 		"occupants": maxi(int(manned_status.get("occupants", 0)), 0),
 		"dehydrated": _read_dehydrated(),
 		"starving": _read_starving(),
 	}
+
+
+func _resolve_vacuum_protection(environment: Dictionary, delta_hours: float) -> void:
+	environment["vacuum_protected"] = false
+	var pressure_kpa: float = float(environment.get("pressure_kpa", 101.325))
+	if pressure_kpa >= AtmosphereSystem.VACUUM_PRESSURE_KPA:
+		return
+	var airlock: Node = _first_node_in_group(&"airlock_system")
+	if airlock == null or not airlock.has_method(&"consume_suit_o2"):
+		return
+	environment["vacuum_protected"] = bool(airlock.call("consume_suit_o2", delta_hours))
 
 
 func _read_dehydrated() -> bool:
@@ -192,6 +206,8 @@ func _tick_condition(environment: Dictionary, delta_hours: float) -> void:
 			rate_per_hour = dehydration_damage_per_hour
 		elif new_cause == &"starvation":
 			rate_per_hour = starvation_damage_per_hour
+		elif new_cause == &"vacuum":
+			rate_per_hour = vacuum_damage_per_hour
 	elif bool(exposure["mild"]):
 		rate_per_hour = damage_per_hour * MILD_DAMAGE_SCALE
 	var cause_changed: bool = new_cause != _cause
@@ -217,9 +233,14 @@ func _classify_exposure(environment: Dictionary) -> Dictionary:
 	var o2_fraction: float = float(environment["o2_fraction"])
 	var co2_ppm: float = float(environment["co2_ppm"])
 	var temperature_c: float = float(environment["temperature_c"])
-	if o2_fraction < o2_breathing_threshold:
+	var pressure_kpa: float = float(environment.get("pressure_kpa", 101.325))
+	var in_vacuum: bool = pressure_kpa < AtmosphereSystem.VACUUM_PRESSURE_KPA
+	var protected: bool = bool(environment.get("vacuum_protected", false))
+	if in_vacuum and not protected:
+		return {"cause": &"vacuum", "severe": true, "mild": false}
+	if not in_vacuum and o2_fraction < o2_breathing_threshold:
 		return {"cause": &"oxygen", "severe": true, "mild": false}
-	if co2_ppm > co2_breathing_ppm:
+	if not in_vacuum and co2_ppm > co2_breathing_ppm:
 		return {"cause": &"carbon_dioxide", "severe": true, "mild": false}
 	if temperature_c < cold_severe_c:
 		return {"cause": &"hypothermia", "severe": true, "mild": false}
@@ -236,11 +257,17 @@ func _level_for(environment: Dictionary) -> int:
 	var o2_fraction: float = float(environment["o2_fraction"])
 	var co2_ppm: float = float(environment["co2_ppm"])
 	var temperature_c: float = float(environment["temperature_c"])
-	if condition >= 0.7 or o2_fraction < o2_breathing_threshold or co2_ppm > co2_breathing_ppm or bool(environment.get("dehydrated", false)) or bool(environment.get("starving", false)):
+	var pressure_kpa: float = float(environment.get("pressure_kpa", 101.325))
+	var in_vacuum: bool = pressure_kpa < AtmosphereSystem.VACUUM_PRESSURE_KPA
+	var protected: bool = bool(environment.get("vacuum_protected", false))
+	if in_vacuum and not protected:
 		return 3
-	if co2_ppm >= cognition_co2_severe_ppm or temperature_c <= cold_threshold_c:
+	var breathing_trouble: bool = not in_vacuum and (o2_fraction < o2_breathing_threshold or co2_ppm > co2_breathing_ppm)
+	if condition >= 0.7 or breathing_trouble or bool(environment.get("dehydrated", false)) or bool(environment.get("starving", false)):
+		return 3
+	if not in_vacuum and (co2_ppm >= cognition_co2_severe_ppm or temperature_c <= cold_threshold_c):
 		return 2
-	if co2_ppm >= cognition_co2_ppm or temperature_c <= cognition_cold_c:
+	if not in_vacuum and (co2_ppm >= cognition_co2_ppm or temperature_c <= cognition_cold_c):
 		return 1
 	return 0
 

@@ -11,6 +11,7 @@ const TEMP_K: float = 293.15
 const O2_KG_PER_HOUR_PER_OCCUPANT: float = 0.035
 const CO2_KG_PER_HOUR_PER_OCCUPANT: float = 0.042
 const MIX_RATE_PER_HOUR: float = 6.0
+const VACUUM_PRESSURE_KPA: float = 5.0
 const PRESSURE_EMIT_DELTA_KPA: float = 0.05
 const CO2_EMIT_DELTA_PPM: float = 25.0
 const O2_EMIT_DELTA_FRACTION: float = 0.001
@@ -151,6 +152,90 @@ func get_filter_condition(compartment_id: StringName) -> float:
 	if state.is_empty():
 		return 0.0
 	return float(state["filter_condition"])
+
+
+## Bulk gas API for the airlock pump and suit refills: species-proportional moves
+## that conserve gas, unlike the passive diffusion in `_mix_connected`.
+func get_gas_moles(compartment_id: StringName) -> Dictionary:
+	var state: Dictionary = _require_state(compartment_id, "get_gas_moles")
+	if state.is_empty():
+		return {}
+	return {"o2": float(state["n_o2"]), "co2": float(state["n_co2"]), "n2": float(state["n_n2"])}
+
+
+func moles_for_pressure(compartment_id: StringName, pressure_kpa: float) -> float:
+	var state: Dictionary = _require_state(compartment_id, "moles_for_pressure")
+	if state.is_empty():
+		return 0.0
+	var config: CompartmentConfig = state["config"]
+	return maxf(pressure_kpa, 0.0) * PA_PER_KPA * config.volume_m3 / (R_GAS * TEMP_K)
+
+
+func add_gas_moles(compartment_id: StringName, o2: float, co2: float, n2: float) -> void:
+	var state: Dictionary = _require_state(compartment_id, "add_gas_moles")
+	if state.is_empty():
+		return
+	state["n_o2"] = maxf(float(state["n_o2"]) + maxf(o2, 0.0), 0.0)
+	state["n_co2"] = maxf(float(state["n_co2"]) + maxf(co2, 0.0), 0.0)
+	state["n_n2"] = maxf(float(state["n_n2"]) + maxf(n2, 0.0), 0.0)
+
+
+func remove_gas_moles(compartment_id: StringName, o2: float, co2: float, n2: float) -> Dictionary:
+	var state: Dictionary = _require_state(compartment_id, "remove_gas_moles")
+	if state.is_empty():
+		return {}
+	var removed: Dictionary = {
+		"o2": minf(maxf(o2, 0.0), float(state["n_o2"])),
+		"co2": minf(maxf(co2, 0.0), float(state["n_co2"])),
+		"n2": minf(maxf(n2, 0.0), float(state["n_n2"])),
+	}
+	state["n_o2"] = float(state["n_o2"]) - float(removed["o2"])
+	state["n_co2"] = float(state["n_co2"]) - float(removed["co2"])
+	state["n_n2"] = float(state["n_n2"]) - float(removed["n2"])
+	return removed
+
+
+func transfer_gas(from_id: StringName, to_id: StringName, total_moles: float) -> float:
+	if from_id == to_id or not is_finite(total_moles) or total_moles <= 0.0:
+		return 0.0
+	var from_state: Dictionary = _require_state(from_id, "transfer_gas")
+	var to_state: Dictionary = _require_state(to_id, "transfer_gas")
+	if from_state.is_empty() or to_state.is_empty():
+		return 0.0
+	var available: float = _total_moles(from_state)
+	var moved: float = minf(total_moles, available)
+	if moved <= 0.0:
+		return 0.0
+	var fraction: float = moved / available
+	for key: String in ["n_o2", "n_co2", "n_n2"]:
+		var amount: float = float(from_state[key]) * fraction
+		from_state[key] = maxf(float(from_state[key]) - amount, 0.0)
+		to_state[key] = maxf(float(to_state[key]) + amount, 0.0)
+	return moved
+
+
+## Dumps a compartment to space: all gas and humidity lost. Returns the moles removed.
+func vent_gas(compartment_id: StringName) -> float:
+	var state: Dictionary = _require_state(compartment_id, "vent_gas")
+	if state.is_empty():
+		return 0.0
+	var removed: float = _total_moles(state)
+	state["n_o2"] = 0.0
+	state["n_co2"] = 0.0
+	state["n_n2"] = 0.0
+	state["humidity_g"] = 0.0
+	return removed
+
+
+func is_vacuum(compartment_id: StringName) -> bool:
+	return _compartment_pressure(compartment_id) < VACUUM_PRESSURE_KPA
+
+
+func _compartment_pressure(compartment_id: StringName) -> float:
+	var state: Dictionary = _require_state(compartment_id, "is_vacuum")
+	if state.is_empty():
+		return 0.0
+	return _pressure_for(state)
 
 
 func connect_compartments(a: StringName, b: StringName) -> void:
