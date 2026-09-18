@@ -236,6 +236,22 @@ const PROPS: Array[Dictionary] = [
 		"material": MATERIAL_METAL_RUSTED,
 		"exports": {"item_id": &"sealant", "item_name": "Sealant cartridge"},
 	},
+	{
+		"name": "AirlockPanel",
+		"script": "res://src/interactables/airlock_panel.gd",
+		"position": Vector3(-4.86, 1.3, -0.35),
+		"size": Vector3(0.12, 0.4, 0.5),
+		"material": MATERIAL_SCREEN_GLOW,
+		"exports": {},
+	},
+	{
+		"name": "SuitLocker",
+		"script": "res://src/interactables/suit_locker.gd",
+		"position": Vector3(-6.3, 1.0, -0.32),
+		"size": Vector3(0.6, 1.5, 0.25),
+		"material": MATERIAL_PANEL_SCRATCHED,
+		"exports": {},
+	},
 ]
 
 ## Pressure doors: StaticBody3D + Slab (MeshInstance3D) + SlabShape (CollisionShape3D); the door
@@ -283,6 +299,18 @@ const DOORS: Array[Dictionary] = [
 		"size": Vector3(0.16, 2.2, 1.2),
 		"exports": {"compartment_a": &"corridor", "compartment_b": &"water_closet"},
 	},
+	{
+		"name": "DoorAirlockInner",
+		"position": Vector3(-4.7, 1.1, -1.0),
+		"size": Vector3(0.16, 2.2, 1.2),
+		"exports": {"compartment_a": &"storage", "compartment_b": &"airlock", "airlock_id": &"airlock_main", "airlock_side": &"inner"},
+	},
+	{
+		"name": "DoorAirlockOuter",
+		"position": Vector3(-6.9, 1.1, -1.2),
+		"size": Vector3(0.16, 2.2, 1.0),
+		"exports": {"compartment_a": &"airlock", "compartment_b": &"", "airlock_id": &"airlock_main", "airlock_side": &"outer"},
+	},
 ]
 
 ## Kit-scene decorations: visual only, no collision added by this generator.
@@ -302,6 +330,7 @@ const ZONES: Array[Dictionary] = [
 	{"name": "ZoneWaterCloset", "size": Vector3(2.6, 3.0, 2.2), "position": Vector3(2.2, 1.5, -1.9), "exports": {"compartment_id": &"water_closet"}},
 	{"name": "ZoneStorage", "size": Vector3(3.7, 3.0, 3.6), "position": Vector3(-2.75, 1.5, -1.2), "exports": {"compartment_id": &"storage"}},
 	{"name": "ZoneEngineBay", "size": Vector3(7.2, 3.0, 6.2), "position": Vector3(0.0, 1.5, 4.7), "exports": {"compartment_id": &"engine_bay"}},
+	{"name": "ZoneAirlock", "size": Vector3(2.0, 3.0, 2.0), "position": Vector3(-5.8, 1.5, -1.2), "exports": {"compartment_id": &"airlock"}},
 ]
 
 ## Atmosphere mixing links: corridor paired with every side compartment.
@@ -313,6 +342,7 @@ const LINKS: Array[Dictionary] = [
 	{"name": "LinkCorridorWaterCloset", "exports": {"compartment_a": &"corridor", "compartment_b": &"water_closet"}},
 	{"name": "LinkCorridorStorage", "exports": {"compartment_a": &"corridor", "compartment_b": &"storage"}},
 	{"name": "LinkCorridorEngineBay", "exports": {"compartment_a": &"corridor", "compartment_b": &"engine_bay"}},
+	{"name": "LinkStorageAirlock", "exports": {"compartment_a": &"storage", "compartment_b": &"airlock"}},
 ]
 
 var _root: Node3D

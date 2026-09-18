@@ -40,6 +40,10 @@ const PROP_POSITIONS: Dictionary = {
 	"DoorStorage": Vector3(-0.8, 1.1, -1.2),
 	"DoorGalley": Vector3(0.8, 1.1, -5.6),
 	"DoorWaterCloset": Vector3(0.8, 1.1, -1.6),
+	"DoorAirlockInner": Vector3(-4.7, 1.1, -1.0),
+	"DoorAirlockOuter": Vector3(-6.9, 1.1, -1.2),
+	"AirlockPanel": Vector3(-4.86, 1.3, -0.35),
+	"SuitLocker": Vector3(-6.3, 1.0, -0.32),
 	"ContainerProp": Vector3(-3.0, 0.0, -0.2),
 	"ComputerProp": Vector3(1.6, 0.75, -7.0),
 	"DisplayProp": Vector3(-2.5, 1.6, -18.7),
@@ -80,6 +84,10 @@ const FIT_RECTS: Dictionary = {
 	"DoorStorage": [-0.9, 0.7, -1.8, -0.6],
 	"DoorGalley": [-0.7, 0.9, -6.2, -5.0],
 	"DoorWaterCloset": [-0.7, 0.9, -2.2, -1.0],
+	"DoorAirlockInner": [-4.8, -4.6, -1.6, -0.4],
+	"DoorAirlockOuter": [-7.0, -6.8, -1.7, -0.7],
+	"AirlockPanel": [-6.8, -4.8, -2.2, -0.2],
+	"SuitLocker": [-6.8, -4.8, -2.2, -0.2],
 	"ContainerProp": [-4.6, -0.9, -3.0, 0.6],
 	"ComputerProp": [0.9, 4.9, -7.6, -4.0],
 	"DisplayProp": [-3.4, 3.4, -18.8, -14.2],
@@ -93,6 +101,7 @@ const EXPECTED_ZONES: Dictionary = {
 	"ZoneGalley": &"galley",
 	"ZoneWaterCloset": &"water_closet",
 	"ZoneStorage": &"storage",
+	"ZoneAirlock": &"airlock",
 	"ZoneEngineBay": &"engine_bay",
 }
 
@@ -104,16 +113,19 @@ const EXPECTED_DOORS: Array[String] = [
 	"DoorStorage",
 	"DoorGalley",
 	"DoorWaterCloset",
+	"DoorAirlockInner",
+	"DoorAirlockOuter",
 ]
 
 const EXPECTED_LINKS: Dictionary = {
-	"LinkCorridorCockpit": &"cockpit",
-	"LinkCorridorQuarters": &"quarters",
-	"LinkCorridorMain": &"main",
-	"LinkCorridorGalley": &"galley",
-	"LinkCorridorWaterCloset": &"water_closet",
-	"LinkCorridorStorage": &"storage",
-	"LinkCorridorEngineBay": &"engine_bay",
+	"LinkCorridorCockpit": [&"corridor", &"cockpit"],
+	"LinkCorridorQuarters": [&"corridor", &"quarters"],
+	"LinkCorridorMain": [&"corridor", &"main"],
+	"LinkCorridorGalley": [&"corridor", &"galley"],
+	"LinkCorridorWaterCloset": [&"corridor", &"water_closet"],
+	"LinkCorridorStorage": [&"corridor", &"storage"],
+	"LinkCorridorEngineBay": [&"corridor", &"engine_bay"],
+	"LinkStorageAirlock": [&"storage", &"airlock"],
 }
 
 var _failures: int = 0
@@ -219,9 +231,10 @@ func _test_links() -> void:
 		if link == null:
 			_check(false, "link exists: " + link_name)
 			continue
-		var pairs_corridor: bool = link.get("compartment_a") == &"corridor"
-		var pairs_room: bool = link.get("compartment_b") == EXPECTED_LINKS[link_name]
-		_check(pairs_corridor and pairs_room, "link pairs corridor with " + String(EXPECTED_LINKS[link_name]))
+		var pair: Array = EXPECTED_LINKS[link_name]
+		var forward: bool = link.get("compartment_a") == pair[0] and link.get("compartment_b") == pair[1]
+		var reverse: bool = link.get("compartment_a") == pair[1] and link.get("compartment_b") == pair[0]
+		_check(forward or reverse, "link connects %s and %s" % [pair[0], pair[1]])
 
 
 func _test_doors() -> void:

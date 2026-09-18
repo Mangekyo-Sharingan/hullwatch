@@ -47,6 +47,9 @@
 [ext_resource type="Resource" path="res://src/data/comms/out_rotation_query.tres" id="66_out_rotation"]
 [ext_resource type="Resource" path="res://src/data/comms/msg_reply_rotation.tres" id="67_msg_reply"]
 [ext_resource type="Script" path="res://src/ui/settings_menu.gd" id="53_settings_menu"]
+[ext_resource type="Resource" path="res://src/data/power/circuit_airlock.tres" id="68_circuit_airlock"]
+[ext_resource type="Resource" path="res://src/data/atmosphere/compartment_airlock.tres" id="69_compartment_airlock"]
+[ext_resource type="Script" path="res://src/systems/airlock.gd" id="70_airlock"]
 
 [sub_resource type="Environment" id="Environment_1"]
 background_mode = 1
@@ -115,6 +118,12 @@ light_color = Color(1, 0.8, 0.6, 1)
 light_energy = 0.8
 omni_range = 5.0
 
+[node name="AirlockLight" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.8, 2.7, -1.2)
+light_color = Color(0.8, 0.9, 1, 1)
+light_energy = 0.9
+omni_range = 5.0
+
 [node name="ScrubberTaskLight" type="OmniLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.6, 2.2, -6.4)
 light_color = Color(1, 0.85, 0.6, 1)
@@ -158,12 +167,12 @@ script = ExtResource("2_power")
 generators = {
 &"rtg_main": 500.0
 }
-circuit_defs = Array[ExtResource("5_dgi5k")]([ExtResource("4_circuit_life_support"), ExtResource("5_circuit_scrubber"), ExtResource("6_circuit_lighting")])
+circuit_defs = Array[ExtResource("5_dgi5k")]([ExtResource("4_circuit_life_support"), ExtResource("5_circuit_scrubber"), ExtResource("6_circuit_lighting"), ExtResource("68_circuit_airlock")])
 wear_components = Array[ExtResource("9_j8jky")]([ExtResource("18_rtg_main"), ExtResource("19_battery_main"), ExtResource("58_lighting_ballast")])
 
 [node name="AtmosphereSystem" type="Node" parent="Systems"]
 script = ExtResource("3_atmosphere")
-compartment_defs = Array[ExtResource("13_kmb1v")]([ExtResource("7_compartment_main"), ExtResource("8_compartment_storage"), ExtResource("49_compartment_cockpit"), ExtResource("50_compartment_corridor"), ExtResource("51_compartment_engine_bay"), ExtResource("52_compartment_water_closet"), ExtResource("55_compartment_quarters"), ExtResource("56_compartment_galley")])
+compartment_defs = Array[ExtResource("13_kmb1v")]([ExtResource("7_compartment_main"), ExtResource("8_compartment_storage"), ExtResource("49_compartment_cockpit"), ExtResource("50_compartment_corridor"), ExtResource("51_compartment_engine_bay"), ExtResource("52_compartment_water_closet"), ExtResource("55_compartment_quarters"), ExtResource("56_compartment_galley"), ExtResource("69_compartment_airlock")])
 wear_components = Array[ExtResource("9_j8jky")]([ExtResource("20_scrubber_blower")])
 
 [node name="Stores" type="Node" parent="Systems"]
@@ -176,12 +185,12 @@ initial_inventory = {
 
 [node name="ThermalSystem" type="Node" parent="Systems"]
 script = ExtResource("16_thermal")
-compartment_defs = Array[ExtResource("13_kmb1v")]([ExtResource("7_compartment_main"), ExtResource("8_compartment_storage"), ExtResource("49_compartment_cockpit"), ExtResource("50_compartment_corridor"), ExtResource("51_compartment_engine_bay"), ExtResource("52_compartment_water_closet"), ExtResource("55_compartment_quarters"), ExtResource("56_compartment_galley")])
+compartment_defs = Array[ExtResource("13_kmb1v")]([ExtResource("7_compartment_main"), ExtResource("8_compartment_storage"), ExtResource("49_compartment_cockpit"), ExtResource("50_compartment_corridor"), ExtResource("51_compartment_engine_bay"), ExtResource("52_compartment_water_closet"), ExtResource("55_compartment_quarters"), ExtResource("56_compartment_galley"), ExtResource("69_compartment_airlock")])
 wear_components = Array[ExtResource("9_j8jky")]([ExtResource("40_heater_main")])
 
 [node name="HullSystem" type="Node" parent="Systems"]
 script = ExtResource("21_hull")
-compartment_defs = Array[ExtResource("13_kmb1v")]([ExtResource("7_compartment_main"), ExtResource("8_compartment_storage"), ExtResource("49_compartment_cockpit"), ExtResource("50_compartment_corridor"), ExtResource("51_compartment_engine_bay"), ExtResource("52_compartment_water_closet"), ExtResource("55_compartment_quarters"), ExtResource("56_compartment_galley")])
+compartment_defs = Array[ExtResource("13_kmb1v")]([ExtResource("7_compartment_main"), ExtResource("8_compartment_storage"), ExtResource("49_compartment_cockpit"), ExtResource("50_compartment_corridor"), ExtResource("51_compartment_engine_bay"), ExtResource("52_compartment_water_closet"), ExtResource("55_compartment_quarters"), ExtResource("56_compartment_galley"), ExtResource("69_compartment_airlock")])
 wear_components = Array[ExtResource("9_j8jky")]([ExtResource("41_hull_plating")])
 
 [node name="VitalsSystem" type="Node" parent="Systems"]
@@ -194,6 +203,9 @@ wear_components = Array[ExtResource("9_j8jky")]([ExtResource("59_water_pump")])
 [node name="CommsSystem" type="Node" parent="Systems"]
 script = ExtResource("60_comms")
 messages = Array[ExtResource("61_comms_message")]([ExtResource("62_msg_ack"), ExtResource("63_msg_manifest"), ExtResource("64_msg_ping"), ExtResource("65_out_status"), ExtResource("66_out_rotation"), ExtResource("67_msg_reply")])
+
+[node name="AirlockSystem" type="Node" parent="Systems"]
+script = ExtResource("70_airlock")
 
 [node name="UI" type="Node" parent="."]
 

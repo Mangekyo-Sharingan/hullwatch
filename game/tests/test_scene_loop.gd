@@ -82,6 +82,8 @@ func _test_world_wiring(main: Node, atmosphere: Node) -> void:
 		door_count += 1
 		for key: StringName in [&"compartment_a", &"compartment_b"]:
 			var id: StringName = prop.get(key)
+			if id == &"":
+				continue
 			if not bool(atmosphere.call("has_compartment", id)):
 				missing.append("door:" + String(id))
 	var link_count: int = 0
@@ -91,8 +93,8 @@ func _test_world_wiring(main: Node, atmosphere: Node) -> void:
 			var id: StringName = link.get(key)
 			if not bool(atmosphere.call("has_compartment", id)):
 				missing.append("link:" + String(id))
-	_check(door_count == 7, "all seven doors are wired")
-	_check(link_count == 7, "all seven compartment links are wired")
+	_check(door_count == 9, "all nine doors are wired")
+	_check(link_count == 8, "all eight compartment links are wired")
 	_check(missing.is_empty(), "every zone, door and link maps to a registered compartment (%s)" % ", ".join(missing))
 
 
