@@ -276,7 +276,7 @@ wear_components = [ExtResource("20_scrubber_blower")]
 
 [node name="Stores" type="Node" parent="Systems"]
 script = ExtResource("9_stores")
-initial_inventory = {&"filter_co2": 2, &"gasket": 1}
+initial_inventory = {&"filter_co2": 2, &"gasket": 1, &"food_ration": 6}
 
 [node name="ThermalSystem" type="Node" parent="Systems"]
 script = ExtResource("16_thermal")

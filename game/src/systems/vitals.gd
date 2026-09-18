@@ -15,6 +15,9 @@ const MILD_DAMAGE_SCALE: float = 0.25
 @export var cognition_co2_severe_ppm: float = 15000.0
 @export var cognition_cold_c: float = 12.0
 @export var dehydration_damage_per_hour: float = 0.2
+@export var food_part_id: StringName = &"food_ration"
+@export var rations_per_occupant_per_day: float = 1.0
+@export var starvation_damage_per_hour: float = 0.15
 
 var condition: float = 0.0
 
@@ -23,6 +26,7 @@ var _cause: StringName = &""
 var _cognition_level: int = 0
 var _manned_compartment: StringName = &""
 var _last_emitted_bucket: int = 0
+var _ration_accumulator: float = 0.0
 
 
 func _ready() -> void:
@@ -38,6 +42,7 @@ func sim_tick(delta_hours: float) -> void:
 	var environment: Dictionary = _read_environment()
 	if environment.is_empty():
 		return
+	_tick_rations(environment, delta_hours)
 	_tick_condition(environment, delta_hours)
 	_tick_cognition(environment)
 
@@ -78,6 +83,7 @@ func save_state() -> Dictionary:
 		"cause": String(_cause),
 		"cognition_level": _cognition_level,
 		"last_emitted_bucket": _last_emitted_bucket,
+		"ration_accumulator": _ration_accumulator,
 	}
 
 
@@ -87,6 +93,7 @@ func load_state(state: Dictionary) -> void:
 	_cause = StringName(String(state.get("cause", _cause)))
 	_cognition_level = clampi(int(state.get("cognition_level", _cognition_level)), 0, 3)
 	_last_emitted_bucket = int(state.get("last_emitted_bucket", _bucket_for(condition)))
+	_ration_accumulator = maxf(float(state.get("ration_accumulator", _ration_accumulator)), 0.0)
 
 
 func _read_environment() -> Dictionary:
@@ -132,7 +139,9 @@ func _read_environment() -> Dictionary:
 		"o2_fraction": float(manned_status.get("o2_fraction", 1.0)),
 		"co2_ppm": float(manned_status.get("co2_ppm", 0.0)),
 		"temperature_c": float((thermal_status as Dictionary).get("temperature_c", 21.0)),
+		"occupants": maxi(int(manned_status.get("occupants", 0)), 0),
 		"dehydrated": _read_dehydrated(),
+		"starving": _read_starving(),
 	}
 
 
@@ -146,6 +155,31 @@ func _read_dehydrated() -> bool:
 	return float((water_status as Dictionary).get("potable_l", 1.0)) <= 0.0
 
 
+func _read_starving() -> bool:
+	var stores: Node = _first_node_in_group(&"stores_system")
+	if stores == null or not stores.has_method(&"get_count"):
+		return false
+	return int(stores.call(&"get_count", food_part_id)) <= 0
+
+
+func _tick_rations(environment: Dictionary, delta_hours: float) -> void:
+	var occupants: int = int(environment.get("occupants", 0))
+	_ration_accumulator += float(occupants) * rations_per_occupant_per_day * delta_hours / 24.0
+	while _ration_accumulator >= 1.0:
+		var stores: Node = _first_node_in_group(&"stores_system")
+		# Stores are optional in headless scenarios: without one there is nothing to
+		# draw from, so the pending ration is dropped and food logic is skipped.
+		if stores == null or not stores.has_method(&"consume_part") or not stores.has_method(&"get_count"):
+			_ration_accumulator = 0.0
+			return
+		if bool(stores.call(&"consume_part", food_part_id, 1)):
+			_ration_accumulator -= 1.0
+			emit_sim_event(&"ration_consumed", {"remaining": int(stores.call(&"get_count", food_part_id))})
+		else:
+			_ration_accumulator = 1.0
+			break
+
+
 func _tick_condition(environment: Dictionary, delta_hours: float) -> void:
 	if _incapacitated:
 		return
@@ -156,6 +190,8 @@ func _tick_condition(environment: Dictionary, delta_hours: float) -> void:
 		rate_per_hour = damage_per_hour
 		if new_cause == &"dehydration":
 			rate_per_hour = dehydration_damage_per_hour
+		elif new_cause == &"starvation":
+			rate_per_hour = starvation_damage_per_hour
 	elif bool(exposure["mild"]):
 		rate_per_hour = damage_per_hour * MILD_DAMAGE_SCALE
 	var cause_changed: bool = new_cause != _cause
@@ -191,6 +227,8 @@ func _classify_exposure(environment: Dictionary) -> Dictionary:
 		return {"cause": &"hypothermia", "severe": false, "mild": true}
 	if bool(environment.get("dehydrated", false)):
 		return {"cause": &"dehydration", "severe": true, "mild": false}
+	if bool(environment.get("starving", false)):
+		return {"cause": &"starvation", "severe": true, "mild": false}
 	return {"cause": &"", "severe": false, "mild": false}
 
 
@@ -198,7 +236,7 @@ func _level_for(environment: Dictionary) -> int:
 	var o2_fraction: float = float(environment["o2_fraction"])
 	var co2_ppm: float = float(environment["co2_ppm"])
 	var temperature_c: float = float(environment["temperature_c"])
-	if condition >= 0.7 or o2_fraction < o2_breathing_threshold or co2_ppm > co2_breathing_ppm or bool(environment.get("dehydrated", false)):
+	if condition >= 0.7 or o2_fraction < o2_breathing_threshold or co2_ppm > co2_breathing_ppm or bool(environment.get("dehydrated", false)) or bool(environment.get("starving", false)):
 		return 3
 	if co2_ppm >= cognition_co2_severe_ppm or temperature_c <= cold_threshold_c:
 		return 2

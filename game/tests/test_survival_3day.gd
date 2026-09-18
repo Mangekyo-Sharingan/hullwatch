@@ -50,6 +50,7 @@ func _test_attentive_operator() -> void:
 	var final: Dictionary = samples[samples.size() - 1]
 	_check(float(final["potable_l"]) > 50.0, "attentive: potable reserve holds (%.1f L)" % float(final["potable_l"]))
 	_check(float(final["temperature_c"]) > 15.0 and float(final["temperature_c"]) < 25.0, "attentive: cabin temperature holds (%.1f C)" % float(final["temperature_c"]))
+	_check(int(final["rations"]) == 3, "attentive: three rations consumed over three days (%d left)" % int(final["rations"]))
 
 
 func _test_neglecting_operator() -> void:
@@ -87,6 +88,7 @@ func _run_scenario(attentive: bool) -> Array[Dictionary]:
 	var circuits: Array[PowerCircuit] = [life_support, scrubber_circuit, lighting]
 	var power: PowerSystem = harness.add_power(circuits, 4000.0, {&"rtg_main": 500.0})
 
+	var stores: Stores = harness.add_stores({&"food_ration": 6})
 	var main_config: CompartmentConfig = load("res://src/data/atmosphere/compartment_main.tres")
 	var defs: Array[CompartmentConfig] = [main_config]
 	var atmosphere: AtmosphereSystem = harness.add_atmosphere(defs)
@@ -115,8 +117,9 @@ func _run_scenario(attentive: bool) -> Array[Dictionary]:
 		elapsed += STEP_HOURS
 		if attentive:
 			_service(atmosphere, thermal, hull, power)
-		samples.append(_sample(elapsed, atmosphere, thermal, water, vitals, power))
+		samples.append(_sample(elapsed, atmosphere, thermal, water, vitals, power, stores))
 
+	stores.free()
 	power.free()
 	atmosphere.free()
 	thermal.free()
@@ -140,7 +143,7 @@ func _service(atmosphere: AtmosphereSystem, thermal: ThermalSystem, hull: HullSy
 				system.call("repair_component", key, 1.0)
 
 
-func _sample(elapsed: float, atmosphere: AtmosphereSystem, thermal: ThermalSystem, water: WaterSystem, vitals: VitalsSystem, power: PowerSystem) -> Dictionary:
+func _sample(elapsed: float, atmosphere: AtmosphereSystem, thermal: ThermalSystem, water: WaterSystem, vitals: VitalsSystem, power: PowerSystem, stores: Stores) -> Dictionary:
 	var atmosphere_status: Dictionary = atmosphere.get_compartment_status(&"main")
 	var thermal_status: Dictionary = thermal.get_compartment_status(&"main")
 	var vitals_status: Dictionary = vitals.get_status()
@@ -156,6 +159,7 @@ func _sample(elapsed: float, atmosphere: AtmosphereSystem, thermal: ThermalSyste
 		"cause": StringName(vitals_status["cause"]),
 		"battery_fraction": power.get_battery_charge(),
 		"brownout": power.is_brownout(),
+		"rations": stores.get_count(&"food_ration"),
 	}
 
 
