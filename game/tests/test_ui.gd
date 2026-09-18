@@ -37,6 +37,11 @@ func _test_status_panel_readout() -> void:
 	lighting.nominal_load_w = 200.0
 	var defs: Array[PowerCircuit] = [lighting]
 	power.circuit_defs = defs
+	var wear := WearComponent.new()
+	wear.component_id = &"test_rtg"
+	wear.condition = 0.8
+	var wear_defs: Array[WearComponent] = [wear]
+	power.wear_components = wear_defs
 	root.add_child(power)
 
 	var atmosphere := AtmosphereSystem.new()
@@ -62,6 +67,7 @@ func _test_status_panel_readout() -> void:
 	_check(text.contains("CO2"), "readout shows CO2 levels")
 	_check(text.contains("FILTER 100%"), "readout shows filter condition")
 	_check(text.contains("FILTER_CO2 x2"), "readout shows stores stock")
+	_check(text.contains("TEST_RTG") and text.contains("80%"), "readout shows component condition")
 
 	power.set_breaker(&"lighting", false)
 	lines = panel.build_readout()

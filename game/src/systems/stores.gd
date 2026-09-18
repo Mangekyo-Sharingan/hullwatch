@@ -80,3 +80,20 @@ func _emit_stores_changed(part_id: StringName, new_count: int) -> void:
 	var event_bus: Node = _get_autoload(&"EventBus")
 	if event_bus != null:
 		event_bus.emit_signal(&"stores_changed", part_id, new_count)
+
+
+func save_state() -> Dictionary:
+	var parts: Dictionary = {}
+	for part_id: StringName in inventory:
+		parts[String(part_id)] = int(inventory[part_id])
+	return {"system_id": String(system_id), "state_version": 1, "inventory": parts}
+
+
+func load_state(state: Dictionary) -> void:
+	var parts: Dictionary = state.get("inventory", {})
+	inventory.clear()
+	for key: Variant in parts:
+		var part_id: StringName = StringName(key)
+		var count: int = int(parts[key])
+		if part_id != &"" and count > 0:
+			inventory[part_id] = count

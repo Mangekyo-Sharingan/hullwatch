@@ -138,11 +138,16 @@ func _test_bunk() -> void:
 
 func _make_power() -> PowerSystem:
 	var power := PowerSystem.new()
-	var circuit := PowerCircuit.new()
-	circuit.circuit_id = &"lighting"
-	circuit.display_name = "Lighting"
-	circuit.nominal_load_w = 200.0
-	var defs: Array[PowerCircuit] = [circuit]
+	var scrubber_circuit := PowerCircuit.new()
+	scrubber_circuit.circuit_id = &"scrubber"
+	scrubber_circuit.nominal_load_w = 400.0
+	scrubber_circuit.priority = 1
+	var lighting := PowerCircuit.new()
+	lighting.circuit_id = &"lighting"
+	lighting.display_name = "Lighting"
+	lighting.nominal_load_w = 200.0
+	lighting.priority = 2
+	var defs: Array[PowerCircuit] = [scrubber_circuit, lighting]
 	power.circuit_defs = defs
 	root.add_child(power)
 	return power

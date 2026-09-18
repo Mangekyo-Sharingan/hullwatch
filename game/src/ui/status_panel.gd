@@ -49,8 +49,36 @@ func build_readout() -> PackedStringArray:
 	lines.append_array(_power_lines())
 	lines.append("")
 	lines.append_array(_atmosphere_lines())
+	var components: PackedStringArray = _components_lines()
+	if not components.is_empty():
+		lines.append("")
+		lines.append_array(components)
 	lines.append("")
 	lines.append_array(_stores_lines())
+	return lines
+
+
+func _components_lines() -> PackedStringArray:
+	var lines: PackedStringArray = PackedStringArray()
+	var entries: PackedStringArray = PackedStringArray()
+	for group_name: StringName in [&"power_system", &"atmosphere_system"]:
+		var system: Node = _get_system(group_name)
+		if system == null or not system.has_method(&"get_wear_status"):
+			continue
+		var wear: Dictionary = system.call("get_wear_status")
+		var component_ids: Array = wear.keys()
+		component_ids.sort()
+		for key: Variant in component_ids:
+			var component_id: StringName = key
+			var status: Dictionary = wear[component_id]
+			var state: String = "OK"
+			if bool(status["failed"]):
+				state = "FAIL %s" % String(status["failed_mode"]).to_upper()
+			entries.append("%-16s %3d%% %s" % [String(component_id).to_upper(), int(roundf(float(status["condition"]) * 100.0)), state])
+	if not entries.is_empty():
+		lines.append("COMPONENTS")
+		for entry: String in entries:
+			lines.append("  " + entry)
 	return lines
 
 

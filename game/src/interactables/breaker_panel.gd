@@ -11,4 +11,3 @@ func _handle_interact(_player: Node) -> void:
 		return
 	var new_state: bool = not bool(power.call("is_breaker_on", circuit_id))
 	power.call("set_breaker", circuit_id, new_state)
-	_emit_sim_event(&"breaker_toggled", {"circuit_id": circuit_id, "on": new_state})

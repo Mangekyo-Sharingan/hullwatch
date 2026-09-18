@@ -36,6 +36,7 @@ func _run() -> void:
 
 	var readout: String = "\n".join(panel.build_readout())
 	_check(readout.contains("CO2") and readout.contains("FILTER 15%"), "panel reports the worn filter in-world")
+	_check(readout.contains("RTG_MAIN"), "panel reports live component condition in-world")
 
 	transition.fade_out_seconds = 0.05
 	transition.fade_in_seconds = 0.05

@@ -1,4 +1,4 @@
-[gd_scene load_steps=45 format=3]
+[gd_scene load_steps=50 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/player.tscn" id="1_player"]
 [ext_resource type="Script" path="res://src/systems/power.gd" id="2_power"]
@@ -15,6 +15,11 @@
 [ext_resource type="Script" path="res://src/ui/status_panel.gd" id="13_status_panel"]
 [ext_resource type="Script" path="res://src/ui/hud.gd" id="14_hud"]
 [ext_resource type="Script" path="res://src/ui/sleep_transition.gd" id="15_sleep_transition"]
+[ext_resource type="Script" path="res://src/systems/thermal.gd" id="16_thermal"]
+[ext_resource type="Script" path="res://src/world/compartment_zone.gd" id="17_compartment_zone"]
+[ext_resource type="Resource" path="res://src/data/wear/rtg_main.tres" id="18_rtg_main"]
+[ext_resource type="Resource" path="res://src/data/wear/battery_main.tres" id="19_battery_main"]
+[ext_resource type="Resource" path="res://src/data/wear/scrubber_blower_main.tres" id="20_scrubber_blower"]
 
 [sub_resource type="Environment" id="Environment_1"]
 background_mode = 1
@@ -127,6 +132,9 @@ size = Vector3(1, 0.5, 2)
 material = SubResource("StandardMaterial3D_floor")
 size = Vector3(1, 0.5, 2)
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_zone_main"]
+size = Vector3(12, 3, 8)
+
 [node name="Main" type="Node3D"]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
@@ -236,14 +244,20 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0)
 script = ExtResource("2_power")
 generators = {&"rtg_main": 500.0}
 circuit_defs = [ExtResource("4_circuit_life_support"), ExtResource("5_circuit_scrubber"), ExtResource("6_circuit_lighting")]
+wear_components = [ExtResource("18_rtg_main"), ExtResource("19_battery_main")]
 
 [node name="AtmosphereSystem" type="Node" parent="Systems"]
 script = ExtResource("3_atmosphere")
 compartment_defs = [ExtResource("7_compartment_main"), ExtResource("8_compartment_storage")]
+wear_components = [ExtResource("20_scrubber_blower")]
 
 [node name="Stores" type="Node" parent="Systems"]
 script = ExtResource("9_stores")
 initial_inventory = {&"filter_co2": 2, &"sealant": 2, &"gasket": 1}
+
+[node name="ThermalSystem" type="Node" parent="Systems"]
+script = ExtResource("16_thermal")
+compartment_defs = [ExtResource("7_compartment_main"), ExtResource("8_compartment_storage")]
 
 [node name="Props" type="Node3D" parent="."]
 
@@ -291,6 +305,16 @@ shape = SubResource("BoxShape3D_panel")
 
 [node name="Mesh" type="MeshInstance3D" parent="Props/StatusPanel"]
 mesh = SubResource("BoxMesh_panel")
+
+[node name="Zones" type="Node3D" parent="."]
+
+[node name="ZoneMain" type="Area3D" parent="Zones"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+script = ExtResource("17_compartment_zone")
+compartment_id = &"main"
+
+[node name="Shape" type="CollisionShape3D" parent="Zones/ZoneMain"]
+shape = SubResource("BoxShape3D_zone_main")
 
 [node name="UI" type="Node" parent="."]
 

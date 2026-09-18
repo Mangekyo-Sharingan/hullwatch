@@ -9,7 +9,7 @@ Guide for AI coding agents working in this repository. Read this first, then `do
 - Repo root: `E:\Projekt\Misc\OperationSpacer`
 - Godot project root: `game/`
 - Production spec: `docs/PRODUCTION_SPEC.md` (authoritative for design intent)
-- Status: **M1 complete** — 10-minute day loop playable (walk, filter-swap repair, breaker, sleep transition, status panel readout, procedural placeholder audio). Next: **M2 — systems prototype**
+- Status: **M2 complete** — power/thermal/atmosphere interlinked, component wear + failures, one authored cascade, versioned save/load, deterministic scenario harness. Next: **M3 — vertical slice**
 - Asset shortlist for the M3 art pass: `docs/ASSET_SOURCES.md` — acquire at M3, not before
 
 ## Tech Stack
@@ -42,11 +42,17 @@ Run from repo root. The engine binary is local, so no PATH setup is needed.
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_wear_model.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_power.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_atmosphere.gd
+& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_thermal.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_player.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_interactables.gd
+& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_occupancy.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_audio.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_day_loop.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_ui.gd
+& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_save_load.gd
+& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_failures.gd
+& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_scenario_power_night.gd
+& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_scenario_cascade.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_scene_loop.gd
 
 # Refresh the global class cache after adding new `class_name` scripts (needed before --script test runs)
@@ -64,19 +70,21 @@ There is no linter configured yet; typed GDScript analyzer warnings in the edito
 Engine/                  # local Godot binaries — NEVER commit, NEVER edit
 docs/                    # production spec, design docs
 game/                    # Godot project root
-  project.godot          # project config (autoloads: SimClock, EventBus, AudioDirector; Forward+)
+  project.godot          # project config (autoloads: SimClock, EventBus, AudioDirector, SaveManager)
   scenes/                # .tscn scene files
+  tests/                 # headless suites; tests/support/harness.gd = SimHarness scenario scaffolding
   tools/                 # dev-only scripts (input map regeneration)
   assets/                # art/, audio/ (procedural placeholder audio needs no files), fonts/
   src/
-    autoload/            # singletons: SimClock, EventBus, AudioDirector (+ planned ShipState, SaveManager)
+    autoload/            # singletons: SimClock, EventBus, AudioDirector, SaveManager (+ planned ShipState)
     audio/               # procedural placeholder PCM factories (ProcAudio)
     systems/             # simulators: power, thermal, atmosphere, hull, nav, comms, stores
-    components/          # wear model + failure-mode resources
+    components/          # wear model + failure-mode + config resources
     interactables/       # panels, valves, filters, tools
+    world/               # world-side drivers into sims (CompartmentZone occupancy)
     player/              # controller, interact, carry, scanner
     ui/                  # status panel, HUD, sleep transition (diegetic UI, manual binder later)
-    data/                # .tres content (components, items, procedures)
+    data/                # .tres content (components, items, procedures, wear)
   assets/                # art/, audio/, fonts/
 tools/                   # dev utilities, MCP configs
 ```
@@ -89,7 +97,7 @@ tools/                   # dev utilities, MCP configs
 4. **Fixed-tick simulation (10 Hz)** decoupled from `_process`. Never run sim logic per-frame.
 5. **Deterministic.** Same seed + same inputs = same failures. Required for save/load fidelity and tests.
 6. **Headless-testable.** Core sim must run with `--headless` under scripted scenarios.
-7. **Save/load from day one** once state exists: versioned saves + round-trip tests.
+7. **Save/load from day one** once state exists: versioned saves + round-trip tests. Systems implement `save_state()/load_state(dict)`; `SaveManager` (autoload) collects them by group + interactables by node path into `user://saves/slot_N.json`; bump `SAVE_VERSION` and add a `_migrate` step for shape changes; never store 64-bit ints as JSON numbers (stringify RNG states).
 
 ## Code Conventions
 

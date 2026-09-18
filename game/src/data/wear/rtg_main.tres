@@ -1,0 +1,40 @@
+[gd_resource type="Resource" script_class="WearComponent" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://src/components/wear_component.gd" id="1"]
+[ext_resource type="Script" path="res://src/components/failure_mode.gd" id="2"]
+
+[sub_resource type="Resource" id="FailureMode_rtg_degraded"]
+script = ExtResource("2")
+id = &"rtg_degraded"
+display_name = "RTG Degraded"
+base_mtbf_hours = 3200.0
+wear_multiplier = 1.0
+max_condition = 1.0
+environmental_factors = {
+"heat": 3.0
+}
+severity = 2
+symptoms = Array[StringName]([&"voltage_sag", &"thermal_whine"])
+
+[sub_resource type="Resource" id="FailureMode_rtg_open_circuit"]
+script = ExtResource("2")
+id = &"rtg_open_circuit"
+display_name = "RTG Open Circuit"
+base_mtbf_hours = 2400.0
+wear_multiplier = 1.0
+max_condition = 1.0
+environmental_factors = {
+"heat": 3.0
+}
+severity = 3
+symptoms = Array[StringName]([&"no_output", &"cold_casing"])
+
+[resource]
+script = ExtResource("1")
+component_id = &"rtg_main"
+display_name = "Main RTG"
+condition = 1.0
+hours_operated = 0.0
+wear_rate_per_hour = 0.0002
+load = 1.0
+failure_modes = Array[FailureMode]([SubResource("FailureMode_rtg_degraded"), SubResource("FailureMode_rtg_open_circuit")])

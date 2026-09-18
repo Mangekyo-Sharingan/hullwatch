@@ -46,3 +46,16 @@ func _emit_sim_event(event_name: StringName, payload: Dictionary = {}) -> void:
 	var event_bus: Node = _get_autoload(&"EventBus")
 	if event_bus != null:
 		event_bus.call("emit_event", event_name, payload)
+
+
+func _enter_tree() -> void:
+	add_to_group(&"saveable")
+
+
+func save_state() -> Dictionary:
+	return {"enabled": enabled}
+
+
+func load_state(state: Dictionary) -> void:
+	if state.has("enabled"):
+		enabled = bool(state["enabled"])

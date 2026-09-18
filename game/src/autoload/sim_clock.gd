@@ -81,3 +81,20 @@ func _run_tick() -> void:
 	if day != _last_day:
 		_last_day = day
 		day_changed.emit(day)
+
+
+func save_state() -> Dictionary:
+	return {
+		"sim_seconds": sim_seconds,
+		"tick_index": tick_index,
+		"last_hour": _last_hour,
+		"last_day": _last_day,
+	}
+
+
+func load_state(state: Dictionary) -> void:
+	sim_seconds = maxf(float(state.get("sim_seconds", 0.0)), 0.0)
+	tick_index = maxi(int(state.get("tick_index", 0)), 0)
+	_last_hour = clampi(int(state.get("last_hour", 0)), 0, 23)
+	_last_day = maxi(int(state.get("last_day", 1)), 1)
+	_accumulator = 0.0

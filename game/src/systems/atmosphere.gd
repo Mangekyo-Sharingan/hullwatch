@@ -16,14 +16,20 @@ const CO2_EMIT_DELTA_PPM: float = 25.0
 const O2_EMIT_DELTA_FRACTION: float = 0.001
 
 @export var compartment_defs: Array[CompartmentConfig] = []
+@export var wear_components: Array[WearComponent] = []
+@export var wear_seed: int = 20260919
 
 var _compartments: Dictionary = {}
 var _connections: Dictionary = {}
+var _efficiency_multiplier: float = 1.0
+var _rng: RandomNumberGenerator
+var _condition_bucket: Dictionary = {}
 
 
 func _ready() -> void:
 	system_id = &"atmosphere"
 	add_to_group(&"atmosphere_system")
+	_wear_rng()
 	super._ready()
 	for config: CompartmentConfig in compartment_defs:
 		add_compartment(config)
@@ -33,6 +39,7 @@ func sim_tick(delta_hours: float) -> void:
 	if not is_finite(delta_hours) or delta_hours <= 0.0:
 		push_error("AtmosphereSystem.sim_tick: delta_hours must be finite and positive.")
 		return
+	_tick_wear(delta_hours)
 	for compartment_id: StringName in _compartments:
 		_tick_compartment(compartment_id, delta_hours)
 	_mix_connected(delta_hours)
@@ -156,6 +163,40 @@ func get_status() -> Dictionary:
 	return {"system_id": system_id, "compartments": compartments}
 
 
+func repair_component(component_id: StringName, quality: float) -> bool:
+	var component: WearComponent = _find_wear_component(component_id)
+	if component == null:
+		push_error("AtmosphereSystem.repair_component: unknown component_id '%s'." % String(component_id))
+		return false
+	component.apply_repair(quality)
+	_recompute_efficiency_multiplier()
+	_condition_bucket[component.component_id] = _condition_bucket_for(component.condition)
+	_emit_component_repaired(component.component_id, clampf(quality, 0.0, 1.0))
+	return true
+
+
+func get_wear_status() -> Dictionary:
+	var status: Dictionary = {}
+	for component: WearComponent in wear_components:
+		if component == null or component.component_id == &"":
+			continue
+		status[String(component.component_id)] = component.get_status()
+	return status
+
+
+func force_failure(component_id: StringName, failure_mode_id: StringName) -> bool:
+	var component: WearComponent = _find_wear_component(component_id)
+	if component == null or failure_mode_id == &"":
+		push_error("AtmosphereSystem.force_failure: unknown component_id '%s' or empty failure_mode_id." % String(component_id))
+		return false
+	if component.is_failed():
+		return false
+	component.failed_mode = failure_mode_id
+	_apply_failure_effect(failure_mode_id)
+	_emit_component_failed(component.component_id, failure_mode_id)
+	return true
+
+
 func _create_state(config: CompartmentConfig) -> Dictionary:
 	var n_total: float = config.initial_pressure_kpa * PA_PER_KPA * config.volume_m3 / (R_GAS * TEMP_K)
 	var o2_fraction: float = clampf(config.initial_o2_fraction, 0.0, 1.0)
@@ -194,7 +235,7 @@ func _tick_compartment(compartment_id: StringName, hours: float) -> void:
 		state["n_o2"] = maxf(float(state["n_o2"]) - o2_mol, 0.0)
 		state["n_co2"] = maxf(float(state["n_co2"]) + co2_mol, 0.0)
 	if bool(state["scrubber_powered"]) and bool(state["filter_installed"]):
-		var efficiency: float = float(state["scrubber_efficiency"]) * float(state["filter_condition"])
+		var efficiency: float = float(state["scrubber_efficiency"]) * float(state["filter_condition"]) * _efficiency_multiplier
 		var capacity_mol: float = config.scrubber_capacity_kg_per_hour * efficiency * hours / MOLAR_MASS_CO2
 		state["n_co2"] = maxf(float(state["n_co2"]) - minf(capacity_mol, float(state["n_co2"])), 0.0)
 		state["filter_condition"] = maxf(float(state["filter_condition"]) - config.filter_wear_rate_per_hour * hours, 0.0)
@@ -325,3 +366,221 @@ func _emit_atmosphere_changed(compartment_id: StringName, o2_fraction: float, co
 	var event_bus: Node = _get_autoload(&"EventBus")
 	if event_bus != null:
 		event_bus.emit_signal(&"compartment_atmosphere_changed", compartment_id, o2_fraction, co2_ppm)
+
+
+func save_state() -> Dictionary:
+	var compartments: Dictionary = {}
+	for compartment_id: StringName in _compartments:
+		var state: Dictionary = _compartments[compartment_id]
+		compartments[String(compartment_id)] = {
+			"n_o2": float(state["n_o2"]),
+			"n_co2": float(state["n_co2"]),
+			"n_n2": float(state["n_n2"]),
+			"occupants": int(state["occupants"]),
+			"scrubber_powered": bool(state["scrubber_powered"]),
+			"scrubber_efficiency": float(state["scrubber_efficiency"]),
+			"isolated": bool(state["isolated"]),
+			"leak_rate_per_hour": float(state["leak_rate_per_hour"]),
+			"candles_remaining": int(state["candles_remaining"]),
+			"candle_burn_remaining_hours": float(state["candle_burn_remaining_hours"]),
+			"filter_condition": float(state["filter_condition"]),
+			"filter_installed": bool(state["filter_installed"]),
+			"last_pressure_kpa": float(state["last_pressure_kpa"]),
+			"last_o2_fraction": float(state["last_o2_fraction"]),
+			"last_co2_ppm": float(state["last_co2_ppm"]),
+		}
+	return {
+		"system_id": String(system_id),
+		"state_version": 1,
+		"compartments": compartments,
+		"wear": _wear_save_entries(),
+		"wear_rng_state": str(_wear_rng().state),
+		"efficiency_multiplier": _efficiency_multiplier,
+	}
+
+
+func load_state(state: Dictionary) -> void:
+	var compartments: Dictionary = state.get("compartments", {})
+	for compartment_id: StringName in _compartments:
+		var key: String = String(compartment_id)
+		if not compartments.has(key):
+			continue
+		var loaded: Dictionary = compartments[key]
+		var target: Dictionary = _compartments[compartment_id]
+		for field_name: Variant in ["n_o2", "n_co2", "n_n2", "scrubber_efficiency", "leak_rate_per_hour", "candle_burn_remaining_hours", "filter_condition", "last_pressure_kpa", "last_o2_fraction", "last_co2_ppm"]:
+			if loaded.has(field_name):
+				target[field_name] = float(loaded[field_name])
+		for field_name: Variant in ["occupants", "candles_remaining"]:
+			if loaded.has(field_name):
+				target[field_name] = int(loaded[field_name])
+		for field_name: Variant in ["scrubber_powered", "isolated", "filter_installed"]:
+			if loaded.has(field_name):
+				target[field_name] = bool(loaded[field_name])
+	_load_wear(state.get("wear", []))
+	if state.has("wear_rng_state"):
+		var rng: RandomNumberGenerator = _wear_rng()
+		rng.state = int(state.get("wear_rng_state", rng.state))
+	if state.has("efficiency_multiplier"):
+		_efficiency_multiplier = clampf(float(state.get("efficiency_multiplier", 1.0)), 0.0, 1.0)
+	else:
+		_recompute_efficiency_multiplier()
+
+
+func _tick_wear(delta_hours: float) -> void:
+	if wear_components.is_empty():
+		return
+	var environment: Dictionary = {
+		"heat": _heat_factor(),
+		"load": _scrubber_duty(),
+		"vibration": 0.0,
+	}
+	for component: WearComponent in wear_components:
+		if component == null:
+			continue
+		var failed_mode_id: StringName = component.tick_sim(delta_hours, environment, _wear_rng())
+		if failed_mode_id != &"":
+			_apply_failure_effect(failed_mode_id)
+			_emit_component_failed(component.component_id, failed_mode_id)
+		_emit_condition_crossings(component)
+
+
+func _wear_rng() -> RandomNumberGenerator:
+	if _rng == null:
+		_rng = RandomNumberGenerator.new()
+		_rng.seed = wear_seed
+	return _rng
+
+
+func _find_wear_component(component_id: StringName) -> WearComponent:
+	for component: WearComponent in wear_components:
+		if component != null and component.component_id == component_id:
+			return component
+	return null
+
+
+func _scrubber_duty() -> float:
+	for compartment_id: StringName in _compartments:
+		if bool(_compartments[compartment_id]["scrubber_powered"]):
+			return 1.0
+	return 0.0
+
+
+func _heat_factor() -> float:
+	var thermal: Node = _first_node_in_group(&"thermal_system")
+	if thermal == null or not thermal.has_method(&"get_status"):
+		return 0.0
+	var status: Variant = thermal.call("get_status")
+	if not (status is Dictionary):
+		return 0.0
+	var compartments: Variant = (status as Dictionary).get("compartments", {})
+	if not (compartments is Dictionary):
+		return 0.0
+	var hottest_c: float = 20.0
+	var found: bool = false
+	for value: Variant in (compartments as Dictionary).values():
+		if value is Dictionary and (value as Dictionary).has("temperature_c"):
+			hottest_c = maxf(hottest_c, float((value as Dictionary)["temperature_c"]))
+			found = true
+	if not found:
+		return 0.0
+	return clampf((hottest_c - 20.0) / 40.0, 0.0, 1.0)
+
+
+func _first_node_in_group(group_name: StringName) -> Node:
+	var tree: SceneTree = get_tree()
+	if tree == null:
+		var main_loop: MainLoop = Engine.get_main_loop()
+		if main_loop is SceneTree:
+			tree = main_loop as SceneTree
+	if tree == null:
+		return null
+	return tree.get_first_node_in_group(group_name)
+
+
+func _apply_failure_effect(failure_mode_id: StringName) -> void:
+	match failure_mode_id:
+		&"bearing_whine":
+			_efficiency_multiplier = 0.5
+		&"blower_seize":
+			_efficiency_multiplier = 0.0
+		_:
+			pass
+
+
+func _recompute_efficiency_multiplier() -> void:
+	var multiplier: float = 1.0
+	for component: WearComponent in wear_components:
+		if component == null or not component.is_failed():
+			continue
+		match component.failed_mode:
+			&"bearing_whine":
+				multiplier = minf(multiplier, 0.5)
+			&"blower_seize":
+				multiplier = minf(multiplier, 0.0)
+			_:
+				pass
+	_efficiency_multiplier = multiplier
+
+
+func _emit_component_failed(component_id: StringName, failure_mode_id: StringName) -> void:
+	var event_bus: Node = _get_autoload(&"EventBus")
+	if event_bus != null:
+		event_bus.emit_signal(&"component_failed", component_id, failure_mode_id)
+	emit_sim_event(&"component_failed", {"component_id": component_id, "failure_mode_id": failure_mode_id})
+
+
+func _emit_component_repaired(component_id: StringName, quality: float) -> void:
+	var event_bus: Node = _get_autoload(&"EventBus")
+	if event_bus != null:
+		event_bus.emit_signal(&"component_repaired", component_id, quality)
+	emit_sim_event(&"component_repaired", {"component_id": component_id, "quality": quality})
+
+
+func _emit_condition_crossings(component: WearComponent) -> void:
+	var bucket: int = _condition_bucket_for(component.condition)
+	if not _condition_bucket.has(component.component_id):
+		_condition_bucket[component.component_id] = bucket
+		return
+	if bucket >= int(_condition_bucket[component.component_id]):
+		_condition_bucket[component.component_id] = bucket
+		return
+	_condition_bucket[component.component_id] = bucket
+	var event_bus: Node = _get_autoload(&"EventBus")
+	if event_bus != null:
+		event_bus.emit_signal(&"component_condition_changed", component.component_id, component.condition)
+
+
+func _condition_bucket_for(condition: float) -> int:
+	return int(floor(clampf(condition, 0.0, 1.0) * 10.0 + 1e-9))
+
+
+func _load_wear(entries: Variant) -> void:
+	if not (entries is Array):
+		return
+	for entry: Variant in (entries as Array):
+		if not (entry is Dictionary):
+			continue
+		var data: Dictionary = entry
+		var component: WearComponent = _find_wear_component(StringName(String(data.get("component_id", ""))))
+		if component == null:
+			continue
+		component.condition = clampf(float(data.get("condition", component.condition)), 0.0, 1.0)
+		component.hours_operated = maxf(float(data.get("hours_operated", component.hours_operated)), 0.0)
+		component.load = float(data.get("load", component.load))
+		component.failed_mode = StringName(String(data.get("failed_mode", "")))
+		_condition_bucket[component.component_id] = _condition_bucket_for(component.condition)
+
+
+func _wear_save_entries() -> Array:
+	var entries: Array = []
+	for component: WearComponent in wear_components:
+		if component == null:
+			continue
+		entries.append({
+			"component_id": String(component.component_id),
+			"condition": component.condition,
+			"hours_operated": component.hours_operated,
+			"load": component.load,
+			"failed_mode": String(component.failed_mode),
+		})
+	return entries
