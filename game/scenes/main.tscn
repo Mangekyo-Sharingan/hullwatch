@@ -52,6 +52,7 @@
 [ext_resource type="Script" path="res://src/systems/airlock.gd" id="70_airlock"]
 [ext_resource type="Shader" path="res://src/shaders/space_sky.gdshader" id="71_space_sky"]
 [ext_resource type="Script" path="res://src/systems/sector.gd" id="72_sector"]
+[ext_resource type="Script" path="res://src/world/field_streamer.gd" id="73_streamer"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_sky"]
 shader = ExtResource("71_space_sky")
@@ -248,4 +249,7 @@ script = ExtResource("48_leg_overlay")
 script = ExtResource("53_settings_menu")
 
 [node name="WorldLayout" type="Node3D" parent="." instance=ExtResource("34_dgi5k")]
+
+[node name="FieldStreamer" type="Node3D" parent="."]
+script = ExtResource("73_streamer")
 
