@@ -23,6 +23,7 @@ func _run() -> void:
 	_test_initial_state()
 	_test_occupants()
 	_test_scrubber()
+	_test_filter()
 	_test_leak()
 	_test_candles()
 	_test_mixing()
@@ -99,6 +100,63 @@ func _test_scrubber() -> void:
 	inefficient.set_scrubber_efficiency(&"main", 5.0)
 	var efficiency: float = float(inefficient.get_compartment_status(&"main")["scrubber_efficiency"])
 	_check(efficiency == 1.0, "scrubber efficiency clamps to 1.0")
+
+
+func _test_filter() -> void:
+	var system := AtmosphereSystem.new()
+	system.add_compartment(_make_config(&"main", MAIN_VOLUME))
+	var initial: Dictionary = system.get_compartment_status(&"main")
+	_check(bool(initial["filter_installed"]), "filter installed initially")
+	_check(absf(float(initial["filter_condition"]) - 1.0) < 1e-9, "filter starts at full condition")
+
+	system.set_scrubber_powered(&"main", true)
+	system.sim_tick(100.0)
+	_check(absf(system.get_filter_condition(&"main") - 0.6) < 1e-6, "filter wears 0.004/h while scrubbing")
+
+	var missing_filter := AtmosphereSystem.new()
+	missing_filter.add_compartment(_make_config(&"main", MAIN_VOLUME))
+	missing_filter.set_occupants(&"main", 1)
+	missing_filter.set_scrubber_powered(&"main", true)
+	missing_filter.set_filter_installed(&"main", false)
+	missing_filter.sim_tick(24.0)
+	var missing_ppm: float = float(missing_filter.get_compartment_status(&"main")["co2_ppm"])
+
+	var unpowered := AtmosphereSystem.new()
+	unpowered.add_compartment(_make_config(&"main", MAIN_VOLUME))
+	unpowered.set_occupants(&"main", 1)
+	unpowered.sim_tick(24.0)
+	var unpowered_ppm: float = float(unpowered.get_compartment_status(&"main")["co2_ppm"])
+	_check(absf(missing_ppm - unpowered_ppm) / unpowered_ppm < 0.001, "missing filter scrubs nothing")
+
+	missing_filter.set_filter_installed(&"main", true)
+	missing_filter.set_filter_condition(&"main", 1.0)
+	missing_filter.sim_tick(24.0)
+	var resumed_ppm_1: float = float(missing_filter.get_compartment_status(&"main")["co2_ppm"])
+	missing_filter.sim_tick(24.0)
+	var resumed_ppm_2: float = float(missing_filter.get_compartment_status(&"main")["co2_ppm"])
+	missing_filter.sim_tick(48.0)
+	var resumed_ppm_3: float = float(missing_filter.get_compartment_status(&"main")["co2_ppm"])
+	_check(resumed_ppm_1 < missing_ppm and resumed_ppm_2 < resumed_ppm_1 and resumed_ppm_3 < resumed_ppm_2, "fresh filter resumes scrubbing and CO2 declines")
+
+	var half := AtmosphereSystem.new()
+	half.add_compartment(_make_config(&"main", MAIN_VOLUME))
+	half.set_occupants(&"main", 1)
+	half.set_scrubber_powered(&"main", true)
+	half.set_filter_condition(&"main", 0.5)
+	half.sim_tick(24.0)
+	var half_ppm: float = float(half.get_compartment_status(&"main")["co2_ppm"])
+	var full := AtmosphereSystem.new()
+	full.add_compartment(_make_config(&"main", MAIN_VOLUME))
+	full.set_occupants(&"main", 1)
+	full.set_scrubber_powered(&"main", true)
+	full.sim_tick(24.0)
+	var full_ppm: float = float(full.get_compartment_status(&"main")["co2_ppm"])
+	_check(half_ppm > full_ppm and half_ppm < unpowered_ppm, "worn filter scrubs between fresh and none")
+
+	system.set_filter_condition(&"main", 5.0)
+	_check(system.get_filter_condition(&"main") == 1.0, "filter condition clamps high")
+	system.set_filter_condition(&"main", -2.0)
+	_check(system.get_filter_condition(&"main") == 0.0, "filter condition clamps low")
 
 
 func _test_leak() -> void:

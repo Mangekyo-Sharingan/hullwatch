@@ -20,6 +20,7 @@ config/icon="res://icon.svg"
 
 SimClock="*res://src/autoload/sim_clock.gd"
 EventBus="*res://src/autoload/event_bus.gd"
+AudioDirector="*res://src/autoload/audio_director.gd"
 
 [debug]
 

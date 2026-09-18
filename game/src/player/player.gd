@@ -38,6 +38,7 @@ func _ready() -> void:
 		_collision_shape.shape = capsule.duplicate()
 	up_direction = Vector3.UP
 	motion_mode = CharacterBody3D.MOTION_MODE_GROUNDED
+	add_to_group(&"player")
 	if DisplayServer.get_name() != "headless":
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 

@@ -23,6 +23,7 @@ var _served_w: float = 0.0
 
 func _ready() -> void:
 	system_id = &"power"
+	add_to_group(&"power_system")
 	super._ready()
 	battery_charge_wh = battery_capacity_wh
 	for circuit: PowerCircuit in circuit_defs:

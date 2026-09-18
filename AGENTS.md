@@ -9,7 +9,8 @@ Guide for AI coding agents working in this repository. Read this first, then `do
 - Repo root: `E:\Projekt\Misc\OperationSpacer`
 - Godot project root: `game/`
 - Production spec: `docs/PRODUCTION_SPEC.md` (authoritative for design intent)
-- Status: **M0 — Setup** (see Milestones in spec §8.2)
+- Status: **M1 complete** — 10-minute day loop playable (walk, filter-swap repair, breaker, sleep transition, status panel readout, procedural placeholder audio). Next: **M2 — systems prototype**
+- Asset shortlist for the M3 art pass: `docs/ASSET_SOURCES.md` — acquire at M3, not before
 
 ## Tech Stack
 
@@ -42,6 +43,11 @@ Run from repo root. The engine binary is local, so no PATH setup is needed.
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_power.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_atmosphere.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_player.gd
+& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_interactables.gd
+& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_audio.gd
+& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_day_loop.gd
+& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_ui.gd
+& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_scene_loop.gd
 
 # Refresh the global class cache after adding new `class_name` scripts (needed before --script test runs)
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --import
@@ -58,16 +64,18 @@ There is no linter configured yet; typed GDScript analyzer warnings in the edito
 Engine/                  # local Godot binaries — NEVER commit, NEVER edit
 docs/                    # production spec, design docs
 game/                    # Godot project root
-  project.godot          # project config (autoloads: SimClock, EventBus; Forward+)
+  project.godot          # project config (autoloads: SimClock, EventBus, AudioDirector; Forward+)
   scenes/                # .tscn scene files
   tools/                 # dev-only scripts (input map regeneration)
+  assets/                # art/, audio/ (procedural placeholder audio needs no files), fonts/
   src/
-    autoload/            # singletons: SimClock, EventBus, ShipState, SaveManager, AudioDirector
+    autoload/            # singletons: SimClock, EventBus, AudioDirector (+ planned ShipState, SaveManager)
+    audio/               # procedural placeholder PCM factories (ProcAudio)
     systems/             # simulators: power, thermal, atmosphere, hull, nav, comms, stores
     components/          # wear model + failure-mode resources
     interactables/       # panels, valves, filters, tools
     player/              # controller, interact, carry, scanner
-    ui/                  # diegetic UI, manual binder, log reader
+    ui/                  # status panel, HUD, sleep transition (diegetic UI, manual binder later)
     data/                # .tres content (components, items, procedures)
   assets/                # art/, audio/, fonts/
 tools/                   # dev utilities, MCP configs

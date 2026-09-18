@@ -23,6 +23,7 @@ var _connections: Dictionary = {}
 
 func _ready() -> void:
 	system_id = &"atmosphere"
+	add_to_group(&"atmosphere_system")
 	super._ready()
 	for config: CompartmentConfig in compartment_defs:
 		add_compartment(config)
@@ -116,6 +117,30 @@ func light_o2_candle(compartment_id: StringName) -> bool:
 	return true
 
 
+func set_filter_installed(compartment_id: StringName, installed: bool) -> void:
+	var state: Dictionary = _require_state(compartment_id, "set_filter_installed")
+	if state.is_empty():
+		return
+	state["filter_installed"] = installed
+
+
+func set_filter_condition(compartment_id: StringName, condition: float) -> void:
+	var state: Dictionary = _require_state(compartment_id, "set_filter_condition")
+	if state.is_empty():
+		return
+	if not is_finite(condition):
+		push_error("AtmosphereSystem.set_filter_condition: condition must be finite.")
+		return
+	state["filter_condition"] = clampf(condition, 0.0, 1.0)
+
+
+func get_filter_condition(compartment_id: StringName) -> float:
+	var state: Dictionary = _require_state(compartment_id, "get_filter_condition")
+	if state.is_empty():
+		return 0.0
+	return float(state["filter_condition"])
+
+
 func connect_compartments(a: StringName, b: StringName) -> void:
 	if a == b or not _compartments.has(a) or not _compartments.has(b):
 		push_error("AtmosphereSystem.connect_compartments: unknown or identical compartment ids.")
@@ -143,13 +168,15 @@ func _create_state(config: CompartmentConfig) -> Dictionary:
 		"n_o2": n_o2,
 		"n_co2": n_co2,
 		"n_n2": n_n2,
-		"occupants": 0,
+		"occupants": maxi(config.initial_occupants, 0),
 		"scrubber_powered": false,
 		"scrubber_efficiency": 1.0,
 		"isolated": false,
 		"leak_rate_per_hour": config.leak_rate_per_hour,
 		"candles_remaining": maxi(config.o2_candles_stocked, 0),
 		"candle_burn_remaining_hours": 0.0,
+		"filter_condition": clampf(config.initial_filter_condition, 0.0, 1.0),
+		"filter_installed": true,
 	}
 	state["last_pressure_kpa"] = _pressure_for(state)
 	state["last_o2_fraction"] = _o2_fraction_for(state)
@@ -166,9 +193,11 @@ func _tick_compartment(compartment_id: StringName, hours: float) -> void:
 		var co2_mol: float = float(occupants) * CO2_KG_PER_HOUR_PER_OCCUPANT / MOLAR_MASS_CO2 * hours
 		state["n_o2"] = maxf(float(state["n_o2"]) - o2_mol, 0.0)
 		state["n_co2"] = maxf(float(state["n_co2"]) + co2_mol, 0.0)
-	if bool(state["scrubber_powered"]):
-		var capacity_mol: float = config.scrubber_capacity_kg_per_hour * float(state["scrubber_efficiency"]) * hours / MOLAR_MASS_CO2
+	if bool(state["scrubber_powered"]) and bool(state["filter_installed"]):
+		var efficiency: float = float(state["scrubber_efficiency"]) * float(state["filter_condition"])
+		var capacity_mol: float = config.scrubber_capacity_kg_per_hour * efficiency * hours / MOLAR_MASS_CO2
 		state["n_co2"] = maxf(float(state["n_co2"]) - minf(capacity_mol, float(state["n_co2"])), 0.0)
+		state["filter_condition"] = maxf(float(state["filter_condition"]) - config.filter_wear_rate_per_hour * hours, 0.0)
 	var remaining_burn: float = float(state["candle_burn_remaining_hours"])
 	if remaining_burn > 0.0:
 		var burn_hours: float = minf(hours, remaining_burn)
@@ -242,6 +271,8 @@ func _status_for(state: Dictionary) -> Dictionary:
 		"isolated": state["isolated"],
 		"candles_remaining": state["candles_remaining"],
 		"candle_burn_remaining_hours": state["candle_burn_remaining_hours"],
+		"filter_condition": state["filter_condition"],
+		"filter_installed": state["filter_installed"],
 	}
 
 

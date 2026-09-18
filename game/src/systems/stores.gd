@@ -4,11 +4,15 @@ extends ShipSystem
 
 const LOW_STOCK_THRESHOLD: int = 2
 
+@export var initial_inventory: Dictionary = {}
+
 var inventory: Dictionary = {}
 
 
 func _ready() -> void:
 	system_id = &"stores"
+	add_to_group(&"stores_system")
+	inventory = initial_inventory.duplicate()
 	super._ready()
 
 
