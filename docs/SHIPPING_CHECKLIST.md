@@ -7,8 +7,9 @@ State as of M6 — items marked TODO are honest gaps, not paperwork.
 - [x] Export presets committed (`game/export_presets.cfg`, release + debug)
 - [x] Export templates documented (Godot 4.7.2 stable; installed locally)
 - [x] Exported build boots clean headless (exit 0)
+- [x] Application icon (generated `game/icon.png`, wired into project + export presets)
 - [ ] Code signing (not needed until public release)
-- [ ] Icon / installer / installer branding (placeholder Godot icon)
+- [ ] Installer / installer branding
 
 ## Game content
 - [x] Playable loop: walk, repair, sleep, stabilize, travel legs
@@ -24,7 +25,8 @@ State as of M6 — items marked TODO are honest gaps, not paperwork.
 - [x] Versioned saves with migration (v1 → v2) + migration tests
 - [x] Settings persisted (ConfigFile) with validated ranges
 - [x] Localization prep: 44 extracted strings, CSV translation registered
-- [ ] Performance profiling on mid-range hardware (target 60 fps)
+- [x] Sim + scene profilers (`tools/profile_sim.gd` 128 µs/tick, `tools/profile_scene.gd` 0.81 ms/frame scene cost)
+- [ ] Performance validation on mid-range hardware (profilers exist; real GPU run pending)
 - [ ] Accessibility pass beyond settings (subtitles do not exist yet — most audio is diagnostic)
 
 ## Legal / credits
@@ -35,6 +37,7 @@ State as of M6 — items marked TODO are honest gaps, not paperwork.
 
 ## Store
 - [x] Draft store copy (`docs/STORE_PAGE.md`)
-- [x] Placeholder capsules (`docs/store/*.png` via `tools/build_store_assets.ps1`)
-- [ ] Real key art + screenshots
+- [x] Placeholder capsules + screenshot cards (`docs/store/*.png`)
+- [ ] Real key art + in-game screenshots (capture during playtest)
 - [ ] Steamworks (or itch.io) account + depot configuration
+- [x] Public GitHub release with the test build attached (`v0.6.0`)
