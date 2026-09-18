@@ -264,7 +264,7 @@ wear_components = [ExtResource("18_rtg_main"), ExtResource("19_battery_main")]
 
 [node name="AtmosphereSystem" type="Node" parent="Systems"]
 script = ExtResource("3_atmosphere")
-compartment_defs = [ExtResource("7_compartment_main"), ExtResource("8_compartment_storage")]
+compartment_defs = [ExtResource("7_compartment_main"), ExtResource("8_compartment_storage"), ExtResource("49_compartment_cockpit"), ExtResource("50_compartment_corridor"), ExtResource("51_compartment_engine_bay"), ExtResource("52_compartment_water_closet")]
 wear_components = [ExtResource("20_scrubber_blower")]
 
 [node name="Stores" type="Node" parent="Systems"]
@@ -273,7 +273,7 @@ initial_inventory = {&"filter_co2": 2, &"sealant": 2, &"gasket": 1}
 
 [node name="ThermalSystem" type="Node" parent="Systems"]
 script = ExtResource("16_thermal")
-compartment_defs = [ExtResource("7_compartment_main"), ExtResource("8_compartment_storage")]
+compartment_defs = [ExtResource("7_compartment_main"), ExtResource("8_compartment_storage"), ExtResource("49_compartment_cockpit"), ExtResource("50_compartment_corridor"), ExtResource("51_compartment_engine_bay"), ExtResource("52_compartment_water_closet")]
 wear_components = [ExtResource("40_heater_main")]
 
 [node name="HullSystem" type="Node" parent="Systems"]

@@ -38,6 +38,8 @@ func _run() -> void:
 	_check(readout.contains("CO2") and readout.contains("FILTER 15%"), "panel reports the worn filter in-world")
 	_check(readout.contains("RTG_MAIN"), "panel reports live component condition in-world")
 
+	_test_world_wiring(main, atmosphere)
+
 	transition.fade_out_seconds = 0.05
 	transition.fade_in_seconds = 0.05
 	transition.summary_hold_seconds = 0.05
@@ -62,6 +64,36 @@ func _run() -> void:
 
 	main.free()
 	_finish()
+
+
+func _test_world_wiring(main: Node, atmosphere: Node) -> void:
+	var missing: PackedStringArray = PackedStringArray()
+	var zones: Node = main.get_node("Zones")
+	for zone: Node in zones.get_children():
+		var compartment_id: StringName = zone.get(&"compartment_id")
+		if bool(atmosphere.call("has_compartment", compartment_id)):
+			zone.call("push_occupancy")
+		else:
+			missing.append("zone:" + String(compartment_id))
+	var door_count: int = 0
+	for prop: Node in main.get_node("Props").get_children():
+		if prop.get(&"compartment_a") == null:
+			continue
+		door_count += 1
+		for key: StringName in [&"compartment_a", &"compartment_b"]:
+			var id: StringName = prop.get(key)
+			if not bool(atmosphere.call("has_compartment", id)):
+				missing.append("door:" + String(id))
+	var link_count: int = 0
+	for link: Node in main.get_node("Links").get_children():
+		link_count += 1
+		for key: StringName in [&"compartment_a", &"compartment_b"]:
+			var id: StringName = link.get(key)
+			if not bool(atmosphere.call("has_compartment", id)):
+				missing.append("link:" + String(id))
+	_check(door_count == 5, "all five doors are wired")
+	_check(link_count == 4, "all four compartment links are wired")
+	_check(missing.is_empty(), "every zone, door and link maps to a registered compartment (%s)" % ", ".join(missing))
 
 
 func _finish() -> void:
