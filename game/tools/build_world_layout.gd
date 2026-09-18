@@ -12,6 +12,7 @@ const MATERIAL_PANEL_SCRATCHED: String = "res://src/data/materials/mat_panel_scr
 const MATERIAL_WALL_PAINTED: String = "res://src/data/materials/mat_wall_painted.tres"
 const MATERIAL_FLOOR_GRATE: String = "res://src/data/materials/mat_floor_grate.tres"
 const MATERIAL_METAL_RUSTED: String = "res://src/data/materials/mat_metal_rusted.tres"
+const MATERIAL_SCREEN_GLOW: String = "res://src/data/materials/mat_screen_glow.tres"
 
 const MANUAL_BOOK: String = "res://src/data/manual/manual_book.tres"
 const LOG_ENTRY: String = "res://src/data/logs/log_01.tres"
@@ -29,6 +30,7 @@ const MATERIAL_PATHS: Array[String] = [
 	MATERIAL_WALL_PAINTED,
 	MATERIAL_FLOOR_GRATE,
 	MATERIAL_METAL_RUSTED,
+	MATERIAL_SCREEN_GLOW,
 ]
 
 const RESOURCE_PATHS: Array[String] = [MANUAL_BOOK, LOG_ENTRY]
@@ -67,7 +69,7 @@ const PROPS: Array[Dictionary] = [
 		"script": "res://src/ui/status_panel.gd",
 		"position": Vector3(-0.75, 1.5, -8.0),
 		"size": Vector3(0.15, 1.0, 0.7),
-		"material": MATERIAL_PANEL_SCRATCHED,
+		"material": MATERIAL_SCREEN_GLOW,
 		"exports": {"compartment_id": &"main"},
 	},
 	{
@@ -75,7 +77,7 @@ const PROPS: Array[Dictionary] = [
 		"script": "res://src/interactables/maintenance_board.gd",
 		"position": Vector3(-0.75, 1.6, -13.0),
 		"size": Vector3(0.9, 0.7, 0.1),
-		"material": MATERIAL_PANEL_SCRATCHED,
+		"material": MATERIAL_SCREEN_GLOW,
 		"exports": {},
 	},
 	{
@@ -92,7 +94,7 @@ const PROPS: Array[Dictionary] = [
 		"script": "res://src/interactables/log_terminal.gd",
 		"position": Vector3(2.0, 1.2, -18.7),
 		"size": Vector3(0.15, 0.5, 0.6),
-		"material": MATERIAL_PANEL_SCRATCHED,
+		"material": MATERIAL_SCREEN_GLOW,
 		"exports": {},
 		"resources": {"log_entry": LOG_ENTRY},
 	},
@@ -101,7 +103,7 @@ const PROPS: Array[Dictionary] = [
 		"script": "res://src/interactables/nav_console.gd",
 		"position": Vector3(0.0, 1.2, -18.7),
 		"size": Vector3(0.15, 0.5, 0.6),
-		"material": MATERIAL_PANEL_SCRATCHED,
+		"material": MATERIAL_SCREEN_GLOW,
 		"exports": {"waypoint_id": &"relay_cache"},
 	},
 	{

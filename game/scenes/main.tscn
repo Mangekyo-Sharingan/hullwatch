@@ -43,7 +43,7 @@ background_mode = 1
 background_color = Color(0.012, 0.014, 0.018, 1)
 ambient_light_source = 2
 ambient_light_color = Color(0.055, 0.06, 0.07, 1)
-ambient_light_energy = 0.35
+ambient_light_energy = 0.16
 tonemap_mode = 2
 
 [node name="Main" type="Node3D"]
@@ -53,27 +53,87 @@ environment = SubResource("Environment_1")
 
 [node name="FillLight" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.866, 0, -0.5, -0.3536, 0.7071, -0.6124, 0.3536, 0.7071, 0.6124, 0, 4, 0)
-light_color = Color(0.65, 0.72, 0.9, 1)
-light_energy = 0.2
+light_color = Color(0.55, 0.62, 0.78, 1)
+light_energy = 0.1
 
 [node name="CabinLight" type="OmniLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.8, -4.0)
 light_color = Color(1, 0.85, 0.65, 1)
-light_energy = 1.0
+light_energy = 1.2
 shadow_enabled = true
-omni_range = 14.0
+omni_range = 12.0
+
+[node name="SpineLightA" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.7, -9.5)
+light_color = Color(1, 0.82, 0.6, 1)
+light_energy = 1.0
+omni_range = 6.0
+
+[node name="SpineLightB" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.7, -1.5)
+light_color = Color(1, 0.82, 0.6, 1)
+light_energy = 1.0
+omni_range = 6.0
+
+[node name="CockpitLight" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.8, -16.5)
+light_color = Color(0.85, 0.92, 1, 1)
+light_energy = 1.0
+omni_range = 8.0
+
+[node name="LifeSupportLight" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.65, 2.7, -6.3)
+light_color = Color(1, 0.85, 0.65, 1)
+light_energy = 1.0
+omni_range = 6.0
+
+[node name="GalleyLight" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.9, 2.7, -5.8)
+light_color = Color(1, 0.85, 0.65, 1)
+light_energy = 1.0
+omni_range = 6.0
+
+[node name="WaterClosetLight" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.2, 2.7, -1.9)
+light_color = Color(0.9, 0.95, 1, 1)
+light_energy = 0.8
+omni_range = 5.0
+
+[node name="StorageLight" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.75, 2.7, -1.2)
+light_color = Color(1, 0.8, 0.6, 1)
+light_energy = 0.8
+omni_range = 5.0
+
+[node name="ScrubberTaskLight" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.6, 2.2, -6.4)
+light_color = Color(1, 0.85, 0.6, 1)
+light_energy = 0.6
+omni_range = 3.5
+
+[node name="ReclaimerTaskLight" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.2, 2.2, -1.9)
+light_color = Color(1, 0.9, 0.7, 1)
+light_energy = 0.5
+omni_range = 3.0
+
+[node name="ConsoleTaskLight" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0, 2.2, -17.8)
+light_color = Color(0.8, 0.9, 1, 1)
+light_energy = 0.5
+omni_range = 3.0
 
 [node name="QuartersLight" type="OmniLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.15, 2.8, -10.4)
 light_color = Color(1, 0.8, 0.6, 1)
-light_energy = 0.7
-omni_range = 6.0
+light_energy = 1.1
+omni_range = 7.0
 
 [node name="EngineLight" type="OmniLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.8, 4.7)
 light_color = Color(0.8, 0.9, 1, 1)
-light_energy = 0.8
-omni_range = 7.0
+light_energy = 1.2
+omni_range = 9.0
 
 [node name="ShipGeometry" type="Node3D" parent="." instance=ExtResource("42_ship_geometry")]
 
@@ -144,3 +204,4 @@ script = ExtResource("48_leg_overlay")
 script = ExtResource("53_settings_menu")
 
 [node name="WorldLayout" type="Node3D" parent="." instance=ExtResource("34_dgi5k")]
+

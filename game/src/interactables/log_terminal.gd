@@ -83,7 +83,8 @@ func _ensure_ui() -> void:
 	layer.add_child(panel)
 	_label = Label.new()
 	_label.add_theme_font_size_override("font_size", UiScale.size(self, BASE_FONT_SIZE))
-	_label.add_theme_color_override("font_color", Color(0.45, 0.85, 0.55, 1.0))
+	CrtPanel.style_label(_label, CrtPanel.PHOSPHOR_GREEN)
 	panel.add_child(_label)
+	CrtPanel.add_overlay(panel)
 	layer.visible = false
 	_ui = layer

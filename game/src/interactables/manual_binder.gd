@@ -144,6 +144,7 @@ func _ensure_ui() -> void:
 	_content = Label.new()
 	_content.name = "PageContent"
 	_content.add_theme_font_size_override("font_size", UiScale.size(self, BASE_FONT_SIZE))
-	_content.add_theme_color_override("font_color", Color(0.88, 0.83, 0.68, 1.0))
+	CrtPanel.style_label(_content, CrtPanel.PHOSPHOR_AMBER)
 	content_panel.add_child(_content)
+	CrtPanel.add_overlay(content_panel)
 	_root = row

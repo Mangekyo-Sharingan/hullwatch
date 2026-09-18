@@ -9,7 +9,7 @@ Guide for AI coding agents working in this repository. Read this first, then `do
 - Repo root: `E:\Projekt\Misc\OperationSpacer`
 - Godot project root: `game/`
 - Production spec: `docs/PRODUCTION_SPEC.md` (authoritative for design intent)
-- Status: **post-v0.6.0 expansion**: humidity model + condensation cascade, seven wear components, cramped 8-space station layout (generated geometry + generated props/zones/links), analogue-horror post filter with settings. External playtest of the v0.6.0 build is the main open item; reference-driven art/density tuning next
+- Status: **post-v0.6.0 expansion + reference look pass**: cramped 8-space station (generated geometry + generated props/zones/links), analogue-horror filter (tuned to the Starpath/terminal reference), CRT-styled diegetic screens, warm practical lighting with dark ambient, generated greeble (light strips, ribs, conduits). Real in-game captures live in `docs/store/` (via `tools/capture_screenshots.gd`, windowed). External playtest of the v0.6.0 build is the main open item; next features: tools/diagnostics + comms/narrative
 - Asset shortlist for the M3 art pass: `docs/ASSET_SOURCES.md` — acquire at M3, not before
 
 ## Tech Stack
@@ -77,6 +77,7 @@ Run from repo root. The engine binary is local, so no PATH setup is needed.
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_save_migration.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_localization.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_analogue_filter.gd
+& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_crt_panels.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_scene_loop.gd
 
 # Regenerate the localization string table after changing user-facing UI strings
@@ -85,6 +86,9 @@ Run from repo root. The engine binary is local, so no PATH setup is needed.
 # Regenerate the layout scenes after editing their tables (geometry / props+zones+links)
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tools/build_ship_geometry.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tools/build_world_layout.gd
+
+# Capture in-game screenshots for review/store (WINDOWED — rendering required; writes to user://captures)
+& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --path game --resolution 1600x900 --script res://tools/capture_screenshots.gd
 
 # Performance regression guards (sim tick cost / scene frame cost)
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tools/profile_sim.gd

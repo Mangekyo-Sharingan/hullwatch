@@ -9,13 +9,16 @@ const DEFAULT_ENABLED: bool = true
 const DEFAULT_INTENSITY: float = 1.0
 
 const SHADER_DEFAULTS: Dictionary = {
-	&"grain_amount": 0.06,
-	&"aberration": 0.0015,
-	&"scanline_amount": 0.05,
-	&"vignette_amount": 0.35,
-	&"desaturation": 0.15,
-	&"warp_amount": 0.008,
-	&"flicker_amount": 0.02,
+	&"grain_amount": 0.085,
+	&"aberration": 0.0028,
+	&"scanline_amount": 0.07,
+	&"vignette_amount": 0.55,
+	&"desaturation": 0.28,
+	&"warp_amount": 0.015,
+	&"flicker_amount": 0.025,
+	&"scratch_amount": 0.025,
+	&"dust_amount": 0.03,
+	&"warm_tint": Vector3(1.03, 0.985, 0.93),
 }
 
 var _rect: ColorRect

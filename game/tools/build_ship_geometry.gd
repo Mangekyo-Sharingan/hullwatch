@@ -11,6 +11,8 @@ const MATERIAL_FLOOR: String = "res://src/data/materials/mat_floor_grate.tres"
 const MATERIAL_WALL_PAINTED: String = "res://src/data/materials/mat_wall_painted.tres"
 const MATERIAL_WALL_CONTAINER: String = "res://src/data/materials/mat_wall_container.tres"
 const MATERIAL_CEILING: String = "res://src/data/materials/mat_panel_scratched.tres"
+const MATERIAL_STRIP: String = "res://src/data/materials/mat_light_strip.tres"
+const MATERIAL_CONDUIT: String = "res://src/data/materials/mat_metal_rusted.tres"
 
 const WALL_THICKNESS: float = 0.2
 const ROOM_HEIGHT: float = 3.0
@@ -43,7 +45,7 @@ func _initialize() -> void:
 
 
 func _load_materials() -> void:
-	for path: String in [MATERIAL_FLOOR, MATERIAL_WALL_PAINTED, MATERIAL_WALL_CONTAINER, MATERIAL_CEILING]:
+	for path: String in [MATERIAL_FLOOR, MATERIAL_WALL_PAINTED, MATERIAL_WALL_CONTAINER, MATERIAL_CEILING, MATERIAL_STRIP, MATERIAL_CONDUIT]:
 		var material: Material = load(path) as Material
 		if material == null:
 			_failures += 1
@@ -63,6 +65,7 @@ func _build() -> void:
 	_build_water_closet()
 	_build_storage()
 	_build_engine_bay()
+	_build_dressing()
 
 
 func _make_space(space_name: String) -> StaticBody3D:
@@ -194,6 +197,40 @@ func _build_engine_bay() -> void:
 	_add_wall(space, "WallW", -3.7, 4.7, WALL_THICKNESS, 6.6, MATERIAL_WALL_CONTAINER)
 	_add_wall(space, "WallN_A", -2.25, 1.5, 3.1, WALL_THICKNESS, MATERIAL_WALL_CONTAINER)
 	_add_wall(space, "WallN_B", 2.25, 1.5, 3.1, WALL_THICKNESS, MATERIAL_WALL_CONTAINER)
+
+
+## Visual greeble only (no collision): ceiling light strips, corridor ribs, conduit runs.
+func _build_dressing() -> void:
+	_add_dressing("Corridor", "Strip", Vector3(0, 2.94, -6.3), Vector3(0.22, 0.04, 14.2), MATERIAL_STRIP)
+	_add_dressing("Cockpit", "Strip", Vector3(0, 2.94, -16.5), Vector3(0.22, 0.04, 4.0), MATERIAL_STRIP)
+	_add_dressing("Quarters", "Strip", Vector3(-3.15, 2.94, -10.4), Vector3(0.22, 0.04, 3.8), MATERIAL_STRIP)
+	_add_dressing("LifeSupport", "Strip", Vector3(-2.65, 2.94, -6.3), Vector3(2.9, 0.04, 0.22), MATERIAL_STRIP)
+	_add_dressing("Galley", "Strip", Vector3(2.9, 2.94, -5.8), Vector3(0.22, 0.04, 3.0), MATERIAL_STRIP)
+	_add_dressing("WaterCloset", "Strip", Vector3(2.2, 2.94, -1.9), Vector3(0.22, 0.04, 1.6), MATERIAL_STRIP)
+	_add_dressing("Storage", "Strip", Vector3(-2.75, 2.94, -1.2), Vector3(0.22, 0.04, 3.0), MATERIAL_STRIP)
+	_add_dressing("EngineBay", "Strip", Vector3(0, 2.94, 4.7), Vector3(6.6, 0.04, 0.22), MATERIAL_STRIP)
+	var spine_z: Array[float] = [-13.0, -10.6, -8.2, -5.8, -3.4, -1.0, 1.2]
+	for i: int in spine_z.size():
+		_add_dressing("Corridor", "RibW%d" % i, Vector3(-0.66, 1.3, spine_z[i]), Vector3(0.08, 2.5, 0.12), MATERIAL_WALL_CONTAINER)
+		_add_dressing("Corridor", "RibE%d" % i, Vector3(0.66, 1.3, spine_z[i]), Vector3(0.08, 2.5, 0.12), MATERIAL_WALL_CONTAINER)
+	_add_dressing("Corridor", "ConduitW", Vector3(-0.55, 2.78, -6.3), Vector3(0.07, 0.07, 15.0), MATERIAL_CONDUIT)
+	_add_dressing("Corridor", "ConduitE", Vector3(0.55, 2.78, -6.3), Vector3(0.07, 0.07, 15.0), MATERIAL_CONDUIT)
+
+
+func _add_dressing(space_name: String, part_name: String, center: Vector3, size: Vector3, material_path: String) -> void:
+	var space: Node = _root.get_node_or_null(NodePath(space_name))
+	if space == null:
+		_failures += 1
+		print("FAIL: dressing target missing ", space_name)
+		return
+	var mesh: BoxMesh = BoxMesh.new()
+	mesh.size = size
+	var node: MeshInstance3D = MeshInstance3D.new()
+	node.name = "Dressing" + part_name
+	node.mesh = mesh
+	node.material_override = _materials[material_path] as Material
+	node.position = center
+	space.add_child(node)
 
 
 func _save() -> void:
