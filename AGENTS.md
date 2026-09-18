@@ -9,7 +9,7 @@ Guide for AI coding agents working in this repository. Read this first, then `do
 - Repo root: `E:\Projekt\Misc\OperationSpacer`
 - Godot project root: `game/`
 - Production spec: `docs/PRODUCTION_SPEC.md` (authoritative for design intent)
-- Status: **M5 beta** (playtest still pending). M4 content-complete small ship + settings/accessibility menu (persisted ConfigFile), save migration v1→v2 (`SAVE_VERSION = 2`, `meta.play_hours`), localization prep (`tools/extract_strings.gd` → `assets/locale/strings.csv`, 44 strings; see `docs/LOCALIZATION.md`)
+- Status: **M6 — release prep complete**: single-file Windows build via `build.ps1` (export presets committed), `play.bat` for source play, draft store copy + placeholder capsules (`docs/store/`), shipping gap list in `docs/SHIPPING_CHECKLIST.md`. External playtest (spec §8.5) still pending — that is the main open item, along with carry/pickup and food
 - Asset shortlist for the M3 art pass: `docs/ASSET_SOURCES.md` — acquire at M3, not before
 
 ## Tech Stack
@@ -27,8 +27,12 @@ Guide for AI coding agents working in this repository. Read this first, then `do
 Run from repo root. The engine binary is local, so no PATH setup is needed.
 
 ```powershell
-# Run the game
+# Run the game (or just double-click play.bat)
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --path game
+
+# Build the single-file Windows test build (release; -Debug for debug build)
+.\build.ps1
+.\build.ps1 -Debug
 
 # Open editor (GUI)
 & ".\Engine\Godot_v4.7.2-stable_win64.exe" --editor --path game

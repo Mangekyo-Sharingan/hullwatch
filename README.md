@@ -5,26 +5,51 @@ A first-person ship-maintenance simulation about keeping a decaying long-haul ve
 - **Engine:** Godot 4.7.2 (local binary in `Engine/`)
 - **Language:** GDScript (typed)
 - **Spec:** [`docs/PRODUCTION_SPEC.md`](docs/PRODUCTION_SPEC.md)
-- **Status:** Pre-production (M0)
+- **Status:** M6 — release prep. Playable test build available.
 
-## Quick Start
+## Play it
 
 ```powershell
-# Run the game project (once game/project.godot exists)
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --path game
+# From source (fastest)
+.\play.bat
 
-# Open the editor
-& ".\Engine\Godot_v4.7.2-stable_win64.exe" --editor --path game
-
-# Headless smoke test (once project exists)
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --quit
+# Or a built single-file executable
+.\build.ps1            # release build -> build\windows\Hullwatch.exe
+.\build.ps1 -Debug     # debug build
 ```
+
+Controls: WASD move, Space push-off/jump, Ctrl crouch, Q magnetic boots, E interact,
+F flashlight, Esc settings/pause.
+
+## Test it
+
+```powershell
+# Headless suites (all should exit 0; see AGENTS.md for the full list)
+& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_scene_loop.gd
+
+# Regenerate generated content after changing its inputs
+& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tools/build_ship_geometry.gd
+& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tools/extract_strings.gd
+```
+
+## Docs
+
+| Doc | Purpose |
+|---|---|
+| [`docs/PRODUCTION_SPEC.md`](docs/PRODUCTION_SPEC.md) | Authoritative design spec |
+| [`docs/SHIPPING_CHECKLIST.md`](docs/SHIPPING_CHECKLIST.md) | M6 gap list |
+| [`docs/STORE_PAGE.md`](docs/STORE_PAGE.md) | Draft store copy + capsule assets |
+| [`docs/ASSET_CREDITS.md`](docs/ASSET_CREDITS.md) | CC0 asset provenance |
+| [`docs/ASSET_SOURCES.md`](docs/ASSET_SOURCES.md) | Vetted asset source shortlist |
+| [`docs/LOCALIZATION.md`](docs/LOCALIZATION.md) | String extraction workflow |
+| [`AGENTS.md`](AGENTS.md) | Guide for AI agents working in this repo |
 
 ## Layout
 
 | Path | Purpose |
 |---|---|
-| `docs/` | Production spec and design docs |
-| `game/` | Godot project root |
+| `docs/` | Production spec, store copy, credits |
+| `game/` | Godot project root (scenes, src, assets, tests, tools) |
+| `build/` | Export output (gitignored) |
 | `Engine/` | Local Godot binaries (gitignored) |
 | `tools/` | Dev utilities, MCP configs |

@@ -6,7 +6,7 @@ game/android/
 # Godot exports
 game/export/
 game/builds/
-export_presets.cfg
+build/
 
 # Local engine binaries
 Engine/
