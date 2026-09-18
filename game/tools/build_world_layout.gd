@@ -24,6 +24,7 @@ const KIT_DISPLAY: String = "res://assets/models/kenney_space_station_kit/Models
 
 const SCRIPT_ZONE: String = "res://src/world/compartment_zone.gd"
 const SCRIPT_LINK: String = "res://src/world/compartment_link.gd"
+const SCRIPT_DOOR_FRAME: String = "res://src/interactables/door_frame.gd"
 
 const MATERIAL_PATHS: Array[String] = [
 	MATERIAL_MACHINE_TEAL,
@@ -442,6 +443,21 @@ func _build_door(spec: Dictionary) -> void:
 	slab_shape.name = "SlabShape"
 	slab_shape.shape = slab_box
 	door.add_child(slab_shape)
+	var frame: StaticBody3D = StaticBody3D.new()
+	frame.name = "Frame"
+	frame.collision_layer = 2
+	frame.collision_mask = 0
+	frame.set_script(load(SCRIPT_DOOR_FRAME) as Script)
+	door.add_child(frame)
+	var frame_box: BoxShape3D = BoxShape3D.new()
+	if size.x <= size.z:
+		frame_box.size = Vector3(0.05, size.y, size.z)
+	else:
+		frame_box.size = Vector3(size.x, size.y, 0.05)
+	var frame_shape: CollisionShape3D = CollisionShape3D.new()
+	frame_shape.name = "FrameShape"
+	frame_shape.shape = frame_box
+	frame.add_child(frame_shape)
 
 
 func _build_kit(spec: Dictionary) -> void:

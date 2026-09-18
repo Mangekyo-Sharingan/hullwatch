@@ -249,6 +249,8 @@ func _test_doors() -> void:
 		var slab_shape: CollisionShape3D = door.get_node_or_null(^"SlabShape") as CollisionShape3D
 		_check(slab != null and slab.mesh is BoxMesh, "door slab mesh: " + door_name)
 		_check(slab_shape != null and slab_shape.shape is BoxShape3D, "door slab collision: " + door_name)
+		var frame: StaticBody3D = door.get_node_or_null(^"Frame") as StaticBody3D
+		_check(frame != null and frame.collision_layer == 2 and frame.collision_mask == 0, "door keeps a sensor frame: " + door_name)
 	_check(found == EXPECTED_DOORS.size(), "all %d doors found" % EXPECTED_DOORS.size())
 
 

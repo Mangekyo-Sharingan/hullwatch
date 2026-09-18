@@ -30,6 +30,10 @@ The airlock is through the storage hold (west wall). Suit locker inside; the con
 cycles the lock. Outside: tether (T), boots (Q), flashlight (F), look before you leap.
 
 ## Hotfix (same day)
+- Fixed: open doors could not be closed again. A door's only collision slid away with the
+  slab, so the interaction ray had nothing to aim at. Every doorway now keeps a thin
+  **sensor frame** that the crosshair targets (while the body walks straight through and
+  never collides with it), forwarding to the door.
 - Fixed: the generated hull's collision triangles were wound the wrong way for Godot's
   physics, so the operator stood on the **underside** of floor slabs and movement was
   blocked. Collision now uses the corrected winding, and the layout test asserts the

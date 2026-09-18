@@ -38,6 +38,13 @@ func _run() -> void:
 	_check(readout.contains("CO2") and readout.contains("FILTER 15%"), "panel reports the worn filter in-world")
 	_check(readout.contains("RTG_MAIN"), "panel reports live component condition in-world")
 
+	var player: CharacterBody3D = main.get_node("Player") as CharacterBody3D
+	var interact_ray: RayCast3D = main.get_node("Player/Head/Camera3D/InteractRay") as RayCast3D
+	_check(player != null and interact_ray != null, "player interaction rig exists")
+	if player != null and interact_ray != null:
+		_check(interact_ray.collision_mask == 3, "interact ray sees the door sensor layer")
+		_check(player.collision_mask == 1, "player body ignores the door sensor layer")
+
 	_test_world_wiring(main, atmosphere)
 	_test_space_backdrop(main)
 

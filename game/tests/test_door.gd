@@ -36,8 +36,15 @@ func _test_door_toggle() -> void:
 	_check(slab_shape.disabled, "open slab collision is disabled")
 	_check(slab.position.is_equal_approx(door.open_offset), "open slab moved by open_offset")
 
-	door.interact(null)
-	_check(not door.is_open(), "second interact closes the door")
+	var frame: StaticBody3D = door.get_node_or_null(^"Frame") as StaticBody3D
+	_check(frame != null, "doorway keeps an interaction frame")
+	if frame != null:
+		_check(frame.collision_layer == 2 and frame.collision_mask == 0, "frame is a sensor the body cannot hit")
+		_check(String(frame.call("get_interaction_prompt")) == "Close door", "frame forwards the open-door prompt")
+		frame.call("interact", null)
+		_check(not door.is_open(), "interacting with the frame closes the open door")
+
+	_check(not door.is_open(), "door stays closed after the frame interaction")
 	_check(_isolated(atmosphere, &"main") and _isolated(atmosphere, &"corridor"), "re-closed door isolates both compartments")
 	_check(not slab_shape.disabled, "closed slab collision is re-enabled")
 	_check(slab.position.is_equal_approx(Vector3.ZERO), "closed slab returned to its base position")
@@ -101,6 +108,18 @@ func _make_door(compartment_a: StringName, compartment_b: StringName) -> Door:
 	box_shape.size = Vector3(3.0, 2.2, 0.16)
 	slab_shape.shape = box_shape
 	door.add_child(slab_shape)
+	var frame: StaticBody3D = StaticBody3D.new()
+	frame.name = &"Frame"
+	frame.collision_layer = 2
+	frame.collision_mask = 0
+	frame.set_script(load("res://src/interactables/door_frame.gd") as Script)
+	door.add_child(frame)
+	var frame_shape: CollisionShape3D = CollisionShape3D.new()
+	frame_shape.name = &"FrameShape"
+	var frame_box: BoxShape3D = BoxShape3D.new()
+	frame_box.size = Vector3(0.05, 2.2, 3.0)
+	frame_shape.shape = frame_box
+	frame.add_child(frame_shape)
 	_spawn(door)
 	return door
 

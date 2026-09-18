@@ -39,6 +39,10 @@ func _run() -> void:
 
 	inner.interact(null)
 	_check(inner.is_open(), "inner door opens while pressurized")
+	var frame: Node = inner.get_node_or_null(^"Frame")
+	_check(frame != null, "inner doorway keeps its sensor frame")
+	if frame != null:
+		_check(String(frame.call("get_interaction_prompt")) == "Close door", "open inner door is targetable and says close")
 	_check(not panel.select_action(&"depressurize"), "panel refuses to pump while the inner door is open")
 	inner.interact(null)
 	_check(not inner.is_open(), "inner door closes")
