@@ -23,6 +23,8 @@ func _run() -> void:
 	_test_incapacitation_carbon_dioxide()
 	_test_incapacitation_oxygen()
 	_test_incapacitation_hypothermia()
+	_test_incapacitation_dehydration()
+	_test_dehydration_recovery()
 	_test_recovery_when_nominal()
 	_test_cognition_climb()
 	_test_cognition_condition_driven()
@@ -79,6 +81,60 @@ func _test_incapacitation_hypothermia() -> void:
 	var status: Dictionary = _vitals.get_status()
 	_check(bool(status["incapacitated"]), "cold: severe cold incapacitates")
 	_check(StringName(status["cause"]) == &"hypothermia", "cold: cause is hypothermia")
+	_despawn_all()
+
+
+func _test_incapacitation_dehydration() -> void:
+	_harness.clear_events()
+	_typed_events.clear()
+	var config: CompartmentConfig = _make_config(&"main", 0.21, 400.0, 21.0, 1)
+	var defs: Array[CompartmentConfig] = [config]
+	_add_world(defs)
+	_add_water(0.0)
+	for i: int in 12:
+		_harness.advance(0.5)
+	var status: Dictionary = _vitals.get_status()
+	_check(float(status["condition"]) >= 1.0, "dehydration: empty potable water degrades condition to incapacitation")
+	_check(bool(status["incapacitated"]), "dehydration: operator incapacitated")
+	_check(StringName(status["cause"]) == &"dehydration", "dehydration: cause is dehydration")
+	_check(_vitals.get_cognition_level() == 3, "dehydration: severe condition forces cognition level 3")
+	_check(_typed_named(&"operator_incapacitated").size() == 1, "dehydration: typed operator_incapacitated emitted once")
+	_check(_harness.events_named(&"operator_incapacitated").size() == 1, "dehydration: sim operator_incapacitated emitted once")
+	_despawn_all()
+
+
+func _test_dehydration_recovery() -> void:
+	_harness.clear_events()
+	_typed_events.clear()
+	var config: CompartmentConfig = _make_config(&"main", 0.21, 400.0, 21.0, 1)
+	var defs: Array[CompartmentConfig] = [config]
+	_add_world(defs)
+	var water: WaterSystem = _add_water(0.0)
+	_harness.advance(2.0)
+	var damaged: float = float(_vitals.get_status()["condition"])
+	_check(damaged > 0.05, "dehydration recovery: dry stores damage the operator")
+	_check(_vitals.get_cognition_level() == 3, "dehydration recovery: cognition forced to level 3 while dry")
+	water.potable_l = 60.0
+	_harness.clear_events()
+	_harness.advance(1.0)
+	var recovered: float = float(_vitals.get_status()["condition"])
+	_check(recovered < damaged, "dehydration recovery: restoring water stops the damage")
+	_check(_vitals.get_cognition_level() == 0, "dehydration recovery: cognition returns to level 0")
+	_despawn_all()
+
+	_harness.clear_events()
+	var config_removed: CompartmentConfig = _make_config(&"main", 0.21, 400.0, 21.0, 1)
+	var defs_removed: Array[CompartmentConfig] = [config_removed]
+	_add_world(defs_removed)
+	var water_removed: WaterSystem = _add_water(0.0)
+	_harness.advance(2.0)
+	var damaged_removed: float = float(_vitals.get_status()["condition"])
+	_check(damaged_removed > 0.05, "dehydration recovery: precondition re-established")
+	water_removed.free()
+	_harness.advance(1.0)
+	var recovered_removed: float = float(_vitals.get_status()["condition"])
+	_check(recovered_removed < damaged_removed, "dehydration recovery: removing the water system stops the damage")
+	_check(_vitals.get_cognition_level() == 0, "dehydration recovery: cognition clears without a water system")
 	_despawn_all()
 
 
@@ -286,6 +342,16 @@ func _add_world(configs: Array[CompartmentConfig]) -> void:
 	_vitals = VitalsSystem.new()
 	_spawned.append(_vitals)
 	root.add_child(_vitals)
+
+
+func _add_water(potable_l: float) -> WaterSystem:
+	var water := WaterSystem.new()
+	water.potable_l = potable_l
+	water.greywater_l = 0.0
+	water.set_reclaimer_powered(false)
+	_spawned.append(water)
+	root.add_child(water)
+	return water
 
 
 func _press_interact() -> void:

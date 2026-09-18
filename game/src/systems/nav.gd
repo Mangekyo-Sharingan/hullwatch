@@ -71,6 +71,11 @@ func begin_burn() -> bool:
 		"leg_index": current_leg,
 		"fuel_remaining": fuel_mass_kg,
 	})
+	if current_leg >= waypoints.size():
+		var day: int = 0
+		if sim_clock != null:
+			day = int(sim_clock.call("get_day"))
+		emit_sim_event(&"leg_completed", {"waypoint_id": burned_waypoint, "day": day})
 	return true
 
 

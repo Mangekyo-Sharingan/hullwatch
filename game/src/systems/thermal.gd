@@ -204,7 +204,7 @@ func _create_state(config: CompartmentConfig) -> Dictionary:
 		"temperature_c": temperature_c,
 		"heater_powered": true,
 		"heater_on": false,
-		"constant_gain_w": 0.0,
+		"constant_gain_w": config.initial_heat_gain_w,
 		"occupants": maxi(config.initial_occupants, 0),
 		"last_temperature_c": temperature_c,
 		"last_freeze_risk": temperature_c <= config.freeze_threshold_c,

@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="CompartmentConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/components/compartment_config.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+compartment_id = &"corridor"
+display_name = "Corridor"
+volume_m3 = 50.0
+initial_pressure_kpa = 101.325
+initial_o2_fraction = 0.21
+initial_co2_ppm = 400.0
+leak_rate_per_hour = 0.004
+scrubber_capacity_kg_per_hour = 0.055
+o2_candles_stocked = 0
+o2_candle_kg = 1.0
+o2_candle_burn_hours = 2.0
+puncture_mtbf_hours = 9000.0
+puncture_leak_per_hour = 0.004

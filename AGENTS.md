@@ -9,7 +9,7 @@ Guide for AI coding agents working in this repository. Read this first, then `do
 - Repo root: `E:\Projekt\Misc\OperationSpacer`
 - Godot project root: `game/`
 - Production spec: `docs/PRODUCTION_SPEC.md` (authoritative for design intent)
-- Status: **M3 deliverables in place — external playtest pending** (spec §8.5 success test). Vertical slice: CC0 art pass (Kenney kit + Poly Haven textures via `src/data/materials/`), manual binder, maintenance board, prior-operator log, hull punctures + sealant patch (3rd repair), operator vitals/loss states with mercy recovery, cognition vignette, nav/travel stub
+- Status: **M4 alpha — content-complete small ship** (playtest still pending). 5 modules + corridors (habitat, cockpit, engine bay, water closet, storage) with 6 atmosphere compartments, doors + isolation, water/reclamation system, 5 procedures (filter swap, breaker, sealant patch, reclaimer service, O2 candle), win-state overlay on final waypoint
 - Asset shortlist for the M3 art pass: `docs/ASSET_SOURCES.md` — acquire at M3, not before
 
 ## Tech Stack
@@ -58,6 +58,10 @@ Run from repo root. The engine binary is local, so no PATH setup is needed.
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_manual.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_nav.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_component_breadth.gd
+& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_water.gd
+& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_ship_layout.gd
+& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_door.gd
+& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_m4_extras.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_scene_loop.gd
 
 # Refresh the global class cache after adding new `class_name` scripts (needed before --script test runs)
@@ -127,6 +131,7 @@ tools/                   # dev utilities, MCP configs
 - **When adding content:** add data first (`.tres` + a simulator hook), UI last. A feature without sim support is a mock.
 - **After changes:** run the headless smoke test; if sim state changed, add/extend a deterministic scenario test.
 - **Art assets:** only CC0 (or similarly clean) assets, recorded in `docs/ASSET_CREDITS.md`; imported materials are `.tres` in `src/data/materials/`; never hand-edit imported `.import` files.
+- **Ship geometry is generated:** edit the room table in `tools/build_ship_geometry.gd`, then rerun it to regenerate `scenes/ship_geometry.tscn` (deterministic output); never hand-edit the generated scene.
 - **Milestone discipline:** do not build ahead of the current milestone (spec §8.2) — vertical slice logic before content scale, ever.
 - **Open questions** (spec §9) are unresolved by design; ask the user before deciding narrative or scope items listed there.
 

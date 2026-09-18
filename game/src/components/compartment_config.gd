@@ -25,3 +25,4 @@ extends Resource
 @export var freeze_threshold_c: float = 1.0
 @export var puncture_mtbf_hours: float = 6000.0
 @export var puncture_leak_per_hour: float = 0.004
+@export var initial_heat_gain_w: float = 0.0

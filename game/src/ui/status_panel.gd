@@ -49,12 +49,65 @@ func build_readout() -> PackedStringArray:
 	lines.append_array(_power_lines())
 	lines.append("")
 	lines.append_array(_atmosphere_lines())
+	var water: PackedStringArray = _water_lines()
+	if not water.is_empty():
+		lines.append("")
+		lines.append_array(water)
 	var components: PackedStringArray = _components_lines()
 	if not components.is_empty():
 		lines.append("")
 		lines.append_array(components)
+	var nav: PackedStringArray = _nav_lines()
+	if not nav.is_empty():
+		lines.append("")
+		lines.append_array(nav)
 	lines.append("")
 	lines.append_array(_stores_lines())
+	return lines
+
+
+func _water_lines() -> PackedStringArray:
+	var lines: PackedStringArray = PackedStringArray()
+	var water: Node = _get_system(&"water_system")
+	if water == null:
+		return lines
+	var status: Dictionary = water.call("get_status")
+	lines.append("WATER  POTABLE %d/%d L  GREYWATER %d L" % [
+		int(roundf(float(status["potable_l"]))),
+		int(roundf(float(status["potable_capacity_l"]))),
+		int(roundf(float(status["greywater_l"]))),
+	])
+	var reclaimer: String = "OFF"
+	if bool(status["reclaimer_active"]):
+		reclaimer = "ACTIVE"
+	elif bool(status["reclaimer_powered"]):
+		reclaimer = "ON"
+	lines.append("  RECLAIMER %s  CONTAM %d%%  EFF %d%%" % [
+		reclaimer,
+		int(roundf(float(status["contamination"]) * 100.0)),
+		int(roundf(float(status["efficiency"]) * 100.0)),
+	])
+	return lines
+
+
+func _nav_lines() -> PackedStringArray:
+	var lines: PackedStringArray = PackedStringArray()
+	var nav: Node = _get_system(&"nav_system")
+	if nav == null:
+		return lines
+	var status: Dictionary = nav.call("get_status")
+	if bool(status["arrived"]):
+		lines.append("NAV  ALL LEGS COMPLETE")
+		return lines
+	var plotted: String = "NONE"
+	if StringName(status["plotted_waypoint"]) != &"":
+		plotted = String(status["plotted_waypoint"]).to_upper()
+	lines.append("NAV  LEG %d  NEXT %s" % [int(status["current_leg"]) + 1, String(status["current_waypoint"]).to_upper()])
+	lines.append("  FUEL %d KG  PLOTTED %s  DRIFT %d%%" % [
+		int(roundf(float(status["fuel_mass_kg"]))),
+		plotted,
+		int(roundf(float(status["course_error"]) * 100.0)),
+	])
 	return lines
 
 

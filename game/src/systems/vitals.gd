@@ -14,6 +14,7 @@ const MILD_DAMAGE_SCALE: float = 0.25
 @export var cognition_co2_ppm: float = 5000.0
 @export var cognition_co2_severe_ppm: float = 15000.0
 @export var cognition_cold_c: float = 12.0
+@export var dehydration_damage_per_hour: float = 0.2
 
 var condition: float = 0.0
 
@@ -131,7 +132,18 @@ func _read_environment() -> Dictionary:
 		"o2_fraction": float(manned_status.get("o2_fraction", 1.0)),
 		"co2_ppm": float(manned_status.get("co2_ppm", 0.0)),
 		"temperature_c": float((thermal_status as Dictionary).get("temperature_c", 21.0)),
+		"dehydrated": _read_dehydrated(),
 	}
+
+
+func _read_dehydrated() -> bool:
+	var water: Node = _first_node_in_group(&"water_system")
+	if water == null or not water.has_method(&"get_status"):
+		return false
+	var water_status: Variant = water.call("get_status")
+	if not (water_status is Dictionary):
+		return false
+	return float((water_status as Dictionary).get("potable_l", 1.0)) <= 0.0
 
 
 func _tick_condition(environment: Dictionary, delta_hours: float) -> void:
@@ -142,6 +154,8 @@ func _tick_condition(environment: Dictionary, delta_hours: float) -> void:
 	var rate_per_hour: float = -recovery_per_hour
 	if bool(exposure["severe"]):
 		rate_per_hour = damage_per_hour
+		if new_cause == &"dehydration":
+			rate_per_hour = dehydration_damage_per_hour
 	elif bool(exposure["mild"]):
 		rate_per_hour = damage_per_hour * MILD_DAMAGE_SCALE
 	var cause_changed: bool = new_cause != _cause
@@ -175,6 +189,8 @@ func _classify_exposure(environment: Dictionary) -> Dictionary:
 		return {"cause": &"hypothermia", "severe": true, "mild": false}
 	if temperature_c < cold_threshold_c:
 		return {"cause": &"hypothermia", "severe": false, "mild": true}
+	if bool(environment.get("dehydrated", false)):
+		return {"cause": &"dehydration", "severe": true, "mild": false}
 	return {"cause": &"", "severe": false, "mild": false}
 
 
@@ -182,7 +198,7 @@ func _level_for(environment: Dictionary) -> int:
 	var o2_fraction: float = float(environment["o2_fraction"])
 	var co2_ppm: float = float(environment["co2_ppm"])
 	var temperature_c: float = float(environment["temperature_c"])
-	if condition >= 0.7 or o2_fraction < o2_breathing_threshold or co2_ppm > co2_breathing_ppm:
+	if condition >= 0.7 or o2_fraction < o2_breathing_threshold or co2_ppm > co2_breathing_ppm or bool(environment.get("dehydrated", false)):
 		return 3
 	if co2_ppm >= cognition_co2_severe_ppm or temperature_c <= cold_threshold_c:
 		return 2
