@@ -9,6 +9,10 @@ const BOOTS_LOST_GRACE: float = 0.15
 const NORMAL_EPSILON: float = 0.000001
 const BASE_MOUSE_SENSITIVITY: float = 0.002
 const STRIDE_LENGTH_M: float = 1.2
+const HOLD_OFFSET: Vector3 = Vector3(0.32, -0.26, -0.55)
+const DROP_DISTANCE_M: float = 1.1
+const DROP_FALLBACK_DISTANCE_M: float = 1.0
+const DROP_FALLBACK_LIFT_M: float = 0.3
 
 @export var walk_speed: float = 3.0
 @export var crouch_speed: float = 1.5
@@ -35,6 +39,7 @@ var _pitch: float = 0.0
 var _invert_y: bool = false
 var _step_distance: float = 0.0
 var _step_index: int = 0
+var _carried_item: Node = null
 
 
 func _ready() -> void:
@@ -125,6 +130,71 @@ func push_off() -> bool:
 	return true
 
 
+func take_carriable(item: Node) -> bool:
+	if item == null or not is_instance_valid(item):
+		return false
+	if _carried_item == item:
+		return true
+	if not item.has_method(&"equip_to"):
+		return false
+	if item.has_method(&"is_carried") and bool(item.call(&"is_carried")):
+		return false
+	if has_carried_item():
+		drop_carried()
+	item.call(&"equip_to", _camera)
+	var node: Node3D = item as Node3D
+	if node != null:
+		node.position = HOLD_OFFSET
+		node.rotation = Vector3.ZERO
+	_add_carry_exception(item)
+	_carried_item = item
+	_emit_sim_event(&"item_taken", {"item_id": get_carried_item_id()})
+	return true
+
+
+func drop_carried() -> Node:
+	var item: Node = get_carried()
+	if item == null:
+		return null
+	var item_id: StringName = get_carried_item_id()
+	var drop_transform: Transform3D = _compute_drop_transform(item)
+	_remove_carry_exception(item)
+	_carried_item = null
+	if item.has_method(&"unequip"):
+		item.call(&"unequip", drop_transform)
+	_emit_sim_event(&"item_dropped", {"item_id": item_id})
+	return item
+
+
+func get_carried() -> Node:
+	if _carried_item != null and not is_instance_valid(_carried_item):
+		_carried_item = null
+	return _carried_item
+
+
+func has_carried_item() -> bool:
+	return get_carried() != null
+
+
+func get_carried_item_id() -> StringName:
+	var item: Node = get_carried()
+	if item == null or not item.has_method(&"get_item_id"):
+		return &""
+	return StringName(item.call(&"get_item_id"))
+
+
+func consume_carried() -> bool:
+	var item: Node = get_carried()
+	if item == null:
+		return false
+	var item_id: StringName = get_carried_item_id()
+	_remove_carry_exception(item)
+	_carried_item = null
+	item.free()
+	_emit_sim_event(&"item_consumed", {"item_id": item_id})
+	return true
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		var motion: InputEventMouseMotion = event as InputEventMouseMotion
@@ -145,6 +215,9 @@ func _unhandled_input(event: InputEvent) -> void:
 			push_off()
 	elif event.is_action_pressed(&"interact"):
 		_try_interact()
+	elif event.is_action_pressed(&"secondary"):
+		if has_carried_item():
+			drop_carried()
 	elif event.is_action_pressed(&"flashlight"):
 		_flashlight.visible = not _flashlight.visible
 
@@ -270,6 +343,51 @@ func _try_interact() -> void:
 	var collider: Object = _interact_ray.get_collider()
 	if collider != null and collider.has_method(&"interact"):
 		collider.call(&"interact", self)
+
+
+func _add_carry_exception(item: Node) -> void:
+	var collision_item: CollisionObject3D = item as CollisionObject3D
+	if collision_item != null:
+		_interact_ray.add_exception(collision_item)
+
+
+func _remove_carry_exception(item: Node) -> void:
+	var collision_item: CollisionObject3D = item as CollisionObject3D
+	if collision_item != null and is_instance_valid(_interact_ray):
+		_interact_ray.remove_exception(collision_item)
+
+
+func _compute_drop_transform(item: Node) -> Transform3D:
+	var up: Vector3 = up_direction
+	var forward: Vector3 = -_camera.global_transform.basis.z.normalized()
+	var origin: Vector3 = _camera.global_position
+	var basis: Basis = Basis.IDENTITY
+	var node: Node3D = item as Node3D
+	if node != null and node.global_transform.is_finite():
+		basis = node.global_transform.basis
+	var space_state: PhysicsDirectSpaceState3D = get_world_3d().direct_space_state
+	if space_state != null:
+		var query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(
+			origin, origin + forward * DROP_DISTANCE_M
+		)
+		var exclusions: Array[RID] = [get_rid()]
+		var collision_item: CollisionObject3D = item as CollisionObject3D
+		if collision_item != null:
+			exclusions.append(collision_item.get_rid())
+		query.exclude = exclusions
+		if space_state.intersect_ray(query).is_empty():
+			return Transform3D(basis, origin + forward * DROP_DISTANCE_M)
+	# why: an obstacle inside the drop line makes the clean spot unsafe (floor, wall, machinery),
+	# so fall back to a short reach in front of the body, lifted along the boots' up direction.
+	var reach: Vector3 = forward - up * forward.dot(up)
+	if reach.length_squared() <= NORMAL_EPSILON:
+		var body_forward: Vector3 = -global_transform.basis.z
+		reach = body_forward - up * body_forward.dot(up)
+	if reach.length_squared() <= NORMAL_EPSILON:
+		reach = Vector3.ZERO
+	else:
+		reach = reach.normalized()
+	return Transform3D(basis, global_position + up * DROP_FALLBACK_LIFT_M + reach * DROP_FALLBACK_DISTANCE_M)
 
 
 func _emit_sim_event(event_name: StringName, payload: Dictionary = {}) -> void:

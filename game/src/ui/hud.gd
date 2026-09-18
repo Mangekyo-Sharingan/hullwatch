@@ -14,6 +14,34 @@ func _ready() -> void:
 
 
 func _process(_delta: float) -> void:
+	_update_prompt()
+	_update_carry()
+
+
+func get_prompt_text() -> String:
+	if _prompt == null:
+		return ""
+	return _prompt.text
+
+
+func get_carry_text() -> String:
+	if _carry == null:
+		return ""
+	return _carry.text
+
+
+func get_prompt_font_size() -> int:
+	if _prompt == null:
+		return 0
+	return _prompt.get_theme_font_size(&"font_size")
+
+
+var _crosshair: Control
+var _prompt: Label
+var _carry: Label
+
+
+func _update_prompt() -> void:
 	var ray: RayCast3D = _find_interact_ray()
 	if ray == null or not ray.is_colliding():
 		_prompt.text = ""
@@ -25,27 +53,26 @@ func _process(_delta: float) -> void:
 		_prompt.text = ""
 
 
-func get_prompt_text() -> String:
-	if _prompt == null:
-		return ""
-	return _prompt.text
+func _update_carry() -> void:
+	var player: Node = _find_player()
+	var item: Node = null
+	if player != null and player.has_method(&"get_carried"):
+		item = player.call(&"get_carried") as Node
+	if item == null or not item.has_method(&"get_item_name"):
+		_carry.text = ""
+		return
+	_carry.text = "%s  [RIGHT CLICK: DROP]" % String(item.call(&"get_item_name")).to_upper()
 
 
-func get_prompt_font_size() -> int:
-	if _prompt == null:
-		return 0
-	return _prompt.get_theme_font_size(&"font_size")
-
-
-var _crosshair: Control
-var _prompt: Label
-
-
-func _find_interact_ray() -> RayCast3D:
+func _find_player() -> Node:
 	var tree: SceneTree = get_tree()
 	if tree == null:
 		return null
-	var player: Node = tree.get_first_node_in_group(PLAYER_GROUP)
+	return tree.get_first_node_in_group(PLAYER_GROUP)
+
+
+func _find_interact_ray() -> RayCast3D:
+	var player: Node = _find_player()
 	if player == null:
 		return null
 	return player.get_node_or_null(INTERACT_RAY_PATH) as RayCast3D
@@ -74,11 +101,26 @@ func _build_ui() -> void:
 	_prompt.add_theme_constant_override("outline_size", 4)
 	_prompt.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_prompt)
+	_carry = Label.new()
+	_carry.name = "Carry"
+	_carry.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
+	_carry.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_carry.offset_top = -58.0
+	_carry.offset_bottom = -24.0
+	_carry.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_carry.add_theme_font_size_override("font_size", UiScale.size(self, BASE_FONT_SIZE))
+	_carry.add_theme_color_override("font_color", Color(0.85, 0.9, 0.86, 1.0))
+	_carry.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 1.0))
+	_carry.add_theme_constant_override("outline_size", 4)
+	_carry.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_carry)
 
 
 func _apply_ui_scale() -> void:
 	if _prompt != null:
 		_prompt.add_theme_font_size_override("font_size", UiScale.size(self, BASE_FONT_SIZE))
+	if _carry != null:
+		_carry.add_theme_font_size_override("font_size", UiScale.size(self, BASE_FONT_SIZE))
 
 
 func _on_ui_scale_changed(key: StringName, _value: Variant) -> void:

@@ -23,13 +23,13 @@ func get_interaction_prompt() -> String:
 			return "Clean the breach" if _puncture_count() > 0 else "Inspect patch"
 
 
-func _handle_interact(_player: Node) -> void:
+func _handle_interact(player: Node) -> void:
 	match _stage:
 		Stage.PATCH:
 			_stage = Stage.SEAL
 			_emit_sim_event(&"hull_patch_fitted", {"compartment_id": compartment_id})
 		Stage.SEAL:
-			_apply_sealant()
+			_apply_sealant(player)
 		Stage.VERIFY:
 			_verify_seal()
 		_:
@@ -44,9 +44,15 @@ func _clean_breach() -> void:
 	_emit_sim_event(&"hull_patch_cleaned", {"compartment_id": compartment_id})
 
 
-func _apply_sealant() -> void:
-	var stores: Node = _get_system(&"stores_system")
-	if stores == null or not bool(stores.call("consume_part", sealant_part_id, 1)):
+func _apply_sealant(player: Node) -> void:
+	# The seal step consumes a cartridge the operator is actually carrying; stores are abstract and not fetched in the field.
+	var carried_id: StringName = &""
+	if player != null and player.has_method(&"get_carried_item_id"):
+		carried_id = StringName(player.call("get_carried_item_id"))
+	var consumed: bool = false
+	if carried_id == sealant_part_id and player.has_method(&"consume_carried"):
+		consumed = bool(player.call("consume_carried"))
+	if not consumed:
 		_emit_sim_event(&"procedure_error", {"reason": &"no_sealant", "part_id": sealant_part_id})
 		return
 	_stage = Stage.VERIFY

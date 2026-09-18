@@ -9,7 +9,7 @@ Guide for AI coding agents working in this repository. Read this first, then `do
 - Repo root: `E:\Projekt\Misc\OperationSpacer`
 - Godot project root: `game/`
 - Production spec: `docs/PRODUCTION_SPEC.md` (authoritative for design intent)
-- Status: **post-M6 — playtest-readiness sprint**: footsteps + vitals-driven breath audio, `ui_scale` applied across all UI, 3-day survival scenario against shipped balance data. External playtest (spec §8.5) still the main open item; next: carry/pickup, food/stores economy, robustness pass, release polish
+- Status: **post-M6 roadmap**: playtest readiness done (footsteps/breath, ui_scale, 3-day survival scenario); carry/pickup done (physical sealant cartridges, patch seal step requires carrying one). Next: food/stores economy, robustness pass (fast-forward stress, in-game save/load round trip, frame time), release polish (icon/key art, push + release). External playtest (spec §8.5) remains the main open item
 - Asset shortlist for the M3 art pass: `docs/ASSET_SOURCES.md` — acquire at M3, not before
 
 ## Tech Stack
@@ -52,6 +52,7 @@ Run from repo root. The engine binary is local, so no PATH setup is needed.
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_occupancy.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_audio.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_footsteps.gd
+& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_carry.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_day_loop.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_ui.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_ui_scale.gd
