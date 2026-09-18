@@ -6,6 +6,7 @@ const MAX_ENTRIES: int = 24
 const BASE_FONT_SIZE: int = 14
 const WATCHED: Array[StringName] = [
 	&"component_failed",
+	&"component_diagnosed",
 	&"component_repaired",
 	&"stores_low",
 	&"procedure_error",
@@ -69,6 +70,8 @@ func _on_sim_event(event_name: StringName, payload: Dictionary) -> void:
 	if not WATCHED.has(event_name):
 		return
 	_entries.push_front({"name": event_name, "payload": _format_payload(payload), "day": _current_day()})
+	if event_name == &"component_failed" and payload.has(&"failure_mode_id"):
+		_entries[0]["payload"] = "%s mode=UNDIAGNOSED" % String(payload.get("component_id", &""))
 	if _entries.size() > MAX_ENTRIES:
 		_entries.resize(MAX_ENTRIES)
 	if _open:

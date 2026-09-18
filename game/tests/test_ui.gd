@@ -67,7 +67,12 @@ func _test_status_panel_readout() -> void:
 	_check(text.contains("CO2"), "readout shows CO2 levels")
 	_check(text.contains("FILTER 100%"), "readout shows filter condition")
 	_check(text.contains("FILTER_CO2 x2"), "readout shows stores stock")
-	_check(text.contains("TEST_RTG") and text.contains("80%"), "readout shows component condition")
+	_check(text.contains("TEST_RTG"), "readout lists components")
+	_check(text.contains("  --"), "readout hides condition until scanned")
+	power.call("scan_system")
+	lines = panel.build_readout()
+	text = "\n".join(lines)
+	_check(text.contains("80%"), "readout shows component condition after scanning")
 
 	power.set_breaker(&"lighting", false)
 	lines = panel.build_readout()

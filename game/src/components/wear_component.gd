@@ -10,6 +10,8 @@ extends Resource
 @export var failure_modes: Array[FailureMode] = []
 
 var failed_mode: StringName = &""
+var diagnosed: bool = false
+var scanned: bool = false
 
 
 func get_probability_per_hour(mode: FailureMode, environment: Dictionary) -> float:
@@ -41,10 +43,22 @@ func apply_repair(quality: float) -> void:
 	condition = clampf(condition + (1.0 - condition) * clampf(quality, 0.0, 1.0), 0.0, 1.0)
 	if condition > 0.0:
 		failed_mode = &""
+	diagnosed = true
 
 
 func is_failed() -> bool:
 	return failed_mode != &""
+
+
+func diagnose() -> StringName:
+	if is_failed():
+		diagnosed = true
+		return failed_mode
+	return &""
+
+
+func scan() -> void:
+	scanned = true
 
 
 func get_status() -> Dictionary:
@@ -55,4 +69,6 @@ func get_status() -> Dictionary:
 		"load": load,
 		"failed_mode": failed_mode,
 		"failed": is_failed(),
+		"diagnosed": diagnosed,
+		"scanned": scanned,
 	}

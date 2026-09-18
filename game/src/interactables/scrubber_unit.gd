@@ -8,6 +8,7 @@ enum Stage { CLOSED, FILTER_IN, FILTER_OUT, SEAT, READY }
 @export var compartment_id: StringName = &"main"
 @export var part_id: StringName = &"filter_co2"
 @export var circuit_id: StringName = &"scrubber"
+@export var wrench_item_id: StringName = &"wrench"
 
 var _stage: Stage = Stage.CLOSED
 var _powered: bool = true
@@ -58,7 +59,7 @@ func get_interaction_prompt() -> String:
 	return "Open housing"
 
 
-func _handle_interact(_player: Node) -> void:
+func _handle_interact(player: Node) -> void:
 	match _stage:
 		Stage.FILTER_IN:
 			_remove_filter()
@@ -67,6 +68,9 @@ func _handle_interact(_player: Node) -> void:
 		Stage.SEAT:
 			_seat_seal()
 		Stage.READY:
+			if not _has_wrench(player):
+				_emit_sim_event(&"procedure_error", {"reason": &"no_wrench", "compartment_id": compartment_id})
+				return
 			_close_housing()
 		_:
 			if _powered:
@@ -74,7 +78,17 @@ func _handle_interact(_player: Node) -> void:
 			elif _ready_to_power:
 				_power_up()
 			else:
+				if not _has_wrench(player):
+					_emit_sim_event(&"procedure_error", {"reason": &"no_wrench", "compartment_id": compartment_id})
+					return
 				_open_housing()
+
+
+## A null player is the scripted/headless path (tests, scenario harness) — tools gate live play only.
+func _has_wrench(player: Node) -> bool:
+	if player == null or not player.has_method(&"get_carried_item_id"):
+		return true
+	return StringName(player.call("get_carried_item_id")) == wrench_item_id
 
 
 func is_circuit_available() -> bool:

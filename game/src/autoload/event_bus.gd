@@ -19,6 +19,7 @@ signal operator_incapacitated(cause: StringName)
 signal cognition_effect_changed(level: int)
 signal mercy_recovery_used(cause: StringName)
 signal compartment_humidity_changed(compartment_id: StringName, humidity_fraction: float)
+signal component_diagnosed(component_id: StringName, failure_mode_id: StringName)
 
 const LOG_LIMIT: int = 500
 

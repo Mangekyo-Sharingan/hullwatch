@@ -27,6 +27,8 @@ func _run() -> void:
 	await _capture(player, Vector3(0.0, 0.1, -2.5), 0.0, "shot_corridor_north.png")
 	await _capture(player, Vector3(-2.6, 0.1, -5.3), 0.0, "shot_life_support.png")
 	await _capture(player, Vector3(0.0, 0.1, -15.0), 0.0, "shot_cockpit.png")
+	await _capture(player, Vector3(-2.8, 0.1, 0.2), 0.0, "shot_storage.png")
+	await _capture(player, Vector3(0.2, 0.1, -5.6), PI, "shot_corridor_south.png")
 
 	print("PASS: capture_screenshots -> ", ProjectSettings.globalize_path(OUTPUT_DIR))
 	quit(0)

@@ -36,6 +36,8 @@
 [ext_resource type="Resource" path="res://src/data/atmosphere/compartment_quarters.tres" id="55_compartment_quarters"]
 [ext_resource type="Resource" path="res://src/data/atmosphere/compartment_galley.tres" id="56_compartment_galley"]
 [ext_resource type="Script" path="res://src/world/analogue_filter.gd" id="57_analogue_filter"]
+[ext_resource type="Resource" path="res://src/data/wear/lighting_ballast.tres" id="58_lighting_ballast"]
+[ext_resource type="Resource" path="res://src/data/wear/water_pump_main.tres" id="59_water_pump"]
 [ext_resource type="Script" path="res://src/ui/settings_menu.gd" id="53_settings_menu"]
 
 [sub_resource type="Environment" id="Environment_1"]
@@ -149,7 +151,7 @@ generators = {
 &"rtg_main": 500.0
 }
 circuit_defs = Array[ExtResource("5_dgi5k")]([ExtResource("4_circuit_life_support"), ExtResource("5_circuit_scrubber"), ExtResource("6_circuit_lighting")])
-wear_components = Array[ExtResource("9_j8jky")]([ExtResource("18_rtg_main"), ExtResource("19_battery_main")])
+wear_components = Array[ExtResource("9_j8jky")]([ExtResource("18_rtg_main"), ExtResource("19_battery_main"), ExtResource("58_lighting_ballast")])
 
 [node name="AtmosphereSystem" type="Node" parent="Systems"]
 script = ExtResource("3_atmosphere")
@@ -179,6 +181,7 @@ script = ExtResource("22_vitals")
 
 [node name="WaterSystem" type="Node" parent="Systems"]
 script = ExtResource("45_water")
+wear_components = Array[ExtResource("9_j8jky")]([ExtResource("59_water_pump")])
 
 [node name="UI" type="Node" parent="."]
 

@@ -27,7 +27,7 @@ environmental_factors = {
 "load": 2.5
 }
 severity = 3
-symptoms = Array[StringName]([&"pump_stopped", &"reclaimer_dry"])]
+symptoms = Array[StringName]([&"pump_stopped", &"reclaimer_dry"])
 
 [resource]
 script = ExtResource("1")

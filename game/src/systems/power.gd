@@ -216,6 +216,44 @@ func force_failure(component_id: StringName, failure_mode_id: StringName) -> boo
 	return true
 
 
+func diagnose_component(component_id: StringName) -> StringName:
+	var component: WearComponent = _find_wear_component(component_id)
+	if component == null:
+		push_error("PowerSystem.diagnose_component: unknown component_id '%s'." % String(component_id))
+		return &""
+	if not component.is_failed():
+		return &""
+	var was_diagnosed: bool = component.diagnosed
+	var failure_mode_id: StringName = component.diagnose()
+	if not was_diagnosed:
+		var event_bus: Node = _get_autoload(&"EventBus")
+		if event_bus != null:
+			event_bus.emit_signal(&"component_diagnosed", component_id, failure_mode_id)
+		emit_sim_event(&"component_diagnosed", {"component_id": component_id, "failure_mode_id": failure_mode_id})
+	return failure_mode_id
+
+
+func get_undiagnosed_failures() -> Array[StringName]:
+	var failures: Array[StringName] = []
+	for component: WearComponent in wear_components:
+		if component == null or component.component_id == &"":
+			continue
+		if component.is_failed() and not component.diagnosed:
+			failures.append(component.component_id)
+	return failures
+
+
+func scan_system() -> Dictionary:
+	var conditions: Dictionary = {}
+	for component: WearComponent in wear_components:
+		if component == null or component.component_id == &"":
+			continue
+		component.scan()
+		conditions[String(component.component_id)] = component.condition
+	emit_sim_event(&"components_scanned", {"system_id": String(system_id)})
+	return conditions
+
+
 func _get_served_demand_w() -> float:
 	var total_w: float = 0.0
 	for circuit_id: StringName in _circuits:
@@ -605,6 +643,8 @@ func _load_wear(entries: Variant) -> void:
 		component.hours_operated = maxf(float(data.get("hours_operated", component.hours_operated)), 0.0)
 		component.load = float(data.get("load", component.load))
 		component.failed_mode = StringName(String(data.get("failed_mode", "")))
+		component.diagnosed = bool(data.get("diagnosed", false))
+		component.scanned = bool(data.get("scanned", false))
 		_condition_bucket[component.component_id] = _condition_bucket_for(component.condition)
 
 
@@ -635,6 +675,8 @@ func _wear_save_entries() -> Array:
 			"hours_operated": component.hours_operated,
 			"load": component.load,
 			"failed_mode": String(component.failed_mode),
+			"diagnosed": component.diagnosed,
+			"scanned": component.scanned,
 		})
 	return entries
 

@@ -126,7 +126,7 @@ func _nav_lines() -> PackedStringArray:
 func _components_lines() -> PackedStringArray:
 	var lines: PackedStringArray = PackedStringArray()
 	var entries: PackedStringArray = PackedStringArray()
-	for group_name: StringName in [&"power_system", &"atmosphere_system"]:
+	for group_name: StringName in [&"power_system", &"atmosphere_system", &"thermal_system", &"hull_system", &"water_system"]:
 		var system: Node = _get_system(group_name)
 		if system == null or not system.has_method(&"get_wear_status"):
 			continue
@@ -136,15 +136,31 @@ func _components_lines() -> PackedStringArray:
 		for key: Variant in component_ids:
 			var component_id: StringName = key
 			var status: Dictionary = wear[component_id]
-			var state: String = "OK"
-			if bool(status["failed"]):
-				state = "FAIL %s" % String(status["failed_mode"]).to_upper()
-			entries.append("%-16s %3d%% %s" % [String(component_id).to_upper(), int(roundf(float(status["condition"]) * 100.0)), state])
+			entries.append("%-16s %s %s" % [
+				String(component_id).to_upper(),
+				_condition_text(status),
+				_component_state_text(status),
+			])
 	if not entries.is_empty():
 		lines.append("COMPONENTS")
 		for entry: String in entries:
 			lines.append("  " + entry)
+		lines.append("  (scanner logs wear, multimeter faults)")
 	return lines
+
+
+func _condition_text(status: Dictionary) -> String:
+	if not bool(status.get("scanned", false)):
+		return "  --"
+	return "%3d%%" % int(roundf(float(status["condition"]) * 100.0))
+
+
+func _component_state_text(status: Dictionary) -> String:
+	if not bool(status["failed"]):
+		return "OK"
+	if not bool(status.get("diagnosed", false)):
+		return "FAULT (UNDIAGNOSED)"
+	return "FAIL %s" % String(status["failed_mode"]).to_upper()
 
 
 func _power_lines() -> PackedStringArray:

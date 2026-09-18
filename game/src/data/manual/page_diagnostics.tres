@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ManualPage" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/components/manual_page.gd" id="1_page"]
+
+[resource]
+script = ExtResource("1_page")
+title = "DIAGNOSTICS"
+body = "A failing component does not announce itself. The panel shows FAULT and nothing else until you have diagnosed it.
+
+PROBES. Test points are placed beside the major equipment. Stand at one and interact.
+
+MULTIMETER. Carry it to a probe to identify the fault: the panel then shows the failure mode instead of a blank FAULT.
+
+SCANNER. Carry it to a probe to log wear. The panel shows condition percentages only for systems you have scanned. Scan before a fault exists and you will see it coming.
+
+WRENCH. Housings and fittings are fastened. You cannot open the scrubber without the wrench in hand.
+
+Store the tools on your person, not the shelf. A probe without the right tool is just a wall."

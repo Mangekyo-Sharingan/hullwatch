@@ -9,7 +9,7 @@ Guide for AI coding agents working in this repository. Read this first, then `do
 - Repo root: `E:\Projekt\Misc\OperationSpacer`
 - Godot project root: `game/`
 - Production spec: `docs/PRODUCTION_SPEC.md` (authoritative for design intent)
-- Status: **post-v0.6.0 expansion + reference look pass**: cramped faceted 8-space station (chamfered corners, canted corridor walls, generated geometry + props/zones/links), xenon-metal structural material (grown-alloy fiction, see spec §6.1), analogue-horror filter, CRT-styled diegetic screens, warm practical lighting with dark ambient, generated greeble. Real in-game captures live in `docs/store/` (via `tools/capture_screenshots.gd`, windowed). External playtest of the v0.6.0 build is the main open item; next features: tools/diagnostics + comms/narrative
+- Status: **post-v0.6.0 expansion + diagnostics**: cramped faceted 8-space station, xenon-metal structural material, analogue-horror filter, CRT screens, warm practical lighting. **Diagnostics (spec §4.3)**: faults are hidden until a carried multimeter is used at a probe; wear % requires the scanner; the scrubber housing requires the wrench. Seven wear components all installed. Real captures in `docs/store/`. Main open item: external playtest of v0.6.0; next feature: comms/narrative
 - Asset shortlist for the M3 art pass: `docs/ASSET_SOURCES.md` — acquire at M3, not before
 
 ## Tech Stack
@@ -78,6 +78,8 @@ Run from repo root. The engine binary is local, so no PATH setup is needed.
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_localization.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_analogue_filter.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_crt_panels.gd
+& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_diagnostics.gd
+& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_diagnostics_api.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_scene_loop.gd
 
 # Regenerate the localization string table after changing user-facing UI strings
