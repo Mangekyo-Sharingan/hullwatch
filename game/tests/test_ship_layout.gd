@@ -13,6 +13,7 @@ const EXPECTED_SPACES: Array[StringName] = [
 	&"Galley",
 	&"WaterCloset",
 	&"Storage",
+	&"Airlock",
 	&"EngineBay",
 ]
 
@@ -24,6 +25,7 @@ const ROOM_CENTERS: Dictionary = {
 	&"Galley": Vector3(2.9, RAY_Y, -5.8),
 	&"WaterCloset": Vector3(2.2, RAY_Y, -1.9),
 	&"Storage": Vector3(-2.75, RAY_Y, -1.2),
+	&"Airlock": Vector3(-5.8, RAY_Y, -1.2),
 	&"EngineBay": Vector3(0.0, RAY_Y, 4.7),
 }
 
@@ -37,6 +39,8 @@ const DOORWAYS: Array = [
 	[Vector3(1.7, RAY_Y, -5.6), Vector3(0.0, RAY_Y, -5.6), "Galley"],
 	[Vector3(1.7, RAY_Y, -1.6), Vector3(0.0, RAY_Y, -1.6), "WaterCloset"],
 	[Vector3(-1.7, RAY_Y, -1.2), Vector3(0.0, RAY_Y, -1.2), "Storage"],
+	[Vector3(-3.7, RAY_Y, -1.0), Vector3(-6.3, RAY_Y, -1.0), "Airlock"],
+	[Vector3(-5.6, RAY_Y, -1.2), Vector3(-7.3, RAY_Y, -1.2), "Airlock outer"],
 	[Vector3(0.0, RAY_Y, 2.4), Vector3(0.0, RAY_Y, 1.0), "EngineBay"],
 ]
 
@@ -47,6 +51,7 @@ const CHAMFER_ROOMS: Array[StringName] = [
 	&"Galley",
 	&"WaterCloset",
 	&"Storage",
+	&"Airlock",
 	&"EngineBay",
 ]
 
@@ -57,7 +62,8 @@ const SOLID_CONTROLS: Array = [
 	[Vector3(-2.65, RAY_Y, -6.3), Vector3(-5.0, RAY_Y, -6.3), "life support west wall"],
 	[Vector3(2.9, RAY_Y, -5.8), Vector3(5.6, RAY_Y, -5.8), "galley east wall"],
 	[Vector3(2.2, RAY_Y, -1.9), Vector3(4.0, RAY_Y, -1.9), "water closet east wall"],
-	[Vector3(-2.75, RAY_Y, -1.2), Vector3(-5.3, RAY_Y, -1.2), "storage west wall"],
+	[Vector3(-2.75, RAY_Y, -2.6), Vector3(-5.3, RAY_Y, -2.6), "storage west wall beside the airlock gap"],
+	[Vector3(-6.2, RAY_Y, -1.8), Vector3(-7.4, RAY_Y, -1.8), "airlock west wall beside the outer gap"],
 	[Vector3(0.0, RAY_Y, -16.5), Vector3(0.0, RAY_Y, -19.5), "cockpit north wall"],
 	[Vector3(0.0, RAY_Y, 4.7), Vector3(0.0, RAY_Y, 8.5), "engine bay south wall"],
 ]

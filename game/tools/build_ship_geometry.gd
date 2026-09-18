@@ -31,6 +31,7 @@ const SPACE_NAMES: Array[String] = [
 	"WaterCloset",
 	"Storage",
 	"EngineBay",
+	"Airlock",
 ]
 
 var _root: Node3D
@@ -65,6 +66,7 @@ func _build() -> void:
 	_build_galley()
 	_build_water_closet()
 	_build_storage()
+	_build_airlock()
 	_build_engine_bay()
 	_build_dressing()
 
@@ -214,15 +216,31 @@ func _build_water_closet() -> void:
 
 
 ## STORAGE interior x[-4.6, -0.9], z[-3.0, 0.6]. East side is the corridor wall;
-## its doorway gap sits at z[-1.8, -0.6].
+## its doorway gap sits at z[-1.8, -0.6]. West wall is split around the 1.2 m airlock
+## doorway at z[-1.6, -0.4].
 func _build_storage() -> void:
 	var space: StaticBody3D = _make_space("Storage")
 	_add_floor(space, -2.85, -1.2, 3.9, 4.0)
 	_add_ceiling(space, -2.85, -1.2, 3.9, 4.0)
 	_add_wall(space, "WallN", -2.8, -3.1, 4.0, WALL_THICKNESS, MATERIAL_XENON)
 	_add_wall(space, "WallS", -2.8, 0.7, 4.0, WALL_THICKNESS, MATERIAL_XENON)
-	_add_wall(space, "WallW", -4.7, -1.2, WALL_THICKNESS, 4.0, MATERIAL_XENON)
+	_add_wall(space, "WallW_A", -4.7, -2.4, WALL_THICKNESS, 1.6, MATERIAL_XENON)
+	_add_wall(space, "WallW_B", -4.7, 0.2, WALL_THICKNESS, 1.2, MATERIAL_XENON)
 	_add_chamfers(space, -4.6, -3.0, -0.9, 0.6)
+
+
+## AIRLOCK interior x[-6.8, -4.8], z[-2.2, -0.2]. East side shares the storage wall
+## (doorway gap z[-1.6, -0.4]); the west wall is split around the 1.0 m outer doorway
+## at z[-1.7, -0.7], which opens straight into vacuum.
+func _build_airlock() -> void:
+	var space: StaticBody3D = _make_space("Airlock")
+	_add_floor(space, -5.8, -1.2, 2.0, 2.0)
+	_add_ceiling(space, -5.8, -1.2, 2.0, 2.0)
+	_add_wall(space, "WallN", -5.9, -2.3, 2.2, WALL_THICKNESS, MATERIAL_XENON)
+	_add_wall(space, "WallS", -5.9, -0.1, 2.2, WALL_THICKNESS, MATERIAL_XENON)
+	_add_wall(space, "WallW_A", -6.9, -2.0, WALL_THICKNESS, 0.6, MATERIAL_XENON)
+	_add_wall(space, "WallW_B", -6.9, -0.4, WALL_THICKNESS, 0.6, MATERIAL_XENON)
+	_add_chamfers(space, -6.8, -2.2, -4.8, -0.2, 0.25)
 
 
 ## ENGINE_BAY interior x[-3.6, 3.6], z[1.6, 7.8]. North wall split around the 1.4 m corridor doorway.
@@ -247,6 +265,7 @@ func _build_dressing() -> void:
 	_add_dressing("Galley", "Strip", Vector3(2.9, 2.94, -5.8), Vector3(0.22, 0.04, 3.0), MATERIAL_STRIP)
 	_add_dressing("WaterCloset", "Strip", Vector3(2.2, 2.94, -1.9), Vector3(0.22, 0.04, 1.6), MATERIAL_STRIP)
 	_add_dressing("Storage", "Strip", Vector3(-2.75, 2.94, -1.2), Vector3(0.22, 0.04, 3.0), MATERIAL_STRIP)
+	_add_dressing("Airlock", "Strip", Vector3(-5.8, 2.94, -1.2), Vector3(0.22, 0.04, 1.6), MATERIAL_STRIP)
 	_add_dressing("EngineBay", "Strip", Vector3(0, 2.94, 4.7), Vector3(6.6, 0.04, 0.22), MATERIAL_STRIP)
 	var spine_z: Array[float] = [-13.0, -10.6, -8.2, -5.8, -3.4, -1.0, 1.2]
 	for i: int in spine_z.size():

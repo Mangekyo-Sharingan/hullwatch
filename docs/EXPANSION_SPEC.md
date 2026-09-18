@@ -61,6 +61,22 @@ the related v1 non-goals in `PRODUCTION_SPEC.md` §8.3.
 One milestone per commit series; each milestone ships with its tests and a playable build
 when the user wants one. Polish is explicitly M12 — do not pull it forward.
 
+### M7 sub-steps (EVA & open hull)
+
+Working agreement from M7 on: every sub-step is **one commit** containing implementation,
+tests and doc updates together; the full suite runs before push; visual steps are verified
+with windowed captures. A sub-step starts only after the previous sub-step's exit criteria
+are met. No feature lands without a test that fails without it.
+
+| Sub-step | Deliverable | Exit criteria |
+|---|---|---|
+| **M7.1 — Airlock room** | Generated `Airlock` space west of Storage (inner + outer doorway gaps), `compartment_airlock.tres`, layout tests updated | Rays pass both doorway gaps; floor collision + chamfers present; layout suites green |
+| **M7.2 — In-world wiring** | Atmosphere/thermal/hull defs + `AirlockSystem` node + `circuit_airlock` in `main.tscn`; inner/outer doors wired with airlock ids; airlock zone + compartment link; control panel (ScrollMenu) + suit locker interactables; new `test_airlock_scene.gd` | Player can cycle the lock and suit up in-game; interlock observable; counts and scene tests updated |
+| **M7.3 — Exterior hull** | Generated hull shell with an opening at the outer door; perimeter catwalk + railings; ramp to the roof; EVA platform; hardpoint markers | Walk ray from outer door across platform/catwalk/ramp; no shell collision inside rooms; hardpoint markers exist |
+| **M7.4 — Space backdrop** | Sky shader (stars + distant star/planet), sun light, environment swap; windowed captures | Captures read as space; interiors stay lit; scene profiler unchanged |
+| **M7.5 — Tether & HUD** | `toggle_tether` action; `TetherAnchor`/`TetherZone` auto-clip; player constraint + release/re-clip; HUD EVA readout (suit O2, tether distance, airlock state); toast reasons; manual EVA page | Tether clamp/release/auto-clip tested; HUD states tested; EVA round trip playable |
+| **M7.6 — Verification** | `test_eva_flow.gd` end-to-end; scene save/load incl. airlock + suit; captures 11–13 for docs; AGENTS/brain updates | Full loop passes headless; save/load round-trips; captures reviewed |
+
 ## Test strategy
 
 - M7: airlock cycle state machine, vacuum exposure → vitals, tether constraint, exterior
