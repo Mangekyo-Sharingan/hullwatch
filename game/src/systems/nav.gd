@@ -8,6 +8,7 @@ extends ShipSystem
 @export var burn_fuel_kg: float = 60.0
 @export var burn_hours: float = 1.0
 @export var course_error_per_hour: float = 0.01
+@export var approach_fuel_cost_kg: float = 25.0
 
 var current_leg: int = 0
 var plotted_waypoint: StringName = &""
@@ -76,6 +77,16 @@ func begin_burn() -> bool:
 		if sim_clock != null:
 			day = int(sim_clock.call("get_day"))
 		emit_sim_event(&"leg_completed", {"waypoint_id": burned_waypoint, "day": day})
+	return true
+
+
+func spend_fuel(kg: float) -> bool:
+	if kg <= 0.0:
+		return true
+	if fuel_mass_kg < kg:
+		return false
+	fuel_mass_kg -= kg
+	emit_sim_event(&"fuel_spent", {"kg": kg, "fuel_remaining": fuel_mass_kg})
 	return true
 
 

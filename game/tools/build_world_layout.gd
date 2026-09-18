@@ -238,6 +238,14 @@ const PROPS: Array[Dictionary] = [
 		"exports": {"item_id": &"sealant", "item_name": "Sealant cartridge"},
 	},
 	{
+		"name": "ContactConsole",
+		"script": "res://src/interactables/approach_console.gd",
+		"position": Vector3(1.0, 1.2, -18.7),
+		"size": Vector3(0.15, 0.5, 0.6),
+		"material": MATERIAL_SCREEN_GLOW,
+		"exports": {},
+	},
+	{
 		"name": "AirlockPanel",
 		"script": "res://src/interactables/airlock_panel.gd",
 		"position": Vector3(-4.86, 1.3, -0.35),

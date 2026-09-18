@@ -10,6 +10,8 @@ const STREAM_CHUNKS_AHEAD: int = 3
 const STREAM_CHUNKS_BEHIND: int = 1
 const CONTENT_PER_TEN_THOUSAND: int = 200
 const CONTACT_RANGE_M: float = 900.0
+const STANDOFF_M: float = 30.0
+const APPROACH_SPEED_M_PER_HOUR: float = 6000.0
 const KIND_ASTEROID: StringName = &"asteroid"
 const KIND_DEBRIS: StringName = &"debris"
 const KIND_ANOMALY: StringName = &"anomaly"
@@ -22,6 +24,9 @@ var _drift_distance_m: float = 0.0
 var _base_chunk: int = -999999
 var _active: Array[Dictionary] = []
 var _contact_ids: Dictionary = {}
+var _offset: Vector3 = Vector3.ZERO
+var _holding: bool = false
+var _approach_target_id: String = ""
 
 
 func _ready() -> void:
@@ -34,7 +39,10 @@ func _ready() -> void:
 func sim_tick(delta_hours: float) -> void:
 	if not is_finite(delta_hours) or delta_hours <= 0.0:
 		return
-	_drift_distance_m += drift_speed_m_per_hour * delta_hours
+	if _approach_target_id != "":
+		_tick_approach(delta_hours)
+	if not _holding:
+		_drift_distance_m += drift_speed_m_per_hour * delta_hours
 	var chunk: int = int(floor(_drift_distance_m / CHUNK_SIZE_M))
 	if chunk != _base_chunk:
 		_base_chunk = chunk
@@ -42,8 +50,35 @@ func sim_tick(delta_hours: float) -> void:
 	_update_contacts()
 
 
+## Closes the gap to an active contact and parks at standoff, matching its velocity.
+func begin_approach(contact_id: String) -> bool:
+	for entry: Dictionary in _active:
+		if String(entry["id"]) == contact_id:
+			_approach_target_id = contact_id
+			_holding = false
+			emit_sim_event(&"approach_started", {"id": contact_id, "kind": String(entry["kind"])})
+			return true
+	return false
+
+
+func resume_drift() -> void:
+	if not _holding and _approach_target_id == "":
+		return
+	_holding = false
+	_approach_target_id = ""
+	emit_sim_event(&"drift_resumed", {})
+
+
+func is_holding() -> bool:
+	return _holding
+
+
+func get_approach_target_id() -> String:
+	return _approach_target_id
+
+
 func get_ship_position() -> Vector3:
-	return drift_axis.normalized() * _drift_distance_m
+	return drift_axis.normalized() * _drift_distance_m + _offset
 
 
 func get_drift_distance() -> float:
@@ -97,6 +132,33 @@ func chunk_hash(cx: int, cy: int, cz: int) -> int:
 	h = (h ^ (h >> 13)) * 1274126177
 	h = h ^ (h >> 16)
 	return absi(h)
+
+
+func _tick_approach(delta_hours: float) -> void:
+	var target: Dictionary = {}
+	for entry: Dictionary in _active:
+		if String(entry["id"]) == _approach_target_id:
+			target = entry
+			break
+	if target.is_empty():
+		_approach_target_id = ""
+		return
+	var position: Vector3 = get_ship_position()
+	var target_position: Vector3 = target["position"]
+	var bearing: Vector3 = position - target_position
+	if bearing.length() < 0.001:
+		bearing = Vector3.UP
+	bearing = bearing.normalized()
+	var desired: Vector3 = target_position + bearing * STANDOFF_M
+	var step: float = APPROACH_SPEED_M_PER_HOUR * delta_hours
+	var next: Vector3 = position.move_toward(desired, step)
+	_offset = next - drift_axis.normalized() * _drift_distance_m
+	if next.distance_to(desired) < 0.5 or next.distance_to(target_position) <= STANDOFF_M + 0.5:
+		_holding = true
+		emit_sim_event(&"approach_complete", {
+			"id": _approach_target_id,
+			"distance_m": next.distance_to(target_position),
+		})
 
 
 func _rebuild_active() -> void:
@@ -164,12 +226,23 @@ func save_state() -> Dictionary:
 		"state_version": 1,
 		"field_seed": field_seed,
 		"drift_distance_m": _drift_distance_m,
+		"offset": {"x": _offset.x, "y": _offset.y, "z": _offset.z},
+		"holding": _holding,
+		"approach_target_id": _approach_target_id,
 	}
 
 
 func load_state(state: Dictionary) -> void:
 	field_seed = int(state.get("field_seed", field_seed))
 	_drift_distance_m = maxf(float(state.get("drift_distance_m", _drift_distance_m)), 0.0)
+	var offset_data: Dictionary = state.get("offset", {})
+	_offset = Vector3(
+		float(offset_data.get("x", 0.0)),
+		float(offset_data.get("y", 0.0)),
+		float(offset_data.get("z", 0.0))
+	)
+	_holding = bool(state.get("holding", false))
+	_approach_target_id = String(state.get("approach_target_id", ""))
 	_base_chunk = int(floor(_drift_distance_m / CHUNK_SIZE_M))
 	_rebuild_active()
 	_contact_ids.clear()
