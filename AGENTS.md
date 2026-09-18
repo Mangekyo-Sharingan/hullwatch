@@ -9,7 +9,7 @@ Guide for AI coding agents working in this repository. Read this first, then `do
 - Repo root: `E:\Projekt\Misc\OperationSpacer`
 - Godot project root: `game/`
 - Production spec: `docs/PRODUCTION_SPEC.md` (authoritative for design intent)
-- Status: **post-M6 roadmap**: playtest readiness done (footsteps/breath, ui_scale, 3-day survival scenario); carry/pickup done (physical sealant cartridges, patch seal step requires carrying one); food/stores economy done (abstract rations drawn per crew per day, starvation as a vitals cause after dehydration). Next: robustness pass (fast-forward stress, in-game save/load round trip, frame time), release polish (icon/key art, push + release). External playtest (spec §8.5) remains the main open item
+- Status: **post-M6 roadmap**: playtest readiness done; carry/pickup done; food/stores economy done; robustness pass done (scene-level save/load round trip, `tools/profile_sim.gd` 128 µs/tick, `tools/profile_scene.gd` scene cost 0.81 ms/frame). Next: release polish (icon, rebuild, push + GitHub release). External playtest (spec §8.5) remains the main open item
 - Asset shortlist for the M3 art pass: `docs/ASSET_SOURCES.md` — acquire at M3, not before
 
 ## Tech Stack
@@ -59,6 +59,7 @@ Run from repo root. The engine binary is local, so no PATH setup is needed.
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_ui_scale.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_survival_3day.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_save_load.gd
+& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_scene_save_load.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_failures.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_scenario_power_night.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_scenario_cascade.gd
@@ -78,6 +79,10 @@ Run from repo root. The engine binary is local, so no PATH setup is needed.
 
 # Regenerate the localization string table after changing user-facing UI strings
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tools/extract_strings.gd
+
+# Performance regression guards (sim tick cost / scene frame cost)
+& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tools/profile_sim.gd
+& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tools/profile_scene.gd
 
 # Refresh the global class cache after adding new `class_name` scripts (needed before --script test runs)
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --import

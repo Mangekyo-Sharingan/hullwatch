@@ -336,10 +336,16 @@ func save_state() -> Dictionary:
 		shed[String(circuit_id)] = bool(_shed[circuit_id])
 		if _load_overrides.has(circuit_id):
 			load_overrides[String(circuit_id)] = float(_load_overrides[circuit_id])
+	var generator_values: Dictionary = {}
+	for generator_id: Variant in generators:
+		generator_values[String(generator_id)] = float(generators[generator_id])
 	return {
 		"system_id": String(system_id),
 		"state_version": 1,
 		"battery_charge_wh": battery_charge_wh,
+		"battery_capacity_wh": battery_capacity_wh,
+		"battery_max_discharge_w": battery_max_discharge_w,
+		"generators": generator_values,
 		"breakers": breakers,
 		"shed": shed,
 		"load_overrides": load_overrides,
@@ -352,6 +358,15 @@ func save_state() -> Dictionary:
 
 
 func load_state(state: Dictionary) -> void:
+	if state.has("battery_capacity_wh"):
+		battery_capacity_wh = maxf(float(state.get("battery_capacity_wh", battery_capacity_wh)), 0.0)
+	if state.has("battery_max_discharge_w"):
+		battery_max_discharge_w = maxf(float(state.get("battery_max_discharge_w", battery_max_discharge_w)), 0.0)
+	var saved_generators: Dictionary = state.get("generators", {})
+	for generator_id: Variant in saved_generators:
+		var generator_key: StringName = StringName(generator_id)
+		if generators.has(generator_key):
+			generators[generator_key] = float(saved_generators[generator_id])
 	battery_charge_wh = clampf(float(state.get("battery_charge_wh", battery_charge_wh)), 0.0, battery_capacity_wh)
 	var breakers: Dictionary = state.get("breakers", {})
 	var shed: Dictionary = state.get("shed", {})
@@ -450,12 +465,14 @@ func _apply_failure_effect(component: WearComponent, failure_mode_id: StringName
 		&"rtg_open_circuit":
 			_scale_generator(RTG_MAIN, 0.0, component.component_id)
 		&"cell_fade":
-			_failure_restore[component.component_id] = {"kind": "battery_capacity_wh", "value": battery_capacity_wh}
-			battery_capacity_wh *= 0.7
+			if not _failure_restore.has(component.component_id):
+				_failure_restore[component.component_id] = {"kind": "battery_capacity_wh", "value": battery_capacity_wh}
+			battery_capacity_wh = float(_failure_restore[component.component_id]["value"]) * 0.7
 			battery_charge_wh = clampf(battery_charge_wh, 0.0, battery_capacity_wh)
 		&"cell_short":
-			_failure_restore[component.component_id] = {"kind": "battery_max_discharge_w", "value": battery_max_discharge_w}
-			battery_max_discharge_w *= 0.5
+			if not _failure_restore.has(component.component_id):
+				_failure_restore[component.component_id] = {"kind": "battery_max_discharge_w", "value": battery_max_discharge_w}
+			battery_max_discharge_w = float(_failure_restore[component.component_id]["value"]) * 0.5
 		_:
 			pass
 
@@ -470,7 +487,7 @@ func _scale_generator(generator_id: StringName, factor: float, component_id: Str
 			"target": String(generator_id),
 			"value": float(generators[generator_key]),
 		}
-	generators[generator_key] = float(generators[generator_key]) * factor
+	generators[generator_key] = float(_failure_restore[component_id]["value"]) * factor
 
 
 func _restore_failure_effect(component_id: StringName) -> void:
