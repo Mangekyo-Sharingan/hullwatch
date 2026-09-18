@@ -268,14 +268,15 @@ Must-haves:
 | **M5 — Beta** | Balance, performance, accessibility, save migration, localization prep | 60 fps target on mid hardware; no P1 bugs; playtest metrics stable |
 | **M6 — Release prep** | Steam page, build pipeline, store assets, demo build | Shipping checklist complete |
 
+Post-v1 expansion milestones **M7–M12** (open hull + EVA, deep field, materials/fabrication, ship modularity, destinations, polish) are tracked in `docs/EXPANSION_SPEC.md`.
+
 ### 8.3 Scope Guardrails (Non-Goals)
 
 - **No combat, no weapons, no threats with agency**
 - **No supernatural entity, no jumpscares** (pillar: grounded dread)
 - **No multiplayer at launch** (single-player only; co-op is a post-launch "maybe", architecture must not preclude it)
-- **No seamless procedural galaxy** (waypoint legs, curated caches)
-- **No full Newtonian flight sim** (weighty but simplified)
-- **No base-building**, no ship expansion in v1 (repair and maintain, not build)
+- **Superseded for early access by `docs/EXPANSION_SPEC.md` (M7+):** seamless procedural space, EVA, ship expansion and planet/star travel were v1 non-goals and are now EA scope.
+- **No full Newtonian flight sim** (weighty but simplified) — still applies; travel is course-setting, not piloting (see `docs/EXPANSION_SPEC.md`).
 - **No voice acting** (text + diegetic audio only)
 
 ### 8.4 Risks & Mitigations
@@ -301,8 +302,8 @@ Must-haves:
 ## 9. Open Questions (to resolve before M3)
 
 1. Protagonist: silently-named operator with limited backstory, or blank slate? (Lean: minimal — a name on a locker.)
-2. EVA (exterior hull work) in v1? (Lean: no — post-launch, or M4 stretch as one set piece.)
-3. Food/greenhouse fully simulated in v1 or abstracted as stores? (Lean: stores only in v1; greenhouse as M4 module.)
+2. EVA (exterior hull work) in v1? — **Resolved 2026-09-18: yes, expansion milestone M7** (airlock, tethered exterior work).
+3. Food/greenhouse fully simulated in v1 or abstracted as stores? — **Resolved: abstracted stores in v1; greenhouse becomes a buildable ship module in expansion M10.**
 4. Voyage length target: how many in-game days is the campaign? (Lean: 30–40 days, 3–5 legs.)
 5. Death frequency target: how punishing? (Lean: loss is rare but *final-feeling*; mercy resets exist but cost progress.)
 6. Comms content: does a reply ever come? (Lean: yes, once, late, and it isn't what the player hoped — grounded, not cruel.)

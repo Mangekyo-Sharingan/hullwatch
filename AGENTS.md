@@ -11,6 +11,7 @@ Guide for AI coding agents working in this repository. Read this first, then `do
 - Production spec: `docs/PRODUCTION_SPEC.md` (authoritative for design intent)
 - Status: **v0.7.0 released for playtest** — cramped faceted 8-space station, xenon-metal material, analogue-horror filter, CRT screens, practical lighting, hidden faults diagnosed with tools (spec §4.3), a comms system with weeks of latency and the one late reply (spec §4.1/§5), and the v0.6.0 playtest fixes (every readout closes with E or Esc from anywhere, tool results print a HUD line with a beep, the probe prompt names the carried tool). Real captures in `docs/store/` (10). Next: the v0.7.0 playtest feedback round.
 - **Builds vs. source:** `v0.7.0` is the current playtest build (GitHub release, exe attached); `v0.6.0` predates diagnostics/comms and produced the first feedback round only. Always `.\build.ps1` and verify the feature is present in the exe before handing a build to a tester.
+- **Early-access expansion (weeks, features first):** open hull + EVA, streaming deep field (~98% empty), materials/fabrication, modular ship, planets/stars to travel to — milestones **M7–M12** and design rules in `docs/EXPANSION_SPEC.md`; polish is M12, do not pull it forward.
 - Asset shortlist for the M3 art pass: `docs/ASSET_SOURCES.md` — acquire at M3, not before
 
 ## Tech Stack
