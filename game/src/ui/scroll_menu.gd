@@ -6,7 +6,7 @@ extends PanelContainer
 signal option_selected(index: int)
 signal option_highlighted(index: int)
 
-const HINT_TEXT: String = "WHEEL: BROWSE    WHEEL CLICK: SELECT"
+const HINT_TEXT: String = "WHEEL: BROWSE    WHEEL CLICK: SELECT    E/ESC: CLOSE"
 const COLOR_HIGHLIGHT: Color = Color(1.0, 0.85, 0.55, 1.0)
 const COLOR_NORMAL: Color = Color(0.72, 0.76, 0.7, 1.0)
 const COLOR_SELECTED: Color = Color(0.55, 0.78, 0.72, 1.0)

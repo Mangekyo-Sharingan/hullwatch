@@ -55,6 +55,18 @@ static func make_click(seconds: float = 0.08) -> AudioStreamWAV:
 	return _to_wav(samples, false)
 
 
+static func make_beep(frequency_hz: float = 880.0, seconds: float = 0.12) -> AudioStreamWAV:
+	var sample_count: int = _sample_count(seconds)
+	var samples := PackedFloat32Array()
+	samples.resize(sample_count)
+	var freq: float = _snap_freq(frequency_hz, sample_count)
+	for i: int in sample_count:
+		var t: float = float(i) / float(MIX_RATE)
+		var progress: float = float(i) / float(maxi(sample_count - 1, 1))
+		samples[i] = 0.35 * sin(TAU * freq * t) * sin(PI * progress)
+	return _to_wav(samples, false)
+
+
 static func make_thunk(seconds: float = 0.25) -> AudioStreamWAV:
 	var sample_count: int = _sample_count(seconds)
 	var rng := RandomNumberGenerator.new()

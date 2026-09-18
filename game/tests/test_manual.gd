@@ -74,6 +74,13 @@ func _test_binder() -> void:
 	binder.interact(null)
 	_check(not binder.is_open(), "interact closes the manual")
 	_check("\n".join(binder.build_readout()).is_empty(), "closed binder builds no readout")
+
+	binder.interact(null)
+	binder._unhandled_input(_press(&"pause"))
+	_check(not binder.is_open(), "manual closes on Esc from anywhere")
+	binder.interact(null)
+	binder._unhandled_input(_press(&"interact"))
+	_check(not binder.is_open(), "manual closes on E from anywhere")
 	binder.free()
 
 
@@ -97,6 +104,9 @@ func _test_board() -> void:
 	_check(text.contains("STORES_LOW"), "board names the low-stock event")
 	board.interact(null)
 	_check(not board.is_open(), "board closes on second interact")
+	board.interact(null)
+	board._unhandled_input(_press(&"pause"))
+	_check(not board.is_open(), "board closes on Esc from anywhere")
 	board.free()
 
 
@@ -114,7 +124,17 @@ func _test_log_terminal() -> void:
 	_check(text.contains("filter count"), "log references the filter count")
 	terminal.interact(null)
 	_check(not terminal.is_open(), "terminal closes on second interact")
+	terminal.interact(null)
+	terminal._unhandled_input(_press(&"interact"))
+	_check(not terminal.is_open(), "log closes on E from anywhere")
 	terminal.free()
+
+
+func _press(action: StringName) -> InputEventAction:
+	var event := InputEventAction.new()
+	event.action = action
+	event.pressed = true
+	return event
 
 
 func _find_root_child(node_name: StringName) -> Node:

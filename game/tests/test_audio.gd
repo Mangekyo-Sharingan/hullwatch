@@ -24,6 +24,7 @@ func _test_factory_output() -> void:
 		&"buzz": ProcAudio.make_buzz(),
 		&"alarm": ProcAudio.make_alarm(),
 		&"drone": ProcAudio.make_drone(),
+		&"beep": ProcAudio.make_beep(),
 	}
 	for stream_name: StringName in streams:
 		var stream: AudioStreamWAV = streams[stream_name]
@@ -37,7 +38,7 @@ func _test_factory_output() -> void:
 		_check(stream.loop_begin == 0, "%s loop starts at 0" % String(stream_name))
 		_check(stream.loop_end == int(stream.data.size() / 2.0), "%s loop spans whole sample" % String(stream_name))
 
-	for stream_name: StringName in [&"click", &"thunk", &"buzz"]:
+	for stream_name: StringName in [&"click", &"thunk", &"buzz", &"beep"]:
 		var stream: AudioStreamWAV = streams[stream_name]
 		_check(stream.loop_mode == AudioStreamWAV.LOOP_DISABLED, "%s does not loop" % String(stream_name))
 
@@ -95,6 +96,10 @@ func _test_audio_director() -> void:
 	event_bus.call(&"emit_event", &"breaker_toggled", {"circuit_id": &"lighting"})
 	state = audio_director.call(&"get_debug_state")
 	_check(state["last_cue"] == &"relay", "breaker_toggled maps to relay")
+
+	event_bus.call(&"emit_event", &"probe_scanned", {"system": &"power_system"})
+	state = audio_director.call(&"get_debug_state")
+	_check(state["last_cue"] == &"beep", "probe_scanned maps to beep")
 
 	var atmosphere: AtmosphereSystem = AtmosphereSystem.new()
 	var config: CompartmentConfig = CompartmentConfig.new()

@@ -44,6 +44,20 @@ func is_open() -> bool:
 	return _open
 
 
+func close() -> void:
+	if not _open:
+		return
+	_open = false
+	if _ui != null:
+		_ui.visible = false
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if PanelDismiss.should_dismiss(event, is_open()):
+		close()
+		get_viewport().set_input_as_handled()
+
+
 func get_content_font_size() -> int:
 	if _label == null:
 		return 0
@@ -75,6 +89,8 @@ func build_readout() -> PackedStringArray:
 		lines.append_array(nav)
 	lines.append("")
 	lines.append_array(_stores_lines())
+	lines.append("")
+	lines.append("E/ESC: CLOSE")
 	return lines
 
 

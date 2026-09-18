@@ -9,7 +9,7 @@ Guide for AI coding agents working in this repository. Read this first, then `do
 - Repo root: `E:\Projekt\Misc\OperationSpacer`
 - Godot project root: `game/`
 - Production spec: `docs/PRODUCTION_SPEC.md` (authoritative for design intent)
-- Status: **post-v0.6.0 expansion + diagnostics + comms**: cramped faceted 8-space station, xenon-metal material, analogue-horror filter, CRT screens, practical lighting, hidden faults diagnosed with tools (spec §4.3), and a comms system with weeks of latency, unread traffic, and the one late reply (spec §4.1/§5). Real captures in `docs/store/` (7). Main open item: external playtest of v0.6.0
+- Status: **post-v0.6.0 expansion + diagnostics + comms + playtest fixes**: cramped faceted 8-space station, xenon-metal material, analogue-horror filter, CRT screens, practical lighting, hidden faults diagnosed with tools (spec §4.3), a comms system with weeks of latency and the one late reply (spec §4.1/§5), and a playtest-fix pass: **every readout closes with E or Esc from anywhere**, probe/scanner results print a HUD line with a beep, the probe prompt names the carried tool, and the readout hint says how to close. Real captures in `docs/store/` (10). Main open item: external playtest of v0.6.0
 - Asset shortlist for the M3 art pass: `docs/ASSET_SOURCES.md` — acquire at M3, not before
 
 ## Tech Stack

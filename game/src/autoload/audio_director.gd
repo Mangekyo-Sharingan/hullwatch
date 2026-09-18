@@ -14,6 +14,10 @@ const EVENT_CUES: Dictionary = {
 	&"procedure_error": &"buzz",
 	&"stores_low": &"buzz",
 	&"component_failed": &"alarm",
+	&"probe_scanned": &"beep",
+	&"probe_diagnosis": &"beep",
+	&"diagnosis_clear": &"beep",
+	&"message_received": &"beep",
 	&"sleep_started": &"drone",
 	&"slept": &"thunk",
 	&"footstep": &"footstep",
@@ -101,6 +105,8 @@ func play_cue(cue: StringName) -> void:
 			_play_sfx(ProcAudio.make_click())
 		&"thunk":
 			_play_sfx(ProcAudio.make_thunk())
+		&"beep":
+			_play_sfx(ProcAudio.make_beep())
 		&"buzz":
 			_play_sfx(ProcAudio.make_buzz())
 		&"drone":

@@ -47,11 +47,6 @@ func _test_hidden_faults_and_probes() -> void:
 	var player: Node = (load("res://scenes/player.tscn") as PackedScene).instantiate()
 	root.add_child(player)
 	await process_frame
-	var multimeter := Carriable.new()
-	multimeter.item_id = &"multimeter"
-	multimeter.item_name = "Multimeter"
-	root.add_child(multimeter)
-	_check(bool(player.call("take_carriable", multimeter)), "tools: multimeter taken")
 
 	var probe := DiagnosticProbe.new()
 	probe.system_group = &"power_system"
@@ -60,6 +55,14 @@ func _test_hidden_faults_and_probes() -> void:
 	var panel := StatusPanel.new()
 	panel.compartment_id = &"main"
 	root.add_child(panel)
+
+	_check(probe.get_interaction_prompt().contains("NEEDS TOOL"), "probe prompt asks for a tool when empty-handed")
+	var multimeter := Carriable.new()
+	multimeter.item_id = &"multimeter"
+	multimeter.item_name = "Multimeter"
+	root.add_child(multimeter)
+	_check(bool(player.call("take_carriable", multimeter)), "tools: multimeter taken")
+	_check(probe.get_interaction_prompt().contains("MULTIMETER"), "probe prompt names the carried multimeter")
 
 	_check(power.call("force_failure", &"test_rtg", &"rtg_degraded"), "fault: forced on the test component")
 	var readout: String = "\n".join(panel.build_readout())
@@ -80,6 +83,7 @@ func _test_hidden_faults_and_probes() -> void:
 	scanner.item_name = "Wear scanner"
 	root.add_child(scanner)
 	_check(bool(player.call("take_carriable", scanner)), "tools: scanner swapped in")
+	_check(probe.get_interaction_prompt().contains("SCANNER"), "probe prompt names the carried scanner")
 	probe.interact(player)
 	status = power.call("get_wear_status")
 	_check(bool(status["test_rtg"]["scanned"]), "probe: scanner logs wear")
@@ -87,6 +91,7 @@ func _test_hidden_faults_and_probes() -> void:
 	_check(readout.contains("100%"), "panel shows condition after scanning")
 
 	_check(bool(player.call("drop_carried") != null), "tools: scanner dropped")
+	_check(probe.get_interaction_prompt().contains("NEEDS TOOL"), "probe prompt returns to needs-tool after dropping")
 	_procedure_errors = 0
 	probe.interact(player)
 	_check(_procedure_errors == 1 and _last_error_reason == &"no_tool", "probe without a tool refuses")

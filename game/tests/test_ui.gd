@@ -26,6 +26,7 @@ func _run() -> void:
 	_test_status_panel_readout()
 	await _test_sleep_transition()
 	await _test_hud_prompt()
+	await _test_hud_feedback()
 
 	_finish()
 
@@ -68,6 +69,7 @@ func _test_status_panel_readout() -> void:
 	_check(text.contains("FILTER 100%"), "readout shows filter condition")
 	_check(text.contains("FILTER_CO2 x2"), "readout shows stores stock")
 	_check(text.contains("TEST_RTG"), "readout lists components")
+	_check(text.contains("E/ESC: CLOSE"), "readout names the close keys")
 	_check(text.contains("  --"), "readout hides condition until scanned")
 	power.call("scan_system")
 	lines = panel.build_readout()
@@ -83,6 +85,12 @@ func _test_status_panel_readout() -> void:
 	_check(panel.is_open() and panel.get_interaction_prompt() == "Close panel", "panel opens on interact")
 	panel.interact(null)
 	_check(not panel.is_open(), "panel closes on second interact")
+	panel.interact(null)
+	var pause := InputEventAction.new()
+	pause.action = &"pause"
+	pause.pressed = true
+	panel._unhandled_input(pause)
+	_check(not panel.is_open(), "panel closes on Esc from anywhere")
 
 	power.free()
 	atmosphere.free()
@@ -148,6 +156,38 @@ func _test_hud_prompt() -> void:
 
 	player.free()
 	unit.free()
+	hud.free()
+
+
+func _test_hud_feedback() -> void:
+	var hud: CanvasLayer = load("res://src/ui/hud.gd").new()
+	root.add_child(hud)
+	await process_frame
+	var event_bus: Node = _find_root_child(&"EventBus")
+
+	event_bus.call("emit_event", &"probe_diagnosis", {"system": &"power_system", "component_id": &"rtg_main", "failure_mode_id": &"rtg_degraded"})
+	await process_frame
+	_check(hud.call("get_message_text") == "DIAGNOSED: RTG_MAIN  (RTG_DEGRADED)", "hud reports a diagnosis")
+
+	event_bus.call("emit_event", &"probe_scanned", {"system": &"power_system"})
+	await process_frame
+	_check(hud.call("get_message_text") == "WEAR LOGGED: POWER", "hud reports a scan")
+
+	event_bus.call("emit_event", &"diagnosis_clear", {"system": &"power_system"})
+	await process_frame
+	_check(hud.call("get_message_text") == "NO FAULTS: POWER", "hud reports a clean probe")
+
+	event_bus.call("emit_event", &"procedure_error", {"reason": &"no_tool", "system": &"power_system"})
+	await process_frame
+	_check(hud.call("get_message_text") == "NO DIAGNOSTIC TOOL CARRIED", "hud explains a refused probe")
+
+	event_bus.call("emit_event", &"message_received", {"message_id": &"msg_control_ack", "sender": "Mission Control"})
+	await process_frame
+	_check(hud.call("get_message_text") == "NEW TRAFFIC: MISSION CONTROL", "hud announces new comms traffic")
+
+	hud.call("set_message_hold", 0.02)
+	hud._process(0.05)
+	_check(hud.call("get_message_text") == "", "hud message expires")
 	hud.free()
 
 

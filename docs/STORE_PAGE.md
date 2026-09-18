@@ -45,7 +45,7 @@ First-Person, Management, Realistic
 - Target 60 fps on mid-range hardware (spec §8.3); validated at M5 only on dev hardware
 
 ## Assets on hand
-- `docs/store/screenshot_01..07.png` — real in-game captures (quarters, corridor, life support, cockpit, storage, corridor south, comms terminal)
+- `docs/store/screenshot_01..10.png` — real in-game captures (quarters, corridor, life support, cockpit, storage, corridor south, comms terminal, status panel, probe feedback, manual open)
 - `docs/store/capsule_main_1232x706.png`
 - `docs/store/capsule_small_616x353.png`
 - `docs/store/capsule_header_460x215.png`

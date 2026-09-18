@@ -50,6 +50,20 @@ func is_open() -> bool:
 	return _open
 
 
+func close() -> void:
+	if not _open:
+		return
+	_open = false
+	if _ui != null:
+		_ui.visible = false
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if PanelDismiss.should_dismiss(event, is_open()):
+		close()
+		get_viewport().set_input_as_handled()
+
+
 func get_entries() -> Array[Dictionary]:
 	return _entries.duplicate(true)
 
@@ -60,9 +74,11 @@ func build_readout() -> PackedStringArray:
 	lines.append("")
 	if _entries.is_empty():
 		lines.append("NO ENTRIES")
-		return lines
-	for entry: Dictionary in _entries:
-		lines.append("DAY %d  %s  %s" % [int(entry["day"]), String(entry["name"]).to_upper(), String(entry["payload"])])
+	else:
+		for entry: Dictionary in _entries:
+			lines.append("DAY %d  %s  %s" % [int(entry["day"]), String(entry["name"]).to_upper(), String(entry["payload"])])
+	lines.append("")
+	lines.append("E/ESC: CLOSE")
 	return lines
 
 

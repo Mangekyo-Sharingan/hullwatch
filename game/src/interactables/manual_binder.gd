@@ -24,6 +24,17 @@ func is_open() -> bool:
 	return _menu != null and _menu.is_open()
 
 
+func close() -> void:
+	if _menu != null:
+		_menu.close()
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if PanelDismiss.should_dismiss(event, is_open()):
+		close()
+		get_viewport().set_input_as_handled()
+
+
 func get_page_count() -> int:
 	if book == null:
 		return 0
@@ -55,7 +66,7 @@ func build_readout() -> PackedStringArray:
 
 func _handle_interact(_player: Node) -> void:
 	if is_open():
-		_menu.close()
+		close()
 		return
 	_ensure_ui()
 	if _menu == null:

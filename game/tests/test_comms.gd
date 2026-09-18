@@ -27,6 +27,7 @@ func _run() -> void:
 	_test_scripted_arrivals()
 	_test_mark_read()
 	_test_send_rules()
+	_test_terminal_dismissal()
 	_test_reply_chain()
 	_test_save_load()
 	_test_status()
@@ -150,6 +151,30 @@ func _test_send_rules() -> void:
 		_check(StringName(payload.get("message_id", &"")) == &"out_status_report", "send: sim event carries the message id")
 	_check(system.get_status()["outbound"] == 1, "send: status counts the sent message")
 	system.free()
+
+
+func _test_terminal_dismissal() -> void:
+	var harness := SimHarness.new(self)
+	harness.setup_clock()
+	var system: CommsSystem = _spawn_system()
+	var terminal := CommsTerminal.new()
+	root.add_child(terminal)
+	terminal.interact(null)
+	_check(terminal.is_open(), "terminal: opens on interact")
+	terminal._unhandled_input(_press(&"pause"))
+	_check(not terminal.is_open(), "terminal: closes on Esc from anywhere")
+	terminal.interact(null)
+	terminal._unhandled_input(_press(&"interact"))
+	_check(not terminal.is_open(), "terminal: closes on E from anywhere")
+	terminal.free()
+	system.free()
+
+
+func _press(action: StringName) -> InputEventAction:
+	var event := InputEventAction.new()
+	event.action = action
+	event.pressed = true
+	return event
 
 
 func _test_reply_chain() -> void:

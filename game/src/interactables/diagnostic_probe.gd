@@ -7,9 +7,29 @@ extends Interactable
 @export var multimeter_item_id: StringName = &"multimeter"
 @export var scanner_item_id: StringName = &"scanner"
 
+var _carried_id: StringName = &""
+
+
+func _ready() -> void:
+	var event_bus: Node = _get_autoload(&"EventBus")
+	if event_bus != null:
+		event_bus.connect(&"sim_event", _on_sim_event)
+
 
 func get_interaction_prompt() -> String:
-	return "Probe %s" % _system_group_label()
+	var base: String = "Probe %s" % _system_group_label()
+	if _carried_id == multimeter_item_id:
+		return "%s  [MULTIMETER]" % base
+	if _carried_id == scanner_item_id:
+		return "%s  [SCANNER]" % base
+	return "%s  [NEEDS TOOL]" % base
+
+
+func _on_sim_event(event_name: StringName, payload: Dictionary) -> void:
+	if event_name == &"item_taken":
+		_carried_id = StringName(payload.get("item_id", &""))
+	elif event_name == &"item_dropped" and _carried_id == StringName(payload.get("item_id", &"")):
+		_carried_id = &""
 
 
 func _handle_interact(player: Node) -> void:

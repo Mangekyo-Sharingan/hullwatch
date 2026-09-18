@@ -8,7 +8,7 @@ const SENSITIVITY_STEP: float = 0.25
 const VOLUME_STEP_DB: float = 5.0
 const UI_SCALE_STEP: float = 0.05
 const FILTER_INTENSITY_STEP: float = 0.1
-const MENU_HINT: String = "WHEEL: BROWSE   CLICK: SELECT / +   RIGHT CLICK: -"
+const MENU_HINT: String = "WHEEL: BROWSE   CLICK: SELECT / +   RIGHT CLICK: -   ESC: CLOSE"
 
 const ROW_SENSITIVITY: int = 0
 const ROW_INVERT: int = 1

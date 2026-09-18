@@ -16,6 +16,7 @@ func _run() -> void:
 	_test_wrap_and_clamp()
 	_test_set_items()
 	_test_empty_items()
+	_test_dismiss_rule()
 	_finish()
 
 
@@ -91,6 +92,24 @@ func _test_empty_items() -> void:
 	menu.confirm()
 	_check(menu.get_highlighted_index() == -1, "empty menu reports no highlight")
 	menu.free()
+
+
+func _test_dismiss_rule() -> void:
+	var press_interact := InputEventAction.new()
+	press_interact.action = &"interact"
+	press_interact.pressed = true
+	var press_pause := InputEventAction.new()
+	press_pause.action = &"pause"
+	press_pause.pressed = true
+	var release := InputEventAction.new()
+	release.action = &"interact"
+	release.pressed = false
+
+	_check(not PanelDismiss.should_dismiss(press_interact, false), "dismiss: closed panels ignore interact")
+	_check(PanelDismiss.should_dismiss(press_interact, true), "dismiss: interact closes an open panel")
+	_check(PanelDismiss.should_dismiss(press_pause, true), "dismiss: pause closes an open panel")
+	_check(not PanelDismiss.should_dismiss(release, true), "dismiss: releases do not close")
+	_check(ScrollMenu.HINT_TEXT.contains("CLOSE"), "menu hint names the close key")
 
 
 func _on_selected(index: int) -> void:

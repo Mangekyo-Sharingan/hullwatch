@@ -33,6 +33,20 @@ func is_open() -> bool:
 	return _open
 
 
+func close() -> void:
+	if not _open:
+		return
+	_open = false
+	if _ui != null:
+		_ui.visible = false
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if PanelDismiss.should_dismiss(event, is_open()):
+		close()
+		get_viewport().set_input_as_handled()
+
+
 func build_readout() -> PackedStringArray:
 	var lines: PackedStringArray = PackedStringArray()
 	if log_entry == null:
@@ -42,6 +56,8 @@ func build_readout() -> PackedStringArray:
 	lines.append("")
 	for body_line: String in log_entry.body.split("\n"):
 		lines.append(body_line)
+	lines.append("")
+	lines.append("E/ESC: CLOSE")
 	return lines
 
 

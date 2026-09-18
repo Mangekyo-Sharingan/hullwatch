@@ -13,7 +13,7 @@ body = "1  MOVE                    W A S D
 6  FLASHLIGHT              F
 7  RELEASE MOUSE           ESC
 
-MENUS. Panels and lists use the wheel: scroll to move the highlight, press the wheel (middle mouse) to select. Arrow keys and Enter work too.
+MENUS. Panels and lists use the wheel: scroll to move the highlight, press the wheel (middle mouse) to select. Arrow keys and Enter work too. Every readout closes with E or Esc from anywhere.
 
 CARRY. E takes an item, right click drops it. Some procedures need the right item in your hands.
 
