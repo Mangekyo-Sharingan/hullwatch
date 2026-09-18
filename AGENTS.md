@@ -9,7 +9,8 @@ Guide for AI coding agents working in this repository. Read this first, then `do
 - Repo root: `E:\Projekt\Misc\OperationSpacer`
 - Godot project root: `game/`
 - Production spec: `docs/PRODUCTION_SPEC.md` (authoritative for design intent)
-- Status: **post-v0.6.0 expansion + diagnostics + comms + playtest fixes**: cramped faceted 8-space station, xenon-metal material, analogue-horror filter, CRT screens, practical lighting, hidden faults diagnosed with tools (spec §4.3), a comms system with weeks of latency and the one late reply (spec §4.1/§5), and a playtest-fix pass: **every readout closes with E or Esc from anywhere**, probe/scanner results print a HUD line with a beep, the probe prompt names the carried tool, and the readout hint says how to close. Real captures in `docs/store/` (10). Main open item: external playtest of v0.6.0
+- Status: **post-v0.6.0 expansion + diagnostics + comms + playtest fixes**: cramped faceted 8-space station, xenon-metal material, analogue-horror filter, CRT screens, practical lighting, hidden faults diagnosed with tools (spec §4.3), a comms system with weeks of latency and the one late reply (spec §4.1/§5), and a playtest-fix pass: **every readout closes with E or Esc from anywhere**, probe/scanner results print a HUD line with a beep, the probe prompt names the carried tool, and the readout hint says how to close. Real captures in `docs/store/` (10).
+- **Builds vs. source:** the only public release is **v0.6.0**, which predates diagnostics, comms and the playtest fixes. The last external playtest used that stale build (no scanner existed in it). Always `.\build.ps1` and verify the feature exists in the exe before handing a build to a tester. **Next: cut v0.7.0 from current `main` for the next playtest.**
 - Asset shortlist for the M3 art pass: `docs/ASSET_SOURCES.md` — acquire at M3, not before
 
 ## Tech Stack
@@ -57,18 +58,21 @@ Run from repo root. The engine binary is local, so no PATH setup is needed.
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_day_loop.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_ui.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_ui_scale.gd
+& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_scroll_menu.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_survival_3day.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_save_load.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_scene_save_load.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_failures.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_scenario_power_night.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_scenario_cascade.gd
+& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_scenario_humidity.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_hull.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_vitals.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_manual.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_nav.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_component_breadth.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_water.gd
+& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_humidity.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_ship_layout.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_world_layout.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_door.gd
@@ -112,20 +116,20 @@ There is no linter configured yet; typed GDScript analyzer warnings in the edito
 Engine/                  # local Godot binaries — NEVER commit, NEVER edit
 docs/                    # production spec, design docs
 game/                    # Godot project root
-  project.godot          # project config (autoloads: SimClock, EventBus, AudioDirector, SaveManager)
+  project.godot          # project config (autoloads: SimClock, EventBus, AudioDirector, SaveManager, GameSettings)
   scenes/                # .tscn scene files
   tests/                 # headless suites; tests/support/harness.gd = SimHarness scenario scaffolding
-  tools/                 # dev-only scripts (input map regeneration)
+  tools/                 # dev-only scripts (input map, geometry/layout builders, captures, profilers, string extraction)
   assets/                # textures/, models/ (CC0 only; credits in docs/ASSET_CREDITS.md), audio/, fonts/ (procedural placeholder audio needs no files)
   src/
-    autoload/            # singletons: SimClock, EventBus, AudioDirector, SaveManager (+ planned ShipState)
+    autoload/            # singletons: SimClock, EventBus, AudioDirector, SaveManager, GameSettings
     audio/               # procedural placeholder PCM factories (ProcAudio)
     systems/             # simulators: power, thermal, atmosphere, hull, nav, comms, stores
     components/          # wear model + failure-mode + config resources
     interactables/       # panels, valves, filters, tools
     world/               # world-side drivers into sims (CompartmentZone occupancy)
-    player/              # controller, interact, carry, scanner
-    ui/                  # status panel, HUD, sleep transition (diegetic UI, manual binder later)
+    player/              # controller, interact, carry
+    ui/                  # HUD, CRT panels, status panel, scroll menu, settings, overlays (diegetic UI, ui_scale)
     data/                # .tres content (components, items, procedures, wear)
   assets/                # art/, audio/, fonts/
 tools/                   # dev utilities, MCP configs
@@ -162,6 +166,7 @@ tools/                   # dev utilities, MCP configs
 
 - **Before implementing a mechanic:** check the spec for its intended system (§4), then check whether a data resource for it already exists in `game/src/data/`.
 - **When adding content:** add data first (`.tres` + a simulator hook), UI last. A feature without sim support is a mock.
+- **Before any playtest:** rebuild the exe (`.\build.ps1`) and confirm the feature is present in it. v0.6.0 predates diagnostics/comms and confused a tester; a stale build wastes a playtest round.
 - **After changes:** run the headless smoke test; if sim state changed, add/extend a deterministic scenario test.
 - **Art assets:** only CC0 (or similarly clean) assets, recorded in `docs/ASSET_CREDITS.md`; imported materials are `.tres` in `src/data/materials/`; never hand-edit imported `.import` files.
 - **Ship geometry is generated:** edit the room table in `tools/build_ship_geometry.gd`, then rerun it to regenerate `scenes/ship_geometry.tscn` (deterministic output); never hand-edit the generated scene.
