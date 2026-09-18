@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="ManualPage" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/components/manual_page.gd" id="1_page"]
+
+[resource]
+script = ExtResource("1_page")
+title = "THERMAL"
+body = "The module loses heat to the exterior, which runs near -60 C. The heater runs on LIFE SUPPORT and holds the cabin near 21 C.
+
+If the heater loses power the cabin cools fast. Below 10 C you lose dexterity. Below 3 C exposure becomes dangerous. Pipes freeze near 1 C.
+
+If you return to a cold module: restore life support first, then wait. The heater is not fast. Dress the wound before you clean the tools."

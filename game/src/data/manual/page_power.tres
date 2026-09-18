@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="ManualPage" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/components/manual_page.gd" id="1_page"]
+
+[resource]
+script = ExtResource("1_page")
+title = "POWER"
+body = "GENERATION is a 500 W RTG. The battery holds 4000 Wh. Circuits are ranked by priority; when demand exceeds supply the ship sheds the least critical circuit first.
+
+PRIORITY ORDER
+  0  LIFE SUPPORT   (never shed)
+  1  SCRUBBER
+  2  LIGHTING
+
+BROWNOUT. If the battery empties, everything except priority 0 drops. Take non-essential circuits offline at the breaker panel before that happens.
+
+WHEN A CIRCUIT IS SHED it will not return on its own while demand stays high. Repair the cause: worn components derate the RTG, and a derated RTG cannot carry the ship."

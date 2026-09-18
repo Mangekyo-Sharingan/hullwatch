@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="ManualPage" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/components/manual_page.gd" id="1_page"]
+
+[resource]
+script = ExtResource("1_page")
+title = "SYMPTOMS"
+body = "CO2 (ppm)
+   5000   headache; reading numbers takes longer.
+  15000   judgement slips; check your work twice.
+  25000   breathing damage begins. Leave or fix it.
+
+O2
+  below 16 percent: slow thinking, then unconsciousness.
+  below 10 percent: minutes.
+
+COLD
+  below 10 C: clumsy hands.
+  below  3 C: exposure damage.
+
+If you feel fine, you are probably not. Read the panel."

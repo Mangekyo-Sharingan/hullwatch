@@ -18,3 +18,5 @@ initial_filter_condition = 0.15
 o2_candles_stocked = 2
 o2_candle_kg = 1.0
 o2_candle_burn_hours = 2.0
+puncture_mtbf_hours = 6000.0
+puncture_leak_per_hour = 0.004

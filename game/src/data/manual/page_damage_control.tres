@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="ManualPage" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/components/manual_page.gd" id="1_page"]
+
+[resource]
+script = ExtResource("1_page")
+title = "DAMAGE CONTROL"
+body = "MICRO-PUNCTURES are normal on a hull this age. Each one raises the compartment leak rate; pressure falls, and the leak keeps working while you sleep.
+
+PATCH PROCEDURE
+  1  CLEAN the breach
+  2  FIT the patch
+  3  APPLY SEALANT   (one cartridge per patch)
+  4  VERIFY the seal
+Verify against the panel's leak rate. A failed verify means a failed seal - do it again.
+
+Carry sealant from stores before you go. The hull will not wait for a second trip."

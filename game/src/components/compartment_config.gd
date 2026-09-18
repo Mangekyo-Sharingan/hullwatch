@@ -23,3 +23,5 @@ extends Resource
 @export var heater_deadband_c: float = 1.0
 @export var occupant_heat_w: float = 100.0
 @export var freeze_threshold_c: float = 1.0
+@export var puncture_mtbf_hours: float = 6000.0
+@export var puncture_leak_per_hour: float = 0.004

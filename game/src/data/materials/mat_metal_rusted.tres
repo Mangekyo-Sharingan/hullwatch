@@ -1,0 +1,13 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/textures/rusty_metal/rusty_metal_diff_2k.jpg" id="1_r1ntx"]
+[ext_resource type="Texture2D" path="res://assets/textures/rusty_metal/rusty_metal_nor_gl_2k.jpg" id="2_natmw"]
+[ext_resource type="Texture2D" path="res://assets/textures/rusty_metal/rusty_metal_rough_2k.jpg" id="3_qlcj6"]
+
+[resource]
+albedo_texture = ExtResource("1_r1ntx")
+metallic = 0.8
+roughness_texture = ExtResource("3_qlcj6")
+normal_enabled = true
+normal_texture = ExtResource("2_natmw")
+uv1_scale = Vector3(2, 2, 1)

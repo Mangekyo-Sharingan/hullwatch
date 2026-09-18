@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ManualPage" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/components/manual_page.gd" id="1_page"]
+
+[resource]
+script = ExtResource("1_page")
+title = "OPERATIONS"
+body = "1  MOVE                    W A S D
+2  PUSH OFF / JUMP          SPACE
+3  CROUCH                  CTRL
+4  MAGNETIC BOOTS          Q   (disengage in free fall; re-engage on a surface)
+5  INTERACT                E
+6  FLASHLIGHT              F
+7  RELEASE MOUSE           ESC
+
+THE DAY. Sleep in the bunk (E) to end a shift. The ship keeps running while you sleep - and so do its problems.
+
+READINGS. The status panel lists power, atmosphere, thermal and component condition. Check it after every repair. A repair is not finished until the panel agrees."

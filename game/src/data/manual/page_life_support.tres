@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="ManualPage" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/components/manual_page.gd" id="1_page"]
+
+[resource]
+script = ExtResource("1_page")
+title = "LIFE SUPPORT"
+body = "CO2 is removed by the scrubber. Removal rate depends on power, on the filter, and on the blower's condition. A worn filter scrubs almost nothing while still drawing power.
+
+FILTER SWAP
+  1  POWER DOWN the unit
+  2  OPEN the housing
+  3  REMOVE the filter
+  4  INSTALL a filter from stores
+  5  SEAT the seal
+  6  CLOSE the housing
+  7  POWER UP
+Do not skip the seal. Do not power up with the housing open.
+
+WATCH THE FILTER CONDITION on the panel. Below 50 percent, plan the swap. Below 20 percent, CO2 will climb faster than the scrubber can pull it down."

@@ -9,7 +9,7 @@ Guide for AI coding agents working in this repository. Read this first, then `do
 - Repo root: `E:\Projekt\Misc\OperationSpacer`
 - Godot project root: `game/`
 - Production spec: `docs/PRODUCTION_SPEC.md` (authoritative for design intent)
-- Status: **M2 complete** — power/thermal/atmosphere interlinked, component wear + failures, one authored cascade, versioned save/load, deterministic scenario harness. Next: **M3 — vertical slice**
+- Status: **M3 deliverables in place — external playtest pending** (spec §8.5 success test). Vertical slice: CC0 art pass (Kenney kit + Poly Haven textures via `src/data/materials/`), manual binder, maintenance board, prior-operator log, hull punctures + sealant patch (3rd repair), operator vitals/loss states with mercy recovery, cognition vignette, nav/travel stub
 - Asset shortlist for the M3 art pass: `docs/ASSET_SOURCES.md` — acquire at M3, not before
 
 ## Tech Stack
@@ -53,6 +53,11 @@ Run from repo root. The engine binary is local, so no PATH setup is needed.
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_failures.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_scenario_power_night.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_scenario_cascade.gd
+& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_hull.gd
+& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_vitals.gd
+& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_manual.gd
+& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_nav.gd
+& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_component_breadth.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_scene_loop.gd
 
 # Refresh the global class cache after adding new `class_name` scripts (needed before --script test runs)
@@ -74,7 +79,7 @@ game/                    # Godot project root
   scenes/                # .tscn scene files
   tests/                 # headless suites; tests/support/harness.gd = SimHarness scenario scaffolding
   tools/                 # dev-only scripts (input map regeneration)
-  assets/                # art/, audio/ (procedural placeholder audio needs no files), fonts/
+  assets/                # textures/, models/ (CC0 only; credits in docs/ASSET_CREDITS.md), audio/, fonts/ (procedural placeholder audio needs no files)
   src/
     autoload/            # singletons: SimClock, EventBus, AudioDirector, SaveManager (+ planned ShipState)
     audio/               # procedural placeholder PCM factories (ProcAudio)
@@ -121,6 +126,7 @@ tools/                   # dev utilities, MCP configs
 - **Before implementing a mechanic:** check the spec for its intended system (§4), then check whether a data resource for it already exists in `game/src/data/`.
 - **When adding content:** add data first (`.tres` + a simulator hook), UI last. A feature without sim support is a mock.
 - **After changes:** run the headless smoke test; if sim state changed, add/extend a deterministic scenario test.
+- **Art assets:** only CC0 (or similarly clean) assets, recorded in `docs/ASSET_CREDITS.md`; imported materials are `.tres` in `src/data/materials/`; never hand-edit imported `.import` files.
 - **Milestone discipline:** do not build ahead of the current milestone (spec §8.2) — vertical slice logic before content scale, ever.
 - **Open questions** (spec §9) are unresolved by design; ask the user before deciding narrative or scope items listed there.
 

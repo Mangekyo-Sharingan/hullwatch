@@ -1,0 +1,13 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/textures/container_side/container_side_diff_2k.jpg" id="1_d7vlf"]
+[ext_resource type="Texture2D" path="res://assets/textures/container_side/container_side_nor_gl_2k.jpg" id="2_vedrg"]
+[ext_resource type="Texture2D" path="res://assets/textures/container_side/container_side_rough_2k.jpg" id="3_xgket"]
+
+[resource]
+albedo_texture = ExtResource("1_d7vlf")
+metallic = 0.5
+roughness_texture = ExtResource("3_xgket")
+normal_enabled = true
+normal_texture = ExtResource("2_vedrg")
+uv1_scale = Vector3(4, 4, 1)

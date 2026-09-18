@@ -14,6 +14,10 @@ signal hull_puncture(compartment_id: StringName, severity: float)
 signal course_changed(leg_id: StringName, delta_v_cost: float)
 signal stores_changed(part_id: StringName, new_count: int)
 signal sim_event(event_name: StringName, payload: Dictionary)
+signal operator_condition_changed(condition: float, cause: StringName)
+signal operator_incapacitated(cause: StringName)
+signal cognition_effect_changed(level: int)
+signal mercy_recovery_used(cause: StringName)
 
 const LOG_LIMIT: int = 500
 

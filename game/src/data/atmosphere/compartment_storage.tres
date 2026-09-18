@@ -15,3 +15,5 @@ scrubber_capacity_kg_per_hour = 0.055
 o2_candles_stocked = 0
 o2_candle_kg = 1.0
 o2_candle_burn_hours = 2.0
+puncture_mtbf_hours = 9000.0
+puncture_leak_per_hour = 0.004

@@ -5,7 +5,7 @@ extends Node
 const SAVE_VERSION: int = 1
 const SAVE_DIR: String = "user://saves"
 const SLOT_COUNT: int = 3
-const SYSTEM_GROUPS: Array[StringName] = [&"power_system", &"atmosphere_system", &"stores_system", &"thermal_system"]
+const SYSTEM_GROUPS: Array[StringName] = [&"power_system", &"atmosphere_system", &"stores_system", &"thermal_system", &"hull_system", &"nav_system", &"vitals_system"]
 
 var _last_error: String = ""
 

@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="LogEntry" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/components/log_entry.gd" id="1_log"]
+
+[resource]
+script = ExtResource("1_log")
+id = &"log_01"
+date_text = "DAY 0412  -  03:10 SHIP TIME"
+title = "MAINTENANCE LOG  -  K. VOSS"
+body = "Filter swap logged 02:40. Fourth this month; the duty cycle says two. I ran the carbon budget twice and got the same answer both times, which is the problem.
+
+Told control. That was eleven weeks ago. The ack came back in nine minutes and nothing since. The queue shows my message delivered, so it is not a comms fault.
+
+I am not writing down what I think it means. If the next rotation asks me anything, I would tell them: watch the filter count."
