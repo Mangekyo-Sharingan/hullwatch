@@ -54,14 +54,23 @@ func _test_binder() -> void:
 	_check(binder.get_interaction_prompt() == "Read manual", "binder invites a read when closed")
 	binder.interact(null)
 	_check(binder.is_open() and binder.get_current_page_title() == "OPERATIONS", "binder opens on the first page")
+	var menu: ScrollMenu = binder.get_menu()
+	_check(menu != null and menu.get_items().size() == 6, "binder menu lists every page")
+
+	menu.move_selection(1)
+	_check(binder.get_current_page_title() == "POWER", "browsing moves the highlighted page")
+	_check("\n".join(binder.build_readout()).contains("POWER"), "readout follows the highlight")
+
+	menu.confirm()
+	_check(menu.get_selected_index() == 1, "wheel click selects the page")
+	_check(binder.get_current_page_title() == "POWER", "selected page stays displayed")
+
+	menu.move_selection(-2)
+	_check(binder.get_current_page_title() == "SYMPTOMS", "browsing wraps around the page list")
+	_check(binder.get_interaction_prompt() == "Close manual", "prompt offers close while open")
+
 	binder.interact(null)
-	_check(binder.get_current_page_title() == "POWER", "binder advances a page")
-	for i: int in 4:
-		binder.interact(null)
-	_check(binder.get_current_page_title() == "SYMPTOMS", "binder reaches the last page")
-	_check(binder.get_interaction_prompt() == "Close manual", "prompt offers close on the last page")
-	binder.interact(null)
-	_check(not binder.is_open(), "binder closes after the last page")
+	_check(not binder.is_open(), "interact closes the manual")
 	_check("\n".join(binder.build_readout()).is_empty(), "closed binder builds no readout")
 	binder.free()
 

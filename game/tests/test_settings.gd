@@ -190,6 +190,19 @@ func _test_menu(settings: Node) -> void:
 	_check(String(menu.call(&"get_row_value_text", &"ui_scale")) == "105%", "menu: ui scale row shows 105%")
 	_check(String(menu.call(&"get_row_value_text", &"unknown_key")) == "", "menu: unknown row text is empty")
 
+	var scroll: ScrollMenu = menu.call(&"get_menu")
+	_check(scroll != null and scroll.get_items().size() == 6, "menu: scroll menu lists six rows")
+	_check(scroll.get_items()[0].contains("1.25x"), "menu: first row carries the sensitivity value")
+	scroll.move_selection(2)
+	_check(scroll.get_highlighted_index() == 2, "menu: browsing moves the highlight")
+	scroll.confirm()
+	_check(String(menu.call(&"get_row_value_text", &"master_volume_db")) == "-5 dB", "menu: wheel click steps the highlighted setting")
+
+	scroll.move_selection(2)
+	_check(scroll.get_highlighted_text() == "RESET DEFAULTS", "menu: reset row is reachable")
+	scroll.confirm()
+	_check(String(menu.call(&"get_row_value_text", &"ui_scale")) == "100%", "menu: wheel click on reset restores defaults")
+
 	settings.call(&"set_value", &"invert_y", true)
 	_check(String(menu.call(&"get_row_value_text", &"invert_y")) == "ON", "menu: row refreshes from settings_changed")
 	settings.call(&"set_value", &"invert_y", false)

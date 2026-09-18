@@ -20,6 +20,9 @@ const KEY_BINDINGS: Dictionary = {
 const MOUSE_BINDINGS: Dictionary = {
 	&"primary": [MOUSE_BUTTON_LEFT],
 	&"secondary": [MOUSE_BUTTON_RIGHT],
+	&"menu_prev": [MOUSE_BUTTON_WHEEL_UP],
+	&"menu_next": [MOUSE_BUTTON_WHEEL_DOWN],
+	&"menu_select": [MOUSE_BUTTON_MIDDLE],
 }
 
 

@@ -13,6 +13,8 @@ body = "1  MOVE                    W A S D
 6  FLASHLIGHT              F
 7  RELEASE MOUSE           ESC
 
+MENUS. Panels and lists use the wheel: scroll to move the highlight, press the wheel (middle mouse) to select. Arrow keys and Enter work too.
+
 THE DAY. Sleep in the bunk (E) to end a shift. The ship keeps running while you sleep - and so do its problems.
 
 READINGS. The status panel lists power, atmosphere, thermal and component condition. Check it after every repair. A repair is not finished until the panel agrees."
