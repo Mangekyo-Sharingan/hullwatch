@@ -6,7 +6,7 @@
 script = ExtResource("1")
 compartment_id = &"water_closet"
 display_name = "Water Closet"
-volume_m3 = 38.0
+volume_m3 = 17.0
 initial_pressure_kpa = 101.325
 initial_o2_fraction = 0.21
 initial_co2_ppm = 400.0

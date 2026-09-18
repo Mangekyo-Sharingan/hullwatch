@@ -1,4 +1,4 @@
-## Persistent user settings: mouse, audio, and UI scaling. Autoload name: GameSettings.
+## Persistent user settings: mouse, audio, UI scaling, and the analogue filter. Autoload name: GameSettings.
 ## No class_name on purpose — it would conflict with the autoload.
 extends Node
 
@@ -12,18 +12,24 @@ const UI_SCALE_MIN: float = 0.85
 const UI_SCALE_MAX: float = 1.4
 const VOLUME_MIN_DB: float = -40.0
 const VOLUME_MAX_DB: float = 0.0
+const FILTER_INTENSITY_MIN: float = 0.0
+const FILTER_INTENSITY_MAX: float = 1.0
 const MASTER_BUS_NAME: StringName = &"Master"
 const SUPPORTED_KEYS: Array[StringName] = [
 	&"mouse_sensitivity_multiplier",
 	&"invert_y",
 	&"master_volume_db",
 	&"ui_scale",
+	&"analogue_filter_enabled",
+	&"analogue_filter_intensity",
 ]
 
 var mouse_sensitivity_multiplier: float = 1.0
 var invert_y: bool = false
 var master_volume_db: float = 0.0
 var ui_scale: float = 1.0
+var analogue_filter_enabled: bool = true
+var analogue_filter_intensity: float = 1.0
 
 
 func _ready() -> void:
@@ -31,7 +37,7 @@ func _ready() -> void:
 	_apply_volume()
 
 
-## Reads all four keys from disk. Missing or corrupt files fall back to defaults.
+## Reads all six keys from disk. Missing or corrupt files fall back to defaults.
 ## Deliberately silent: no settings_changed is emitted here, callers refresh after loading.
 func load_settings() -> void:
 	var config: ConfigFile = ConfigFile.new()
@@ -41,6 +47,8 @@ func load_settings() -> void:
 		invert_y = false
 		master_volume_db = 0.0
 		ui_scale = 1.0
+		analogue_filter_enabled = true
+		analogue_filter_intensity = 1.0
 		_apply_volume()
 		return
 	mouse_sensitivity_multiplier = clampf(
@@ -51,6 +59,10 @@ func load_settings() -> void:
 		_read_float(config, &"master_volume_db", 0.0), VOLUME_MIN_DB, VOLUME_MAX_DB
 	)
 	ui_scale = clampf(_read_float(config, &"ui_scale", 1.0), UI_SCALE_MIN, UI_SCALE_MAX)
+	analogue_filter_enabled = _read_bool(config, &"analogue_filter_enabled", true)
+	analogue_filter_intensity = clampf(
+		_read_float(config, &"analogue_filter_intensity", 1.0), FILTER_INTENSITY_MIN, FILTER_INTENSITY_MAX
+	)
 	_apply_volume()
 
 
@@ -60,6 +72,8 @@ func save_settings() -> void:
 	config.set_value(CONFIG_SECTION, "invert_y", invert_y)
 	config.set_value(CONFIG_SECTION, "master_volume_db", master_volume_db)
 	config.set_value(CONFIG_SECTION, "ui_scale", ui_scale)
+	config.set_value(CONFIG_SECTION, "analogue_filter_enabled", analogue_filter_enabled)
+	config.set_value(CONFIG_SECTION, "analogue_filter_intensity", analogue_filter_intensity)
 	var save_error: Error = config.save(CONFIG_PATH)
 	if save_error != OK:
 		push_error("GameSettings.save_settings: failed to write '%s' (error %d)." % [CONFIG_PATH, save_error])
@@ -98,6 +112,20 @@ func set_value(key: StringName, value: Variant) -> bool:
 			ui_scale = clampf(float(value), UI_SCALE_MIN, UI_SCALE_MAX)
 			settings_changed.emit(key, ui_scale)
 			return true
+		&"analogue_filter_enabled":
+			if not (value is bool):
+				push_error(_type_error(key, value, "a bool"))
+				return false
+			analogue_filter_enabled = bool(value)
+			settings_changed.emit(key, analogue_filter_enabled)
+			return true
+		&"analogue_filter_intensity":
+			if not _is_number(value):
+				push_error(_type_error(key, value, "a number"))
+				return false
+			analogue_filter_intensity = clampf(float(value), FILTER_INTENSITY_MIN, FILTER_INTENSITY_MAX)
+			settings_changed.emit(key, analogue_filter_intensity)
+			return true
 		_:
 			push_error("GameSettings.set_value: unknown key '%s'." % String(key))
 			return false
@@ -113,6 +141,10 @@ func get_value(key: StringName) -> Variant:
 			return master_volume_db
 		&"ui_scale":
 			return ui_scale
+		&"analogue_filter_enabled":
+			return analogue_filter_enabled
+		&"analogue_filter_intensity":
+			return analogue_filter_intensity
 		_:
 			push_error("GameSettings.get_value: unknown key '%s'." % String(key))
 			return null
@@ -123,6 +155,8 @@ func reset_to_defaults() -> void:
 	invert_y = false
 	master_volume_db = 0.0
 	ui_scale = 1.0
+	analogue_filter_enabled = true
+	analogue_filter_intensity = 1.0
 	_apply_volume()
 	for key: StringName in SUPPORTED_KEYS:
 		settings_changed.emit(key, get_value(key))

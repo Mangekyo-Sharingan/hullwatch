@@ -247,7 +247,7 @@ func _test_data() -> void:
 	_check(storage_config != null, "data: storage compartment loads")
 	if main_config != null:
 		_check(main_config.compartment_id == &"main", "data: main id")
-		_check(is_equal_approx(main_config.volume_m3, 60.0), "data: main volume")
+		_check(is_equal_approx(main_config.volume_m3, 28.0), "data: main volume")
 		_check(is_equal_approx(main_config.leak_rate_per_hour, 0.002), "data: main leak rate")
 		_check(main_config.o2_candles_stocked == 2, "data: main candle stock")
 	if storage_config != null:

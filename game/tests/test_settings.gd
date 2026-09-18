@@ -50,6 +50,8 @@ func _test_defaults(settings: Node) -> void:
 	_check(not bool(settings.call(&"get_value", &"invert_y")), "defaults: invert_y is false")
 	_check(is_equal_approx(float(settings.call(&"get_value", &"master_volume_db")), 0.0), "defaults: volume is 0 dB")
 	_check(is_equal_approx(float(settings.call(&"get_value", &"ui_scale")), 1.0), "defaults: ui_scale is 1.0")
+	_check(bool(settings.call(&"get_value", &"analogue_filter_enabled")), "defaults: analogue_filter_enabled is true")
+	_check(is_equal_approx(float(settings.call(&"get_value", &"analogue_filter_intensity")), 1.0), "defaults: analogue_filter_intensity is 1.0")
 
 
 func _test_clamps_and_events(settings: Node) -> void:
@@ -78,6 +80,18 @@ func _test_clamps_and_events(settings: Node) -> void:
 	_check(bool(settings.call(&"set_value", &"invert_y", true)), "event: invert_y accepted")
 	_check(_has_event(&"invert_y", true), "event: invert_y emitted the applied value")
 
+	_check(bool(settings.call(&"set_value", &"analogue_filter_intensity", 5.0)), "clamp: filter intensity 5.0 is accepted")
+	_check(is_equal_approx(float(settings.call(&"get_value", &"analogue_filter_intensity")), 1.0), "clamp: filter intensity 5.0 -> 1.0")
+	_check(_has_event(&"analogue_filter_intensity", 1.0), "event: filter intensity emitted the applied value 1.0")
+
+	_check(bool(settings.call(&"set_value", &"analogue_filter_intensity", -1.0)), "clamp: filter intensity -1.0 is accepted")
+	_check(is_equal_approx(float(settings.call(&"get_value", &"analogue_filter_intensity")), 0.0), "clamp: filter intensity -1.0 -> 0.0")
+	_check(_has_event(&"analogue_filter_intensity", 0.0), "event: filter intensity emitted the applied value 0.0")
+
+	_check(bool(settings.call(&"set_value", &"analogue_filter_enabled", false)), "event: filter toggle accepted")
+	_check(_has_event(&"analogue_filter_enabled", false), "event: filter toggle emitted the applied value")
+	settings.call(&"set_value", &"analogue_filter_enabled", true)
+
 	settings.call(&"set_value", &"master_volume_db", -12.0)
 	var bus_index: int = AudioServer.get_bus_index(&"Master")
 	_check(bus_index >= 0, "audio: Master bus exists")
@@ -91,6 +105,8 @@ func _test_rejections(settings: Node) -> void:
 	_check(is_equal_approx(float(settings.call(&"get_value", &"mouse_sensitivity_multiplier")), sensitivity_before), "reject: wrong type leaves the value untouched")
 	_check(not bool(settings.call(&"set_value", &"invert_y", "yes")), "reject: string for a bool returns false")
 	_check(not bool(settings.call(&"set_value", &"ui_scale", "big")), "reject: string for ui_scale returns false")
+	_check(not bool(settings.call(&"set_value", &"analogue_filter_enabled", "yes")), "reject: string for analogue_filter_enabled returns false")
+	_check(not bool(settings.call(&"set_value", &"analogue_filter_intensity", "loud")), "reject: string for analogue_filter_intensity returns false")
 	_check(not bool(settings.call(&"set_value", &"unknown_key", 1.0)), "reject: unknown key returns false")
 
 
@@ -108,6 +124,8 @@ func _test_corrupt_file(settings: Node) -> void:
 	_check(not bool(settings.call(&"get_value", &"invert_y")), "corrupt: invert falls back to default")
 	_check(is_equal_approx(float(settings.call(&"get_value", &"master_volume_db")), 0.0), "corrupt: volume falls back to default")
 	_check(is_equal_approx(float(settings.call(&"get_value", &"ui_scale")), 1.0), "corrupt: ui_scale falls back to default")
+	_check(bool(settings.call(&"get_value", &"analogue_filter_enabled")), "corrupt: filter enabled falls back to default")
+	_check(is_equal_approx(float(settings.call(&"get_value", &"analogue_filter_intensity")), 1.0), "corrupt: filter intensity falls back to default")
 
 
 func _test_persistence(settings: Node) -> void:
@@ -115,21 +133,25 @@ func _test_persistence(settings: Node) -> void:
 	settings.call(&"set_value", &"invert_y", true)
 	settings.call(&"set_value", &"master_volume_db", -15.0)
 	settings.call(&"set_value", &"ui_scale", 1.2)
+	settings.call(&"set_value", &"analogue_filter_enabled", false)
+	settings.call(&"set_value", &"analogue_filter_intensity", 0.35)
 	settings.call(&"save_settings")
 	_check(FileAccess.file_exists(CONFIG_PATH), "save: settings.cfg written")
 
 	var config: ConfigFile = ConfigFile.new()
 	_check(config.load(CONFIG_PATH) == OK, "save: written file parses as ConfigFile")
 	var keys_present: bool = true
-	for key: String in ["mouse_sensitivity_multiplier", "invert_y", "master_volume_db", "ui_scale"]:
+	for key: String in ["mouse_sensitivity_multiplier", "invert_y", "master_volume_db", "ui_scale", "analogue_filter_enabled", "analogue_filter_intensity"]:
 		keys_present = keys_present and config.has_section_key("settings", key)
-	_check(keys_present, "save: all four keys persisted under [settings]")
+	_check(keys_present, "save: all six keys persisted under [settings]")
 
 	settings.call(&"reset_to_defaults")
 	_check(is_equal_approx(float(settings.call(&"get_value", &"mouse_sensitivity_multiplier")), 1.0), "reset: sensitivity returns to default")
 	_check(not bool(settings.call(&"get_value", &"invert_y")), "reset: invert returns to default")
 	_check(is_equal_approx(float(settings.call(&"get_value", &"master_volume_db")), 0.0), "reset: volume returns to default")
 	_check(is_equal_approx(float(settings.call(&"get_value", &"ui_scale")), 1.0), "reset: ui_scale returns to default")
+	_check(bool(settings.call(&"get_value", &"analogue_filter_enabled")), "reset: filter enabled returns to default")
+	_check(is_equal_approx(float(settings.call(&"get_value", &"analogue_filter_intensity")), 1.0), "reset: filter intensity returns to default")
 
 	_events.clear()
 	settings.call(&"load_settings")
@@ -138,6 +160,8 @@ func _test_persistence(settings: Node) -> void:
 	_check(bool(settings.call(&"get_value", &"invert_y")), "load: saved invert flag restored")
 	_check(is_equal_approx(float(settings.call(&"get_value", &"master_volume_db")), -15.0), "load: saved volume restored")
 	_check(is_equal_approx(float(settings.call(&"get_value", &"ui_scale")), 1.2), "load: saved ui_scale restored")
+	_check(not bool(settings.call(&"get_value", &"analogue_filter_enabled")), "load: saved filter enabled flag restored")
+	_check(is_equal_approx(float(settings.call(&"get_value", &"analogue_filter_intensity")), 0.35), "load: saved filter intensity restored")
 
 
 func _test_player_integration(settings: Node) -> void:
@@ -170,6 +194,8 @@ func _test_menu(settings: Node) -> void:
 	settings.call(&"set_value", &"invert_y", false)
 	settings.call(&"set_value", &"master_volume_db", -10.0)
 	settings.call(&"set_value", &"ui_scale", 1.05)
+	settings.call(&"set_value", &"analogue_filter_enabled", true)
+	settings.call(&"set_value", &"analogue_filter_intensity", 1.0)
 	var menu: CanvasLayer = load("res://src/ui/settings_menu.gd").new()
 	root.add_child(menu)
 	_spawned.append(menu)
@@ -188,20 +214,35 @@ func _test_menu(settings: Node) -> void:
 	_check(String(menu.call(&"get_row_value_text", &"invert_y")) == "OFF", "menu: invert row shows OFF")
 	_check(String(menu.call(&"get_row_value_text", &"master_volume_db")) == "-10 dB", "menu: volume row shows -10 dB")
 	_check(String(menu.call(&"get_row_value_text", &"ui_scale")) == "105%", "menu: ui scale row shows 105%")
+	_check(String(menu.call(&"get_row_value_text", &"analogue_filter_enabled")) == "ON", "menu: filter row shows ON")
+	_check(String(menu.call(&"get_row_value_text", &"analogue_filter_intensity")) == "100%", "menu: filter intensity row shows 100%")
 	_check(String(menu.call(&"get_row_value_text", &"unknown_key")) == "", "menu: unknown row text is empty")
 
 	var scroll: ScrollMenu = menu.call(&"get_menu")
-	_check(scroll != null and scroll.get_items().size() == 6, "menu: scroll menu lists six rows")
+	_check(scroll != null and scroll.get_items().size() == 8, "menu: scroll menu lists eight rows")
 	_check(scroll.get_items()[0].contains("1.25x"), "menu: first row carries the sensitivity value")
 	scroll.move_selection(2)
 	_check(scroll.get_highlighted_index() == 2, "menu: browsing moves the highlight")
 	scroll.confirm()
 	_check(String(menu.call(&"get_row_value_text", &"master_volume_db")) == "-5 dB", "menu: wheel click steps the highlighted setting")
 
-	scroll.move_selection(2)
+	scroll.move_selection(4)
 	_check(scroll.get_highlighted_text() == "RESET DEFAULTS", "menu: reset row is reachable")
 	scroll.confirm()
 	_check(String(menu.call(&"get_row_value_text", &"ui_scale")) == "100%", "menu: wheel click on reset restores defaults")
+
+	settings.call(&"set_value", &"analogue_filter_intensity", 0.5)
+	scroll.move_selection(-2)
+	_check(scroll.get_highlighted_index() == 4, "menu: filter row is reachable")
+	scroll.confirm()
+	_check(String(menu.call(&"get_row_value_text", &"analogue_filter_enabled")) == "OFF", "menu: wheel click toggles the filter off")
+	scroll.move_selection(1)
+	scroll.confirm()
+	_check(String(menu.call(&"get_row_value_text", &"analogue_filter_intensity")) == "60%", "menu: wheel click steps the filter intensity")
+	menu.call(&"_decrease_highlighted")
+	_check(String(menu.call(&"get_row_value_text", &"analogue_filter_intensity")) == "50%", "menu: right click decreases the filter intensity")
+	settings.call(&"set_value", &"analogue_filter_enabled", true)
+	settings.call(&"set_value", &"analogue_filter_intensity", 1.0)
 
 	settings.call(&"set_value", &"invert_y", true)
 	_check(String(menu.call(&"get_row_value_text", &"invert_y")) == "ON", "menu: row refreshes from settings_changed")

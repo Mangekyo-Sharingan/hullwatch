@@ -1,5 +1,6 @@
-## Generates the M4 alpha ship layout (5 rooms + corridors + doorway gaps) as res://scenes/ship_geometry.tscn.
-## Geometry is built in memory and packed, so it is reproducible from the tables below.
+## Generates the cramped space-station ship layout (spine corridor + seven rooms + doorway gaps)
+## as res://scenes/ship_geometry.tscn. Geometry is built in memory and packed, so it is
+## reproducible from the tables below.
 ## Re-run after changing the layout:
 ## & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tools/build_ship_geometry.gd
 extends SceneTree
@@ -19,13 +20,14 @@ const FLOOR_CENTER_Y: float = -0.1
 const CEILING_CENTER_Y: float = 3.1
 
 const SPACE_NAMES: Array[String] = [
-	"Habitat",
-	"CorridorN",
 	"Cockpit",
-	"CorridorS",
-	"EngineBay",
-	"CorridorE",
+	"Corridor",
+	"Quarters",
+	"LifeSupport",
+	"Galley",
 	"WaterCloset",
+	"Storage",
+	"EngineBay",
 ]
 
 var _root: Node3D
@@ -53,13 +55,14 @@ func _load_materials() -> void:
 func _build() -> void:
 	_root = Node3D.new()
 	_root.name = "ShipGeometry"
-	_build_habitat()
-	_build_corridor_n()
 	_build_cockpit()
-	_build_corridor_s()
-	_build_engine_bay()
-	_build_corridor_e()
+	_build_corridor()
+	_build_quarters()
+	_build_life_support()
+	_build_galley()
 	_build_water_closet()
+	_build_storage()
+	_build_engine_bay()
 
 
 func _make_space(space_name: String) -> StaticBody3D:
@@ -99,81 +102,98 @@ func _add_wall(space: StaticBody3D, part_name: String, center_x: float, center_z
 	_add_part(space, part_name, Vector3(center_x, WALL_CENTER_Y, center_z), Vector3(size_x, ROOM_HEIGHT, size_z), material_path)
 
 
-## HABITAT interior x[-6, 6], z[-4, 4]. North/south walls are split around the 3 m doorway gaps.
-func _build_habitat() -> void:
-	var space: StaticBody3D = _make_space("Habitat")
-	_add_floor(space, 0.0, 0.0, 12.4, 8.4)
-	_add_ceiling(space, 0.0, 0.0, 12.4, 8.4)
-	_add_wall(space, "WallN_A", -3.85, -4.1, 4.7, WALL_THICKNESS, MATERIAL_WALL_CONTAINER)
-	_add_wall(space, "WallN_B", 3.85, -4.1, 4.7, WALL_THICKNESS, MATERIAL_WALL_CONTAINER)
-	_add_wall(space, "WallS_A", -3.85, 4.1, 4.7, WALL_THICKNESS, MATERIAL_WALL_PAINTED)
-	_add_wall(space, "WallS_B", 3.85, 4.1, 4.7, WALL_THICKNESS, MATERIAL_WALL_PAINTED)
-	_add_wall(space, "WallE_A", 6.1, -2.475, WALL_THICKNESS, 3.45, MATERIAL_WALL_PAINTED)
-	_add_wall(space, "WallE_B", 6.1, 2.475, WALL_THICKNESS, 3.45, MATERIAL_WALL_PAINTED)
-	_add_wall(space, "WallW", -6.1, 0.0, WALL_THICKNESS, 8.4, MATERIAL_WALL_CONTAINER)
-
-
-## CORRIDOR_N interior x[-1.5, 1.5], z[-7.0, -4.2].
-func _build_corridor_n() -> void:
-	var space: StaticBody3D = _make_space("CorridorN")
-	_add_floor(space, 0.0, -5.6, 3.4, 3.2)
-	_add_ceiling(space, 0.0, -5.6, 3.4, 3.2)
-	_add_wall(space, "WallW", -1.6, -5.6, WALL_THICKNESS, 3.2, MATERIAL_WALL_CONTAINER)
-	_add_wall(space, "WallE", 1.6, -5.6, WALL_THICKNESS, 3.2, MATERIAL_WALL_CONTAINER)
-
-
-## COCKPIT interior x[-4, 4], z[-13.0, -7.2]. South wall split around the corridor doorway.
+## COCKPIT interior x[-3.4, 3.4], z[-18.8, -14.2]. South wall split around the 1.4 m corridor doorway.
 func _build_cockpit() -> void:
 	var space: StaticBody3D = _make_space("Cockpit")
-	_add_floor(space, 0.0, -10.1, 8.4, 6.2)
-	_add_ceiling(space, 0.0, -10.1, 8.4, 6.2)
-	_add_wall(space, "WallN", 0.0, -13.1, 8.4, WALL_THICKNESS, MATERIAL_WALL_PAINTED)
-	_add_wall(space, "WallE", 4.1, -10.1, WALL_THICKNESS, 6.2, MATERIAL_WALL_PAINTED)
-	_add_wall(space, "WallW", -4.1, -10.1, WALL_THICKNESS, 6.2, MATERIAL_WALL_PAINTED)
-	_add_wall(space, "WallS_A", -2.85, -7.1, 2.7, WALL_THICKNESS, MATERIAL_WALL_PAINTED)
-	_add_wall(space, "WallS_B", 2.85, -7.1, 2.7, WALL_THICKNESS, MATERIAL_WALL_PAINTED)
+	_add_floor(space, 0.0, -16.5, 7.2, 5.0)
+	_add_ceiling(space, 0.0, -16.5, 7.2, 5.0)
+	_add_wall(space, "WallN", 0.0, -18.9, 7.2, WALL_THICKNESS, MATERIAL_WALL_PAINTED)
+	_add_wall(space, "WallE", 3.5, -16.5, WALL_THICKNESS, 5.0, MATERIAL_WALL_PAINTED)
+	_add_wall(space, "WallW", -3.5, -16.5, WALL_THICKNESS, 5.0, MATERIAL_WALL_PAINTED)
+	_add_wall(space, "WallS_A", -2.15, -14.1, 2.9, WALL_THICKNESS, MATERIAL_WALL_PAINTED)
+	_add_wall(space, "WallS_B", 2.15, -14.1, 2.9, WALL_THICKNESS, MATERIAL_WALL_PAINTED)
 
 
-## CORRIDOR_S interior x[-1.5, 1.5], z[4.2, 7.0].
-func _build_corridor_s() -> void:
-	var space: StaticBody3D = _make_space("CorridorS")
-	_add_floor(space, 0.0, 5.6, 3.4, 3.2)
-	_add_ceiling(space, 0.0, 5.6, 3.4, 3.2)
-	_add_wall(space, "WallW", -1.6, 5.6, WALL_THICKNESS, 3.2, MATERIAL_WALL_CONTAINER)
-	_add_wall(space, "WallE", 1.6, 5.6, WALL_THICKNESS, 3.2, MATERIAL_WALL_CONTAINER)
+## CORRIDOR spine interior x[-0.7, 0.7], z[-14.0, 1.4]. Side walls are split around every
+## east/west doorway gap; the cockpit south wall and engine-bay north wall close the ends.
+func _build_corridor() -> void:
+	var space: StaticBody3D = _make_space("Corridor")
+	_add_floor(space, 0.0, -6.3, 1.8, 15.8)
+	_add_ceiling(space, 0.0, -6.3, 1.8, 15.8)
+	_add_wall(space, "WallW_A", -0.8, -12.4, WALL_THICKNESS, 3.6, MATERIAL_WALL_CONTAINER)
+	_add_wall(space, "WallW_B", -0.8, -8.0, WALL_THICKNESS, 2.8, MATERIAL_WALL_CONTAINER)
+	_add_wall(space, "WallW_C", -0.8, -3.6, WALL_THICKNESS, 3.6, MATERIAL_WALL_CONTAINER)
+	_add_wall(space, "WallW_D", -0.8, 0.5, WALL_THICKNESS, 2.2, MATERIAL_WALL_CONTAINER)
+	_add_wall(space, "WallE_A", 0.8, -10.2, WALL_THICKNESS, 8.0, MATERIAL_WALL_CONTAINER)
+	_add_wall(space, "WallE_B", 0.8, -3.6, WALL_THICKNESS, 2.8, MATERIAL_WALL_CONTAINER)
+	_add_wall(space, "WallE_C", 0.8, 0.3, WALL_THICKNESS, 2.6, MATERIAL_WALL_CONTAINER)
 
 
-## ENGINE_BAY interior x[-4, 4], z[7.2, 15.0]. North wall split around the corridor doorway.
-func _build_engine_bay() -> void:
-	var space: StaticBody3D = _make_space("EngineBay")
-	_add_floor(space, 0.0, 11.1, 8.4, 8.2)
-	_add_ceiling(space, 0.0, 11.1, 8.4, 8.2)
-	_add_wall(space, "WallS", 0.0, 15.1, 8.4, WALL_THICKNESS, MATERIAL_WALL_CONTAINER)
-	_add_wall(space, "WallE", 4.1, 11.1, WALL_THICKNESS, 8.2, MATERIAL_WALL_CONTAINER)
-	_add_wall(space, "WallW", -4.1, 11.1, WALL_THICKNESS, 8.2, MATERIAL_WALL_CONTAINER)
-	_add_wall(space, "WallN_A", -2.85, 7.1, 2.7, WALL_THICKNESS, MATERIAL_WALL_CONTAINER)
-	_add_wall(space, "WallN_B", 2.85, 7.1, 2.7, WALL_THICKNESS, MATERIAL_WALL_CONTAINER)
+## QUARTERS interior x[-5.4, -0.9], z[-12.6, -8.2]. East side is the corridor wall;
+## its doorway gap sits at z[-10.6, -9.4].
+func _build_quarters() -> void:
+	var space: StaticBody3D = _make_space("Quarters")
+	_add_floor(space, -3.25, -10.4, 4.7, 4.8)
+	_add_ceiling(space, -3.25, -10.4, 4.7, 4.8)
+	_add_wall(space, "WallN", -3.2, -12.7, 4.8, WALL_THICKNESS, MATERIAL_WALL_PAINTED)
+	_add_wall(space, "WallS", -3.2, -8.1, 4.8, WALL_THICKNESS, MATERIAL_WALL_PAINTED)
+	_add_wall(space, "WallW", -5.5, -10.4, WALL_THICKNESS, 4.8, MATERIAL_WALL_PAINTED)
 
 
-## CORRIDOR_E interior x[6.2, 7.0], z[-0.75, 0.75]. East/west ends are the habitat/closet walls.
-func _build_corridor_e() -> void:
-	var space: StaticBody3D = _make_space("CorridorE")
-	_add_floor(space, 6.5, 0.0, 1.0, 1.9)
-	_add_ceiling(space, 6.5, 0.0, 1.0, 1.9)
-	_add_wall(space, "WallN", 6.5, 0.85, 1.0, WALL_THICKNESS, MATERIAL_WALL_CONTAINER)
-	_add_wall(space, "WallS", 6.5, -0.85, 1.0, WALL_THICKNESS, MATERIAL_WALL_CONTAINER)
+## LIFE_SUPPORT interior x[-4.4, -0.9], z[-7.6, -5.0]. East side is the corridor wall;
+## its doorway gap sits at z[-6.6, -5.4].
+func _build_life_support() -> void:
+	var space: StaticBody3D = _make_space("LifeSupport")
+	_add_floor(space, -2.75, -6.3, 3.7, 3.0)
+	_add_ceiling(space, -2.75, -6.3, 3.7, 3.0)
+	_add_wall(space, "WallN", -2.7, -7.7, 3.8, WALL_THICKNESS, MATERIAL_WALL_CONTAINER)
+	_add_wall(space, "WallS", -2.7, -4.9, 3.8, WALL_THICKNESS, MATERIAL_WALL_CONTAINER)
+	_add_wall(space, "WallW", -4.5, -6.3, WALL_THICKNESS, 3.0, MATERIAL_WALL_CONTAINER)
 
 
-## WATER_CLOSET interior x[7.2, 11.0], z[-1.5, 1.5]. West wall split around the corridor doorway.
+## GALLEY interior x[0.9, 4.9], z[-7.6, -4.0]. West side is the corridor wall;
+## its doorway gap sits at z[-6.2, -5.0].
+func _build_galley() -> void:
+	var space: StaticBody3D = _make_space("Galley")
+	_add_floor(space, 3.0, -5.8, 4.2, 4.0)
+	_add_ceiling(space, 3.0, -5.8, 4.2, 4.0)
+	_add_wall(space, "WallN", 2.95, -7.7, 4.3, WALL_THICKNESS, MATERIAL_WALL_PAINTED)
+	_add_wall(space, "WallS", 2.95, -3.9, 4.3, WALL_THICKNESS, MATERIAL_WALL_PAINTED)
+	_add_wall(space, "WallE", 5.0, -5.8, WALL_THICKNESS, 4.0, MATERIAL_WALL_PAINTED)
+
+
+## WATER_CLOSET interior x[0.9, 3.5], z[-3.0, -0.8]. West side is the corridor wall;
+## its doorway gap sits at z[-2.2, -1.0].
 func _build_water_closet() -> void:
 	var space: StaticBody3D = _make_space("WaterCloset")
-	_add_floor(space, 9.1, 0.0, 4.2, 3.4)
-	_add_ceiling(space, 9.1, 0.0, 4.2, 3.4)
-	_add_wall(space, "WallN", 9.1, 1.6, 4.2, WALL_THICKNESS, MATERIAL_WALL_PAINTED)
-	_add_wall(space, "WallS", 9.1, -1.6, 4.2, WALL_THICKNESS, MATERIAL_WALL_PAINTED)
-	_add_wall(space, "WallE", 11.1, 0.0, WALL_THICKNESS, 3.4, MATERIAL_WALL_PAINTED)
-	_add_wall(space, "WallW_A", 7.1, -1.225, WALL_THICKNESS, 0.95, MATERIAL_WALL_PAINTED)
-	_add_wall(space, "WallW_B", 7.1, 1.225, WALL_THICKNESS, 0.95, MATERIAL_WALL_PAINTED)
+	_add_floor(space, 2.3, -1.9, 2.8, 2.6)
+	_add_ceiling(space, 2.3, -1.9, 2.8, 2.6)
+	_add_wall(space, "WallN", 2.25, -3.1, 2.9, WALL_THICKNESS, MATERIAL_WALL_PAINTED)
+	_add_wall(space, "WallS", 2.25, -0.7, 2.9, WALL_THICKNESS, MATERIAL_WALL_PAINTED)
+	_add_wall(space, "WallE", 3.6, -1.9, WALL_THICKNESS, 2.6, MATERIAL_WALL_PAINTED)
+
+
+## STORAGE interior x[-4.6, -0.9], z[-3.0, 0.6]. East side is the corridor wall;
+## its doorway gap sits at z[-1.8, -0.6].
+func _build_storage() -> void:
+	var space: StaticBody3D = _make_space("Storage")
+	_add_floor(space, -2.85, -1.2, 3.9, 4.0)
+	_add_ceiling(space, -2.85, -1.2, 3.9, 4.0)
+	_add_wall(space, "WallN", -2.8, -3.1, 4.0, WALL_THICKNESS, MATERIAL_WALL_CONTAINER)
+	_add_wall(space, "WallS", -2.8, 0.7, 4.0, WALL_THICKNESS, MATERIAL_WALL_CONTAINER)
+	_add_wall(space, "WallW", -4.7, -1.2, WALL_THICKNESS, 4.0, MATERIAL_WALL_CONTAINER)
+
+
+## ENGINE_BAY interior x[-3.6, 3.6], z[1.6, 7.8]. North wall split around the 1.4 m corridor doorway.
+func _build_engine_bay() -> void:
+	var space: StaticBody3D = _make_space("EngineBay")
+	_add_floor(space, 0.0, 4.7, 7.6, 6.6)
+	_add_ceiling(space, 0.0, 4.7, 7.6, 6.6)
+	_add_wall(space, "WallS", 0.0, 7.9, 7.6, WALL_THICKNESS, MATERIAL_WALL_CONTAINER)
+	_add_wall(space, "WallE", 3.7, 4.7, WALL_THICKNESS, 6.6, MATERIAL_WALL_CONTAINER)
+	_add_wall(space, "WallW", -3.7, 4.7, WALL_THICKNESS, 6.6, MATERIAL_WALL_CONTAINER)
+	_add_wall(space, "WallN_A", -2.25, 1.5, 3.1, WALL_THICKNESS, MATERIAL_WALL_CONTAINER)
+	_add_wall(space, "WallN_B", 2.25, 1.5, 3.1, WALL_THICKNESS, MATERIAL_WALL_CONTAINER)
 
 
 func _save() -> void:

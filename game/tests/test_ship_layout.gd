@@ -5,41 +5,50 @@ const GEOMETRY_PATH: String = "res://scenes/ship_geometry.tscn"
 const RAY_Y: float = 1.2
 
 const EXPECTED_SPACES: Array[StringName] = [
-	&"Habitat",
-	&"CorridorN",
 	&"Cockpit",
-	&"CorridorS",
-	&"EngineBay",
-	&"CorridorE",
+	&"Corridor",
+	&"Quarters",
+	&"LifeSupport",
+	&"Galley",
 	&"WaterCloset",
+	&"Storage",
+	&"EngineBay",
 ]
 
 const ROOM_CENTERS: Dictionary = {
-	&"Habitat": Vector3(0.0, RAY_Y, 0.0),
-	&"CorridorN": Vector3(0.0, RAY_Y, -5.6),
-	&"Cockpit": Vector3(0.0, RAY_Y, -10.1),
-	&"CorridorS": Vector3(0.0, RAY_Y, 5.6),
-	&"EngineBay": Vector3(0.0, RAY_Y, 11.1),
-	&"CorridorE": Vector3(6.5, RAY_Y, 0.0),
-	&"WaterCloset": Vector3(9.1, RAY_Y, 0.0),
+	&"Cockpit": Vector3(0.0, RAY_Y, -16.5),
+	&"Corridor": Vector3(0.0, RAY_Y, -6.3),
+	&"Quarters": Vector3(-3.15, RAY_Y, -10.4),
+	&"LifeSupport": Vector3(-2.65, RAY_Y, -6.3),
+	&"Galley": Vector3(2.9, RAY_Y, -5.8),
+	&"WaterCloset": Vector3(2.2, RAY_Y, -1.9),
+	&"Storage": Vector3(-2.75, RAY_Y, -1.2),
+	&"EngineBay": Vector3(0.0, RAY_Y, 4.7),
 }
 
+## One ray per doorway: room center -> a point on the corridor centerline (x = 0)
+## at the doorway. The side rooms are offset along the spine, so a ray to the
+## spine's geometric center would clip a corridor wall instead of the opening.
 const DOORWAYS: Array = [
-	[&"Habitat", &"CorridorN"],
-	[&"Habitat", &"CorridorS"],
-	[&"Habitat", &"CorridorE"],
-	[&"CorridorN", &"Cockpit"],
-	[&"CorridorS", &"EngineBay"],
-	[&"CorridorE", &"WaterCloset"],
+	[&"Cockpit", Vector3(0.0, RAY_Y, -13.5)],
+	[&"Quarters", Vector3(0.0, RAY_Y, -10.0)],
+	[&"LifeSupport", Vector3(0.0, RAY_Y, -6.0)],
+	[&"Galley", Vector3(0.0, RAY_Y, -5.6)],
+	[&"WaterCloset", Vector3(0.0, RAY_Y, -1.6)],
+	[&"Storage", Vector3(0.0, RAY_Y, -1.2)],
+	[&"EngineBay", Vector3(0.0, RAY_Y, 1.0)],
 ]
 
 const SOLID_CONTROLS: Array = [
-	[Vector3(0.0, RAY_Y, 0.0), Vector3(-6.6, RAY_Y, 0.0), "habitat west wall"],
-	[Vector3(-3.0, RAY_Y, 0.0), Vector3(-3.0, RAY_Y, -4.6), "habitat north wall"],
-	[Vector3(0.0, RAY_Y, -10.1), Vector3(0.0, RAY_Y, -13.6), "cockpit north wall"],
-	[Vector3(0.0, RAY_Y, 11.1), Vector3(0.0, RAY_Y, 15.6), "engine bay south wall"],
-	[Vector3(6.5, RAY_Y, 0.0), Vector3(6.5, RAY_Y, 1.3), "corridor east north wall"],
-	[Vector3(9.1, RAY_Y, 0.0), Vector3(11.6, RAY_Y, 0.0), "water closet east wall"],
+	[Vector3(0.0, RAY_Y, -12.0), Vector3(-1.4, RAY_Y, -12.0), "corridor west wall beside quarters"],
+	[Vector3(0.0, RAY_Y, -7.5), Vector3(1.4, RAY_Y, -7.5), "corridor east wall beside galley"],
+	[Vector3(-3.15, RAY_Y, -10.4), Vector3(-6.2, RAY_Y, -10.4), "quarters west wall"],
+	[Vector3(-2.65, RAY_Y, -6.3), Vector3(-5.0, RAY_Y, -6.3), "life support west wall"],
+	[Vector3(2.9, RAY_Y, -5.8), Vector3(5.6, RAY_Y, -5.8), "galley east wall"],
+	[Vector3(2.2, RAY_Y, -1.9), Vector3(4.0, RAY_Y, -1.9), "water closet east wall"],
+	[Vector3(-2.75, RAY_Y, -1.2), Vector3(-5.3, RAY_Y, -1.2), "storage west wall"],
+	[Vector3(0.0, RAY_Y, -16.5), Vector3(0.0, RAY_Y, -19.5), "cockpit north wall"],
+	[Vector3(0.0, RAY_Y, 4.7), Vector3(0.0, RAY_Y, 8.5), "engine bay south wall"],
 ]
 
 var _failures: int = 0
@@ -75,6 +84,7 @@ func _run() -> void:
 	_test_floors_have_collision()
 	_test_doorways_passable()
 	_test_solid_walls_block()
+	_test_corridor_is_narrow()
 
 	_geometry.free()
 	_finish()
@@ -96,12 +106,11 @@ func _test_floors_have_collision() -> void:
 
 
 func _test_doorways_passable() -> void:
-	for pair: Array in DOORWAYS:
-		var from_id: StringName = pair[0]
-		var to_id: StringName = pair[1]
-		var from: Vector3 = ROOM_CENTERS[from_id]
-		var to: Vector3 = ROOM_CENTERS[to_id]
-		_check(not _ray_hits(from, to), "doorway %s -> %s is free of geometry" % [from_id, to_id])
+	for doorway: Array in DOORWAYS:
+		var room_id: StringName = doorway[0]
+		var corridor_point: Vector3 = doorway[1]
+		var from: Vector3 = ROOM_CENTERS[room_id]
+		_check(not _ray_hits(from, corridor_point), "doorway %s -> corridor is free of geometry" % room_id)
 
 
 func _test_solid_walls_block() -> void:
@@ -110,6 +119,11 @@ func _test_solid_walls_block() -> void:
 		var to: Vector3 = control[1]
 		var label: String = control[2]
 		_check(_ray_hits(from, to), "control: ray into %s hits" % label)
+
+
+func _test_corridor_is_narrow() -> void:
+	_check(not _ray_hits(Vector3(-0.7, RAY_Y, -5.0), Vector3(0.7, RAY_Y, -5.0)), "corridor spine is clear across x[-0.7, 0.7]")
+	_check(_ray_hits(Vector3(-1.0, RAY_Y, -5.0), Vector3(1.0, RAY_Y, -5.0)), "corridor spine is blocked across x[-1.0, 1.0] (clear width <= 1.5 m)")
 
 
 func _ray_hits(from: Vector3, to: Vector3) -> bool:

@@ -21,9 +21,9 @@ func _run() -> void:
 	await process_frame
 	await process_frame
 
-	var scrubber: ScrubberUnit = main.get_node("Props/ScrubberUnit") as ScrubberUnit
-	var panel: StatusPanel = main.get_node("Props/StatusPanel") as StatusPanel
-	var bunk: Bunk = main.get_node("Props/Bunk") as Bunk
+	var scrubber: ScrubberUnit = main.get_node("WorldLayout/Props/ScrubberUnit") as ScrubberUnit
+	var panel: StatusPanel = main.get_node("WorldLayout/Props/StatusPanel") as StatusPanel
+	var bunk: Bunk = main.get_node("WorldLayout/Props/Bunk") as Bunk
 	var transition: SleepTransition = main.get_node("UI/SleepTransition") as SleepTransition
 	_check(scrubber != null and panel != null and bunk != null and transition != null, "interactables and UI are wired into the scene")
 
@@ -68,7 +68,7 @@ func _run() -> void:
 
 func _test_world_wiring(main: Node, atmosphere: Node) -> void:
 	var missing: PackedStringArray = PackedStringArray()
-	var zones: Node = main.get_node("Zones")
+	var zones: Node = main.get_node("WorldLayout/Zones")
 	for zone: Node in zones.get_children():
 		var compartment_id: StringName = zone.get(&"compartment_id")
 		if bool(atmosphere.call("has_compartment", compartment_id)):
@@ -76,7 +76,7 @@ func _test_world_wiring(main: Node, atmosphere: Node) -> void:
 		else:
 			missing.append("zone:" + String(compartment_id))
 	var door_count: int = 0
-	for prop: Node in main.get_node("Props").get_children():
+	for prop: Node in main.get_node("WorldLayout/Props").get_children():
 		if prop.get(&"compartment_a") == null:
 			continue
 		door_count += 1
@@ -85,14 +85,14 @@ func _test_world_wiring(main: Node, atmosphere: Node) -> void:
 			if not bool(atmosphere.call("has_compartment", id)):
 				missing.append("door:" + String(id))
 	var link_count: int = 0
-	for link: Node in main.get_node("Links").get_children():
+	for link: Node in main.get_node("WorldLayout/Links").get_children():
 		link_count += 1
 		for key: StringName in [&"compartment_a", &"compartment_b"]:
 			var id: StringName = link.get(key)
 			if not bool(atmosphere.call("has_compartment", id)):
 				missing.append("link:" + String(id))
-	_check(door_count == 5, "all five doors are wired")
-	_check(link_count == 4, "all four compartment links are wired")
+	_check(door_count == 7, "all seven doors are wired")
+	_check(link_count == 7, "all seven compartment links are wired")
 	_check(missing.is_empty(), "every zone, door and link maps to a registered compartment (%s)" % ", ".join(missing))
 
 

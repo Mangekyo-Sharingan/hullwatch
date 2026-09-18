@@ -1,0 +1,539 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/interactables/scrubber_unit.gd" id="1_nsk7v"]
+[ext_resource type="Material" path="res://src/data/materials/mat_machine_teal.tres" id="2_4tce5"]
+[ext_resource type="Script" path="res://src/interactables/water_reclaimer.gd" id="3_kr5j4"]
+[ext_resource type="Material" path="res://src/data/materials/mat_panel_scratched.tres" id="4_fq2n4"]
+[ext_resource type="Script" path="res://src/interactables/breaker_panel.gd" id="5_hu5cb"]
+[ext_resource type="Script" path="res://src/ui/status_panel.gd" id="6_nlnqt"]
+[ext_resource type="Script" path="res://src/interactables/maintenance_board.gd" id="7_7nbeh"]
+[ext_resource type="Script" path="res://src/interactables/manual_binder.gd" id="8_b88fu"]
+[ext_resource type="Resource" path="res://src/data/manual/manual_book.tres" id="9_lpw2j"]
+[ext_resource type="Material" path="res://src/data/materials/mat_wall_painted.tres" id="10_l5kca"]
+[ext_resource type="Script" path="res://src/interactables/log_terminal.gd" id="11_yuoe5"]
+[ext_resource type="Resource" path="res://src/data/logs/log_01.tres" id="12_n8ajw"]
+[ext_resource type="Script" path="res://src/interactables/nav_console.gd" id="13_vm6d4"]
+[ext_resource type="Script" path="res://src/interactables/bunk.gd" id="14_2j4hr"]
+[ext_resource type="Material" path="res://src/data/materials/mat_floor_grate.tres" id="15_e4mm3"]
+[ext_resource type="Script" path="res://src/interactables/hull_patch.gd" id="16_hobfv"]
+[ext_resource type="Material" path="res://src/data/materials/mat_metal_rusted.tres" id="17_64cxq"]
+[ext_resource type="Script" path="res://src/interactables/o2_candle.gd" id="18_wsp5q"]
+[ext_resource type="Script" path="res://src/interactables/carriable.gd" id="19_jx3ma"]
+[ext_resource type="Script" path="res://src/interactables/door.gd" id="20_ousph"]
+[ext_resource type="PackedScene" path="res://assets/models/kenney_space_station_kit/Models/GLB format/container.glb" id="21_l1dot"]
+[ext_resource type="PackedScene" path="res://assets/models/kenney_space_station_kit/Models/GLB format/computer-system.glb" id="22_qv4kt"]
+[ext_resource type="PackedScene" path="res://assets/models/kenney_space_station_kit/Models/GLB format/display-wall.glb" id="23_aaeum"]
+[ext_resource type="Script" path="res://src/world/compartment_zone.gd" id="24_lis6c"]
+[ext_resource type="Script" path="res://src/world/compartment_link.gd" id="25_6ugrf"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_8fgvk"]
+size = Vector3(1, 1.2, 0.5)
+
+[sub_resource type="BoxMesh" id="BoxMesh_g47lk"]
+size = Vector3(1, 1.2, 0.5)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_besqb"]
+size = Vector3(0.8, 1.2, 0.5)
+
+[sub_resource type="BoxMesh" id="BoxMesh_28daf"]
+size = Vector3(0.8, 1.2, 0.5)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_0p4jm"]
+size = Vector3(0.15, 1, 0.7)
+
+[sub_resource type="BoxMesh" id="BoxMesh_vn0tf"]
+size = Vector3(0.15, 1, 0.7)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_yfyt8"]
+size = Vector3(0.15, 1, 0.7)
+
+[sub_resource type="BoxMesh" id="BoxMesh_7n75u"]
+size = Vector3(0.15, 1, 0.7)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_aj8qy"]
+size = Vector3(0.9, 0.7, 0.1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_w1o5u"]
+size = Vector3(0.9, 0.7, 0.1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_qbquv"]
+size = Vector3(0.45, 0.32, 0.3)
+
+[sub_resource type="BoxMesh" id="BoxMesh_hosb2"]
+size = Vector3(0.45, 0.32, 0.3)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_7durl"]
+size = Vector3(0.15, 0.5, 0.6)
+
+[sub_resource type="BoxMesh" id="BoxMesh_53dvq"]
+size = Vector3(0.15, 0.5, 0.6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_6wbkw"]
+size = Vector3(0.15, 0.5, 0.6)
+
+[sub_resource type="BoxMesh" id="BoxMesh_1l27l"]
+size = Vector3(0.15, 0.5, 0.6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ye103"]
+size = Vector3(1, 0.5, 2)
+
+[sub_resource type="BoxMesh" id="BoxMesh_j71kx"]
+size = Vector3(1, 0.5, 2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_djiuy"]
+size = Vector3(0.6, 0.6, 0.12)
+
+[sub_resource type="BoxMesh" id="BoxMesh_frfji"]
+size = Vector3(0.6, 0.6, 0.12)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_jwm3n"]
+size = Vector3(0.3, 0.2, 0.3)
+
+[sub_resource type="BoxMesh" id="BoxMesh_g732p"]
+size = Vector3(0.3, 0.2, 0.3)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ns8pg"]
+size = Vector3(0.18, 0.32, 0.18)
+
+[sub_resource type="BoxMesh" id="BoxMesh_vd0g3"]
+size = Vector3(0.18, 0.32, 0.18)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_aqd4q"]
+size = Vector3(0.18, 0.32, 0.18)
+
+[sub_resource type="BoxMesh" id="BoxMesh_ry1gd"]
+size = Vector3(0.18, 0.32, 0.18)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_6q8r1"]
+size = Vector3(0.18, 0.32, 0.18)
+
+[sub_resource type="BoxMesh" id="BoxMesh_qaogk"]
+size = Vector3(0.18, 0.32, 0.18)
+
+[sub_resource type="BoxMesh" id="BoxMesh_glxky"]
+size = Vector3(1.4, 2.2, 0.16)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_kv3ui"]
+size = Vector3(1.4, 2.2, 0.16)
+
+[sub_resource type="BoxMesh" id="BoxMesh_4cltb"]
+size = Vector3(1.4, 2.2, 0.16)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_phy7b"]
+size = Vector3(1.4, 2.2, 0.16)
+
+[sub_resource type="BoxMesh" id="BoxMesh_vnr65"]
+size = Vector3(0.16, 2.2, 1.2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_co4hq"]
+size = Vector3(0.16, 2.2, 1.2)
+
+[sub_resource type="BoxMesh" id="BoxMesh_02pvy"]
+size = Vector3(0.16, 2.2, 1.2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ofujo"]
+size = Vector3(0.16, 2.2, 1.2)
+
+[sub_resource type="BoxMesh" id="BoxMesh_plr0f"]
+size = Vector3(0.16, 2.2, 1.2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_wu7dw"]
+size = Vector3(0.16, 2.2, 1.2)
+
+[sub_resource type="BoxMesh" id="BoxMesh_c6hib"]
+size = Vector3(0.16, 2.2, 1.2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_xoee5"]
+size = Vector3(0.16, 2.2, 1.2)
+
+[sub_resource type="BoxMesh" id="BoxMesh_d2apg"]
+size = Vector3(0.16, 2.2, 1.2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_1qtv4"]
+size = Vector3(0.16, 2.2, 1.2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_7wcb8"]
+size = Vector3(1.4, 3, 15.4)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_mr6g1"]
+size = Vector3(6.8, 3, 4.6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_uyrho"]
+size = Vector3(4.5, 3, 4.4)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_rv5bu"]
+size = Vector3(3.5, 3, 2.6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_jqscp"]
+size = Vector3(4, 3, 3.6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_teqmp"]
+size = Vector3(2.6, 3, 2.2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_wv0xx"]
+size = Vector3(3.7, 3, 3.6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_hybgy"]
+size = Vector3(7.2, 3, 6.2)
+
+[node name="WorldLayout" type="Node3D"]
+
+[node name="Props" type="Node3D" parent="."]
+
+[node name="ScrubberUnit" type="StaticBody3D" parent="Props"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.6, 0.6, -7.2)
+script = ExtResource("1_nsk7v")
+
+[node name="Shape" type="CollisionShape3D" parent="Props/ScrubberUnit"]
+shape = SubResource("BoxShape3D_8fgvk")
+
+[node name="Mesh" type="MeshInstance3D" parent="Props/ScrubberUnit"]
+material_override = ExtResource("2_4tce5")
+mesh = SubResource("BoxMesh_g47lk")
+
+[node name="WaterReclaimer" type="StaticBody3D" parent="Props"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.2, 0.6, -2.65)
+script = ExtResource("3_kr5j4")
+
+[node name="Shape" type="CollisionShape3D" parent="Props/WaterReclaimer"]
+shape = SubResource("BoxShape3D_besqb")
+
+[node name="Mesh" type="MeshInstance3D" parent="Props/WaterReclaimer"]
+material_override = ExtResource("4_fq2n4")
+mesh = SubResource("BoxMesh_28daf")
+
+[node name="BreakerPanel" type="StaticBody3D" parent="Props"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.75, 1.5, -3.5)
+script = ExtResource("5_hu5cb")
+
+[node name="Shape" type="CollisionShape3D" parent="Props/BreakerPanel"]
+shape = SubResource("BoxShape3D_0p4jm")
+
+[node name="Mesh" type="MeshInstance3D" parent="Props/BreakerPanel"]
+material_override = ExtResource("4_fq2n4")
+mesh = SubResource("BoxMesh_vn0tf")
+
+[node name="StatusPanel" type="StaticBody3D" parent="Props"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.75, 1.5, -8)
+script = ExtResource("6_nlnqt")
+
+[node name="Shape" type="CollisionShape3D" parent="Props/StatusPanel"]
+shape = SubResource("BoxShape3D_yfyt8")
+
+[node name="Mesh" type="MeshInstance3D" parent="Props/StatusPanel"]
+material_override = ExtResource("4_fq2n4")
+mesh = SubResource("BoxMesh_7n75u")
+
+[node name="MaintenanceBoard" type="StaticBody3D" parent="Props"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.75, 1.6, -13)
+script = ExtResource("7_7nbeh")
+
+[node name="Shape" type="CollisionShape3D" parent="Props/MaintenanceBoard"]
+shape = SubResource("BoxShape3D_aj8qy")
+
+[node name="Mesh" type="MeshInstance3D" parent="Props/MaintenanceBoard"]
+material_override = ExtResource("4_fq2n4")
+mesh = SubResource("BoxMesh_w1o5u")
+
+[node name="ManualBinder" type="StaticBody3D" parent="Props"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.7, 0.9, -5)
+script = ExtResource("8_b88fu")
+book = ExtResource("9_lpw2j")
+
+[node name="Shape" type="CollisionShape3D" parent="Props/ManualBinder"]
+shape = SubResource("BoxShape3D_qbquv")
+
+[node name="Mesh" type="MeshInstance3D" parent="Props/ManualBinder"]
+material_override = ExtResource("10_l5kca")
+mesh = SubResource("BoxMesh_hosb2")
+
+[node name="LogTerminal" type="StaticBody3D" parent="Props"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 1.2, -18.7)
+script = ExtResource("11_yuoe5")
+log_entry = ExtResource("12_n8ajw")
+
+[node name="Shape" type="CollisionShape3D" parent="Props/LogTerminal"]
+shape = SubResource("BoxShape3D_7durl")
+
+[node name="Mesh" type="MeshInstance3D" parent="Props/LogTerminal"]
+material_override = ExtResource("4_fq2n4")
+mesh = SubResource("BoxMesh_53dvq")
+
+[node name="NavConsole" type="StaticBody3D" parent="Props"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, -18.7)
+script = ExtResource("13_vm6d4")
+
+[node name="Shape" type="CollisionShape3D" parent="Props/NavConsole"]
+shape = SubResource("BoxShape3D_6wbkw")
+
+[node name="Mesh" type="MeshInstance3D" parent="Props/NavConsole"]
+material_override = ExtResource("4_fq2n4")
+mesh = SubResource("BoxMesh_1l27l")
+
+[node name="Bunk" type="StaticBody3D" parent="Props"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.6, 0.25, -11.5)
+script = ExtResource("14_2j4hr")
+
+[node name="Shape" type="CollisionShape3D" parent="Props/Bunk"]
+shape = SubResource("BoxShape3D_ye103")
+
+[node name="Mesh" type="MeshInstance3D" parent="Props/Bunk"]
+material_override = ExtResource("15_e4mm3")
+mesh = SubResource("BoxMesh_j71kx")
+
+[node name="HullPatch" type="StaticBody3D" parent="Props"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.8, 1.2, 7.7)
+script = ExtResource("16_hobfv")
+
+[node name="Shape" type="CollisionShape3D" parent="Props/HullPatch"]
+shape = SubResource("BoxShape3D_djiuy")
+
+[node name="Mesh" type="MeshInstance3D" parent="Props/HullPatch"]
+material_override = ExtResource("17_64cxq")
+mesh = SubResource("BoxMesh_frfji")
+
+[node name="O2CandleRack" type="StaticBody3D" parent="Props"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.2, 0.9, -6.8)
+script = ExtResource("18_wsp5q")
+
+[node name="Shape" type="CollisionShape3D" parent="Props/O2CandleRack"]
+shape = SubResource("BoxShape3D_jwm3n")
+
+[node name="Mesh" type="MeshInstance3D" parent="Props/O2CandleRack"]
+material_override = ExtResource("17_64cxq")
+mesh = SubResource("BoxMesh_g732p")
+
+[node name="SealantCartridge1" type="StaticBody3D" parent="Props"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.9, 0.16, -1.8)
+script = ExtResource("19_jx3ma")
+
+[node name="Shape" type="CollisionShape3D" parent="Props/SealantCartridge1"]
+shape = SubResource("BoxShape3D_ns8pg")
+
+[node name="Mesh" type="MeshInstance3D" parent="Props/SealantCartridge1"]
+material_override = ExtResource("17_64cxq")
+mesh = SubResource("BoxMesh_vd0g3")
+
+[node name="SealantCartridge2" type="StaticBody3D" parent="Props"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.55, 0.16, -1.8)
+script = ExtResource("19_jx3ma")
+
+[node name="Shape" type="CollisionShape3D" parent="Props/SealantCartridge2"]
+shape = SubResource("BoxShape3D_aqd4q")
+
+[node name="Mesh" type="MeshInstance3D" parent="Props/SealantCartridge2"]
+material_override = ExtResource("17_64cxq")
+mesh = SubResource("BoxMesh_ry1gd")
+
+[node name="SealantCartridge3" type="StaticBody3D" parent="Props"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.2, 0.16, -1.8)
+script = ExtResource("19_jx3ma")
+
+[node name="Shape" type="CollisionShape3D" parent="Props/SealantCartridge3"]
+shape = SubResource("BoxShape3D_6q8r1")
+
+[node name="Mesh" type="MeshInstance3D" parent="Props/SealantCartridge3"]
+material_override = ExtResource("17_64cxq")
+mesh = SubResource("BoxMesh_qaogk")
+
+[node name="DoorCockpit" type="StaticBody3D" parent="Props"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, -14.1)
+script = ExtResource("20_ousph")
+compartment_a = &"corridor"
+compartment_b = &"cockpit"
+
+[node name="Slab" type="MeshInstance3D" parent="Props/DoorCockpit"]
+material_override = ExtResource("4_fq2n4")
+mesh = SubResource("BoxMesh_glxky")
+
+[node name="SlabShape" type="CollisionShape3D" parent="Props/DoorCockpit"]
+shape = SubResource("BoxShape3D_kv3ui")
+
+[node name="DoorEngine" type="StaticBody3D" parent="Props"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, 1.5)
+script = ExtResource("20_ousph")
+compartment_a = &"corridor"
+compartment_b = &"engine_bay"
+
+[node name="Slab" type="MeshInstance3D" parent="Props/DoorEngine"]
+material_override = ExtResource("4_fq2n4")
+mesh = SubResource("BoxMesh_4cltb")
+
+[node name="SlabShape" type="CollisionShape3D" parent="Props/DoorEngine"]
+shape = SubResource("BoxShape3D_phy7b")
+
+[node name="DoorQuarters" type="StaticBody3D" parent="Props"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.8, 1.1, -10)
+script = ExtResource("20_ousph")
+compartment_a = &"corridor"
+compartment_b = &"quarters"
+
+[node name="Slab" type="MeshInstance3D" parent="Props/DoorQuarters"]
+material_override = ExtResource("4_fq2n4")
+mesh = SubResource("BoxMesh_vnr65")
+
+[node name="SlabShape" type="CollisionShape3D" parent="Props/DoorQuarters"]
+shape = SubResource("BoxShape3D_co4hq")
+
+[node name="DoorLifeSupport" type="StaticBody3D" parent="Props"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.8, 1.1, -6)
+script = ExtResource("20_ousph")
+compartment_a = &"corridor"
+compartment_b = &"main"
+
+[node name="Slab" type="MeshInstance3D" parent="Props/DoorLifeSupport"]
+material_override = ExtResource("4_fq2n4")
+mesh = SubResource("BoxMesh_02pvy")
+
+[node name="SlabShape" type="CollisionShape3D" parent="Props/DoorLifeSupport"]
+shape = SubResource("BoxShape3D_ofujo")
+
+[node name="DoorStorage" type="StaticBody3D" parent="Props"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.8, 1.1, -1.2)
+script = ExtResource("20_ousph")
+compartment_a = &"corridor"
+compartment_b = &"storage"
+
+[node name="Slab" type="MeshInstance3D" parent="Props/DoorStorage"]
+material_override = ExtResource("4_fq2n4")
+mesh = SubResource("BoxMesh_plr0f")
+
+[node name="SlabShape" type="CollisionShape3D" parent="Props/DoorStorage"]
+shape = SubResource("BoxShape3D_wu7dw")
+
+[node name="DoorGalley" type="StaticBody3D" parent="Props"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.8, 1.1, -5.6)
+script = ExtResource("20_ousph")
+compartment_a = &"corridor"
+compartment_b = &"galley"
+
+[node name="Slab" type="MeshInstance3D" parent="Props/DoorGalley"]
+material_override = ExtResource("4_fq2n4")
+mesh = SubResource("BoxMesh_c6hib")
+
+[node name="SlabShape" type="CollisionShape3D" parent="Props/DoorGalley"]
+shape = SubResource("BoxShape3D_xoee5")
+
+[node name="DoorWaterCloset" type="StaticBody3D" parent="Props"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.8, 1.1, -1.6)
+script = ExtResource("20_ousph")
+compartment_a = &"corridor"
+compartment_b = &"water_closet"
+
+[node name="Slab" type="MeshInstance3D" parent="Props/DoorWaterCloset"]
+material_override = ExtResource("4_fq2n4")
+mesh = SubResource("BoxMesh_d2apg")
+
+[node name="SlabShape" type="CollisionShape3D" parent="Props/DoorWaterCloset"]
+shape = SubResource("BoxShape3D_1qtv4")
+
+[node name="ContainerProp" type="Node3D" parent="Props" instance=ExtResource("21_l1dot")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0, -0.2)
+
+[node name="ComputerProp" type="Node3D" parent="Props" instance=ExtResource("22_qv4kt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.6, 0.75, -7)
+
+[node name="DisplayProp" type="Node3D" parent="Props" instance=ExtResource("23_aaeum")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.5, 1.6, -18.7)
+
+[node name="Zones" type="Node3D" parent="."]
+
+[node name="ZoneCorridor" type="Area3D" parent="Zones"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, -6.3)
+script = ExtResource("24_lis6c")
+compartment_id = &"corridor"
+
+[node name="Shape" type="CollisionShape3D" parent="Zones/ZoneCorridor"]
+shape = SubResource("BoxShape3D_7wcb8")
+
+[node name="ZoneCockpit" type="Area3D" parent="Zones"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, -16.5)
+script = ExtResource("24_lis6c")
+compartment_id = &"cockpit"
+
+[node name="Shape" type="CollisionShape3D" parent="Zones/ZoneCockpit"]
+shape = SubResource("BoxShape3D_mr6g1")
+
+[node name="ZoneQuarters" type="Area3D" parent="Zones"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.15, 1.5, -10.4)
+script = ExtResource("24_lis6c")
+compartment_id = &"quarters"
+
+[node name="Shape" type="CollisionShape3D" parent="Zones/ZoneQuarters"]
+shape = SubResource("BoxShape3D_uyrho")
+
+[node name="ZoneLifeSupport" type="Area3D" parent="Zones"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.65, 1.5, -6.3)
+script = ExtResource("24_lis6c")
+
+[node name="Shape" type="CollisionShape3D" parent="Zones/ZoneLifeSupport"]
+shape = SubResource("BoxShape3D_rv5bu")
+
+[node name="ZoneGalley" type="Area3D" parent="Zones"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.9, 1.5, -5.8)
+script = ExtResource("24_lis6c")
+compartment_id = &"galley"
+
+[node name="Shape" type="CollisionShape3D" parent="Zones/ZoneGalley"]
+shape = SubResource("BoxShape3D_jqscp")
+
+[node name="ZoneWaterCloset" type="Area3D" parent="Zones"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.2, 1.5, -1.9)
+script = ExtResource("24_lis6c")
+compartment_id = &"water_closet"
+
+[node name="Shape" type="CollisionShape3D" parent="Zones/ZoneWaterCloset"]
+shape = SubResource("BoxShape3D_teqmp")
+
+[node name="ZoneStorage" type="Area3D" parent="Zones"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.75, 1.5, -1.2)
+script = ExtResource("24_lis6c")
+compartment_id = &"storage"
+
+[node name="Shape" type="CollisionShape3D" parent="Zones/ZoneStorage"]
+shape = SubResource("BoxShape3D_wv0xx")
+
+[node name="ZoneEngineBay" type="Area3D" parent="Zones"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 4.7)
+script = ExtResource("24_lis6c")
+compartment_id = &"engine_bay"
+
+[node name="Shape" type="CollisionShape3D" parent="Zones/ZoneEngineBay"]
+shape = SubResource("BoxShape3D_hybgy")
+
+[node name="Links" type="Node3D" parent="."]
+
+[node name="LinkCorridorCockpit" type="Node" parent="Links"]
+script = ExtResource("25_6ugrf")
+compartment_a = &"corridor"
+compartment_b = &"cockpit"
+
+[node name="LinkCorridorQuarters" type="Node" parent="Links"]
+script = ExtResource("25_6ugrf")
+compartment_a = &"corridor"
+compartment_b = &"quarters"
+
+[node name="LinkCorridorMain" type="Node" parent="Links"]
+script = ExtResource("25_6ugrf")
+compartment_a = &"corridor"
+compartment_b = &"main"
+
+[node name="LinkCorridorGalley" type="Node" parent="Links"]
+script = ExtResource("25_6ugrf")
+compartment_a = &"corridor"
+compartment_b = &"galley"
+
+[node name="LinkCorridorWaterCloset" type="Node" parent="Links"]
+script = ExtResource("25_6ugrf")
+compartment_a = &"corridor"
+compartment_b = &"water_closet"
+
+[node name="LinkCorridorStorage" type="Node" parent="Links"]
+script = ExtResource("25_6ugrf")
+compartment_a = &"corridor"
+compartment_b = &"storage"
+
+[node name="LinkCorridorEngineBay" type="Node" parent="Links"]
+script = ExtResource("25_6ugrf")
+compartment_a = &"corridor"
+compartment_b = &"engine_bay"

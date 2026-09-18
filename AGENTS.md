@@ -9,7 +9,7 @@ Guide for AI coding agents working in this repository. Read this first, then `do
 - Repo root: `E:\Projekt\Misc\OperationSpacer`
 - Godot project root: `game/`
 - Production spec: `docs/PRODUCTION_SPEC.md` (authoritative for design intent)
-- Status: **post-M6 roadmap**: playtest readiness done; carry/pickup done; food/stores economy done; robustness pass done (scene-level save/load round trip, `tools/profile_sim.gd` 128 µs/tick, `tools/profile_scene.gd` scene cost 0.81 ms/frame). Next: release polish (icon, rebuild, push + GitHub release). External playtest (spec §8.5) remains the main open item
+- Status: **post-v0.6.0 expansion**: humidity model + condensation cascade, seven wear components, cramped 8-space station layout (generated geometry + generated props/zones/links), analogue-horror post filter with settings. External playtest of the v0.6.0 build is the main open item; reference-driven art/density tuning next
 - Asset shortlist for the M3 art pass: `docs/ASSET_SOURCES.md` — acquire at M3, not before
 
 ## Tech Stack
@@ -70,15 +70,21 @@ Run from repo root. The engine binary is local, so no PATH setup is needed.
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_component_breadth.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_water.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_ship_layout.gd
+& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_world_layout.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_door.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_m4_extras.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_settings.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_save_migration.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_localization.gd
+& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_analogue_filter.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_scene_loop.gd
 
 # Regenerate the localization string table after changing user-facing UI strings
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tools/extract_strings.gd
+
+# Regenerate the layout scenes after editing their tables (geometry / props+zones+links)
+& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tools/build_ship_geometry.gd
+& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tools/build_world_layout.gd
 
 # Performance regression guards (sim tick cost / scene frame cost)
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tools/profile_sim.gd

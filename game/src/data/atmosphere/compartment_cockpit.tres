@@ -6,7 +6,7 @@
 script = ExtResource("1")
 compartment_id = &"cockpit"
 display_name = "Cockpit"
-volume_m3 = 140.0
+volume_m3 = 116.0
 initial_pressure_kpa = 101.325
 initial_o2_fraction = 0.21
 initial_co2_ppm = 400.0

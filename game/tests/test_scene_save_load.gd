@@ -30,7 +30,7 @@ func _run() -> void:
 	var power: PowerSystem = main.get_node("Systems/PowerSystem")
 	var atmosphere: AtmosphereSystem = main.get_node("Systems/AtmosphereSystem")
 	var stores: Stores = main.get_node("Systems/Stores")
-	var breaker: BreakerPanel = main.get_node("Props/BreakerPanel")
+	var breaker: BreakerPanel = main.get_node("WorldLayout/Props/BreakerPanel")
 
 	sim_clock.call("fast_forward", 6.0)
 	breaker.interact(null)

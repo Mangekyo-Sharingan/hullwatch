@@ -7,14 +7,17 @@ const SETTINGS_PATH: NodePath = ^"/root/GameSettings"
 const SENSITIVITY_STEP: float = 0.25
 const VOLUME_STEP_DB: float = 5.0
 const UI_SCALE_STEP: float = 0.05
+const FILTER_INTENSITY_STEP: float = 0.1
 const MENU_HINT: String = "WHEEL: BROWSE   CLICK: SELECT / +   RIGHT CLICK: -"
 
 const ROW_SENSITIVITY: int = 0
 const ROW_INVERT: int = 1
 const ROW_VOLUME: int = 2
 const ROW_UI_SCALE: int = 3
-const ROW_RESET: int = 4
-const ROW_CLOSE: int = 5
+const ROW_ANALOGUE_FILTER: int = 4
+const ROW_FILTER_INTENSITY: int = 5
+const ROW_RESET: int = 6
+const ROW_CLOSE: int = 7
 
 var _open: bool = false
 var _menu: ScrollMenu
@@ -60,6 +63,10 @@ func get_row_value_text(key: StringName) -> String:
 		&"master_volume_db":
 			text = "%d dB" % int(roundf(_setting_float(key, 0.0)))
 		&"ui_scale":
+			text = "%d%%" % int(roundf(_setting_float(key, 1.0) * 100.0))
+		&"analogue_filter_enabled":
+			text = "ON" if _setting_bool(key, true) else "OFF"
+		&"analogue_filter_intensity":
 			text = "%d%%" % int(roundf(_setting_float(key, 1.0) * 100.0))
 	return text
 
@@ -108,6 +115,10 @@ func _on_option_selected(index: int) -> void:
 			_step(&"master_volume_db", 1.0)
 		ROW_UI_SCALE:
 			_step(&"ui_scale", 1.0)
+		ROW_ANALOGUE_FILTER:
+			_toggle_analogue_filter()
+		ROW_FILTER_INTENSITY:
+			_step(&"analogue_filter_intensity", 1.0)
 		ROW_RESET:
 			_reset()
 		ROW_CLOSE:
@@ -124,6 +135,8 @@ func _decrease_highlighted() -> void:
 			_step(&"master_volume_db", -1.0)
 		ROW_UI_SCALE:
 			_step(&"ui_scale", -1.0)
+		ROW_FILTER_INTENSITY:
+			_step(&"analogue_filter_intensity", -1.0)
 
 
 func _step(key: StringName, direction: float) -> void:
@@ -139,6 +152,13 @@ func _toggle_invert() -> void:
 	if settings == null or not settings.has_method(&"set_value"):
 		return
 	settings.call(&"set_value", &"invert_y", not _setting_bool(&"invert_y", false))
+
+
+func _toggle_analogue_filter() -> void:
+	var settings: Node = _settings()
+	if settings == null or not settings.has_method(&"set_value"):
+		return
+	settings.call(&"set_value", &"analogue_filter_enabled", not _setting_bool(&"analogue_filter_enabled", true))
 
 
 func _reset() -> void:
@@ -161,6 +181,8 @@ func _menu_items() -> PackedStringArray:
 	items.append("INVERT Y             %s" % get_row_value_text(&"invert_y"))
 	items.append("MASTER VOLUME        %s" % get_row_value_text(&"master_volume_db"))
 	items.append("UI SCALE             %s" % get_row_value_text(&"ui_scale"))
+	items.append("ANALOGUE FILTER      %s" % get_row_value_text(&"analogue_filter_enabled"))
+	items.append("FILTER INTENSITY     %s" % get_row_value_text(&"analogue_filter_intensity"))
 	items.append("RESET DEFAULTS")
 	items.append("CLOSE (ESC)")
 	return items
@@ -197,6 +219,8 @@ func _step_for(key: StringName) -> float:
 			return VOLUME_STEP_DB
 		&"ui_scale":
 			return UI_SCALE_STEP
+		&"analogue_filter_intensity":
+			return FILTER_INTENSITY_STEP
 	return 0.0
 
 

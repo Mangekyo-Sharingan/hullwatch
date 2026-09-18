@@ -1,5 +1,5 @@
 ## Three-day survivability scenario against the shipped balance data (§8.5 success test support).
-## An attentive operator survives; total neglect is fatal only after sustained readable warnings.
+## An attentive operator survives; total neglect warns within three days and kills by five.
 extends SceneTree
 
 const SCENARIO_HOURS: float = 72.0
@@ -54,31 +54,36 @@ func _test_attentive_operator() -> void:
 
 
 func _test_neglecting_operator() -> void:
-	var samples: Array[Dictionary] = _run_scenario(false)
+	var samples: Array[Dictionary] = _run_scenario(false, 120.0)
+	_check(samples.size() == 60, "neglect: sixty samples across five days")
 
 	var max_co2: float = 0.0
 	var max_cognition: int = 0
 	var any_incapacitated: bool = false
 	var warned_before_incapacitation: bool = false
+	var severe_within_three_days: bool = false
 	var cause: StringName = &""
 	for sample: Dictionary in samples:
 		max_co2 = maxf(max_co2, float(sample["co2_ppm"]))
 		max_cognition = maxi(max_cognition, int(sample["cognition"]))
 		if not any_incapacitated and int(sample["cognition"]) >= 2:
 			warned_before_incapacitation = true
+		if float(sample["hours"]) <= 72.0 and float(sample["co2_ppm"]) > 15000.0:
+			severe_within_three_days = true
 		if bool(sample["incapacitated"]):
 			any_incapacitated = true
 			if cause == &"":
 				cause = StringName(sample["cause"])
 
-	_check(max_co2 > 25000.0, "neglect: CO2 crosses the breathing damage threshold (max %d ppm)" % int(max_co2))
+	_check(severe_within_three_days, "neglect: severe cognition warnings arrive within the three-day window")
 	_check(max_cognition >= 2, "neglect: cognition effects reach level 2 or worse")
+	_check(max_co2 > 25000.0, "neglect: CO2 crosses the breathing damage threshold (max %d ppm)" % int(max_co2))
 	_check(warned_before_incapacitation, "neglect: warnings arrive before incapacitation")
-	_check(any_incapacitated, "neglect: total inaction is fatal within three days")
+	_check(any_incapacitated, "neglect: total inaction is fatal within five days")
 	_check(cause == &"carbon_dioxide", "neglect: the recorded cause is carbon dioxide")
 
 
-func _run_scenario(attentive: bool) -> Array[Dictionary]:
+func _run_scenario(attentive: bool, hours: float = SCENARIO_HOURS) -> Array[Dictionary]:
 	var harness := SimHarness.new(self)
 	harness.setup_clock()
 
@@ -90,8 +95,10 @@ func _run_scenario(attentive: bool) -> Array[Dictionary]:
 
 	var stores: Stores = harness.add_stores({&"food_ration": 6})
 	var main_config: CompartmentConfig = load("res://src/data/atmosphere/compartment_main.tres")
-	var defs: Array[CompartmentConfig] = [main_config]
+	var quarters_config: CompartmentConfig = load("res://src/data/atmosphere/compartment_quarters.tres")
+	var defs: Array[CompartmentConfig] = [main_config, quarters_config]
 	var atmosphere: AtmosphereSystem = harness.add_atmosphere(defs)
+	atmosphere.connect_compartments(&"main", &"quarters")
 	var thermal: ThermalSystem = harness.add_thermal(defs)
 	var hull := HullSystem.new()
 	hull.compartment_defs = defs
@@ -105,14 +112,15 @@ func _run_scenario(attentive: bool) -> Array[Dictionary]:
 	scrubber.compartment_id = &"main"
 	scrubber.circuit_id = &"scrubber"
 	root.add_child(scrubber)
-	atmosphere.set_occupants(&"main", 1)
+	atmosphere.set_occupants(&"main", 0)
+	atmosphere.set_occupants(&"quarters", 1)
 
 	if attentive:
 		atmosphere.set_filter_condition(&"main", 1.0)
 
 	var samples: Array[Dictionary] = []
 	var elapsed: float = 0.0
-	while elapsed < SCENARIO_HOURS:
+	while elapsed < hours:
 		harness.advance(STEP_HOURS)
 		elapsed += STEP_HOURS
 		if attentive:
