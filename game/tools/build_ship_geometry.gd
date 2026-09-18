@@ -11,6 +11,8 @@ const MATERIAL_FLOOR: String = "res://src/data/materials/mat_floor_grate.tres"
 const MATERIAL_XENON: String = "res://src/data/materials/mat_xenon_metal.tres"
 const MATERIAL_STRIP: String = "res://src/data/materials/mat_light_strip.tres"
 const MATERIAL_CONDUIT: String = "res://src/data/materials/mat_metal_rusted.tres"
+const SCRIPT_TETHER_ANCHOR: String = "res://src/world/tether_anchor.gd"
+const SCRIPT_TETHER_ZONE: String = "res://src/world/tether_zone.gd"
 
 const WALL_THICKNESS: float = 0.2
 const DOOR_TOP: float = 2.2
@@ -531,6 +533,7 @@ func _build_hull_exterior() -> void:
 	_add_ramp(decks, shell, collision)
 	_add_railings(hull)
 	_add_hardpoints(hull)
+	_add_eva_anchors(hull)
 	hull.add_child(_make_surface_node("Hull", shell, MATERIAL_XENON, collision))
 	hull.add_child(_make_surface_node("Deck", decks, MATERIAL_FLOOR, collision))
 	var shape: ConcavePolygonShape3D = ConcavePolygonShape3D.new()
@@ -686,6 +689,32 @@ func _add_hardpoints(hull: StaticBody3D) -> void:
 		marker.position = points[i]
 		marker.add_to_group(&"hardpoint")
 		hull.add_child(marker)
+
+
+func _add_eva_anchors(hull: StaticBody3D) -> void:
+	var anchor_positions: Array[Vector3] = [
+		Vector3(-8.1, 0.25, -1.2),
+		Vector3(0.0, 3.85, -14.0),
+		Vector3(0.0, 3.85, 4.0),
+		Vector3(-1.0, 0.25, 12.0),
+	]
+	for i: int in anchor_positions.size():
+		var anchor: Node3D = Node3D.new()
+		anchor.name = "TetherAnchor%d" % i
+		anchor.position = anchor_positions[i]
+		anchor.set_script(load(SCRIPT_TETHER_ANCHOR) as Script)
+		hull.add_child(anchor)
+	var zone: Area3D = Area3D.new()
+	zone.name = "TetherZone"
+	zone.position = Vector3(-8.1, 1.2, -1.2)
+	zone.set_script(load(SCRIPT_TETHER_ZONE) as Script)
+	hull.add_child(zone)
+	var box: BoxShape3D = BoxShape3D.new()
+	box.size = Vector3(1.8, 2.4, 2.6)
+	var shape: CollisionShape3D = CollisionShape3D.new()
+	shape.name = "Shape"
+	shape.shape = box
+	zone.add_child(shape)
 
 
 ## Visual greeble only (no collision): ceiling light strips, corridor ribs, conduit runs.

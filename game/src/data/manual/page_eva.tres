@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ManualPage" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/components/manual_page.gd" id="1_page"]
+
+[resource]
+script = ExtResource("1_page")
+title = "EVA"
+body = "AIRLOCK. The lock is a real pressure vessel. Close the inner hatch before you cycle: the panel pumps air back to storage (nothing lost) or vents it to space (fast, wasteful, loud). The outer hatch only opens on vacuum, the inner only on pressure. Both are interlocked against you opening one with the other open.
+
+SUIT. Take the EVA suit from the locker and top up the tank before you leave; it feeds your breathing line while the lock or the hull outside has no pressure. Watch the O2 hours on the HUD. Suit down, suffocation is minutes of game time, not seconds.
+
+TETHER. Stepping onto the hull clips you to the nearest anchor. T releases; T near an anchor clips again. Past the anchor's length the line goes taut and holds you - it will not let you drift away, but it will not save you from a bad push either.
+
+OUTSIDE. The hull deck, catwalk and aft ramp are walkable with magnetic boots. Mind the railings: they are thin, and space is patient."

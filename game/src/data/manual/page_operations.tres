@@ -12,6 +12,7 @@ body = "1  MOVE                    W A S D
 5  INTERACT                E
 6  FLASHLIGHT              F
 7  RELEASE MOUSE           ESC
+8  TETHER                  T   (clip to the nearest anchor; press again to release)
 
 MENUS. Panels and lists use the wheel: scroll to move the highlight, press the wheel (middle mouse) to select. Arrow keys and Enter work too. Every readout closes with E or Esc from anywhere.
 

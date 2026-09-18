@@ -13,6 +13,7 @@ const HOLD_OFFSET: Vector3 = Vector3(0.32, -0.26, -0.55)
 const DROP_DISTANCE_M: float = 1.1
 const DROP_FALLBACK_DISTANCE_M: float = 1.0
 const DROP_FALLBACK_LIFT_M: float = 0.3
+const TETHER_ATTACH_RANGE: float = 6.0
 
 @export var walk_speed: float = 3.0
 @export var crouch_speed: float = 1.5
@@ -40,6 +41,8 @@ var _invert_y: bool = false
 var _step_distance: float = 0.0
 var _step_index: int = 0
 var _carried_item: Node = null
+var _tether_anchor: Node3D = null
+var _tethered: bool = false
 
 
 func _ready() -> void:
@@ -61,6 +64,7 @@ func _physics_process(delta: float) -> void:
 	else:
 		_process_free(delta)
 	move_and_slide()
+	_apply_tether()
 	if _boots_engaged and is_on_floor():
 		advance_footsteps(get_planar_speed() * delta)
 
@@ -220,6 +224,80 @@ func _unhandled_input(event: InputEvent) -> void:
 			drop_carried()
 	elif event.is_action_pressed(&"flashlight"):
 		_flashlight.visible = not _flashlight.visible
+	elif event.is_action_pressed(&"toggle_tether"):
+		_toggle_tether()
+
+
+func attach_tether(anchor: Node3D) -> bool:
+	if anchor == null or not is_instance_valid(anchor):
+		return false
+	_tether_anchor = anchor
+	_tethered = true
+	_emit_sim_event(&"tether_attached", {"anchor": String(anchor.name)})
+	return true
+
+
+func release_tether() -> void:
+	if not _tethered:
+		return
+	_tethered = false
+	_tether_anchor = null
+	_emit_sim_event(&"tether_released", {})
+
+
+func is_tethered() -> bool:
+	return _tethered
+
+
+func get_tether_distance() -> float:
+	if not _tethered or _tether_anchor == null or not is_instance_valid(_tether_anchor):
+		return 0.0
+	return global_position.distance_to(_tether_anchor.global_position)
+
+
+func _toggle_tether() -> void:
+	if _tethered:
+		release_tether()
+		return
+	var anchor: Node3D = _nearest_anchor()
+	if anchor != null:
+		attach_tether(anchor)
+
+
+func _nearest_anchor() -> Node3D:
+	var best: Node3D = null
+	var best_distance: float = TETHER_ATTACH_RANGE
+	for node: Node in get_tree().get_nodes_in_group(&"tether_anchor"):
+		var anchor: Node3D = node as Node3D
+		if anchor == null:
+			continue
+		var distance: float = anchor.global_position.distance_to(global_position)
+		if distance <= best_distance:
+			best_distance = distance
+			best = anchor
+	return best
+
+
+func _apply_tether() -> void:
+	if not _tethered:
+		return
+	if _tether_anchor == null or not is_instance_valid(_tether_anchor):
+		release_tether()
+		return
+	var to_anchor: Vector3 = _tether_anchor.global_position - global_position
+	var distance: float = to_anchor.length()
+	if distance <= 0.0001:
+		return
+	var limit: float = float(_tether_anchor.get(&"max_length"))
+	if limit <= 0.0:
+		limit = 14.0
+	if distance <= limit:
+		return
+	var direction_out: Vector3 = to_anchor / distance
+	global_position = _tether_anchor.global_position - direction_out * limit
+	var outward_speed: float = velocity.dot(-direction_out)
+	if outward_speed > 0.0:
+		velocity += direction_out * outward_speed
 
 
 func _apply_settings() -> void:

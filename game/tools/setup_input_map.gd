@@ -14,6 +14,7 @@ const KEY_BINDINGS: Dictionary = {
 	&"interact": [KEY_E],
 	&"flashlight": [KEY_F],
 	&"toggle_boots": [KEY_Q],
+	&"toggle_tether": [KEY_T],
 	&"pause": [KEY_ESCAPE],
 }
 

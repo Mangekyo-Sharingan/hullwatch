@@ -34,6 +34,7 @@ func _process(delta: float) -> void:
 	_update_prompt()
 	_update_carry()
 	_update_message(delta)
+	_update_eva(delta)
 
 
 func get_prompt_text() -> String:
@@ -60,6 +61,12 @@ func get_message_text() -> String:
 	return _message.text
 
 
+func get_eva_text() -> String:
+	if _eva == null:
+		return ""
+	return _eva.text
+
+
 func set_message_hold(seconds: float) -> void:
 	_message_hold_seconds = maxf(seconds, 0.0)
 	_message_remaining = minf(_message_remaining, _message_hold_seconds)
@@ -69,6 +76,8 @@ var _crosshair: Control
 var _prompt: Label
 var _carry: Label
 var _message: Label
+var _eva: Label
+var _eva_accumulator: float = 0.0
 var _message_hold_seconds: float = MESSAGE_HOLD_SECONDS
 var _message_remaining: float = 0.0
 
@@ -145,6 +154,39 @@ func _update_carry() -> void:
 	_carry.text = "%s  [RIGHT CLICK: DROP]" % String(item.call(&"get_item_name")).to_upper()
 
 
+func _update_eva(delta: float) -> void:
+	_eva_accumulator += delta
+	if _eva_accumulator < 0.25:
+		return
+	_eva_accumulator = 0.0
+	if _eva == null:
+		return
+	var parts: PackedStringArray = PackedStringArray()
+	var player: Node = _find_player()
+	if player != null and player.has_method(&"is_tethered") and bool(player.call(&"is_tethered")):
+		parts.append("TETHER %.1f m  [T: RELEASE]" % float(player.call(&"get_tether_distance")))
+	var suit: String = _eva_suit_text()
+	if not suit.is_empty():
+		parts.append(suit)
+	_eva.text = "    ".join(parts)
+
+
+func _eva_suit_text() -> String:
+	var tree: SceneTree = get_tree()
+	if tree == null:
+		return ""
+	var airlock: Node = tree.get_first_node_in_group(&"airlock_system")
+	if airlock == null or not airlock.has_method(&"get_status"):
+		return ""
+	var status: Variant = airlock.call("get_status")
+	if not (status is Dictionary):
+		return ""
+	var data: Dictionary = status
+	if not bool(data.get("suit_worn", false)):
+		return ""
+	return "SUIT O2 %.2f h" % float(data.get("suit_o2_hours", 0.0))
+
+
 func _find_player() -> Node:
 	var tree: SceneTree = get_tree()
 	if tree == null:
@@ -195,6 +237,19 @@ func _build_ui() -> void:
 	_carry.add_theme_constant_override("outline_size", 4)
 	_carry.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_carry)
+	_eva = Label.new()
+	_eva.name = "Eva"
+	_eva.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
+	_eva.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_eva.offset_top = -130.0
+	_eva.offset_bottom = -98.0
+	_eva.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_eva.add_theme_font_size_override("font_size", UiScale.size(self, BASE_FONT_SIZE))
+	_eva.add_theme_color_override("font_color", Color(0.55, 0.85, 1.0, 1.0))
+	_eva.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 1.0))
+	_eva.add_theme_constant_override("outline_size", 4)
+	_eva.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_eva)
 	var message_layer := CanvasLayer.new()
 	message_layer.name = "Messages"
 	message_layer.layer = 16
@@ -221,6 +276,8 @@ func _apply_ui_scale() -> void:
 		_carry.add_theme_font_size_override("font_size", UiScale.size(self, BASE_FONT_SIZE))
 	if _message != null:
 		_message.add_theme_font_size_override("font_size", UiScale.size(self, BASE_MESSAGE_FONT_SIZE))
+	if _eva != null:
+		_eva.add_theme_font_size_override("font_size", UiScale.size(self, BASE_FONT_SIZE))
 
 
 func _on_ui_scale_changed(key: StringName, _value: Variant) -> void:
