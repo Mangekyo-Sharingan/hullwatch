@@ -177,6 +177,7 @@ func _build() -> void:
 	_root.name = "ShipGeometry"
 	for spec: Dictionary in SPACES:
 		_build_space(spec)
+	_build_cockpit_dash()
 	_build_hull_exterior()
 	_build_dressing()
 
@@ -511,6 +512,57 @@ func _make_surface_node(node_name: String, surface: Dictionary, material_path: S
 	node.mesh = mesh
 	node.material_override = _materials[material_path] as Material
 	return node
+
+
+## Wraparound cockpit console bank: faceted angled dash panels along the front and sides
+## with inset phosphor screens, light strips and a centre pedestal. Geometry only.
+func _build_cockpit_dash() -> void:
+	var space: Node = _root.get_node_or_null(^"Cockpit")
+	if space == null or not (space is Node3D):
+		_failures += 1
+		print("FAIL: cockpit missing for dash")
+		return
+	var cockpit: Node3D = space as Node3D
+	var panel_tilt: float = -24.0
+	var front_x: Array[float] = [-2.4, -1.2, 0.0, 1.2, 2.4]
+	for i: int in front_x.size():
+		var panel_x: float = front_x[i]
+		_add_dash_panel(cockpit, "DashN%d" % i, Vector3(panel_x, 0.92, -18.42), Vector3(1.16, 0.2, 0.5), Vector3(panel_tilt, 0, 0))
+		_add_dressing("Cockpit", "DashScreenN%d" % i, Vector3(panel_x, 1.03, -18.28), Vector3(0.46, 0.02, 0.22), MATERIAL_STRIP)
+	var side_x: Array[float] = [3.2, -3.2]
+	var side_z: Array[float] = [-18.0, -16.8, -15.6]
+	for side_index: int in side_x.size():
+		var panel_x2: float = side_x[side_index]
+		var side_label: String = "E" if panel_x2 > 0.0 else "W"
+		var tilt: float = panel_tilt * (1.0 if panel_x2 > 0.0 else -1.0)
+		for j: int in side_z.size():
+			var panel_z: float = side_z[j]
+			_add_dash_panel(cockpit, "Dash%s%d" % [side_label, j], Vector3(panel_x2, 0.92, panel_z), Vector3(0.5, 0.2, 1.16), Vector3(0, 0, tilt))
+			_add_dressing("Cockpit", "DashScreen%s%d" % [side_label, j], Vector3(panel_x2 - 0.14 * signf(panel_x2), 1.03, panel_z), Vector3(0.22, 0.02, 0.46), MATERIAL_STRIP)
+	_add_dash_panel(cockpit, "DashPedestal", Vector3(0.0, 0.45, -17.5), Vector3(0.8, 0.9, 0.5), Vector3.ZERO)
+	_add_dressing("Cockpit", "DashPedestalScreen", Vector3(0.0, 0.92, -17.24), Vector3(0.4, 0.02, 0.24), MATERIAL_STRIP)
+	_add_dressing("Cockpit", "DashStripN", Vector3(0.0, 1.04, -18.6), Vector3(6.8, 0.03, 0.05), MATERIAL_STRIP)
+
+
+## A dash panel: box mesh + its own collision shape inside the cockpit body.
+func _add_dash_panel(space: Node3D, part_name: String, center: Vector3, size: Vector3, rotation_degrees: Vector3) -> void:
+	var shape: BoxShape3D = BoxShape3D.new()
+	shape.size = size
+	var shape_node: CollisionShape3D = CollisionShape3D.new()
+	shape_node.name = part_name + "Shape"
+	shape_node.shape = shape
+	shape_node.position = center
+	shape_node.rotation_degrees = rotation_degrees
+	space.add_child(shape_node)
+	var mesh: BoxMesh = BoxMesh.new()
+	mesh.size = size
+	var mesh_node: MeshInstance3D = MeshInstance3D.new()
+	mesh_node.name = part_name + "Mesh"
+	mesh_node.mesh = mesh
+	mesh_node.material_override = _materials[MATERIAL_XENON] as Material
+	mesh_node.position = center
+	mesh_node.rotation_degrees = rotation_degrees
+	space.add_child(mesh_node)
 
 
 ## Faceted outer hull: chamfered plan band with the airlock doorway, keel and deck caps,

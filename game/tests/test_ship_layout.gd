@@ -102,6 +102,7 @@ func _run() -> void:
 	_test_corridor_profile()
 	_test_floor_and_ceiling()
 	_test_wall_planes()
+	_test_cockpit_dash()
 	_test_surface_materials()
 
 	_geometry.free()
@@ -182,6 +183,20 @@ func _test_wall_planes() -> void:
 		var hit_x: float = float((wall_hit["position"] as Vector3).x)
 		_check(hit_x > -0.62 and hit_x < -0.50, "corridor west wall face sits at the canted profile (x=%.3f)" % hit_x)
 		_check((wall_hit["normal"] as Vector3).dot(Vector3.RIGHT) > 0.9, "corridor west wall faces into the corridor")
+
+
+func _test_cockpit_dash() -> void:
+	var cockpit: Node = _geometry.get_node_or_null(^"Cockpit")
+	_check(cockpit != null, "cockpit exists for the dash check")
+	if cockpit == null:
+		return
+	var panels: int = 0
+	for child: Node in cockpit.get_children():
+		if String(child.name).begins_with("Dash") and child is CollisionShape3D:
+			panels += 1
+	_check(panels >= 11, "the wraparound dash has its panels (%d collision parts)" % panels)
+	var dash_hit: Dictionary = _ray_result(Vector3(0.0, 0.95, -17.4), Vector3(0.0, 0.95, -18.4))
+	_check(not dash_hit.is_empty(), "the dash blocks at console height")
 
 
 func _test_surface_materials() -> void:
