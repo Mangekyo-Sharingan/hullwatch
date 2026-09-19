@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ManualPage" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/components/manual_page.gd" id="1_page"]
+
+[resource]
+script = ExtResource("1_page")
+title = "FIELD WORK"
+body = "CUTTER. The hull cutter lives clipped to the suit, so your hands stay free for one thing at a time: take a sample canister from the airlock rack. Work an asteroid or a debris cluster and the cut fills the canister with whatever the deposit holds. Deposits are finite - a spent rock stays spent.
+
+STOW. The cargo port on the EVA platform takes a loaded canister and stows it in the hold. The status panel (E) carries a CARGO section: what the hold holds, by unit and by mass.
+
+ANOMALIES. Do not cut an anomaly. Carry the field scanner and study it instead: the survey is logged and exotic matter threads into the hold. Reading without the scanner, or with a full hold, earns a refusal and no data.
+
+WORKSHOP. The fabricator in the engine bay turns mined stock into ship's parts - ice into water filters and O2 candles, ore into CO2 filters, metal into gaskets. It runs on its own breaker: no power, no process. One job at a time. Materials are consumed when a job starts, and the finished part lands in stores. If a job refuses, the stock or the breaker will tell you which."

@@ -1,6 +1,6 @@
 # Shipping Checklist
 
-State as of the v0.7.0 test build — items marked TODO are honest gaps, not paperwork.
+State as of the v0.10.0 test build — items marked TODO are honest gaps, not paperwork.
 
 ## Build pipeline
 - [x] `build.ps1` produces a single-file Windows build (`build/windows/Hullwatch.exe`, PCK embedded)
@@ -20,7 +20,7 @@ State as of the v0.7.0 test build — items marked TODO are honest gaps, not pap
 - [x] Diagnostics: tools gate fault modes and wear readouts (spec §4.3)
 - [x] Comms narrative: latency, unread traffic, the late reply (spec §4.1/§5)
 - [x] Win state (final waypoint) + loss states with mercy recovery
-- [ ] External playtest of current content (spec §8.5 success test: manual-only survival) — v0.6.0 round returned; v0.7.0 round pending
+- [ ] External playtest of current content (spec §8.5 success test: manual-only survival) — v0.6.0 round returned; v0.7.0-v0.10.0 rounds pending
 - [ ] Balance pass across a full 3-day session on real hardware
 
 ## Technical
@@ -44,4 +44,4 @@ State as of the v0.7.0 test build — items marked TODO are honest gaps, not pap
 - [x] Real in-game screenshots (`docs/store/screenshot_01..10.png`)
 - [ ] Real key art (capsules are still generated)
 - [ ] Steamworks (or itch.io) account + depot configuration
-- [x] Public GitHub releases with test builds attached (`v0.6.0`, `v0.7.0`)
+- [x] Public GitHub releases with test builds attached (`v0.6.0` through `v0.10.0`)

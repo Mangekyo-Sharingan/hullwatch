@@ -17,4 +17,6 @@ home, and fabricate what the ship eats.
 - **The loop closes.** A month-long headless scenario proves the ship can sustain
   itself on mined inputs alone: the fabricator replaces the parts the ship wears out.
 
+- **Manual.** A FIELD WORK page documents mining, cargo, anomalies and the fabricator.
+
 Note: start a fresh save — older saves may not know the new devices.
