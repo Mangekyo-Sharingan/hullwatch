@@ -98,6 +98,7 @@ Run from repo root. The engine binary is local, so no PATH setup is needed.
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_detection.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_approach.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_cargo.gd
+& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_mining.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_scene_loop.gd
 
 # Regenerate the localization string table after changing user-facing UI strings

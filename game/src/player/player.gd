@@ -41,6 +41,7 @@ var _invert_y: bool = false
 var _step_distance: float = 0.0
 var _step_index: int = 0
 var _carried_item: Node = null
+var _suit_cutter: bool = false
 var _tether_anchor: Node3D = null
 var _tethered: bool = false
 
@@ -132,6 +133,18 @@ func push_off() -> bool:
 		return false
 	velocity += normal * push_off_speed
 	return true
+
+
+func equip_suit_cutter() -> bool:
+	if _suit_cutter:
+		return false
+	_suit_cutter = true
+	_emit_sim_event(&"tool_equipped", {"tool": &"cutter"})
+	return true
+
+
+func has_suit_cutter() -> bool:
+	return _suit_cutter
 
 
 func take_carriable(item: Node) -> bool:

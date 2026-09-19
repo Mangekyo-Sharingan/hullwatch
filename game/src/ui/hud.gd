@@ -17,6 +17,11 @@ const PROCEDURE_ERROR_TEXT: Dictionary = {
 	&"no_fuel": "NO FUEL FOR THE BURN",
 	&"no_puncture": "NOTHING TO SEAL HERE",
 	&"clean_loop": "GREYWATER IS CLEAN ENOUGH",
+	&"no_cutter": "A HULL CUTTER IS REQUIRED",
+	&"no_canister": "AN EMPTY SAMPLE CANISTER IS REQUIRED",
+	&"depleted": "NOTHING LEFT TO EXTRACT",
+	&"no_sample": "NO SAMPLE TO STOW",
+	&"cargo_full": "CARGO HOLD IS FULL",
 }
 
 

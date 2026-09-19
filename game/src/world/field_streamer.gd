@@ -73,7 +73,8 @@ func _sector() -> Node:
 
 
 func _spawn(entry: Dictionary) -> Node3D:
-	var body: StaticBody3D = StaticBody3D.new()
+	var body: SpaceObject = SpaceObject.new()
+	body.setup(entry)
 	var id: String = String(entry["id"])
 	body.name = "Object_" + id
 	var kind: StringName = entry["kind"]

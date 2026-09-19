@@ -27,6 +27,7 @@ var _contact_ids: Dictionary = {}
 var _offset: Vector3 = Vector3.ZERO
 var _holding: bool = false
 var _approach_target_id: String = ""
+var _mined: Dictionary = {}
 
 
 func _ready() -> void:
@@ -191,20 +192,56 @@ func _make_object(cx: int, cy: int, cz: int, axis: Vector3, right: Vector3, up: 
 	elif roll > 0.70:
 		kind = KIND_DEBRIS
 	var radius: float = 6.0
+	var resource: StringName = &"ore"
+	var yield_units: float = 0.0
 	match kind:
 		KIND_ASTEROID:
 			radius = rng.randf_range(4.0, 12.0)
+			var resource_roll: float = rng.randf()
+			if resource_roll < 0.4:
+				resource = &"ice"
+			elif resource_roll < 0.8:
+				resource = &"ore"
+			else:
+				resource = &"metal"
+			yield_units = rng.randf_range(8.0, 20.0)
 		KIND_DEBRIS:
 			radius = rng.randf_range(2.0, 5.0)
+			resource = &"metal"
+			yield_units = rng.randf_range(2.0, 5.0)
 		KIND_ANOMALY:
 			radius = rng.randf_range(3.0, 7.0)
+			resource = &"exotic"
+			yield_units = rng.randf_range(4.0, 8.0)
 	return {
 		"id": "c_%d_%d_%d" % [cx, cy, cz],
 		"kind": kind,
 		"position": chunk_center + offset,
 		"radius_m": radius,
 		"seed": int(rng.seed),
+		"resource": resource,
+		"yield_units": yield_units,
 	}
+
+
+## Remaining extractable units for an object id; unknown ids read as zero.
+func get_remaining_yield(object_id: String) -> float:
+	if _mined.has(object_id):
+		return float(_mined[object_id])
+	for entry: Dictionary in _active:
+		if String(entry["id"]) == object_id:
+			return float(entry.get("yield_units", 0.0))
+	return 0.0
+
+
+## Records extraction; clamps at zero and returns the units actually removed.
+func record_mined(object_id: String, units: float) -> float:
+	if units <= 0.0:
+		return 0.0
+	var remaining: float = get_remaining_yield(object_id)
+	var removed: float = minf(units, remaining)
+	_mined[object_id] = maxf(remaining - removed, 0.0)
+	return removed
 
 
 func _update_contacts() -> void:
@@ -229,6 +266,7 @@ func save_state() -> Dictionary:
 		"offset": {"x": _offset.x, "y": _offset.y, "z": _offset.z},
 		"holding": _holding,
 		"approach_target_id": _approach_target_id,
+		"mined": _mined.duplicate(),
 	}
 
 
@@ -243,6 +281,10 @@ func load_state(state: Dictionary) -> void:
 	)
 	_holding = bool(state.get("holding", false))
 	_approach_target_id = String(state.get("approach_target_id", ""))
+	_mined.clear()
+	var mined: Dictionary = state.get("mined", {})
+	for key: Variant in mined:
+		_mined[String(key)] = maxf(float(mined[key]), 0.0)
 	_base_chunk = int(floor(_drift_distance_m / CHUNK_SIZE_M))
 	_rebuild_active()
 	_contact_ids.clear()
