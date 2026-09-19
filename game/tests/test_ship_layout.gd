@@ -5,6 +5,7 @@ extends SceneTree
 const GEOMETRY_PATH: String = "res://scenes/ship_geometry.tscn"
 const XENON_MATERIAL_PATH: String = "res://src/data/materials/mat_xenon_metal.tres"
 const FLOOR_MATERIAL_PATH: String = "res://src/data/materials/mat_floor_grate.tres"
+const WINDOW_MATERIAL_PATH: String = "res://src/data/materials/mat_space_window.tres"
 const RAY_Y: float = 1.2
 
 const EXPECTED_SPACES: Array[StringName] = [
@@ -197,6 +198,10 @@ func _test_cockpit_dash() -> void:
 	_check(panels >= 11, "the wraparound dash has its panels (%d collision parts)" % panels)
 	var dash_hit: Dictionary = _ray_result(Vector3(0.0, 0.95, -17.4), Vector3(0.0, 0.95, -18.4))
 	_check(not dash_hit.is_empty(), "the dash blocks at console height")
+	var pane: MeshInstance3D = cockpit.get_node_or_null(^"DressingWindowPane") as MeshInstance3D
+	_check(pane != null and pane.material_override != null, "the windshield pane exists")
+	if pane != null and pane.material_override != null:
+		_check(pane.material_override.resource_path == WINDOW_MATERIAL_PATH, "the windshield uses the space window shader")
 
 
 func _test_surface_materials() -> void:

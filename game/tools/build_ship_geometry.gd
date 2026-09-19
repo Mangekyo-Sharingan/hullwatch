@@ -11,6 +11,7 @@ const MATERIAL_FLOOR: String = "res://src/data/materials/mat_floor_grate.tres"
 const MATERIAL_XENON: String = "res://src/data/materials/mat_xenon_metal.tres"
 const MATERIAL_STRIP: String = "res://src/data/materials/mat_light_strip.tres"
 const MATERIAL_CONDUIT: String = "res://src/data/materials/mat_metal_rusted.tres"
+const MATERIAL_WINDOW: String = "res://src/data/materials/mat_space_window.tres"
 const SCRIPT_TETHER_ANCHOR: String = "res://src/world/tether_anchor.gd"
 const SCRIPT_TETHER_ZONE: String = "res://src/world/tether_zone.gd"
 
@@ -163,7 +164,7 @@ func _initialize() -> void:
 
 
 func _load_materials() -> void:
-	for path: String in [MATERIAL_FLOOR, MATERIAL_XENON, MATERIAL_STRIP, MATERIAL_CONDUIT]:
+	for path: String in [MATERIAL_FLOOR, MATERIAL_XENON, MATERIAL_STRIP, MATERIAL_CONDUIT, MATERIAL_WINDOW]:
 		var material: Material = load(path) as Material
 		if material == null:
 			_failures += 1
@@ -542,6 +543,24 @@ func _build_cockpit_dash() -> void:
 	_add_dash_panel(cockpit, "DashPedestal", Vector3(0.0, 0.45, -17.5), Vector3(0.8, 0.9, 0.5), Vector3.ZERO)
 	_add_dressing("Cockpit", "DashPedestalScreen", Vector3(0.0, 0.92, -17.24), Vector3(0.4, 0.02, 0.24), MATERIAL_STRIP)
 	_add_dressing("Cockpit", "DashStripN", Vector3(0.0, 1.04, -18.6), Vector3(6.8, 0.03, 0.05), MATERIAL_STRIP)
+	_build_cockpit_window(cockpit)
+
+
+## Forward windshield: a framed, solid pane with the space shader inset into the wall band.
+func _build_cockpit_window(space: Node3D) -> void:
+	var pane: MeshInstance3D = MeshInstance3D.new()
+	pane.name = "DressingWindowPane"
+	var pane_mesh: BoxMesh = BoxMesh.new()
+	pane_mesh.size = Vector3(4.4, 1.1, 0.04)
+	pane.mesh = pane_mesh
+	pane.material_override = _materials[MATERIAL_WINDOW] as Material
+	pane.position = Vector3(0.0, 1.75, -18.78)
+	space.add_child(pane)
+	_add_dash_panel(space, "WindowSill", Vector3(0.0, 1.14, -18.74), Vector3(4.9, 0.14, 0.16), Vector3.ZERO)
+	_add_dash_panel(space, "WindowHeader", Vector3(0.0, 2.36, -18.74), Vector3(4.9, 0.14, 0.16), Vector3.ZERO)
+	_add_dash_panel(space, "WindowJambW", Vector3(-2.28, 1.75, -18.74), Vector3(0.14, 1.36, 0.16), Vector3.ZERO)
+	_add_dash_panel(space, "WindowJambE", Vector3(2.28, 1.75, -18.74), Vector3(0.14, 1.36, 0.16), Vector3.ZERO)
+	_add_dressing("Cockpit", "WindowStrip", Vector3(0.0, 2.44, -18.72), Vector3(4.6, 0.03, 0.05), MATERIAL_STRIP)
 
 
 ## A dash panel: box mesh + its own collision shape inside the cockpit body.
