@@ -53,6 +53,7 @@
 [ext_resource type="Shader" path="res://src/shaders/space_sky.gdshader" id="71_space_sky"]
 [ext_resource type="Script" path="res://src/systems/sector.gd" id="72_sector"]
 [ext_resource type="Script" path="res://src/world/field_streamer.gd" id="73_streamer"]
+[ext_resource type="Script" path="res://src/systems/cargo.gd" id="74_cargo"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_sky"]
 shader = ExtResource("71_space_sky")
@@ -224,6 +225,9 @@ script = ExtResource("70_airlock")
 
 [node name="SectorSystem" type="Node" parent="Systems"]
 script = ExtResource("72_sector")
+
+[node name="CargoSystem" type="Node" parent="Systems"]
+script = ExtResource("74_cargo")
 
 [node name="UI" type="Node" parent="."]
 

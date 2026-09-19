@@ -126,6 +126,16 @@ the suit and tether protect the walker, and the deep field / destinations start 
 
 **Status:** **M8 complete (M8.1–M8.5).** Verification lives in `test_approach` (seven days of drift → contact → fuel-gated approach → standoff hold with drift stopped → resume → refusal without fuel → mid-hold save/load) plus `test_sector`, `test_field_streamer` and `test_detection`. Scene captures of field objects are deferred to the next playtest build (objects need game-hours of drift to come into view). M9 materials & fabrication is next.
 
+### M9 sub-steps (materials & fabrication)
+
+| Sub-step | Deliverable | Exit criteria |
+|---|---|---|
+| **M9.1 — Cargo hold & materials** | `CargoSystem`: ice/ore/metal/exotic units with a mass budget, add/consume API, events, save/load; status-panel CARGO section | Capacity enforced, units conserved, save/load round trip; `test_cargo` green |
+| **M9.2 — Mining runs** | Cutter + sample canisters as carriables; streamed asteroids become mineable (`SpaceObject` interactable, finite seeded yields by kind); hull cargo port deposits canisters | EVA: mine an asteroid into a canister and stow it; yields finite; tests |
+| **M9.3 — Fabricator** | Workshop device (power-gated) with `.tres` recipes: ice → water filter / O2 candle, ore → CO2 filter, metal → sealant / gasket, exotic → parts; menu UI; consumes cargo, feeds stores | Recipes gated by materials + power; fabricate repairs the loop; tests |
+| **M9.4 — Anomaly salvage** | Scanner interaction on anomalies yields exotic material and a logged event | Salvage works from EVA; exotic reaches cargo; tests |
+| **M9.5 — Verification** | Long-run scenario: mine → fabricate → repair across days; captures; docs | Loop passes headless; docs updated |
+
 ## Test strategy
 
 - M7: airlock cycle state machine, vacuum exposure → vitals, tether constraint, exterior

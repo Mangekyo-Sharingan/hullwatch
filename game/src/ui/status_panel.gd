@@ -89,8 +89,33 @@ func build_readout() -> PackedStringArray:
 		lines.append_array(nav)
 	lines.append("")
 	lines.append_array(_stores_lines())
+	var cargo: PackedStringArray = _cargo_lines()
+	if not cargo.is_empty():
+		lines.append("")
+		lines.append_array(cargo)
 	lines.append("")
 	lines.append("E/ESC: CLOSE")
+	return lines
+
+
+func _cargo_lines() -> PackedStringArray:
+	var lines: PackedStringArray = PackedStringArray()
+	var cargo: Node = _get_system(&"cargo_system")
+	if cargo == null or not cargo.has_method(&"get_status"):
+		return lines
+	var status: Dictionary = cargo.call("get_status")
+	lines.append("CARGO  %d/%d UNITS" % [
+		int(roundf(float(status["used_units"]))),
+		int(roundf(float(status["capacity_units"]))),
+	])
+	var materials: Dictionary = status["materials"]
+	if materials.is_empty():
+		lines.append("  EMPTY")
+	else:
+		var kinds: Array = materials.keys()
+		kinds.sort()
+		for kind: Variant in kinds:
+			lines.append("  %s %d" % [String(kind).to_upper(), int(roundf(float(materials[kind])))])
 	return lines
 
 
