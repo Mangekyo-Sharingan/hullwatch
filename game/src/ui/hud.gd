@@ -19,6 +19,7 @@ const PROCEDURE_ERROR_TEXT: Dictionary = {
 	&"clean_loop": "GREYWATER IS CLEAN ENOUGH",
 	&"no_cutter": "A HULL CUTTER IS REQUIRED",
 	&"no_canister": "AN EMPTY SAMPLE CANISTER IS REQUIRED",
+	&"no_scanner": "A FIELD SCANNER IS REQUIRED",
 	&"depleted": "NOTHING LEFT TO EXTRACT",
 	&"no_sample": "NO SAMPLE TO STOW",
 	&"cargo_full": "CARGO HOLD IS FULL",
@@ -127,6 +128,8 @@ func _message_for(event_name: StringName, payload: Dictionary) -> String:
 			return "NEW TRAFFIC: %s" % String(payload.get("sender", "")).to_upper()
 		&"scanner_ping":
 			return _scanner_ping_text(payload)
+		&"anomaly_logged":
+			return "ANOMALY SURVEY LOGGED: %d EXOTIC" % int(payload.get("units", 0.0))
 		&"procedure_error":
 			return _procedure_error_text(StringName(payload.get("reason", &"")))
 	return ""
