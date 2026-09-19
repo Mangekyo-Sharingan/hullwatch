@@ -130,6 +130,16 @@ const EXPECTED_LINKS: Dictionary = {
 	"LinkStorageAirlock": [&"storage", &"airlock"],
 }
 
+const CRT_PROPS: Array[String] = [
+	"StatusPanel",
+	"MaintenanceBoard",
+	"LogTerminal",
+	"ArchiveTerminal",
+	"CommsTerminal",
+	"NavConsole",
+	"ContactConsole",
+]
+
 var _failures: int = 0
 var _props: Node3D
 var _zones: Node3D
@@ -182,6 +192,7 @@ func _run() -> void:
 	_test_zones()
 	_test_links()
 	_test_doors()
+	_test_crt_props()
 
 	layout.free()
 	_finish()
@@ -254,6 +265,18 @@ func _test_doors() -> void:
 		var frame: StaticBody3D = door.get_node_or_null(^"Frame") as StaticBody3D
 		_check(frame != null and frame.collision_layer == 2 and frame.collision_mask == 0, "door keeps a sensor frame: " + door_name)
 	_check(found == EXPECTED_DOORS.size(), "all %d doors found" % EXPECTED_DOORS.size())
+
+
+func _test_crt_props() -> void:
+	for prop_name: String in CRT_PROPS:
+		var prop: Node3D = _props.get_node_or_null(NodePath(prop_name)) as Node3D
+		if prop == null:
+			_check(false, "crt prop exists: " + prop_name)
+			continue
+		var screen: MeshInstance3D = prop.get_node_or_null(^"Crt/Screen") as MeshInstance3D
+		var housing: MeshInstance3D = prop.get_node_or_null(^"Crt/Housing") as MeshInstance3D
+		_check(screen != null and screen.material_override != null, "crt screen mesh: " + prop_name)
+		_check(housing != null, "crt housing mesh: " + prop_name)
 
 
 func _remove_root_child(node_name: StringName) -> void:

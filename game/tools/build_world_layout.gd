@@ -13,6 +13,10 @@ const MATERIAL_WALL_PAINTED: String = "res://src/data/materials/mat_wall_painted
 const MATERIAL_FLOOR_GRATE: String = "res://src/data/materials/mat_floor_grate.tres"
 const MATERIAL_METAL_RUSTED: String = "res://src/data/materials/mat_metal_rusted.tres"
 const MATERIAL_SCREEN_GLOW: String = "res://src/data/materials/mat_screen_glow.tres"
+const MATERIAL_PLASTIC_BEIGE: String = "res://src/data/materials/mat_plastic_beige.tres"
+const MATERIAL_DARK_PLASTIC: String = "res://src/data/materials/mat_dark_plastic.tres"
+const MATERIAL_PHOSPHOR_GREEN: String = "res://src/data/materials/mat_phosphor_green.tres"
+const MATERIAL_PHOSPHOR_AMBER: String = "res://src/data/materials/mat_phosphor_amber.tres"
 
 const MANUAL_BOOK: String = "res://src/data/manual/manual_book.tres"
 const LOG_ENTRY: String = "res://src/data/logs/log_01.tres"
@@ -33,6 +37,10 @@ const MATERIAL_PATHS: Array[String] = [
 	MATERIAL_FLOOR_GRATE,
 	MATERIAL_METAL_RUSTED,
 	MATERIAL_SCREEN_GLOW,
+	MATERIAL_PLASTIC_BEIGE,
+	MATERIAL_DARK_PLASTIC,
+	MATERIAL_PHOSPHOR_GREEN,
+	MATERIAL_PHOSPHOR_AMBER,
 ]
 
 const RESOURCE_PATHS: Array[String] = [MANUAL_BOOK, LOG_ENTRY, LOG_ENTRY_2]
@@ -73,6 +81,7 @@ const PROPS: Array[Dictionary] = [
 		"size": Vector3(0.15, 1.0, 0.7),
 		"material": MATERIAL_SCREEN_GLOW,
 		"exports": {"compartment_id": &"main"},
+		"crt": {"facing": "x+", "phosphor": "amber", "keys": false},
 	},
 	{
 		"name": "MaintenanceBoard",
@@ -81,6 +90,7 @@ const PROPS: Array[Dictionary] = [
 		"size": Vector3(0.9, 0.7, 0.1),
 		"material": MATERIAL_SCREEN_GLOW,
 		"exports": {},
+		"crt": {"facing": "x+", "phosphor": "amber", "keys": false},
 	},
 	{
 		"name": "ManualBinder",
@@ -99,6 +109,7 @@ const PROPS: Array[Dictionary] = [
 		"material": MATERIAL_SCREEN_GLOW,
 		"exports": {},
 		"resources": {"log_entry": LOG_ENTRY},
+		"crt": {"facing": "z+", "phosphor": "green", "keys": true},
 	},
 	{
 		"name": "CommsTerminal",
@@ -107,6 +118,7 @@ const PROPS: Array[Dictionary] = [
 		"size": Vector3(0.15, 0.5, 0.6),
 		"material": MATERIAL_SCREEN_GLOW,
 		"exports": {},
+		"crt": {"facing": "z+", "phosphor": "green", "keys": true},
 	},
 	{
 		"name": "ArchiveTerminal",
@@ -116,6 +128,7 @@ const PROPS: Array[Dictionary] = [
 		"material": MATERIAL_SCREEN_GLOW,
 		"exports": {},
 		"resources": {"log_entry": LOG_ENTRY_2},
+		"crt": {"facing": "z+", "phosphor": "green", "keys": true},
 	},
 	{
 		"name": "NavConsole",
@@ -124,6 +137,7 @@ const PROPS: Array[Dictionary] = [
 		"size": Vector3(0.15, 0.5, 0.6),
 		"material": MATERIAL_SCREEN_GLOW,
 		"exports": {"waypoint_id": &"relay_cache"},
+		"crt": {"facing": "z+", "phosphor": "green", "keys": true},
 	},
 	{
 		"name": "Bunk",
@@ -244,6 +258,7 @@ const PROPS: Array[Dictionary] = [
 		"size": Vector3(0.15, 0.5, 0.6),
 		"material": MATERIAL_SCREEN_GLOW,
 		"exports": {},
+		"crt": {"facing": "z+", "phosphor": "green", "keys": true},
 	},
 	{
 		"name": "AirlockPanel",
@@ -427,7 +442,60 @@ func _build_prop(spec: Dictionary) -> void:
 	prop.set_script(load(String(spec["script"])) as Script)
 	_apply_exports(prop, spec)
 	_props.add_child(prop)
-	_add_box_children(prop, spec["size"], String(spec["material"]))
+	_add_box_children(prop, spec["size"], String(spec["material"]), not spec.has("crt"))
+	if spec.has("crt"):
+		_build_crt(prop, spec)
+
+
+## 90s CRT workstation: beige housing, recessed phosphor screen behind a dark glass rim,
+## chin knobs, power LED, top vent and an optional keyboard shelf with chunky keys.
+func _build_crt(parent: StaticBody3D, spec: Dictionary) -> void:
+	var config: Dictionary = spec["crt"]
+	var size: Vector3 = spec["size"]
+	var width: float = maxf(size.x, size.z)
+	var height: float = size.y
+	var crt: Node3D = Node3D.new()
+	crt.name = "Crt"
+	match String(config.get("facing", "z+")):
+		"x+":
+			crt.rotation_degrees = Vector3(0, 90, 0)
+		"x-":
+			crt.rotation_degrees = Vector3(0, -90, 0)
+		"z-":
+			crt.rotation_degrees = Vector3(0, 180, 0)
+	crt.position = crt.basis * Vector3(0, 0, 0.06)
+	parent.add_child(crt)
+	var phosphor: String = MATERIAL_PHOSPHOR_AMBER if String(config.get("phosphor", "green")) == "amber" else MATERIAL_PHOSPHOR_GREEN
+	var depth: float = 0.30
+	_add_crt_part(crt, "Housing", Vector3(0, 0, -0.05), Vector3(width, height, depth), MATERIAL_PLASTIC_BEIGE)
+	_add_crt_part(crt, "Glass", Vector3(0, 0.01, depth * 0.5 - 0.055), Vector3(width - 0.07, height - 0.07, 0.02), MATERIAL_DARK_PLASTIC)
+	_add_crt_part(crt, "Screen", Vector3(0, 0.01, depth * 0.5 - 0.04), Vector3(width - 0.12, height - 0.12, 0.012), phosphor)
+	_add_crt_part(crt, "Vent", Vector3(0, height * 0.5 - 0.005, -0.05), Vector3(width * 0.62, 0.02, depth * 0.55), MATERIAL_DARK_PLASTIC)
+	_add_crt_part(crt, "Knob0", Vector3(-width * 0.30, -height * 0.40, depth * 0.5 - 0.03), Vector3(0.028, 0.028, 0.03), MATERIAL_DARK_PLASTIC)
+	_add_crt_part(crt, "Knob1", Vector3(-width * 0.20, -height * 0.40, depth * 0.5 - 0.03), Vector3(0.028, 0.028, 0.03), MATERIAL_DARK_PLASTIC)
+	_add_crt_part(crt, "Led", Vector3(width * 0.36, -height * 0.40, depth * 0.5 - 0.02), Vector3(0.02, 0.02, 0.02), phosphor)
+	if not bool(config.get("keys", false)):
+		return
+	var shelf_y: float = -height * 0.5 - 0.07
+	_add_crt_part(crt, "Shelf", Vector3(0, shelf_y, 0.10), Vector3(width * 1.05, 0.035, 0.22), MATERIAL_PLASTIC_BEIGE)
+	_add_crt_part(crt, "LegW", Vector3(-width * 0.45, shelf_y + 0.07, 0.02), Vector3(0.04, 0.14, 0.04), MATERIAL_DARK_PLASTIC)
+	_add_crt_part(crt, "LegE", Vector3(width * 0.45, shelf_y + 0.07, 0.02), Vector3(0.04, 0.14, 0.04), MATERIAL_DARK_PLASTIC)
+	for row: int in 2:
+		for column: int in 6:
+			var key_x: float = -width * 0.36 + float(column) * width * 0.144
+			var key_z: float = 0.055 + float(row) * 0.06
+			_add_crt_part(crt, "Key%d_%d" % [row, column], Vector3(key_x, shelf_y + 0.026, key_z), Vector3(width * 0.11, 0.016, 0.045), MATERIAL_DARK_PLASTIC)
+
+
+func _add_crt_part(parent: Node3D, part_name: String, part_position: Vector3, size: Vector3, material_path: String) -> void:
+	var mesh: BoxMesh = BoxMesh.new()
+	mesh.size = size
+	var node: MeshInstance3D = MeshInstance3D.new()
+	node.name = part_name
+	node.mesh = mesh
+	node.material_override = _materials[material_path] as Material
+	node.position = part_position
+	parent.add_child(node)
 
 
 func _build_door(spec: Dictionary) -> void:
@@ -499,13 +567,15 @@ func _build_link(spec: Dictionary) -> void:
 	_links.add_child(link)
 
 
-func _add_box_children(parent: StaticBody3D, size: Vector3, material_path: String) -> void:
+func _add_box_children(parent: StaticBody3D, size: Vector3, material_path: String, with_mesh: bool = true) -> void:
 	var box_shape: BoxShape3D = BoxShape3D.new()
 	box_shape.size = size
 	var shape: CollisionShape3D = CollisionShape3D.new()
 	shape.name = "Shape"
 	shape.shape = box_shape
 	parent.add_child(shape)
+	if not with_mesh:
+		return
 	var box_mesh: BoxMesh = BoxMesh.new()
 	box_mesh.size = size
 	var mesh: MeshInstance3D = MeshInstance3D.new()
@@ -617,9 +687,15 @@ func _verify_props(props: Node) -> void:
 			_failures += 1
 			print("FAIL: missing prop ", spec["name"])
 			continue
-		if prop.get_node_or_null(^"Shape") == null or prop.get_node_or_null(^"Mesh") == null:
+		if prop.get_node_or_null(^"Shape") == null:
 			_failures += 1
-			print("FAIL: prop missing Shape/Mesh: ", spec["name"])
+			print("FAIL: prop missing Shape: ", spec["name"])
+			continue
+		var has_plain_mesh: bool = prop.get_node_or_null(^"Mesh") != null
+		var has_crt: bool = prop.get_node_or_null(^"Crt/Housing") != null and prop.get_node_or_null(^"Crt/Screen") != null
+		if not has_plain_mesh and not has_crt:
+			_failures += 1
+			print("FAIL: prop missing Mesh or CRT parts: ", spec["name"])
 	for spec: Dictionary in DOORS:
 		var door: Node = props.get_node_or_null(NodePath(String(spec["name"])))
 		if door == null:
