@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="FabricatorRecipe" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/components/fabricator_recipe.gd" id="1_recipe"]
+
+[resource]
+script = ExtResource("1_recipe")
+recipe_id = &"gasket"
+display_name = "Seal gasket"
+material_kind = &"metal"
+material_units = 3.0
+output_part_id = &"gasket"
+output_count = 2
+hours = 1.0

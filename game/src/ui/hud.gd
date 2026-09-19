@@ -22,6 +22,10 @@ const PROCEDURE_ERROR_TEXT: Dictionary = {
 	&"depleted": "NOTHING LEFT TO EXTRACT",
 	&"no_sample": "NO SAMPLE TO STOW",
 	&"cargo_full": "CARGO HOLD IS FULL",
+	&"no_materials": "NOT ENOUGH MATERIALS",
+	&"fabricator_busy": "FABRICATOR IS ALREADY RUNNING",
+	&"no_power": "NO POWER TO THAT CIRCUIT",
+	&"unknown_recipe": "UNKNOWN RECIPE",
 }
 
 

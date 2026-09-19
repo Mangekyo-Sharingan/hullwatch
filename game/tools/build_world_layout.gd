@@ -261,6 +261,14 @@ const PROPS: Array[Dictionary] = [
 		"crt": {"facing": "z+", "phosphor": "green", "keys": true},
 	},
 	{
+		"name": "Fabricator",
+		"script": "res://src/interactables/fabricator_unit.gd",
+		"position": Vector3(-2.6, 0.6, 2.2),
+		"size": Vector3(1.0, 1.2, 0.6),
+		"material": MATERIAL_MACHINE_TEAL,
+		"exports": {},
+	},
+	{
 		"name": "CargoPort",
 		"script": "res://src/interactables/cargo_port.gd",
 		"position": Vector3(-7.6, 1.0, -2.2),

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="FabricatorRecipe" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/components/fabricator_recipe.gd" id="1_recipe"]
+
+[resource]
+script = ExtResource("1_recipe")
+recipe_id = &"co2_filter"
+display_name = "CO2 filter"
+material_kind = &"ore"
+material_units = 5.0
+output_part_id = &"filter_co2"
+output_count = 1
+hours = 2.5

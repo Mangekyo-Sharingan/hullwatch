@@ -54,6 +54,13 @@
 [ext_resource type="Script" path="res://src/systems/sector.gd" id="72_sector"]
 [ext_resource type="Script" path="res://src/world/field_streamer.gd" id="73_streamer"]
 [ext_resource type="Script" path="res://src/systems/cargo.gd" id="74_cargo"]
+[ext_resource type="Resource" path="res://src/data/power/circuit_fabricator.tres" id="75_circuit_fabricator"]
+[ext_resource type="Script" path="res://src/systems/fabricator.gd" id="76_fabricator"]
+[ext_resource type="Resource" path="res://src/data/fabrication/recipe_water_filter.tres" id="77_recipe_water"]
+[ext_resource type="Resource" path="res://src/data/fabrication/recipe_o2_candle.tres" id="78_recipe_candle"]
+[ext_resource type="Resource" path="res://src/data/fabrication/recipe_co2_filter.tres" id="79_recipe_co2"]
+[ext_resource type="Resource" path="res://src/data/fabrication/recipe_gasket.tres" id="80_recipe_gasket"]
+[ext_resource type="Script" path="res://src/components/fabricator_recipe.gd" id="81_recipe_script"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_sky"]
 shader = ExtResource("71_space_sky")
@@ -183,7 +190,7 @@ script = ExtResource("2_power")
 generators = {
 &"rtg_main": 500.0
 }
-circuit_defs = Array[ExtResource("5_dgi5k")]([ExtResource("4_circuit_life_support"), ExtResource("5_circuit_scrubber"), ExtResource("6_circuit_lighting"), ExtResource("68_circuit_airlock")])
+circuit_defs = Array[ExtResource("5_dgi5k")]([ExtResource("4_circuit_life_support"), ExtResource("5_circuit_scrubber"), ExtResource("6_circuit_lighting"), ExtResource("68_circuit_airlock"), ExtResource("75_circuit_fabricator")])
 wear_components = Array[ExtResource("9_j8jky")]([ExtResource("18_rtg_main"), ExtResource("19_battery_main"), ExtResource("58_lighting_ballast")])
 
 [node name="AtmosphereSystem" type="Node" parent="Systems"]
@@ -228,6 +235,10 @@ script = ExtResource("72_sector")
 
 [node name="CargoSystem" type="Node" parent="Systems"]
 script = ExtResource("74_cargo")
+
+[node name="FabricatorSystem" type="Node" parent="Systems"]
+script = ExtResource("76_fabricator")
+recipes = Array[ExtResource("81_recipe_script")]([ExtResource("77_recipe_water"), ExtResource("78_recipe_candle"), ExtResource("79_recipe_co2"), ExtResource("80_recipe_gasket")])
 
 [node name="UI" type="Node" parent="."]
 
