@@ -110,13 +110,17 @@ func _test_hardpoints() -> void:
 	if hull == null:
 		_check(false, "hull exists for hardpoint check")
 		return
+	var expected: Array[String] = ["quarters", "life_support", "galley", "engine_bay"]
 	var count: int = 0
-	for child: Node in hull.get_children():
-		if String(child.name).begins_with("Hardpoint"):
-			count += 1
-			var marker: Node3D = child as Node3D
-			if marker != null:
-				_check(is_equal_approx(marker.position.y, 3.6), "hardpoint sits on the deck: %s" % child.name)
+	for id: String in expected:
+		var plate: Node = hull.get_node_or_null(NodePath("DockPlate_" + id))
+		var marker: Node = hull.get_node_or_null(NodePath("Hardpoint_" + id))
+		count += 1
+		_check(plate != null and plate.is_in_group(&"dock_plate"), "dock mount plate exists: " + id)
+		_check(marker != null and marker.is_in_group(&"hardpoint"), "hardpoint marker exists: " + id)
+		if marker != null:
+			var position: Vector3 = (marker as Node3D).position
+			_check(absf(position.x) > 6.5, "hardpoint sits on a side wall: " + id)
 	_check(count == 4, "four hardpoint markers exist")
 
 

@@ -6,6 +6,7 @@
 extends SceneTree
 
 const OUTPUT_PATH: String = "res://scenes/ship_geometry.tscn"
+const OUTPUT_POD_PATH: String = "res://scenes/dock_pod.tscn"
 
 const MATERIAL_FLOOR: String = "res://src/data/materials/mat_floor_grate.tres"
 const MATERIAL_XENON: String = "res://src/data/materials/mat_xenon_metal.tres"
@@ -14,6 +15,8 @@ const MATERIAL_CONDUIT: String = "res://src/data/materials/mat_metal_rusted.tres
 const MATERIAL_WINDOW: String = "res://src/data/materials/mat_space_window.tres"
 const SCRIPT_TETHER_ANCHOR: String = "res://src/world/tether_anchor.gd"
 const SCRIPT_TETHER_ZONE: String = "res://src/world/tether_zone.gd"
+const SCRIPT_ZONE: String = "res://src/world/compartment_zone.gd"
+const SCRIPT_LINK: String = "res://src/world/compartment_link.gd"
 
 const WALL_THICKNESS: float = 0.2
 const DOOR_TOP: float = 2.2
@@ -64,6 +67,15 @@ const PROFILE_COCKPIT: Array[Vector2] = [
 	Vector2(0.50, 0.20),
 	Vector2(2.45, 0.20),
 	Vector2(CEILING_BOTTOM, 0.60),
+	Vector2(CEILING_TOP, 0.0),
+]
+## Dock throats: straight walls up to the door head, then a small cove. The wall inset is
+## zero so the throat bore matches the hull aperture exactly (no ledge at the threshold).
+const PROFILE_THROAT: Array[Vector2] = [
+	Vector2(FLOOR_BOTTOM, 0.0),
+	Vector2(0.0, 0.0),
+	Vector2(DOOR_TOP, 0.0),
+	Vector2(CEILING_BOTTOM, 0.34),
 	Vector2(CEILING_TOP, 0.0),
 ]
 
@@ -121,27 +133,27 @@ const SPACES: Array[Dictionary] = [
 		"profile": "room_m",
 		"walls": [0, 1, 3, 4, 5, 6, 7],
 		"open": [2],
-		"gaps": [],
+		"gaps": [{"edge": 6, "from": -10.9, "to": -9.9}],
 	},
 	{
 		"name": "LifeSupport",
 		"min": Vector2(-5.45, -7.6),
 		"max": Vector2(-1.95, -5.0),
-		"chamfer": 0.75,
+		"chamfer": 0.5,
 		"profile": "room_m",
 		"walls": [0, 1, 3, 4, 5, 6, 7],
 		"open": [2],
-		"gaps": [],
+		"gaps": [{"edge": 6, "from": -6.8, "to": -5.8}],
 	},
 	{
 		"name": "Galley",
 		"min": Vector2(1.95, -7.6),
 		"max": Vector2(5.95, -4.0),
-		"chamfer": 1.2,
+		"chamfer": 1.0,
 		"profile": "room_l",
 		"walls": [0, 1, 2, 3, 4, 5, 7],
 		"open": [6],
-		"gaps": [],
+		"gaps": [{"edge": 2, "from": -6.3, "to": -5.3}],
 	},
 	{
 		"name": "WaterCloset",
@@ -171,7 +183,10 @@ const SPACES: Array[Dictionary] = [
 		"profile": "room_l",
 		"walls": [0, 1, 2, 3, 4, 5, 6, 7],
 		"open": [],
-		"gaps": [{"edge": 0, "from": -0.88, "to": 0.88, "top": CEILING_TOP}],
+		"gaps": [
+			{"edge": 0, "from": -0.88, "to": 0.88, "top": CEILING_TOP},
+			{"edge": 2, "from": 4.2, "to": 5.2},
+		],
 	},
 	{
 		"name": "Airlock",
@@ -197,6 +212,26 @@ const CATWALK_TOP: float = 0.0
 const CATWALK_BOTTOM: float = -0.15
 const AIRLOCK_GAP_FROM: float = -1.7
 const AIRLOCK_GAP_TO: float = -0.7
+
+## M10 dock mounts: a doorway in a parent room's outer wall, a throat across the void to the
+## hull band, and a 1 m aperture in the hull band sealed by a flush mount plate until a pod
+## is built. `room_face` is that room wall's outer face; the hull face comes from the plan.
+## Pinned ids per EXPANSION_SPEC §M10. `outward` is the hull side (-1 west, +1 east).
+const DOCKS: Array[Dictionary] = [
+	{"id": "quarters", "room": "Quarters", "hull_edge": 6, "z": -10.4, "room_face": -6.65, "outward": -1.0},
+	{"id": "life_support", "room": "LifeSupport", "hull_edge": 6, "z": -6.3, "room_face": -5.65, "outward": -1.0},
+	{"id": "galley", "room": "Galley", "hull_edge": 2, "z": -5.8, "room_face": 6.15, "outward": 1.0},
+	{"id": "engine_bay", "room": "EngineBay", "hull_edge": 2, "z": 4.7, "room_face": 3.8, "outward": 1.0},
+]
+const DOCK_DOOR_HALF: float = 0.5
+const DOCK_PLATE_THICKNESS: float = 0.15
+## The generated pod scene's mating convention: origin on the hull's outer face at the
+## doorway centre, floor at y=0, doorway through the local -X wall (0.2 m flange), the pod
+## extending toward +X. Place west docks yawed 180 degrees, east docks unrotated (M10.3).
+const POD_DOOR_HALF: float = 0.5
+const POD_MIN: Vector2 = Vector2(0.2, -1.6)
+const POD_MAX: Vector2 = Vector2(4.4, 1.6)
+const POD_CHAMFER: float = 0.8
 
 var _root: Node3D
 var _materials: Dictionary = {}
@@ -227,7 +262,44 @@ func _build() -> void:
 		_build_space(spec)
 	_build_cockpit_dash()
 	_build_hull_exterior()
+	_build_dock_throats()
 	_build_dressing()
+
+
+## The generated dock pod: a placeable module room in the same faceted language, origin at
+## its mating doorway on the hull's outer face (see POD_* constants). Spawned by M10.3.
+func _build_dock_pod() -> Node3D:
+	var pod: Node3D = Node3D.new()
+	pod.name = "DockPod"
+	_build_prism_space(pod, "PodRoom", {
+		"name": "PodRoom",
+		"min": POD_MIN,
+		"max": POD_MAX,
+		"chamfer": POD_CHAMFER,
+		"profile": "room_l",
+		"walls": [0, 1, 2, 3, 4, 5, 6, 7],
+		"open": [],
+		"gaps": [{"edge": 6, "from": -POD_DOOR_HALF, "to": POD_DOOR_HALF}],
+	})
+	var zone: Area3D = Area3D.new()
+	zone.name = "Zone"
+	zone.position = Vector3((POD_MIN.x + POD_MAX.x) * 0.5, 1.5, 0.0)
+	zone.set_script(load(SCRIPT_ZONE) as Script)
+	zone.set(&"compartment_id", &"module")
+	pod.add_child(zone)
+	var box: BoxShape3D = BoxShape3D.new()
+	box.size = Vector3(POD_MAX.x - POD_MIN.x - 0.6, 3.0, POD_MAX.y - POD_MIN.y - 0.6)
+	var shape: CollisionShape3D = CollisionShape3D.new()
+	shape.name = "Shape"
+	shape.shape = box
+	zone.add_child(shape)
+	var link: Node = Node.new()
+	link.name = "Link"
+	link.set_script(load(SCRIPT_LINK) as Script)
+	link.set(&"compartment_a", &"module")
+	link.set(&"compartment_b", &"")
+	pod.add_child(link)
+	return pod
 
 
 func _profile_for(profile_name: StringName) -> Array[Vector2]:
@@ -242,24 +314,29 @@ func _profile_for(profile_name: StringName) -> Array[Vector2]:
 			return PROFILE_ROOM_S
 		&"cockpit":
 			return PROFILE_COCKPIT
+		&"throat":
+			return PROFILE_THROAT
 	_failures += 1
 	print("FAIL: unknown profile ", profile_name)
 	return PROFILE_ROOM_M
 
 
-func _make_space(space_name: String) -> StaticBody3D:
+func _build_space(spec: Dictionary) -> void:
+	_build_prism_space(_root, String(spec["name"]), spec)
+
+
+## One prismatic space: a plan polygon swept through profile rings, with wall bands (and
+## their jambs/lintels/sills), thresholds under every opening, and floor/ceiling caps.
+## `naked_edges` open edges get no threshold (used by dock throats, which meet the hull
+## band's own aperture floor exactly).
+func _build_prism_space(parent: Node3D, space_name: String, spec: Dictionary) -> void:
 	var space: StaticBody3D = StaticBody3D.new()
 	space.name = space_name
-	_root.add_child(space)
-	return space
-
-
-func _build_space(spec: Dictionary) -> void:
-	var space: StaticBody3D = _make_space(String(spec["name"]))
+	parent.add_child(space)
 	var outline: PackedVector2Array = HullProfile.rectangle_outline(spec["min"], spec["max"], spec["chamfer"])
 	if outline.is_empty():
 		_failures += 1
-		print("FAIL: empty outline for ", spec["name"])
+		print("FAIL: empty outline for ", space_name)
 		return
 	var profile: Array[Vector2] = _profile_for(StringName(spec["profile"]))
 	var rings: Array[PackedVector2Array] = HullProfile.profile_rings(outline, profile)
@@ -269,9 +346,12 @@ func _build_space(spec: Dictionary) -> void:
 	var ceilings: Dictionary = _surface()
 	var collision: Array[Vector3] = []
 	var open_edges: Array = spec["open"]
+	var naked_edges: Array = spec.get("naked_edges", [])
 	for edge_index: int in spec["walls"]:
 		_add_wall_edge(walls, outline, outer, profile, rings, edge_index, _gaps_for(spec, edge_index), collision)
 	for edge_index: int in open_edges:
+		if naked_edges.has(edge_index):
+			continue
 		_add_threshold(floors, outline, outer, profile, rings, edge_index, 0.0, 1.0, collision)
 	for gap: Dictionary in spec["gaps"]:
 		if float(gap.get("bottom", FLOOR_BOTTOM)) > FLOOR_BOTTOM + EPSILON:
@@ -725,7 +805,7 @@ func _build_hull_exterior() -> void:
 	_add_aft_deck(decks, shell, collision)
 	_add_ramp(decks, shell, collision)
 	_add_railings(hull)
-	_add_hardpoints(hull)
+	_add_dock_plates(hull)
 	_add_eva_anchors(hull)
 	hull.add_child(_make_surface_node("Hull", shell, MATERIAL_XENON, collision))
 	hull.add_child(_make_surface_node("Deck", decks, MATERIAL_FLOOR, collision))
@@ -747,8 +827,9 @@ func _add_hull_band(surface: Dictionary, plan: PackedVector2Array, outer: Packed
 	var outward_3d: Vector3 = Vector3(outward.x, 0.0, outward.y)
 	var direction_3d: Vector3 = Vector3(b.x - a.x, 0.0, b.y - a.y).normalized()
 	var spans: Array = [Vector2(0.0, 1.0)]
-	if edge_index == 6:
-		spans = _spans_without_gaps(plan, edge_index, [{"edge": 6, "from": AIRLOCK_GAP_FROM, "to": AIRLOCK_GAP_TO}])
+	var gaps: Array = _hull_gaps_for_edge(edge_index)
+	if not gaps.is_empty():
+		spans = _spans_without_gaps(plan, edge_index, gaps)
 	for span: Vector2 in spans:
 		var in_a: Vector3 = Vector3(a.lerp(b, span.x).x, HULL_BOTTOM, a.lerp(b, span.x).y)
 		var in_b: Vector3 = Vector3(a.lerp(b, span.y).x, HULL_BOTTOM, a.lerp(b, span.y).y)
@@ -762,8 +843,8 @@ func _add_hull_band(surface: Dictionary, plan: PackedVector2Array, outer: Packed
 		_add_quad(surface, out_a, out_b, out_b2, out_a2, outward_3d, collision)
 		_add_quad(surface, in_a, in_b, out_b, out_a, Vector3.DOWN, collision)
 		_add_quad(surface, in_a2, in_b2, out_b2, out_a2, Vector3.UP, collision)
-	if edge_index == 6:
-		var gap_span: Vector2 = _gap_span(plan, edge_index, AIRLOCK_GAP_FROM, AIRLOCK_GAP_TO)
+	for gap: Dictionary in gaps:
+		var gap_span: Vector2 = _gap_span(plan, edge_index, float(gap["from"]), float(gap["to"]))
 		_add_flat_jamb(surface, plan, outer, edge_index, gap_span.x, HULL_BOTTOM, DOOR_TOP, direction_3d, collision)
 		_add_flat_jamb(surface, plan, outer, edge_index, gap_span.y, HULL_BOTTOM, DOOR_TOP, -direction_3d, collision)
 		var inner_gap_a: Vector2 = a.lerp(b, gap_span.x)
@@ -869,19 +950,90 @@ func _add_railings(hull: StaticBody3D) -> void:
 		hull.add_child(bar)
 
 
-func _add_hardpoints(hull: StaticBody3D) -> void:
-	var points: Array[Vector3] = [
-		Vector3(-3.6, DECK_TOP, -13.5),
-		Vector3(3.6, DECK_TOP, -13.5),
-		Vector3(-3.6, DECK_TOP, 3.0),
-		Vector3(3.6, DECK_TOP, 3.0),
-	]
-	for i: int in points.size():
+## M10 dock mounts: a throat from each parent room's outer wall to the hull band, and a
+## flush mount plate sealing the hull aperture until a pod is built there.
+func _build_dock_throats() -> void:
+	for dock: Dictionary in DOCKS:
+		_build_dock_throat(dock)
+
+
+func _build_dock_throat(dock: Dictionary) -> void:
+	var hull_face: float = _hull_face_for(float(dock["outward"]))
+	var room_face: float = float(dock["room_face"])
+	if absf(room_face - hull_face) <= EPSILON:
+		return
+	var z: float = float(dock["z"])
+	var min_x: float = minf(room_face, hull_face)
+	var max_x: float = maxf(room_face, hull_face)
+	var hull_end_is_west: bool = hull_face < room_face
+	_build_prism_space(_root, "DockThroat_" + String(dock["id"]), {
+		"name": "DockThroat_" + String(dock["id"]),
+		"min": Vector2(min_x, z - DOCK_DOOR_HALF),
+		"max": Vector2(max_x, z + DOCK_DOOR_HALF),
+		"chamfer": 0.0,
+		"profile": "throat",
+		"walls": [0, 2],
+		"open": [1, 3],
+		"naked_edges": [3 if hull_end_is_west else 1],
+		"gaps": [],
+	})
+
+
+## Flush mount plate + hardpoint marker per dock, children of the hull shell. The plate
+## spans the hull band's full height so it seals the aperture (M10.3 swaps it for the pod).
+func _add_dock_plates(hull: StaticBody3D) -> void:
+	for dock: Dictionary in DOCKS:
+		var id: String = String(dock["id"])
+		var outward: float = float(dock["outward"])
+		var band_outer: float = _hull_face_for(outward) + outward * HULL_BAND
+		var plate: StaticBody3D = StaticBody3D.new()
+		plate.name = "DockPlate_" + id
+		plate.position = Vector3(band_outer - outward * DOCK_PLATE_THICKNESS * 0.5, (HULL_BOTTOM + DECK_BOTTOM) * 0.5, float(dock["z"]))
+		_join_group(plate, &"dock_plate")
+		plate.set_meta(&"hardpoint_id", StringName(id))
+		hull.add_child(plate)
+		var size: Vector3 = Vector3(DOCK_PLATE_THICKNESS, DECK_BOTTOM - HULL_BOTTOM, DOCK_DOOR_HALF * 2.0)
+		var box_shape: BoxShape3D = BoxShape3D.new()
+		box_shape.size = size
+		var shape: CollisionShape3D = CollisionShape3D.new()
+		shape.name = "Shape"
+		shape.shape = box_shape
+		plate.add_child(shape)
+		var box_mesh: BoxMesh = BoxMesh.new()
+		box_mesh.size = size
+		var mesh: MeshInstance3D = MeshInstance3D.new()
+		mesh.name = "Mesh"
+		mesh.mesh = box_mesh
+		mesh.material_override = _materials[MATERIAL_CONDUIT] as Material
+		plate.add_child(mesh)
 		var marker: Node3D = Node3D.new()
-		marker.name = "Hardpoint%s" % String.chr(65 + i)
-		marker.position = points[i]
-		marker.add_to_group(&"hardpoint")
+		marker.name = "Hardpoint_" + id
+		marker.position = Vector3(band_outer + outward * 0.1, 1.4, float(dock["z"]))
+		_join_group(marker, &"hardpoint")
+		marker.set_meta(&"hardpoint_id", StringName(id))
 		hull.add_child(marker)
+
+
+## Group membership must be marked persistent to reach the packed scene; do it while the
+## node is inside the tree so the assignment is legal.
+func _join_group(node: Node, group: StringName) -> void:
+	root.add_child(node)
+	node.add_to_group(group, true)
+	root.remove_child(node)
+
+
+func _hull_face_for(outward: float) -> float:
+	return HULL_PLAN_MIN.x if outward < 0.0 else HULL_PLAN_MAX.x
+
+
+func _hull_gaps_for_edge(edge_index: int) -> Array:
+	var gaps: Array = []
+	if edge_index == 6:
+		gaps.append({"from": AIRLOCK_GAP_FROM, "to": AIRLOCK_GAP_TO})
+	for dock: Dictionary in DOCKS:
+		if int(dock["hull_edge"]) == edge_index:
+			gaps.append({"from": float(dock["z"]) - DOCK_DOOR_HALF, "to": float(dock["z"]) + DOCK_DOOR_HALF})
+	return gaps
 
 
 func _add_eva_anchors(hull: StaticBody3D) -> void:
@@ -945,21 +1097,16 @@ func _save() -> void:
 		print("FAILURES: ", _failures)
 		quit(1)
 		return
-	_assign_owners(_root, _root)
-	var packed: PackedScene = PackedScene.new()
-	var pack_error: Error = packed.pack(_root)
-	if pack_error != OK:
-		print("FAIL: pack error ", pack_error)
-		quit(1)
-		return
-	var save_error: Error = ResourceSaver.save(packed, OUTPUT_PATH)
-	if save_error != OK:
-		print("FAIL: save error ", save_error)
+	if not _write_scene(_root, OUTPUT_PATH):
+		print("FAILURES: ", _failures)
 		quit(1)
 		return
 	_root.free()
 	_root = null
-	if not _normalize_output():
+	var pod: Node3D = _build_dock_pod()
+	var pod_ok: bool = _failures == 0 and _write_scene(pod, OUTPUT_POD_PATH)
+	pod.free()
+	if not pod_ok:
 		print("FAILURES: ", _failures)
 		quit(1)
 		return
@@ -971,13 +1118,28 @@ func _save() -> void:
 	quit(0)
 
 
+func _write_scene(scene_root: Node3D, path: String) -> bool:
+	_assign_owners(scene_root, scene_root)
+	var packed: PackedScene = PackedScene.new()
+	var pack_error: Error = packed.pack(scene_root)
+	if pack_error != OK:
+		_failures += 1
+		print("FAIL: pack error ", pack_error, " for ", path)
+		return false
+	var save_error: Error = ResourceSaver.save(packed, path)
+	if save_error != OK:
+		_failures += 1
+		print("FAIL: save error ", save_error, " for ", path)
+		return false
+	return _normalize_output(path)
+
+
 ## PackedScene.pack() assigns random per-run node unique_ids; strip them so regenerating is byte-stable.
-func _normalize_output() -> bool:
-	var output_path: String = ProjectSettings.globalize_path(OUTPUT_PATH)
+func _normalize_output(output_path: String) -> bool:
 	var file: FileAccess = FileAccess.open(output_path, FileAccess.READ)
 	if file == null:
 		_failures += 1
-		print("FAIL: cannot reopen ", OUTPUT_PATH)
+		print("FAIL: cannot reopen ", output_path)
 		return false
 	var text: String = file.get_as_text()
 	file.close()
@@ -986,7 +1148,7 @@ func _normalize_output() -> bool:
 	var write_file: FileAccess = FileAccess.open(output_path, FileAccess.WRITE)
 	if write_file == null:
 		_failures += 1
-		print("FAIL: cannot rewrite ", OUTPUT_PATH)
+		print("FAIL: cannot rewrite ", output_path)
 		return false
 	write_file.store_string(regex.sub(text, "", true))
 	write_file.close()
@@ -1035,16 +1197,106 @@ func _verify() -> bool:
 		if hull_shape == null or not (hull_shape.shape is ConcavePolygonShape3D):
 			_failures += 1
 			print("FAIL: HullExterior has no shell collision")
-		var hardpoint_count: int = 0
-		for child: Node in hull.get_children():
-			if String(child.name).begins_with("Hardpoint"):
-				hardpoint_count += 1
-		if hardpoint_count < 4:
-			_failures += 1
-			print("FAIL: expected four hardpoint markers, found ", hardpoint_count, " among ", hull.get_child_count(), " hull children")
-	print("OK: spaces=", SPACE_NAMES.size(), " parts=", parts)
+		_verify_docks(hull)
+	print("OK: spaces=", SPACE_NAMES.size(), " parts=", parts, " docks=", DOCKS.size())
 	instance.free()
+	_verify_dock_table()
+	var pod: PackedScene = load(OUTPUT_POD_PATH) as PackedScene
+	if pod == null:
+		_failures += 1
+		print("FAIL: generated pod scene did not load")
+		return _failures == 0
+	var pod_instance: Node = pod.instantiate()
+	_verify_pod(pod_instance)
+	pod_instance.free()
 	return _failures == 0
+
+
+## Every pinned dock must exist as a plate + marker on the hull, with one doorway in its
+## parent room and one hull-band aperture, all sharing the pinned hardpoint id.
+func _verify_docks(hull: Node) -> void:
+	var plates: int = 0
+	var markers: int = 0
+	for dock: Dictionary in DOCKS:
+		var id: String = String(dock["id"])
+		var plate: Node = hull.get_node_or_null(NodePath("DockPlate_" + id))
+		if plate == null or not plate.get_groups().has(&"dock_plate"):
+			_failures += 1
+			print("FAIL: missing dock plate ", id)
+			continue
+		plates += 1
+		if plate.get_meta(&"hardpoint_id", &"") != StringName(id):
+			_failures += 1
+			print("FAIL: dock plate id mismatch: ", id)
+		var shape: CollisionShape3D = plate.get_node_or_null(^"Shape") as CollisionShape3D
+		var mesh: MeshInstance3D = plate.get_node_or_null(^"Mesh") as MeshInstance3D
+		if shape == null or not (shape.shape is BoxShape3D) or mesh == null or mesh.mesh == null:
+			_failures += 1
+			print("FAIL: dock plate is incomplete: ", id)
+		var marker: Node = hull.get_node_or_null(NodePath("Hardpoint_" + id))
+		if marker == null or not marker.get_groups().has(&"hardpoint"):
+			_failures += 1
+			print("FAIL: missing hardpoint marker ", id)
+			continue
+		markers += 1
+	if plates != DOCKS.size() or markers != DOCKS.size():
+		_failures += 1
+		print("FAIL: expected ", DOCKS.size(), " dock plates and markers, found ", plates, " and ", markers)
+
+
+## Guards the pinned dock table against drift: each entry must match its room's plan bounds
+## and carry the doorway gap it claims, on the hull side it claims.
+func _verify_dock_table() -> void:
+	for dock: Dictionary in DOCKS:
+		var spec: Dictionary = {}
+		for candidate: Dictionary in SPACES:
+			if String(candidate["name"]) == String(dock["room"]):
+				spec = candidate
+				break
+		if spec.is_empty():
+			_failures += 1
+			print("FAIL: dock room missing: ", dock["room"])
+			continue
+		var outward: float = float(dock["outward"])
+		var expected_face: float = float(spec["min"].x) - WALL_THICKNESS if outward < 0.0 else float(spec["max"].x) + WALL_THICKNESS
+		if not is_equal_approx(expected_face, float(dock["room_face"])):
+			_failures += 1
+			print("FAIL: dock ", dock["id"], " room_face ", dock["room_face"], " != ", expected_face)
+		var gaps: Array = spec["gaps"]
+		var found: bool = false
+		for gap: Dictionary in gaps:
+			if is_equal_approx(float(gap["from"]), float(dock["z"]) - DOCK_DOOR_HALF) and is_equal_approx(float(gap["to"]), float(dock["z"]) + DOCK_DOOR_HALF):
+				found = true
+		if not found:
+			_failures += 1
+			print("FAIL: dock ", dock["id"], " has no matching doorway gap in ", dock["room"])
+
+
+func _verify_pod(pod: Node) -> void:
+	var room: Node = pod.get_node_or_null(^"PodRoom")
+	if room == null:
+		_failures += 1
+		print("FAIL: pod has no PodRoom")
+	else:
+		var shape_node: CollisionShape3D = room.get_node_or_null(^"ShellShape") as CollisionShape3D
+		if shape_node == null or not (shape_node.shape is ConcavePolygonShape3D):
+			_failures += 1
+			print("FAIL: pod room has no shell collision")
+		var floor_mesh: MeshInstance3D = room.get_node_or_null(^"FloorMesh") as MeshInstance3D
+		if floor_mesh == null or floor_mesh.mesh == null:
+			_failures += 1
+			print("FAIL: pod room has no floor mesh")
+	var zone: Node = pod.get_node_or_null(^"Zone")
+	if zone == null or zone.get(&"compartment_id") != &"module":
+		_failures += 1
+		print("FAIL: pod zone missing or has no module compartment id")
+	elif not (zone.get_node_or_null(^"Shape") as CollisionShape3D).shape is BoxShape3D:
+		_failures += 1
+		print("FAIL: pod zone has no box shape")
+	var link: Node = pod.get_node_or_null(^"Link")
+	if link == null or link.get(&"compartment_a") != &"module":
+		_failures += 1
+		print("FAIL: pod link missing or not wired to the module compartment")
 
 
 func _count_parts(node: Node) -> int:

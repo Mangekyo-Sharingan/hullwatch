@@ -168,7 +168,19 @@ module compartments already registered.
 
 **Status:** M10.1 landed — `ShipModule` + `ModuleSystem` (catalog, gating, cargo cost,
 compartment register/unregister, save/load, typed signals) with `remove_compartment` added to
-atmosphere/thermal/hull and `test_modules` green. Next: M10.2 dock geometry.
+atmosphere/thermal/hull and `test_modules` green. M10.2 landed — four dock mounts
+(`hp_quarters`, `hp_life_support`, `hp_galley`, `hp_engine_bay`): each is a 1 m doorway in the
+parent room's outer wall, a throat across the void to the hull band (profile `throat`, zero
+wall inset so the bore matches the aperture), a 1 m aperture cut in the hull band, and a
+flush mount plate (`DockPlate_<id>`, group `dock_plate`, conduit material) spanning the band's
+full height with the hardpoint marker (`Hardpoint_<id>`, group `hardpoint`) just outside it.
+The roof-deck hardpoint markers are gone. `build_ship_geometry.gd` now also generates
+`scenes/dock_pod.tscn`: the generic pod room (plan 0.2..4.4 x ±1.6, chamfer 0.8, profile
+`room_l`, doorway through its local −X wall), with a `Zone` (`compartment_id` `module`) and a
+`Link` node; origin sits on the hull's outer face at the doorway centre, floor at y=0, pod
+extending toward +X — place west docks yawed 180°, east docks unrotated (M10.3). Node groups
+are marked persistent (Godot only serializes persistent groups; the previous roof hardpoints
+silently had none). `test_module_geometry` green. Next: M10.3 construction scene.
 
 ## Test strategy
 

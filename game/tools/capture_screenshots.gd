@@ -23,11 +23,11 @@ func _run() -> void:
 	var player: Node3D = _main.get_node("Player")
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
-	await _capture(player, Vector3(-3.15, 0.1, -9.6), 0.0, "shot_quarters.png")
+	await _capture(player, Vector3(-4.2, 0.1, -9.6), 0.0, "shot_quarters.png")
 	await _capture(player, Vector3(0.0, 0.1, -2.5), 0.0, "shot_corridor_north.png")
-	await _capture(player, Vector3(-2.6, 0.1, -5.3), 0.0, "shot_life_support.png")
+	await _capture(player, Vector3(-3.7, 0.1, -5.3), 0.0, "shot_life_support.png")
 	await _capture(player, Vector3(0.0, 0.1, -15.0), 0.0, "shot_cockpit.png")
-	await _capture(player, Vector3(-2.8, 0.1, 0.2), 0.0, "shot_storage.png")
+	await _capture(player, Vector3(-3.8, 0.1, 0.2), 0.0, "shot_storage.png")
 	await _capture(player, Vector3(0.2, 0.1, -5.6), PI, "shot_corridor_south.png")
 	var status_panel: Node = _main.get_node_or_null("WorldLayout/Props/StatusPanel")
 	if status_panel != null:
@@ -60,6 +60,9 @@ func _run() -> void:
 	await _capture(player, Vector3(-8.9, 0.1, -6.0), 0.0, "shot_eva_platform.png")
 	await _capture(player, Vector3(-6.0, 3.7, -6.0), PI * 0.5, "shot_hull_deck.png")
 	await _capture(player, Vector3(1.5, 0.2, 11.5), PI, "shot_aft_ramp.png")
+	player.global_position = Vector3(-9.2, 0.2, -10.4)
+	player.look_at(Vector3(-8.5, 1.4, -10.4), Vector3.UP)
+	await _capture(player, player.global_position, player.rotation.y, "shot_dock_plate.png")
 
 	print("PASS: capture_screenshots -> ", ProjectSettings.globalize_path(OUTPUT_DIR))
 	quit(0)
@@ -68,12 +71,26 @@ func _run() -> void:
 func _capture(player: Node3D, position: Vector3, yaw: float, file_name: String) -> void:
 	player.global_position = position
 	player.rotation.y = yaw
+	var work_light: OmniLight3D = null
+	if _needs_work_light(position):
+		work_light = OmniLight3D.new()
+		work_light.light_energy = 4.0
+		work_light.omni_range = 10.0
+		work_light.position = Vector3(0.8, -0.3, -0.8)
+		player.add_child(work_light)
 	await process_frame
 	await process_frame
 	await RenderingServer.frame_post_draw
 	var image: Image = root.get_texture().get_image()
 	DirAccess.make_dir_recursive_absolute(OUTPUT_DIR)
 	image.save_png(OUTPUT_DIR + "/" + file_name)
+	if work_light != null:
+		work_light.queue_free()
+
+
+## The exterior has no lighting yet (M12); carry a work light so exterior captures read.
+func _needs_work_light(position: Vector3) -> bool:
+	return position.y > 3.4 or absf(position.x) > 7.0 or position.z < -19.5 or position.z > 8.5
 
 
 func _stand_and_face(player: Node3D, target: Vector3, distance: float) -> void:

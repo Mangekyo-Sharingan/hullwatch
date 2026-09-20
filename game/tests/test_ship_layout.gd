@@ -50,9 +50,9 @@ const DOORWAYS: Array = [
 const SOLID_CONTROLS: Array = [
 	[Vector3(0.0, RAY_Y, -12.0), Vector3(-1.95, RAY_Y, -12.0), "corridor west wall beside quarters"],
 	[Vector3(0.0, RAY_Y, -7.5), Vector3(1.95, RAY_Y, -7.5), "corridor east wall beside galley"],
-	[Vector3(-4.2, RAY_Y, -10.4), Vector3(-6.6, RAY_Y, -10.4), "quarters west wall"],
-	[Vector3(-3.7, RAY_Y, -6.3), Vector3(-5.6, RAY_Y, -6.3), "life support west wall"],
-	[Vector3(3.95, RAY_Y, -5.8), Vector3(6.15, RAY_Y, -5.8), "galley east wall"],
+	[Vector3(-4.2, RAY_Y, -9.75), Vector3(-6.6, RAY_Y, -9.75), "quarters west wall beside the dock doorway"],
+	[Vector3(-3.7, RAY_Y, -7.0), Vector3(-5.6, RAY_Y, -7.0), "life support west wall beside the dock doorway"],
+	[Vector3(3.95, RAY_Y, -4.5), Vector3(6.15, RAY_Y, -4.5), "galley east wall beside the dock doorway"],
 	[Vector3(3.25, RAY_Y, -1.9), Vector3(4.75, RAY_Y, -1.9), "water closet east wall"],
 	[Vector3(-3.8, RAY_Y, -2.6), Vector3(-5.85, RAY_Y, -2.6), "storage west wall beside the airlock gap"],
 	[Vector3(-6.85, RAY_Y, -1.8), Vector3(-8.05, RAY_Y, -1.8), "airlock west wall beside the outer gap"],
