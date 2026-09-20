@@ -186,7 +186,18 @@ The roof-deck hardpoint markers are gone. `build_ship_geometry.gd` now also gene
 `Link` node; origin sits on the hull's outer face at the doorway centre, floor at y=0, pod
 extending toward +X — place west docks yawed 180°, east docks unrotated (M10.3). Node groups
 are marked persistent (Godot only serializes persistent groups; the previous roof hardpoints
-silently had none). `test_module_geometry` green. Next: M10.3 construction scene.
+silently had none). `test_module_geometry` green. M10.3 landed — the dock plate *is* the mount:
+it carries `module_mount.gd` with its `hp_`-prefixed hardpoint id, so EVA interaction opens the
+dock's build list (catalog entries for that dock, with cost, stock and build hours). Installing
+pays `CargoSystem` through `ModuleSystem`, hides the plate and disables its collider (which is
+what opens the doorway), and stands `dock_pod.tscn` up on the hull face with its zone re-keyed to
+the module's compartment and its `Link` bridged into the parent room. The pod's own room carries
+the same mount with `spawns = false`: that is the teardown panel inside. `ModuleSystem.load_state`
+re-announces restored modules, so a loaded save rebuilds standing pods from sim state alone. New
+suite `test_module_scene` (build → walk-in doorway → teardown → save/load). Two placeholder
+catalog entries (`utility_pod`, `storage_pod`) give the menu content; their functions arrive in
+M10.4. Build hours are *displayed* but not yet simulated — see `docs/OPEN_QUESTIONS.md` Q2 (the
+operator would otherwise stand inside the materializing pod). Next: M10.4 catalog & function.
 
 ## Test strategy
 

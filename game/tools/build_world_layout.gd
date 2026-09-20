@@ -25,13 +25,29 @@ const LOG_ENTRY_2: String = "res://src/data/logs/log_02.tres"
 const KIT_CONTAINER: String = "res://assets/models/kenney_space_station_kit/Models/GLB format/container.glb"
 const KIT_COMPUTER: String = "res://assets/models/kenney_space_station_kit/Models/GLB format/computer-system.glb"
 const KIT_DISPLAY: String = "res://assets/models/kenney_space_station_kit/Models/GLB format/display-wall.glb"
-## Door leaves come from Kenney's Modular Space Kit gate (CC0): the leaf node is fitted to
-## every doorway, with the repo panel material over its imported colormap one. Its mesh
-## bounds are 2.4 (width) x 3.72 (height) x 0.7 (depth), origin at the bottom centre; a
-## missing prefab falls back to the old box slab.
-const DOOR_PREFAB: String = "res://assets/models/kenney_modular_space_kit/Models/GLB format/gate-door.glb"
-const DOOR_LEAF_NODE: StringName = &"door"
-const DOOR_LEAF_SIZE: Vector3 = Vector3(2.4, 3.72, 0.7)
+## Door leaves come from CC0 prefabs (credits in `docs/ASSET_CREDITS.md`): the leaf mesh is
+## yawed a quarter turn and fitted to every doorway, with the repo panel material over its
+## imported one. Each style lists the leaf node and its mesh bounds; both source leaves sit
+## on y = 0 (bottom edge) and the fit re-centres them on the doorway box. The active style is
+## `DOOR_STYLE`, overridable per run with `--door-style=<name>` so the capture tool can shoot
+## each candidate for review. A missing prefab falls back to the old box slab.
+const DOOR_STYLES: Dictionary = {
+	"kenney": {
+		"scene": "res://assets/models/kenney_modular_space_kit/Models/GLB format/gate-door.glb",
+		"node": &"door",
+		"min": Vector3(-1.2, 0.0, -0.35),
+		"max": Vector3(1.2, 3.72, 0.35),
+		"yaw": 90.0,
+	},
+	"quaternius": {
+		"scene": "res://assets/models/quaternius_scifi_megakit/glTF/Platforms/Door_Simple.gltf",
+		"node": &"Door_Simple",
+		"min": Vector3(-2.106, 0.0, 0.0),
+		"max": Vector3(0.0, 4.049, 0.136),
+		"yaw": 90.0,
+	},
+}
+const DOOR_STYLE: String = "kenney"
 
 const SCRIPT_ZONE: String = "res://src/world/compartment_zone.gd"
 const SCRIPT_LINK: String = "res://src/world/compartment_link.gd"
@@ -435,7 +451,7 @@ var _materials: Dictionary = {}
 var _resources: Dictionary = {}
 var _scenes: Dictionary = {}
 var _failures: int = 0
-var _door_leaf: Mesh
+var _door_leaf_info: Dictionary = {}
 var _door_leaf_loaded: bool = false
 
 
@@ -495,22 +511,33 @@ func _make_group(group_name: String) -> Node3D:
 	return group
 
 
-func _door_leaf_mesh() -> Mesh:
+## The active door style's leaf mesh, resolved once per run.
+func _door_leaf() -> Dictionary:
 	if _door_leaf_loaded:
-		return _door_leaf
+		return _door_leaf_info
 	_door_leaf_loaded = true
-	var packed: PackedScene = load(DOOR_PREFAB) as PackedScene
+	var style: Dictionary = DOOR_STYLES[DOOR_STYLE] as Dictionary
+	for arg: String in OS.get_cmdline_user_args():
+		if arg.begins_with("--door-style="):
+			var override: String = arg.trim_prefix("--door-style=")
+			if DOOR_STYLES.has(override):
+				style = DOOR_STYLES[override] as Dictionary
+			else:
+				print("WARN: unknown door style, keeping ", DOOR_STYLE, ": ", override)
+	var scene_path: String = String(style["scene"])
+	var packed: PackedScene = load(scene_path) as PackedScene
 	if packed == null:
-		print("WARN: door prefab missing, using box slabs: ", DOOR_PREFAB)
-		return null
+		print("WARN: door prefab missing, using box slabs: ", scene_path)
+		return {}
 	var instance: Node = packed.instantiate()
-	var leaf: MeshInstance3D = instance.find_child(String(DOOR_LEAF_NODE), true, false) as MeshInstance3D
+	var leaf: MeshInstance3D = instance.find_child(String(style["node"]), true, false) as MeshInstance3D
 	if leaf != null:
-		_door_leaf = leaf.mesh
+		_door_leaf_info = style.duplicate()
+		_door_leaf_info["mesh"] = leaf.mesh
 	else:
-		print("WARN: door prefab has no leaf node: ", DOOR_LEAF_NODE)
+		print("WARN: door prefab has no leaf node ", style["node"], " in ", scene_path)
 	instance.free()
-	return _door_leaf
+	return _door_leaf_info
 
 
 func _build_prop(spec: Dictionary) -> void:
@@ -588,14 +615,22 @@ func _build_door(spec: Dictionary) -> void:
 	var size: Vector3 = spec["size"]
 	var slab: MeshInstance3D = MeshInstance3D.new()
 	slab.name = "Slab"
-	var leaf: Mesh = _door_leaf_mesh()
-	if leaf != null:
-		# The Kenney leaf is 2.4 (width) x 3.72 (height) x 0.7 (depth) with its origin at the
-		# bottom centre, so yaw it a quarter turn and fit each local axis to the doorway.
-		slab.mesh = leaf
-		slab.rotation_degrees.y = 90.0
-		slab.scale = Vector3(size.z / DOOR_LEAF_SIZE.x, size.y / DOOR_LEAF_SIZE.y, size.x / DOOR_LEAF_SIZE.z)
-		slab.position = Vector3(0.0, -size.y * 0.5, 0.0)
+	var leaf: Dictionary = _door_leaf()
+	var leaf_mesh: Mesh = leaf.get("mesh") as Mesh
+	if leaf_mesh != null:
+		var leaf_min: Vector3 = leaf["min"] as Vector3
+		var leaf_max: Vector3 = leaf["max"] as Vector3
+		var leaf_size: Vector3 = leaf_max - leaf_min
+		var pivot: Vector3 = Vector3((leaf_min.x + leaf_max.x) * 0.5, leaf_min.y, (leaf_min.z + leaf_max.z) * 0.5)
+		var yaw: float = float(leaf["yaw"])
+		var scale: Vector3 = Vector3(size.z / leaf_size.x, size.y / leaf_size.y, size.x / leaf_size.z)
+		# The leaf's bottom centre lands on the doorway box's bottom centre; the leaf node's
+		# own offset is rotated with it so either source origin works.
+		var rotated: Vector3 = Vector3(pivot.x * scale.x, 0.0, pivot.z * scale.z).rotated(Vector3.UP, deg_to_rad(yaw))
+		slab.mesh = leaf_mesh
+		slab.rotation_degrees.y = yaw
+		slab.scale = scale
+		slab.position = Vector3(0.0, -size.y * 0.5, 0.0) - rotated
 	else:
 		var slab_mesh: BoxMesh = BoxMesh.new()
 		slab_mesh.size = size

@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="ShipModule" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://src/components/ship_module.gd" id="1_module"]
+[ext_resource type="Script" path="res://src/components/compartment_config.gd" id="2_config"]
+
+[sub_resource type="Resource" id="Resource_storage_pod_config"]
+script = ExtResource("2_config")
+compartment_id = &"module_storage"
+display_name = "Storage pod"
+volume_m3 = 26.0
+initial_occupants = 0
+leak_rate_per_hour = 0.02
+initial_temperature_c = 10.0
+thermal_capacity_j_per_k = 62000.0
+hull_conductance_w_per_k = 2.4
+heater_watts = 220.0
+puncture_mtbf_hours = 4200.0
+
+[resource]
+script = ExtResource("1_module")
+module_id = &"storage_pod"
+display_name = "Storage pod"
+hardpoint_id = &"hp_galley"
+pod_recipe = &"dock_pod"
+cost = {
+"metal": 6.0,
+"ice": 2.0
+}
+compartment_config = SubResource("Resource_storage_pod_config")
+dock_compartment_id = &"galley"
+build_hours = 6.0

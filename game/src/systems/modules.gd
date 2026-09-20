@@ -133,6 +133,10 @@ func load_state(state: Dictionary) -> void:
 				_installed[StringName(String(key))] = module_id
 	for module_id: StringName in get_installed_modules():
 		_register_compartments(get_module(module_id))
+	# Re-announce restored modules so world-side mounts stand their pods up (scene load).
+	for hardpoint_id: StringName in _installed:
+		var module_id: StringName = StringName(_installed[hardpoint_id])
+		_emit_typed(&"module_installed", module_id, hardpoint_id)
 
 
 func _register_compartments(module: ShipModule) -> void:

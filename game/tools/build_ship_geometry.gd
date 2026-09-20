@@ -17,6 +17,7 @@ const SCRIPT_TETHER_ANCHOR: String = "res://src/world/tether_anchor.gd"
 const SCRIPT_TETHER_ZONE: String = "res://src/world/tether_zone.gd"
 const SCRIPT_ZONE: String = "res://src/world/compartment_zone.gd"
 const SCRIPT_LINK: String = "res://src/world/compartment_link.gd"
+const SCRIPT_MODULE_MOUNT: String = "res://src/interactables/module_mount.gd"
 
 const WALL_THICKNESS: float = 0.2
 const DOOR_TOP: float = 2.2
@@ -287,6 +288,12 @@ func _build_dock_pod() -> Node3D:
 	zone.set_script(load(SCRIPT_ZONE) as Script)
 	zone.set(&"compartment_id", &"module")
 	pod.add_child(zone)
+	var room: StaticBody3D = pod.get_node_or_null(^"PodRoom") as StaticBody3D
+	if room != null:
+		# The pod's own dock mount: same menu as the hull plate (teardown), but it never
+		# spawns a pod itself. `hardpoint_id` is wired in when the pod is stood up.
+		room.set_script(load(SCRIPT_MODULE_MOUNT) as Script)
+		room.set(&"spawns", false)
 	var box: BoxShape3D = BoxShape3D.new()
 	box.size = Vector3(POD_MAX.x - POD_MIN.x - 0.6, 3.0, POD_MAX.y - POD_MIN.y - 0.6)
 	var shape: CollisionShape3D = CollisionShape3D.new()
@@ -990,7 +997,11 @@ func _add_dock_plates(hull: StaticBody3D) -> void:
 		plate.name = "DockPlate_" + id
 		plate.position = Vector3(band_outer - outward * DOCK_PLATE_THICKNESS * 0.5, (HULL_BOTTOM + DECK_BOTTOM) * 0.5, float(dock["z"]))
 		_join_group(plate, &"dock_plate")
-		plate.set_meta(&"hardpoint_id", StringName(id))
+		plate.set_meta(&"hardpoint_id", StringName("hp_" + id))
+		# The plate is the dock mount the operator builds from EVA; it hides and stops
+		# colliding while a pod stands so the doorway into the pod opens.
+		plate.set_script(load(SCRIPT_MODULE_MOUNT) as Script)
+		plate.set(&"hardpoint_id", StringName("hp_" + id))
 		hull.add_child(plate)
 		var size: Vector3 = Vector3(DOCK_PLATE_THICKNESS, DECK_BOTTOM - HULL_BOTTOM, DOCK_DOOR_HALF * 2.0)
 		var box_shape: BoxShape3D = BoxShape3D.new()
@@ -1010,7 +1021,7 @@ func _add_dock_plates(hull: StaticBody3D) -> void:
 		marker.name = "Hardpoint_" + id
 		marker.position = Vector3(band_outer + outward * 0.1, 1.4, float(dock["z"]))
 		_join_group(marker, &"hardpoint")
-		marker.set_meta(&"hardpoint_id", StringName(id))
+		marker.set_meta(&"hardpoint_id", StringName("hp_" + id))
 		hull.add_child(marker)
 
 
@@ -1225,7 +1236,7 @@ func _verify_docks(hull: Node) -> void:
 			print("FAIL: missing dock plate ", id)
 			continue
 		plates += 1
-		if plate.get_meta(&"hardpoint_id", &"") != StringName(id):
+		if plate.get_meta(&"hardpoint_id", &"") != StringName("hp_" + id):
 			_failures += 1
 			print("FAIL: dock plate id mismatch: ", id)
 		var shape: CollisionShape3D = plate.get_node_or_null(^"Shape") as CollisionShape3D

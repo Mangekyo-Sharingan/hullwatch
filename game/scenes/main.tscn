@@ -62,6 +62,9 @@
 [ext_resource type="Resource" path="res://src/data/fabrication/recipe_gasket.tres" id="80_recipe_gasket"]
 [ext_resource type="Script" path="res://src/components/fabricator_recipe.gd" id="81_recipe_script"]
 [ext_resource type="Script" path="res://src/systems/modules.gd" id="82_modules"]
+[ext_resource type="Script" path="res://src/components/ship_module.gd" id="83_ship_module"]
+[ext_resource type="Resource" path="res://src/data/modules/module_utility_pod.tres" id="84_module_utility"]
+[ext_resource type="Resource" path="res://src/data/modules/module_storage_pod.tres" id="85_module_storage"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_sky"]
 shader = ExtResource("71_space_sky")
@@ -243,6 +246,7 @@ recipes = Array[ExtResource("81_recipe_script")]([ExtResource("77_recipe_water")
 
 [node name="ModuleSystem" type="Node" parent="Systems"]
 script = ExtResource("82_modules")
+catalog = Array[ExtResource("83_ship_module")]([ExtResource("84_module_utility"), ExtResource("85_module_storage")])
 
 
 [node name="UI" type="Node" parent="."]
