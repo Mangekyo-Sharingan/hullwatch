@@ -78,6 +78,28 @@ func _run() -> void:
 		await _capture(player, Vector3(-12.6, 0.1, -10.4), -PI * 0.5, "shot_pod_inside.png")
 		player.global_position = Vector3(-4.2, 0.1, -9.6)
 		await _capture(player, Vector3(-4.2, 0.1, -9.6), PI * 0.5, "shot_pod_doorway.png")
+		if modules.has_method(&"fit_machine"):
+			cargo.call("add_material", &"metal", 20.0)
+			cargo.call("add_material", &"ore", 10.0)
+			cargo.call("add_material", &"ice", 6.0)
+			modules.call("fit_machine", &"grow_rack", &"hp_quarters:0")
+			modules.call("fit_machine", &"work_bench", &"hp_quarters:1")
+			modules.call("fit_machine", &"cargo_rack", &"hp_quarters:2")
+			modules.call("sim_tick", 999.0)
+			await process_frame
+			var socket0: Node = _main.get_node_or_null("ShipGeometry/HullExterior/Pod_hp_quarters/Socket_0")
+			var socket: Node = _main.get_node_or_null("ShipGeometry/HullExterior/Pod_hp_quarters/Socket_1")
+			player.global_position = Vector3(-10.9, 1.5, -10.4)
+			player.look_at(Vector3(-12.05, 0.7, -9.4), Vector3.UP)
+			await _capture(player, player.global_position, player.rotation.y, "shot_pod_machines.png")
+			if socket != null:
+				player.global_position = Vector3(-10.7, 0.1, -10.4)
+				player.rotation.y = PI * 0.5
+				player.rotation.x = -0.5
+				await process_frame
+				socket.call("interact", player)
+				await _capture(player, Vector3(-10.7, 0.1, -10.4), PI * 0.5, "shot_socket_menu.png")
+				socket.call("close")
 
 	print("PASS: capture_screenshots -> ", ProjectSettings.globalize_path(OUTPUT_DIR))
 	quit(0)
@@ -105,7 +127,7 @@ func _capture(player: Node3D, position: Vector3, yaw: float, file_name: String) 
 
 ## The exterior has no lighting yet (M12); carry a work light so exterior captures read.
 func _needs_work_light(position: Vector3) -> bool:
-	return position.y > 3.4 or absf(position.x) > 7.0 or position.z < -19.5 or position.z > 8.5
+	return position.y > 3.4 or absf(position.x) > 7.0 or position.z < -19.5 or position.z > 8.5 or position.x < -8.5
 
 
 func _stand_and_face(player: Node3D, target: Vector3, distance: float) -> void:

@@ -11,8 +11,9 @@
 [ext_resource type="Resource" path="res://src/data/manual/page_comms.tres" id="9_comms"]
 [ext_resource type="Resource" path="res://src/data/manual/page_eva.tres" id="10_eva"]
 [ext_resource type="Resource" path="res://src/data/manual/page_field_work.tres" id="11_field_work"]
+[ext_resource type="Resource" path="res://src/data/manual/page_modules.tres" id="12_modules"]
 
 [resource]
 script = ExtResource("1_book")
 book_title = "HULLWATCH OPERATOR'S MANUAL"
-pages = [ExtResource("2_operations"), ExtResource("3_power"), ExtResource("4_life_support"), ExtResource("5_thermal"), ExtResource("6_damage_control"), ExtResource("7_symptoms"), ExtResource("8_diagnostics"), ExtResource("9_comms"), ExtResource("10_eva"), ExtResource("11_field_work")]
+pages = [ExtResource("2_operations"), ExtResource("3_power"), ExtResource("4_life_support"), ExtResource("5_thermal"), ExtResource("6_damage_control"), ExtResource("7_symptoms"), ExtResource("8_diagnostics"), ExtResource("9_comms"), ExtResource("10_eva"), ExtResource("11_field_work"), ExtResource("12_modules")]

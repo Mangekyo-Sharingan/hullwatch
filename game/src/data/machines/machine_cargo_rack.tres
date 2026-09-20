@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ShipMachine" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/components/ship_machine.gd" id="1_machine"]
+
+[resource]
+script = ExtResource("1_machine")
+machine_id = &"cargo_rack"
+display_name = "Cargo rack"
+effect = &"cargo"
+effect_amount = 25.0
+build_hours = 3.0
+cost = {
+"metal": 2.0
+}
+size_m = Vector3(1.2, 1.6, 0.7)

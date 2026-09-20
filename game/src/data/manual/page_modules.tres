@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="ManualPage" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/components/manual_page.gd" id="1_page"]
+
+[resource]
+script = ExtResource("1_page")
+title = "DOCK PODS AND MACHINES"
+body = "DOCKS. The hull carries four dock mounts - quarters, life support, galley, engine bay. Each one waits behind a flush plate you can reach from outside, on EVA. Work a mount and the build list opens: what the dock can take, what it costs, how long the nanites need. Pay the material and the nanites work whether you watch or not; the pod is standing when the hours are done. Cancel a build and the material comes back. Tear a pod down from inside it and the same is true: the full cost returns to the hold, and so do the machines inside it.
+
+MACHINES. A pod is a bare room. Everything it does comes from the machines bolted into its sockets - three to a pod. Grow racks yield rations while their circuit is live, a work bench shortens fabricator jobs, a cargo rack widens the hold, a battery cabinet adds capacity, a med bed speeds recovery. Fit any machine into any socket; pull it back out whenever the plan changes, for a full refund. The ship's vital machinery is different: it is bolted down and stays where it is.
+
+POWER. Machines draw on a circuit while they run. A rack on a dead life-support breaker grows nothing - check the breaker before you blame the seed."

@@ -23,6 +23,7 @@ const MILD_DAMAGE_SCALE: float = 0.25
 var condition: float = 0.0
 
 var _incapacitated: bool = false
+var _recovery_sources: Dictionary = {}
 var _cause: StringName = &""
 var _cognition_level: int = 0
 var _manned_compartment: StringName = &""
@@ -194,12 +195,27 @@ func _tick_rations(environment: Dictionary, delta_hours: float) -> void:
 			break
 
 
+## Installed hardware (a med bay) speeds recovery; sources are re-applied on load.
+func set_recovery_source(source_id: StringName, per_hour: float) -> void:
+	if per_hour <= 0.0:
+		_recovery_sources.erase(source_id)
+		return
+	_recovery_sources[source_id] = per_hour
+
+
+func get_recovery_per_hour() -> float:
+	var total: float = recovery_per_hour
+	for value: Variant in _recovery_sources.values():
+		total += float(value)
+	return total
+
+
 func _tick_condition(environment: Dictionary, delta_hours: float) -> void:
 	if _incapacitated:
 		return
 	var exposure: Dictionary = _classify_exposure(environment)
 	var new_cause: StringName = exposure["cause"]
-	var rate_per_hour: float = -recovery_per_hour
+	var rate_per_hour: float = -get_recovery_per_hour()
 	if bool(exposure["severe"]):
 		rate_per_hour = damage_per_hour
 		if new_cause == &"dehydration":

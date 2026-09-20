@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ShipMachine" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/components/ship_machine.gd" id="1_machine"]
+
+[resource]
+script = ExtResource("1_machine")
+machine_id = &"battery_cabinet"
+display_name = "Battery cabinet"
+effect = &"power"
+effect_amount = 900.0
+build_hours = 6.0
+cost = {
+"metal": 4.0,
+"ore": 2.0
+}
+size_m = Vector3(0.8, 1.5, 0.6)

@@ -148,6 +148,10 @@ func _message_for(event_name: StringName, payload: Dictionary) -> String:
 			return "POD ONLINE: %s" % String(payload.get("module_id", &"")).to_upper()
 		&"construction_cancelled":
 			return "BUILD CANCELLED: MATERIALS RETURNED"
+		&"machine_fitted":
+			return "MACHINE FITTED: %s" % String(payload.get("machine_id", &"")).to_upper()
+		&"machine_removed":
+			return "MACHINE REMOVED: MATERIALS RETURNED"
 	return ""
 
 

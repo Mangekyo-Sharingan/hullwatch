@@ -12,14 +12,32 @@ const REFUSAL_MISSING_MATERIALS: StringName = &"missing_materials"
 const REFUSAL_NOT_INSTALLED: StringName = &"not_installed"
 const REFUSAL_ALREADY_BUILDING: StringName = &"already_building"
 const REFUSAL_NO_BUILD_JOB: StringName = &"no_build_job"
+const REFUSAL_UNKNOWN_MACHINE: StringName = &"unknown_machine"
+const REFUSAL_SLOT_OCCUPIED: StringName = &"slot_occupied"
+const REFUSAL_NOT_PORTABLE: StringName = &"not_portable"
 const COMPARTMENT_GROUPS: Array[StringName] = [&"atmosphere_system", &"thermal_system", &"hull_system"]
+const EFFECT_RATIONS: StringName = &"rations"
+const EFFECT_FABRICATION: StringName = &"fabrication"
+const EFFECT_CARGO: StringName = &"cargo"
+const EFFECT_POWER: StringName = &"power"
+const EFFECT_RECOVERY: StringName = &"recovery"
+const EFFECT_SOURCE: StringName = &"modules"
 
 @export var catalog: Array[ShipModule] = []
+@export var machine_catalog: Array[ShipMachine] = []
 
 ## hardpoint_id -> module_id
 var _installed: Dictionary = {}
 ## hardpoint_id -> {"module_id": StringName, "remaining": float, "total": float}
 var _jobs: Dictionary = {}
+## socket_id -> machine_id, fitted inside pods (slot ids are "<hardpoint>:<index>")
+var _machines: Dictionary = {}
+## socket_id -> {"machine_id": StringName, "remaining": float, "total": float}
+var _machine_jobs: Dictionary = {}
+## Circuits the installed set currently draws from, so stale draws can be cleared.
+var _loaded_circuits: Array[StringName] = []
+## Fractional rations waiting to be a whole one.
+var _ration_hours: float = 0.0
 
 
 func _ready() -> void:
@@ -141,16 +159,287 @@ func uninstall(module_id: StringName) -> bool:
 		emit_sim_event(&"module_uninstall_refused", {"module_id": String(module_id), "reason": String(REFUSAL_NOT_INSTALLED)})
 		return false
 	_installed.erase(module.hardpoint_id)
+	_release_machines(module.hardpoint_id)
 	_unregister_compartments(module)
+	_apply_effects()
 	_refund(module)
 	emit_sim_event(&"module_uninstalled", {"module_id": String(module_id), "hardpoint_id": String(module.hardpoint_id)})
 	_emit_typed(&"module_uninstalled", module.module_id, module.hardpoint_id)
 	return true
 
 
+## A pod that comes down takes its machines with it: everything in its sockets goes back to the
+## hold, and a fitting still running is cancelled and refunded.
+func _release_machines(hardpoint_id: StringName) -> void:
+	var prefix: String = String(hardpoint_id) + ":"
+	for socket_id: Variant in _machines.keys():
+		if not String(socket_id).begins_with(prefix):
+			continue
+		var machine: ShipMachine = get_machine(StringName(_machines[socket_id]))
+		_machines.erase(socket_id)
+		if machine != null:
+			_refund_machine(machine)
+	for socket_id: Variant in _machine_jobs.keys():
+		if not String(socket_id).begins_with(prefix):
+			continue
+		var job: Dictionary = _machine_jobs[socket_id]
+		var machine: ShipMachine = get_machine(StringName(job.get("machine_id", &"")))
+		_machine_jobs.erase(socket_id)
+		if machine != null:
+			_refund_machine(machine)
+
+
+func get_machine_catalog() -> Array[ShipMachine]:
+	var machines: Array[ShipMachine] = []
+	for machine: ShipMachine in machine_catalog:
+		if machine != null and machine.machine_id != &"":
+			machines.append(machine)
+	return machines
+
+
+func get_machine(machine_id: StringName) -> ShipMachine:
+	for machine: ShipMachine in machine_catalog:
+		if machine != null and machine.machine_id == machine_id:
+			return machine
+	return null
+
+
+func get_machine_at(socket_id: StringName) -> StringName:
+	return StringName(_machines.get(socket_id, &""))
+
+
+func get_machine_job(socket_id: StringName) -> Dictionary:
+	return _machine_jobs.get(socket_id, {}) as Dictionary
+
+
+func get_machines() -> Dictionary:
+	var fitted: Dictionary = {}
+	for socket_id: StringName in _machines:
+		fitted[String(socket_id)] = String(_machines[socket_id])
+	return fitted
+
+
+## Returns &"" when the machine can be fitted into that socket, else the refusal reason.
+func can_fit_machine(machine_id: StringName, socket_id: StringName) -> StringName:
+	var machine: ShipMachine = get_machine(machine_id)
+	if machine == null or socket_id == &"":
+		return REFUSAL_UNKNOWN_MACHINE
+	if _machines.has(socket_id) or _machine_jobs.has(socket_id):
+		return REFUSAL_SLOT_OCCUPIED
+	var cargo: Node = _cargo_system()
+	if cargo == null:
+		return REFUSAL_MISSING_MATERIALS
+	for kind: Variant in machine.cost:
+		var needed: float = float(machine.cost[kind])
+		if needed <= 0.0:
+			continue
+		if float(cargo.call(&"get_units", StringName(String(kind)))) < needed - 0.0001:
+			return REFUSAL_MISSING_MATERIALS
+	return &""
+
+
+## Nanites fit the machine into the socket: cost now, work done over `build_hours`.
+func fit_machine(machine_id: StringName, socket_id: StringName) -> bool:
+	var refusal: StringName = can_fit_machine(machine_id, socket_id)
+	if refusal != &"":
+		emit_sim_event(&"procedure_error", {"reason": String(refusal), "machine_id": String(machine_id), "socket_id": String(socket_id)})
+		return false
+	var machine: ShipMachine = get_machine(machine_id)
+	if not _pay_machine_cost(machine):
+		emit_sim_event(&"procedure_error", {"reason": String(REFUSAL_MISSING_MATERIALS), "machine_id": String(machine_id)})
+		return false
+	var hours: float = maxf(machine.build_hours, 0.01)
+	_machine_jobs[socket_id] = {"machine_id": machine.machine_id, "remaining": hours, "total": hours}
+	emit_sim_event(&"machine_fit_started", {
+		"machine_id": String(machine_id),
+		"socket_id": String(socket_id),
+		"hours": hours,
+	})
+	return true
+
+
+## Takes a machine back out (full refund). Vital machinery is not portable and refuses.
+func remove_machine(socket_id: StringName) -> bool:
+	var machine_id: StringName = get_machine_at(socket_id)
+	var machine: ShipMachine = get_machine(machine_id)
+	if machine == null:
+		emit_sim_event(&"procedure_error", {"reason": String(REFUSAL_UNKNOWN_MACHINE), "socket_id": String(socket_id)})
+		return false
+	if not machine.portable:
+		emit_sim_event(&"procedure_error", {"reason": String(REFUSAL_NOT_PORTABLE), "machine_id": String(machine_id)})
+		return false
+	_machines.erase(socket_id)
+	_apply_effects()
+	_refund_machine(machine)
+	emit_sim_event(&"machine_removed", {"machine_id": String(machine_id), "socket_id": String(socket_id)})
+	_emit_typed(&"machine_removed", machine.machine_id, socket_id)
+	return true
+
+
+func cancel_machine_fit(socket_id: StringName) -> bool:
+	if not _machine_jobs.has(socket_id):
+		emit_sim_event(&"procedure_error", {"reason": String(REFUSAL_NO_BUILD_JOB), "socket_id": String(socket_id)})
+		return false
+	var job: Dictionary = _machine_jobs[socket_id]
+	_machine_jobs.erase(socket_id)
+	var machine: ShipMachine = get_machine(StringName(job.get("machine_id", &"")))
+	if machine != null:
+		_refund_machine(machine)
+	emit_sim_event(&"machine_fit_cancelled", {
+		"machine_id": String(job.get("machine_id", &"")),
+		"socket_id": String(socket_id),
+	})
+	return true
+
+
 func sim_tick(delta_hours: float) -> void:
-	if not is_finite(delta_hours) or delta_hours <= 0.0 or _jobs.is_empty():
+	if not is_finite(delta_hours) or delta_hours <= 0.0:
 		return
+	if not _jobs.is_empty() or not _machine_jobs.is_empty():
+		_tick_jobs(delta_hours)
+	_tick_effects(delta_hours)
+
+
+## Installed hardware contributes to the systems that own the numbers: hold capacity, battery
+## capacity, recovery rate, bench speed and circuit draw. Recomputed from the installed set, so
+## it is idempotent across load and never drifts from the save.
+func _apply_effects() -> void:
+	var fabrication_fraction: float = 0.0
+	var cargo_units: float = 0.0
+	var power_wh: float = 0.0
+	var recovery: float = 0.0
+	var circuit_loads: Dictionary = {}
+	for hardpoint_id: StringName in _installed:
+		var module: ShipModule = get_module(StringName(_installed[hardpoint_id]))
+		if module == null:
+			continue
+		match module.effect:
+			EFFECT_FABRICATION:
+				fabrication_fraction += module.effect_amount
+			EFFECT_CARGO:
+				cargo_units += module.effect_amount
+			EFFECT_POWER:
+				power_wh += module.effect_amount
+			EFFECT_RECOVERY:
+				recovery += module.effect_amount
+		if module.circuit_id != &"" and module.power_load_w > 0.0:
+			circuit_loads[module.circuit_id] = float(circuit_loads.get(module.circuit_id, 0.0)) + module.power_load_w
+	for socket_id: StringName in _machines:
+		var machine: ShipMachine = get_machine(StringName(_machines[socket_id]))
+		if machine == null:
+			continue
+		match machine.effect:
+			EFFECT_FABRICATION:
+				fabrication_fraction += machine.effect_amount
+			EFFECT_CARGO:
+				cargo_units += machine.effect_amount
+			EFFECT_POWER:
+				power_wh += machine.effect_amount
+			EFFECT_RECOVERY:
+				recovery += machine.effect_amount
+		if machine.circuit_id != &"" and machine.power_load_w > 0.0:
+			circuit_loads[machine.circuit_id] = float(circuit_loads.get(machine.circuit_id, 0.0)) + machine.power_load_w
+	var cargo: Node = _cargo_system()
+	if cargo != null and cargo.has_method(&"set_capacity_source"):
+		cargo.call(&"set_capacity_source", EFFECT_SOURCE, cargo_units)
+	var power: Node = _system(&"power_system")
+	if power != null and power.has_method(&"set_capacity_source"):
+		power.call(&"set_capacity_source", EFFECT_SOURCE, power_wh)
+		for circuit_id: StringName in _loaded_circuits:
+			if not circuit_loads.has(circuit_id):
+				power.call(&"set_circuit_source_load", circuit_id, EFFECT_SOURCE, 0.0)
+		_loaded_circuits.clear()
+		for circuit_id: StringName in circuit_loads:
+			power.call(&"set_circuit_source_load", circuit_id, EFFECT_SOURCE, float(circuit_loads[circuit_id]))
+			_loaded_circuits.append(circuit_id)
+	var vitals: Node = _system(&"vitals_system")
+	if vitals != null and vitals.has_method(&"set_recovery_source"):
+		vitals.call(&"set_recovery_source", EFFECT_SOURCE, recovery)
+	var fabricator: Node = _system(&"fabricator_system")
+	if fabricator != null:
+		fabricator.set(&"job_hours_multiplier", clampf(1.0 - fabrication_fraction, 0.1, 1.0))
+
+
+## The summed contribution of everything installed, for readouts and tests.
+func get_effects() -> Dictionary:
+	var summary: Dictionary = {
+		"rations_per_day": 0.0,
+		"fabrication_fraction": 0.0,
+		"cargo_units": 0.0,
+		"power_wh": 0.0,
+		"recovery_per_hour": 0.0,
+	}
+	for hardpoint_id: StringName in _installed:
+		var module: ShipModule = get_module(StringName(_installed[hardpoint_id]))
+		if module == null:
+			continue
+		match module.effect:
+			EFFECT_RATIONS:
+				summary["rations_per_day"] = float(summary["rations_per_day"]) + module.effect_amount
+			EFFECT_FABRICATION:
+				summary["fabrication_fraction"] = float(summary["fabrication_fraction"]) + module.effect_amount
+			EFFECT_CARGO:
+				summary["cargo_units"] = float(summary["cargo_units"]) + module.effect_amount
+			EFFECT_POWER:
+				summary["power_wh"] = float(summary["power_wh"]) + module.effect_amount
+			EFFECT_RECOVERY:
+				summary["recovery_per_hour"] = float(summary["recovery_per_hour"]) + module.effect_amount
+	for socket_id: StringName in _machines:
+		var machine: ShipMachine = get_machine(StringName(_machines[socket_id]))
+		if machine == null:
+			continue
+		match machine.effect:
+			EFFECT_RATIONS:
+				summary["rations_per_day"] = float(summary["rations_per_day"]) + machine.effect_amount
+			EFFECT_FABRICATION:
+				summary["fabrication_fraction"] = float(summary["fabrication_fraction"]) + machine.effect_amount
+			EFFECT_CARGO:
+				summary["cargo_units"] = float(summary["cargo_units"]) + machine.effect_amount
+			EFFECT_POWER:
+				summary["power_wh"] = float(summary["power_wh"]) + machine.effect_amount
+			EFFECT_RECOVERY:
+				summary["recovery_per_hour"] = float(summary["recovery_per_hour"]) + machine.effect_amount
+	return summary
+
+
+## A rations pod only grows while its circuit is live.
+func _module_powered(circuit_id: StringName, load_w: float) -> bool:
+	if circuit_id == &"" or load_w <= 0.0:
+		return true
+	var power: Node = _system(&"power_system")
+	if power == null:
+		return false
+	if power.has_method(&"is_breaker_on") and not bool(power.call(&"is_breaker_on", circuit_id)):
+		return false
+	if power.has_method(&"is_circuit_shed") and bool(power.call(&"is_circuit_shed", circuit_id)):
+		return false
+	return true
+
+
+func _tick_effects(delta_hours: float) -> void:
+	var stores: Node = _system(&"stores_system")
+	for hardpoint_id: StringName in _installed:
+		var module: ShipModule = get_module(StringName(_installed[hardpoint_id]))
+		if module == null or module.effect != EFFECT_RATIONS or module.effect_amount <= 0.0:
+			continue
+		if not _module_powered(module.circuit_id, module.power_load_w):
+			continue
+		_ration_hours += module.effect_amount * delta_hours / 24.0
+	for socket_id: StringName in _machines:
+		var machine: ShipMachine = get_machine(StringName(_machines[socket_id]))
+		if machine == null or machine.effect != EFFECT_RATIONS or machine.effect_amount <= 0.0:
+			continue
+		if not _module_powered(machine.circuit_id, machine.power_load_w):
+			continue
+		_ration_hours += machine.effect_amount * delta_hours / 24.0
+	if _ration_hours < 1.0 or stores == null or not stores.has_method(&"add_part"):
+		return
+	var whole: int = int(floor(_ration_hours))
+	_ration_hours -= float(whole)
+	stores.call(&"add_part", &"food_ration", whole)
+
+
+func _tick_jobs(delta_hours: float) -> void:
 	var finished: Array[StringName] = []
 	for hardpoint_id: StringName in _jobs:
 		var job: Dictionary = _jobs[hardpoint_id]
@@ -159,6 +448,52 @@ func sim_tick(delta_hours: float) -> void:
 			finished.append(hardpoint_id)
 	for hardpoint_id: StringName in finished:
 		_finish_job(hardpoint_id)
+	var fitted: Array[StringName] = []
+	for socket_id: StringName in _machine_jobs:
+		var machine_job: Dictionary = _machine_jobs[socket_id]
+		machine_job["remaining"] = maxf(float(machine_job["remaining"]) - delta_hours, 0.0)
+		if float(machine_job["remaining"]) <= 0.0:
+			fitted.append(socket_id)
+	for socket_id: StringName in fitted:
+		_finish_machine_job(socket_id)
+
+
+func _finish_machine_job(socket_id: StringName) -> void:
+	var job: Dictionary = _machine_jobs[socket_id]
+	_machine_jobs.erase(socket_id)
+	var machine: ShipMachine = get_machine(StringName(job.get("machine_id", &"")))
+	if machine == null or _machines.has(socket_id):
+		return
+	_machines[socket_id] = machine.machine_id
+	_apply_effects()
+	emit_sim_event(&"machine_fitted", {
+		"machine_id": String(machine.machine_id),
+		"socket_id": String(socket_id),
+	})
+	_emit_typed(&"machine_fitted", machine.machine_id, socket_id)
+
+
+func _pay_machine_cost(machine: ShipMachine) -> bool:
+	var cargo: Node = _cargo_system()
+	if cargo == null:
+		return false
+	for kind: Variant in machine.cost:
+		var needed: float = float(machine.cost[kind])
+		if needed <= 0.0:
+			continue
+		if not bool(cargo.call(&"consume_material", StringName(String(kind)), needed)):
+			return false
+	return true
+
+
+func _refund_machine(machine: ShipMachine) -> void:
+	var cargo: Node = _cargo_system()
+	if cargo == null:
+		return
+	for kind: Variant in machine.cost:
+		var units: float = float(machine.cost[kind])
+		if units > 0.0:
+			cargo.call(&"add_material", StringName(String(kind)), units)
 
 
 func get_status() -> Dictionary:
@@ -179,6 +514,9 @@ func get_status() -> Dictionary:
 		"installed_count": _installed.size(),
 		"jobs": jobs,
 		"building_count": _jobs.size(),
+		"machines": get_machines(),
+		"machine_count": _machines.size(),
+		"machine_jobs": _machine_jobs.size(),
 	}
 
 
@@ -191,11 +529,21 @@ func save_state() -> Dictionary:
 			"remaining_hours": float(job.get("remaining", 0.0)),
 			"total_hours": float(job.get("total", 0.0)),
 		}
+	var machine_jobs: Dictionary = {}
+	for socket_id: StringName in _machine_jobs:
+		var machine_job: Dictionary = _machine_jobs[socket_id]
+		machine_jobs[String(socket_id)] = {
+			"machine_id": String(machine_job.get("machine_id", &"")),
+			"remaining_hours": float(machine_job.get("remaining", 0.0)),
+			"total_hours": float(machine_job.get("total", 0.0)),
+		}
 	return {
 		"system_id": String(system_id),
-		"state_version": 2,
+		"state_version": 3,
 		"installed": get_status()["installed"],
 		"jobs": jobs,
+		"machines": get_machines(),
+		"machine_jobs": machine_jobs,
 	}
 
 
@@ -224,10 +572,40 @@ func load_state(state: Dictionary) -> void:
 			}
 	for module_id: StringName in get_installed_modules():
 		_register_compartments(get_module(module_id))
+	_machines.clear()
+	var fitted: Variant = state.get("machines", {})
+	if fitted is Dictionary:
+		for key: Variant in fitted:
+			var machine_id: StringName = StringName(String((fitted as Dictionary)[key]))
+			if get_machine(machine_id) != null:
+				_machines[StringName(String(key))] = machine_id
+	_machine_jobs.clear()
+	var machine_jobs: Variant = state.get("machine_jobs", {})
+	if machine_jobs is Dictionary:
+		for key: Variant in machine_jobs:
+			var entry: Variant = (machine_jobs as Dictionary)[key]
+			if not (entry is Dictionary):
+				continue
+			var machine_id: StringName = StringName(String((entry as Dictionary).get("machine_id", &"")))
+			if get_machine(machine_id) == null or _machines.has(StringName(String(key))):
+				continue
+			_machine_jobs[StringName(String(key))] = {
+				"machine_id": machine_id,
+				"remaining": maxf(float((entry as Dictionary).get("remaining_hours", 0.0)), 0.0),
+				"total": maxf(float((entry as Dictionary).get("total_hours", 0.0)), 0.0),
+			}
+	_apply_effects()
 	# Re-announce restored modules so world-side mounts stand their pods up (scene load).
 	for hardpoint_id: StringName in _installed:
 		var module_id: StringName = StringName(_installed[hardpoint_id])
 		_emit_typed(&"module_installed", module_id, hardpoint_id)
+	# Same for machines, so sockets that were wired after the pods spawned pick them up.
+	for socket_id: StringName in _machines:
+		emit_sim_event(&"machine_fitted", {
+			"machine_id": String(_machines[socket_id]),
+			"socket_id": String(socket_id),
+		})
+		_emit_typed(&"machine_fitted", StringName(_machines[socket_id]), socket_id)
 
 
 func _finish_job(hardpoint_id: StringName) -> void:
@@ -238,6 +616,7 @@ func _finish_job(hardpoint_id: StringName) -> void:
 		return
 	_installed[hardpoint_id] = module.module_id
 	_register_compartments(module)
+	_apply_effects()
 	emit_sim_event(&"construction_completed", {
 		"module_id": String(module.module_id),
 		"hardpoint_id": String(hardpoint_id),

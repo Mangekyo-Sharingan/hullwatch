@@ -198,6 +198,10 @@ func _wire_pod(pod: Node3D) -> void:
 		dock_compartment = module.dock_compartment_id
 	for mount: Variant in _mounts_in(pod):
 		(mount as Node).set(&"hardpoint_id", hardpoint_id)
+	for socket: Variant in _sockets_in(pod):
+		var socket_node: MachineSocket = socket as MachineSocket
+		socket_node.slot_id = StringName(String(hardpoint_id) + ":" + String(socket_node.name).trim_prefix("Socket_"))
+		socket_node.refresh()
 	var zone: Node = pod.find_child("Zone", true, false)
 	if zone != null:
 		zone.set(&"compartment_id", compartment)
@@ -211,6 +215,15 @@ func _clear_pod() -> void:
 	if _pod != null and is_instance_valid(_pod):
 		_pod.queue_free()
 	_pod = null
+
+
+func _sockets_in(node: Node) -> Array[Node]:
+	var found: Array[Node] = []
+	if node is MachineSocket:
+		found.append(node)
+	for child: Node in node.get_children():
+		found.append_array(_sockets_in(child))
+	return found
 
 
 func _mounts_in(node: Node) -> Array[Node]:

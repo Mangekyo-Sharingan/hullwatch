@@ -204,6 +204,23 @@ shared placeholders until M12 — only the interior function differs per module 
 | **M10.4 — Catalog & function** | `.tres` catalog in `src/data/modules/`: greenhouse (renewable rations into stores), workshop (fabricator throughput), expanded storage (cargo capacity), aux battery (power capacity, new circuit), med bay (operator recovery); power/link wiring | Each module's effect observable in its sim; catalog validation (unique ids/hardpoints, cost kinds exist) |
 | **M10.5 — Verification** | Scenario: build greenhouse → rations appear over days; full-loop save/load; captures; manual page; docs | Loop passes headless; docs/captures updated |
 
+**M10.4/M10.5 landed (2026-09-20).** Seven pod kinds ship in `src/data/modules/` — the two bare
+pods plus greenhouse, workshop, expanded storage, aux battery and med bay — each with nanite build
+hours scaled to its difficulty, material cost, compartment config and a typed effect on a circuit.
+ModuleSystem applies effects as aggregates it recomputes from the installed set (hold capacity,
+battery capacity, recovery rate, bench speed, circuit draw), so nothing drifts through save/load
+and torn-down hardware gives everything back. **Machines** are the operator's side of it: a pod is
+a bare room with three sockets, any machine fits any socket, effects stack, portable machines come
+back out for a full refund, and the vital machinery is bolted down. `MACHINE_SOCKETS` in the
+geometry tool places the pads in the generated pod; slot ids are wired as `<hardpoint>:<index>`
+when a pod stands. Tests: `test_module_catalog` (data validation against the generated hull and
+the real circuits/compartments), `test_module_effects` (every effect observable and reversible,
+including an unpowered greenhouse growing nothing), `test_machine_fitting` (fitting, stacking,
+refusal, refunds, in-flight save/load, pod teardown taking its machines). Manual page 11 covers
+docks and machines; captures include the dock mount, a standing pod, machines in sockets and the
+socket menu. Power integration is load sources per circuit (PowerSystem `set_circuit_source_load`,
+`set_capacity_source`), never saved — recomputed from hardware.
+
 Pinned ids for M10.2–M10.5: docks `hp_quarters` (west of Quarters), `hp_life_support` (west of
 Life Support), `hp_galley` (east of Galley), `hp_engine_bay` (east of Engine Bay); pod recipe
 `dock_pod`. `module_system` loads **before** the life-support systems so a restored save finds

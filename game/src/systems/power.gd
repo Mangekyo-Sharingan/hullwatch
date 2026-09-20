@@ -20,6 +20,8 @@ var _circuits: Dictionary = {}
 var _breaker_on: Dictionary = {}
 var _shed: Dictionary = {}
 var _load_overrides: Dictionary = {}
+var _source_loads: Dictionary = {}
+var _capacity_sources: Dictionary = {}
 var _brownout_active: bool = false
 var _served_w: float = 0.0
 var _rng: RandomNumberGenerator
@@ -148,7 +150,7 @@ func get_total_load_w() -> float:
 
 
 func get_battery_charge() -> float:
-	return clampf(battery_charge_wh / maxf(battery_capacity_wh, 0.001), 0.0, 1.0)
+	return clampf(battery_charge_wh / maxf(get_battery_capacity_wh(), 0.001), 0.0, 1.0)
 
 
 func is_brownout() -> bool:
@@ -175,7 +177,7 @@ func get_status() -> Dictionary:
 		"load_w": _served_w,
 		"battery_charge_wh": battery_charge_wh,
 		"battery_fraction": get_battery_charge(),
-		"battery_capacity_wh": battery_capacity_wh,
+		"battery_capacity_wh": get_battery_capacity_wh(),
 		"brownout": _brownout_active,
 		"circuits": circuits,
 	}
@@ -326,9 +328,49 @@ func _sort_restore_first(a: StringName, b: StringName) -> bool:
 
 func _get_effective_load(circuit_id: StringName) -> float:
 	if _load_overrides.has(circuit_id):
-		return float(_load_overrides[circuit_id])
+		return float(_load_overrides[circuit_id]) + _source_load(circuit_id)
 	var circuit: PowerCircuit = _circuits[circuit_id]
-	return circuit.nominal_load_w
+	return circuit.nominal_load_w + _source_load(circuit_id)
+
+
+## Fittings (modules, machines) draw on top of a circuit's own load. Sources are not saved:
+## they are re-applied from the installed hardware on load, so nothing drifts.
+func set_circuit_source_load(circuit_id: StringName, source_id: StringName, watts: float) -> void:
+	if not _circuits.has(circuit_id):
+		push_error("PowerSystem.set_circuit_source_load: unknown circuit_id '%s'." % String(circuit_id))
+		return
+	if watts <= 0.0:
+		if _source_loads.has(circuit_id):
+			(_source_loads[circuit_id] as Dictionary).erase(source_id)
+		return
+	if not _source_loads.has(circuit_id):
+		_source_loads[circuit_id] = {}
+	(_source_loads[circuit_id] as Dictionary)[source_id] = watts
+
+
+func _source_load(circuit_id: StringName) -> float:
+	var total: float = 0.0
+	var sources: Variant = _source_loads.get(circuit_id, {})
+	if sources is Dictionary:
+		for value: Variant in (sources as Dictionary).values():
+			total += float(value)
+	return total
+
+
+## Extra battery capacity contributed by installed hardware (aux battery modules). The base
+## `battery_capacity_wh` is the physical cell capacity and stays the saved value.
+func set_capacity_source(source_id: StringName, wh: float) -> void:
+	if wh <= 0.0:
+		_capacity_sources.erase(source_id)
+		return
+	_capacity_sources[source_id] = wh
+
+
+func get_battery_capacity_wh() -> float:
+	var total: float = battery_capacity_wh
+	for value: Variant in _capacity_sources.values():
+		total += float(value)
+	return total
 
 
 func _get_priority(circuit_id: StringName) -> int:
@@ -347,7 +389,7 @@ func _get_shed_count() -> int:
 func _update_battery(generation_w: float, served_w: float, delta_hours: float) -> void:
 	var net_w: float = generation_w - served_w
 	if net_w >= 0.0:
-		var headroom_wh: float = maxf(battery_capacity_wh - battery_charge_wh, 0.0)
+		var headroom_wh: float = maxf(get_battery_capacity_wh() - battery_charge_wh, 0.0)
 		battery_charge_wh += minf(minf(net_w * delta_hours, battery_max_charge_w * delta_hours), headroom_wh)
 	else:
 		var discharge_wh: float = minf(-net_w * delta_hours, battery_max_discharge_w * delta_hours)
@@ -406,7 +448,7 @@ func load_state(state: Dictionary) -> void:
 		var generator_key: StringName = StringName(generator_id)
 		if generators.has(generator_key):
 			generators[generator_key] = float(saved_generators[generator_id])
-	battery_charge_wh = clampf(float(state.get("battery_charge_wh", battery_charge_wh)), 0.0, battery_capacity_wh)
+	battery_charge_wh = clampf(float(state.get("battery_charge_wh", battery_charge_wh)), 0.0, get_battery_capacity_wh())
 	var breakers: Dictionary = state.get("breakers", {})
 	var shed: Dictionary = state.get("shed", {})
 	var load_overrides: Dictionary = state.get("load_overrides", {})

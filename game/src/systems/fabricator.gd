@@ -8,6 +8,8 @@ extends ShipSystem
 
 var _job_recipe: FabricatorRecipe = null
 var _job_remaining_hours: float = 0.0
+## Set by ModuleSystem: a workshop pod speeds the bench up (0.7 = 30 percent faster).
+var job_hours_multiplier: float = 1.0
 
 
 func _ready() -> void:
@@ -74,7 +76,7 @@ func start(recipe_id: StringName) -> StringName:
 	if not bool(cargo.call("consume_material", recipe.material_kind, recipe.material_units)):
 		return &"no_materials"
 	_job_recipe = recipe
-	_job_remaining_hours = recipe.hours
+	_job_remaining_hours = recipe.hours * clampf(job_hours_multiplier, 0.1, 1.0)
 	emit_sim_event(&"fabrication_started", {
 		"recipe_id": String(recipe.recipe_id),
 		"material_kind": String(recipe.material_kind),

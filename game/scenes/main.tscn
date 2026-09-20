@@ -65,6 +65,18 @@
 [ext_resource type="Script" path="res://src/components/ship_module.gd" id="83_ship_module"]
 [ext_resource type="Resource" path="res://src/data/modules/module_utility_pod.tres" id="84_module_utility"]
 [ext_resource type="Resource" path="res://src/data/modules/module_storage_pod.tres" id="85_module_storage"]
+[ext_resource type="Resource" path="res://src/data/modules/module_greenhouse.tres" id="86_module_greenhouse"]
+[ext_resource type="Resource" path="res://src/data/modules/module_workshop.tres" id="87_module_workshop"]
+[ext_resource type="Resource" path="res://src/data/modules/module_expanded_storage.tres" id="88_module_expanded_storage"]
+[ext_resource type="Resource" path="res://src/data/modules/module_aux_battery.tres" id="89_module_aux_battery"]
+[ext_resource type="Resource" path="res://src/data/modules/module_med_bay.tres" id="90_module_med_bay"]
+[ext_resource type="Script" path="res://src/components/ship_machine.gd" id="91_machine_script"]
+[ext_resource type="Resource" path="res://src/data/machines/machine_grow_rack.tres" id="92_machine_grow_rack"]
+[ext_resource type="Resource" path="res://src/data/machines/machine_work_bench.tres" id="93_machine_work_bench"]
+[ext_resource type="Resource" path="res://src/data/machines/machine_cargo_rack.tres" id="94_machine_cargo_rack"]
+[ext_resource type="Resource" path="res://src/data/machines/machine_battery_cabinet.tres" id="95_machine_battery_cabinet"]
+[ext_resource type="Resource" path="res://src/data/machines/machine_med_bed.tres" id="96_machine_med_bed"]
+[ext_resource type="Resource" path="res://src/data/machines/machine_scrubber_spare.tres" id="97_machine_scrubber_spare"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_sky"]
 shader = ExtResource("71_space_sky")
@@ -246,7 +258,8 @@ recipes = Array[ExtResource("81_recipe_script")]([ExtResource("77_recipe_water")
 
 [node name="ModuleSystem" type="Node" parent="Systems"]
 script = ExtResource("82_modules")
-catalog = Array[ExtResource("83_ship_module")]([ExtResource("84_module_utility"), ExtResource("85_module_storage")])
+catalog = Array[ExtResource("83_ship_module")]([ExtResource("84_module_utility"), ExtResource("85_module_storage"), ExtResource("86_module_greenhouse"), ExtResource("87_module_workshop"), ExtResource("88_module_expanded_storage"), ExtResource("89_module_aux_battery"), ExtResource("90_module_med_bay")])
+machine_catalog = Array[ExtResource("91_machine_script")]([ExtResource("92_machine_grow_rack"), ExtResource("93_machine_work_bench"), ExtResource("94_machine_cargo_rack"), ExtResource("95_machine_battery_cabinet"), ExtResource("96_machine_med_bed"), ExtResource("97_machine_scrubber_spare")])
 
 
 [node name="UI" type="Node" parent="."]

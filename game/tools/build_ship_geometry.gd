@@ -18,6 +18,9 @@ const SCRIPT_TETHER_ZONE: String = "res://src/world/tether_zone.gd"
 const SCRIPT_ZONE: String = "res://src/world/compartment_zone.gd"
 const SCRIPT_LINK: String = "res://src/world/compartment_link.gd"
 const SCRIPT_MODULE_MOUNT: String = "res://src/interactables/module_mount.gd"
+const SCRIPT_MACHINE_SOCKET: String = "res://src/interactables/machine_socket.gd"
+## Socket pad z positions along the pod's far wall.
+const MACHINE_SOCKETS: Array[float] = [-1.0, 0.0, 1.0]
 
 const WALL_THICKNESS: float = 0.2
 const DOOR_TOP: float = 2.2
@@ -306,7 +309,39 @@ func _build_dock_pod() -> Node3D:
 	link.set(&"compartment_a", &"module")
 	link.set(&"compartment_b", &"")
 	pod.add_child(link)
+	_add_machine_sockets(pod, room)
 	return pod
+
+
+## Three machine sockets along the pod's far wall: the pads the operator fits machines into.
+## Slot ids are wired when the pod is stood up ("<hardpoint>:<index>").
+func _add_machine_sockets(pod: Node3D, room: StaticBody3D) -> void:
+	for index: int in MACHINE_SOCKETS.size():
+		var socket_z: float = float(MACHINE_SOCKETS[index])
+		var socket: StaticBody3D = StaticBody3D.new()
+		socket.name = "Socket_%d" % index
+		socket.position = Vector3(POD_MAX.x - 0.85, 0.0, socket_z)
+		socket.collision_layer = 2
+		socket.collision_mask = 0
+		socket.set_script(load(SCRIPT_MACHINE_SOCKET) as Script)
+		pod.add_child(socket)
+		var pad_mesh: BoxMesh = BoxMesh.new()
+		pad_mesh.size = Vector3(0.9, 0.12, 0.9)
+		var pad: MeshInstance3D = MeshInstance3D.new()
+		pad.name = "Pad"
+		pad.mesh = pad_mesh
+		pad.position = Vector3(0.0, 0.06, 0.0)
+		pad.material_override = _materials[MATERIAL_CONDUIT] as Material
+		socket.add_child(pad)
+		var pad_shape: BoxShape3D = BoxShape3D.new()
+		pad_shape.size = Vector3(0.9, 0.3, 0.9)
+		var shape: CollisionShape3D = CollisionShape3D.new()
+		shape.name = "PadShape"
+		shape.shape = pad_shape
+		shape.position = Vector3(0.0, 0.18, 0.0)
+		socket.add_child(shape)
+	if room != null:
+		room.set_meta(&"machine_sockets", MACHINE_SOCKETS.size())
 
 
 func _profile_for(profile_name: StringName) -> Array[Vector2]:

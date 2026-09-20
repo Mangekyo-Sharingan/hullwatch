@@ -74,6 +74,18 @@ func _run() -> void:
 		_finish()
 		return
 	_check(room.get_actions().has(&"teardown"), "standing pod offers teardown")
+	var sockets: Array[MachineSocket] = []
+	for child: Node in pod.get_children():
+		if child is MachineSocket:
+			sockets.append(child as MachineSocket)
+	_check(sockets.size() == 3, "the pod carries three machine sockets")
+	_check(sockets[0].slot_id == &"hp_quarters:0" and sockets[2].slot_id == &"hp_quarters:2", "sockets are wired to their dock and index")
+	_check(sockets[0].get_actions().size() > 0, "an empty socket offers machines to fit")
+	cargo.call("add_material", &"ice", 4.0)
+	_check(bool(modules.call("fit_machine", &"grow_rack", &"hp_quarters:0")), "a machine fits into the pod socket")
+	modules.call("sim_tick", 6.0)
+	var prop: Node3D = sockets[0].get_node_or_null(^"MachineProp") as Node3D
+	_check(prop != null and prop.visible, "the socket shows the fitted machine")
 
 	var saved: Dictionary = modules.call("save_state") as Dictionary
 	_check(room.select_action(&"teardown"), "teardown uninstalls the module")

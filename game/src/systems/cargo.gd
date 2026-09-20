@@ -12,6 +12,8 @@ const KNOWN_KINDS: Array[StringName] = [KIND_ICE, KIND_ORE, KIND_METAL, KIND_EXO
 @export var capacity_units: float = 120.0
 
 var _materials: Dictionary = {}
+## Extra hold capacity contributed by installed hardware; re-applied from modules on load.
+var _capacity_sources: Dictionary = {}
 
 
 func _ready() -> void:
@@ -57,8 +59,22 @@ func get_used_units() -> float:
 	return total
 
 
+func set_capacity_source(source_id: StringName, units: float) -> void:
+	if units <= 0.0:
+		_capacity_sources.erase(source_id)
+		return
+	_capacity_sources[source_id] = units
+
+
+func get_capacity_units() -> float:
+	var total: float = capacity_units
+	for value: Variant in _capacity_sources.values():
+		total += float(value)
+	return total
+
+
 func get_free_units() -> float:
-	return maxf(capacity_units - get_used_units(), 0.0)
+	return maxf(get_capacity_units() - get_used_units(), 0.0)
 
 
 func get_status() -> Dictionary:
