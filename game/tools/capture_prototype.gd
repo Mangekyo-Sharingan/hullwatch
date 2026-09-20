@@ -4,12 +4,12 @@
 extends SceneTree
 
 const OUTPUT_DIR: String = "user://captures"
-const SCENE_PATH: String = "res://scenes/prototype_station.tscn"
+const SCENE_PATH: String = "res://scenes/hull_study.tscn"
 const LOOK_AT: Vector3 = Vector3(0.0, 0.0, -4.0)
 const VIEWS: Array[Dictionary] = [
-	{"name": "proto_station_three_quarter.png", "position": Vector3(22.0, 12.0, 20.0)},
-	{"name": "proto_station_broadside.png", "position": Vector3(34.0, 2.0, -4.0)},
-	{"name": "proto_station_bow.png", "position": Vector3(6.0, 4.0, -34.0)},
+	{"name": "study_hull_three_quarter.png", "position": Vector3(17.0, 9.0, 16.0)},
+	{"name": "study_hull_broadside.png", "position": Vector3(26.0, 1.0, -3.0)},
+	{"name": "study_hull_bow.png", "position": Vector3(5.0, 3.0, -32.0)},
 ]
 
 

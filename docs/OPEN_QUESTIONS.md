@@ -158,3 +158,33 @@ With answers (ship / keep interiors / grim palette): one sitting for the lathe-s
 and a section table, one for re-mounting the catwalk, railings, EVA anchors, tether and cargo
 port onto the new shell, then re-baselined exterior tests and captures. Say go and I start with
 that.
+
+---
+
+## Q7 answer log — hull form (CLOSED 2026-09-20)
+
+Answered by the operator: this is the **player's ship**; the **interiors go tubular, ring
+decks later**; the palette stays grim with the xenon hull material. Recorded as **M13** in
+docs/EXPANSION_SPEC.md, with the plan and the dependency spelled out there.
+
+The finding that shaped the plan: the current interior is a wide flat layout (14 m beam, 3.6 m
+tall) and no slim stack can contain it, so the shell rewrite and the tube interior are one job.
+
+Layout study: `docs/design/study_hull_three_quarter.png`, `study_hull_broadside.png`,
+`study_hull_bow.png` — 11 sections, one room per section, bulkhead hatches at the flanges, pods
+on radial ports, cupola forward, tanks and arrays aft, span 32 m.
+
+Open sub-questions for the next sitting (answer while reviewing the study):
+
+1. **Train layout vs hub.** Rooms in a chain (walk through each section to reach the next, the
+   way ISS modules connect) is what the study shows and the cheapest to build. The alternative
+   is a central hub section with rooms hanging off it radially - closer to the current
+   corridor-hub fiction, more geometry. My pick: train.
+2. **Section order.** Bow to stern in the study: cupola/cockpit head, cockpit, quarters, life
+   support, galley, water closet, storage, airlock, engine bay A, engine bay B, propellant tank.
+   Anything you want reordered (e.g. airlock next to the engine bay for machinery work) is a
+   one-line change to the table in `game/tools/build_hull_study.gd`.
+3. **Section sizes.** Deck areas are 8–21 m² per section against today's room areas (cockpit
+   31 m², engine bay 45 m², corridor 54 m²). The corridor's 54 m² disappears into the chain,
+   and the engine bay needs both sections. Confirm the deck sizes feel right, or say which
+   rooms deserve a second deck in M13.4.

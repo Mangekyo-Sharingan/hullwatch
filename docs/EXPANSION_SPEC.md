@@ -49,6 +49,10 @@ the related v1 non-goals in `PRODUCTION_SPEC.md` §8.3.
 
 ## Hull geometry language (canon, 2026-09-18)
 
+**Amended 2026-09-20:** M13 replaces the outer shell with a lathed modular stack (see the M13
+section) — the canon below still governs the interior partitions and every surface that is not
+part of the M13 shell rewrite.
+
 The primitive look is a bug. The hull is a **faceted polygonal form** and nothing may
 protrude or overlap:
 
@@ -105,6 +109,29 @@ protrude or overlap:
 | **M10 — Ship expansion** | 4 | Exterior hardpoints + module catalog: greenhouse (renewable food), workshop, expanded storage, aux battery, med bay; EVA construction flow; new compartments auto-register in atmosphere/thermal/power | Build greenhouse → renewable food in scenario; module save/load; geometry regenerates deterministically |
 | **M11 — Destinations** | 5 | Star chart (planets/stars), course-setting, multi-day transit with events + fuel, arrival content (sector swap, sky, special resources, comms beats) | Voyage to a planet and a star in scenario; fuel consumption; arrival content differs per destination; save/load |
 | **M12 — Feel & polish** | 6+ | EVA feel (tether tension, suit audio/HUD, hull lighting), exterior art pass, encounter pacing, space ambience, performance + rebalance | External playtest round on a build with the full loop; profiler budgets hold |
+
+### M13 — Modular hull in the reference language (user-requested 2026-09-20)
+
+The ship becomes a stack of pressurised sections in the language of `Reference/station_design.jpg`:
+lathed drums with panel frames, ribbed tanks, flanges between sections, a cupola bow, and solar
+arrays on booms — grim palette, xenon hull material, no clean-white ISS finish. Confirmed by the
+operator: this is the **player's ship**, the **interiors go tubular** (ring decks later as a
+second-deck pass), and the material language stays Hullwatch's.
+
+One finding drives the order of work: the current interior is a wide flat layout (14 m beam,
+3.6 m tall) that no slim stack can hold, so the shell rewrite and the tube interior are **one
+job** — a shell built first at slim diameters would either swallow the rooms or be a fat barrel.
+The layout is settled in `docs/design/study_hull_*.png` (built by `game/tools/build_hull_study.gd`):
+11 sections, one room per section, bulkhead hatches at the flanges, pods on radial ports,
+cupola forward, tanks and arrays aft. Span ≈ 32 m, section diameters 3.2–5.2 m.
+
+| Sub-step | Deliverable | Exit criteria |
+|---|---|---|
+| **M13.1 — Section hull generator** | `SectionHull` helpers in `src/world/` (lathe rings, drums, domes, ribs, flanges, radial ports) + the section table + collision generated from the same table; replaces the offset-polygon shell in `build_ship_geometry.gd` | Tool output deterministic; hull collides exactly where it renders; no room interior clips the shell; `test_hull_profile`/`test_hull_exterior` re-baselined and green |
+| **M13.2 — Tube interior** | Each room becomes a section: circular deck plate, curved wall, bulkhead doorway at the flange, ladderway or crawl to the next section; corridor retires into the section chain (train layout) | Every room reachable on foot; doors at bulkheads; atmosphere/thermal/hull compartment defs follow the section volumes; layout suites green |
+| **M13.3 — Radial docks & exterior fittings** | Four docks as radial ports on their sections (pods hang perpendicular to the hull axis); airlock outer hatch, EVA platform, truss walkway with railings, tether anchors, cargo port re-mounted on the curved shell | Build → EVA → enter a pod on foot; tether clips; hull-exterior rays green |
+| **M13.4 — Ring decks** | Second deck inside the larger sections (mezzanine ring, ladder between decks) for the rooms that need the area (engine bay, storage, quarters) | Decks walkable, no headroom clash, compartments re-measured |
+| **M13.5 — Verification** | Captures, `test_scene_loop` with the new geometry, manual/manual-binder text, docs | Full loop headless; captures reviewed; docs consistent |
 
 One milestone per commit series; each milestone ships with its tests and a playable build
 when the user wants one. Polish is explicitly M12 — do not pull it forward.
