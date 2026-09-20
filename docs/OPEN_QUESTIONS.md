@@ -5,7 +5,12 @@ what is already in the repo, what the options are, and what I would pick if left
 
 ---
 
-## Q1 — Which door leaf ships? (blocks the door pass, not M10.4)
+## Q1 — Which door leaf ships? (blocked the door pass; DECIDED)
+
+**Decided 2026-09-20: Kenney stays.** The gate leaf is the committed default (`DOOR_STYLE =
+"kenney"`), the Quaternius leaf stays wired as the alternative so it can be shot or flipped any
+time, and the frame/recess pass is deferred — it returns if the chunky leaf starts reading
+wrong in playtests. Everything below is the comparison that fed the decision.
 
 Both candidates are wired through the same code path: `build_world_layout.gd` fits the leaf of
 the active style to every doorway and puts the repo scratched-panel material over it. Flip the
@@ -118,3 +123,38 @@ a 1.0 m doorway is fine; a *suit-wearing* operator at 0.6 m wide is fine.
 
 Confirm we keep 1.0 m for docks, or widen to 1.2 m to match interior doors (costs a geometry
 regeneration, all four docks move).
+
+---
+
+## Q7 — Adopting the reference station design (blocks the hull-form rewrite)
+
+The reference is `Reference/station_design.jpg`: a stack of cylindrical pressurised modules —
+plain drums with rounded panel frames, two ribbed propellant tanks, flanges between sections, a
+forward docking node with cupola windows and a dish, and large dark solar arrays on booms.
+A grey-block of that language at Hullwatch's scale is in `docs/design/proto_station_*.png`
+(built by `game/tools/build_prototype_station.gd`, shot by `capture_prototype.gd`; both are
+design tools, not part of the game).
+
+**What it costs, honestly:** the ship's hull is currently generated as a faceted polygonal
+prism (`HullProfile` + `build_ship_geometry.gd`), and the expansion spec makes that canon.
+The reference needs lathed shells — cylinders, cones, domes, ribbed tanks — joined by flanges.
+That is a rewrite of the hull-shell half of the generator plus re-baselined exterior tests and
+captures; the interior plan (rooms, corridor, props, doorways) can stay.
+
+The three questions that decide how big this is:
+
+1. **What is it for — the player's ship, or a station the ship visits?** My read: the player's
+   vessel (the reference is one vessel-like stack and its proportions match our 27 m hull). If so,
+   the same language also gives us derelict stations and waypoint outposts later for free.
+2. **Interior: keep it or make it tubular?** Real stations are cylinders *outside* with squared
+   rack interiors, so keeping our rooms and skinning them in a lathed pressure shell is both
+   authentic and far cheaper. Tube interiors with ring decks are a bigger, later job.
+   My pick: keep the interiors, new shell outside, revisit tubes at M12.
+3. **Palette: keep the grim Hullwatch look?** The reference is clean white ISS; our game is
+   stained, rusted, work-lit. My pick: painted shells gone grey-brown with age, rusted flanges,
+   the arrays as the only cool-blue element — the reference's *shapes*, our *materials*.
+
+With answers (ship / keep interiors / grim palette): one sitting for the lathe-shell generator
+and a section table, one for re-mounting the catwalk, railings, EVA anchors, tether and cargo
+port onto the new shell, then re-baselined exterior tests and captures. Say go and I start with
+that.
