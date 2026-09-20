@@ -27,6 +27,7 @@ func _run() -> void:
 	await _capture(player, Vector3(0.0, 0.1, -2.5), 0.0, "shot_corridor_north.png")
 	await _capture(player, Vector3(-3.7, 0.1, -5.3), 0.0, "shot_life_support.png")
 	await _capture(player, Vector3(0.0, 0.1, -15.0), 0.0, "shot_cockpit.png")
+	await _capture(player, Vector3(0.0, 0.1, -10.0), PI * 0.5, "shot_door_prefab.png")
 	await _capture(player, Vector3(-3.8, 0.1, 0.2), 0.0, "shot_storage.png")
 	await _capture(player, Vector3(0.2, 0.1, -5.6), PI, "shot_corridor_south.png")
 	var status_panel: Node = _main.get_node_or_null("WorldLayout/Props/StatusPanel")

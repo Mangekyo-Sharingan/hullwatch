@@ -61,6 +61,12 @@ protrude or overlap:
   3.5 m waist at 1.5 m height, 1.75 m flat floor and ceiling. The ship plan is sized around
   it (x -8.05..6.15), and the side rooms, hull plan, catwalk, railings and EVA anchors all
   follow the widened spine.
+- **Door leaves are real geometry**: each door slab is the `door` leaf node of Kenney's
+  `gate-door.glb` (CC0, `docs/ASSET_CREDITS.md`), yawed a quarter turn and fitted to the
+  doorway box, with the repo scratched-panel material over its flat colormap material —
+  the box slab survives only as the fallback when the prefab is missing. The gate *frame*
+  and proper door recesses are a later pass (the leaf is chunky in the source asset, so a
+  frame needs a wider opening than the current wall band has).
 - **Shared boundaries are built once** (ownership table in the generator); the corridor
   owns its spine walls and rooms omit the edges that face it.
 - **Collision is generated from the same surfaces** (ConcavePolygonShape3D), not separate

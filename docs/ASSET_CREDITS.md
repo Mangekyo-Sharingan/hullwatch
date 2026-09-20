@@ -28,6 +28,7 @@ License text: CC0 1.0 Universal — https://creativecommons.org/publicdomain/zer
 | Asset | Source URL | License | Used for | Local path | Size |
 |---|---|---|---|---|---|
 | Space Station Kit (1.0) | https://kenney.nl/assets/space-station-kit | CC0 1.0 | Modular sci-fi interior props (containers/crates, consoles, pipes, wall modules, doors) | `game/assets/models/kenney_space_station_kit/` | 1.1 MB |
+| Modular Space Kit (1.0) | https://kenney.nl/assets/modular-space-kit | CC0 1.0 | Door leaf geometry (`gate-door.glb` leaf node) fitted to every doorway as the door slab, with the repo panel material over it; `gate.glb` kept for a future frame pass | `game/assets/models/kenney_modular_space_kit/` | 0.2 MB |
 
 License text: CC0 1.0 Universal — https://creativecommons.org/publicdomain/zero/1.0/
 The pack's own `License.txt` (confirming CC0, distributed by Kenney / www.kenney.nl, 2024-04-10)

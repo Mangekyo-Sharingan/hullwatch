@@ -25,6 +25,13 @@ const LOG_ENTRY_2: String = "res://src/data/logs/log_02.tres"
 const KIT_CONTAINER: String = "res://assets/models/kenney_space_station_kit/Models/GLB format/container.glb"
 const KIT_COMPUTER: String = "res://assets/models/kenney_space_station_kit/Models/GLB format/computer-system.glb"
 const KIT_DISPLAY: String = "res://assets/models/kenney_space_station_kit/Models/GLB format/display-wall.glb"
+## Door leaves come from Kenney's Modular Space Kit gate (CC0): the leaf node is fitted to
+## every doorway, with the repo panel material over its imported colormap one. Its mesh
+## bounds are 2.4 (width) x 3.72 (height) x 0.7 (depth), origin at the bottom centre; a
+## missing prefab falls back to the old box slab.
+const DOOR_PREFAB: String = "res://assets/models/kenney_modular_space_kit/Models/GLB format/gate-door.glb"
+const DOOR_LEAF_NODE: StringName = &"door"
+const DOOR_LEAF_SIZE: Vector3 = Vector3(2.4, 3.72, 0.7)
 
 const SCRIPT_ZONE: String = "res://src/world/compartment_zone.gd"
 const SCRIPT_LINK: String = "res://src/world/compartment_link.gd"
@@ -428,6 +435,8 @@ var _materials: Dictionary = {}
 var _resources: Dictionary = {}
 var _scenes: Dictionary = {}
 var _failures: int = 0
+var _door_leaf: Mesh
+var _door_leaf_loaded: bool = false
 
 
 func _initialize() -> void:
@@ -484,6 +493,24 @@ func _make_group(group_name: String) -> Node3D:
 	group.name = group_name
 	_root.add_child(group)
 	return group
+
+
+func _door_leaf_mesh() -> Mesh:
+	if _door_leaf_loaded:
+		return _door_leaf
+	_door_leaf_loaded = true
+	var packed: PackedScene = load(DOOR_PREFAB) as PackedScene
+	if packed == null:
+		print("WARN: door prefab missing, using box slabs: ", DOOR_PREFAB)
+		return null
+	var instance: Node = packed.instantiate()
+	var leaf: MeshInstance3D = instance.find_child(String(DOOR_LEAF_NODE), true, false) as MeshInstance3D
+	if leaf != null:
+		_door_leaf = leaf.mesh
+	else:
+		print("WARN: door prefab has no leaf node: ", DOOR_LEAF_NODE)
+	instance.free()
+	return _door_leaf
 
 
 func _build_prop(spec: Dictionary) -> void:
@@ -559,11 +586,20 @@ func _build_door(spec: Dictionary) -> void:
 	_apply_exports(door, spec)
 	_props.add_child(door)
 	var size: Vector3 = spec["size"]
-	var slab_mesh: BoxMesh = BoxMesh.new()
-	slab_mesh.size = size
 	var slab: MeshInstance3D = MeshInstance3D.new()
 	slab.name = "Slab"
-	slab.mesh = slab_mesh
+	var leaf: Mesh = _door_leaf_mesh()
+	if leaf != null:
+		# The Kenney leaf is 2.4 (width) x 3.72 (height) x 0.7 (depth) with its origin at the
+		# bottom centre, so yaw it a quarter turn and fit each local axis to the doorway.
+		slab.mesh = leaf
+		slab.rotation_degrees.y = 90.0
+		slab.scale = Vector3(size.z / DOOR_LEAF_SIZE.x, size.y / DOOR_LEAF_SIZE.y, size.x / DOOR_LEAF_SIZE.z)
+		slab.position = Vector3(0.0, -size.y * 0.5, 0.0)
+	else:
+		var slab_mesh: BoxMesh = BoxMesh.new()
+		slab_mesh.size = size
+		slab.mesh = slab_mesh
 	slab.material_override = _materials[MATERIAL_PANEL_SCRATCHED] as Material
 	door.add_child(slab)
 	var slab_box: BoxShape3D = BoxShape3D.new()
