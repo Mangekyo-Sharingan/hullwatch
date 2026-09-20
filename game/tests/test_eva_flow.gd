@@ -43,7 +43,7 @@ func _run() -> void:
 
 	outer.interact(null)
 	_check(outer.is_open(), "outer hatch opens on vacuum")
-	player.global_position = Vector3(-8.1, 0.2, -1.2)
+	player.global_position = Vector3(-8.9, 0.2, -1.2)
 	await physics_frame
 	await physics_frame
 	await physics_frame

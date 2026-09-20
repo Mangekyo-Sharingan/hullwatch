@@ -61,14 +61,14 @@ func _test_hull_node() -> void:
 
 func _test_airlock_opens_onto_the_platform() -> void:
 	_check(not _ray_hits(Vector3(-5.6, 1.2, -1.2), Vector3(-8.6, 1.2, -1.2)), "outer doorway is free through the hull band")
-	_check(_ray_hits(Vector3(-8.0, 1.0, -1.2), Vector3(-8.0, -1.0, -1.2)), "platform floor is solid outside the door")
-	_check(not _ray_hits(Vector3(-8.0, 0.5, -1.2), Vector3(-8.0, 2.5, -1.2)), "platform headroom is clear")
+	_check(_ray_hits(Vector3(-9.0, 1.0, -1.2), Vector3(-9.0, -1.0, -1.2)), "platform floor is solid outside the door")
+	_check(not _ray_hits(Vector3(-9.0, 0.5, -1.2), Vector3(-9.0, 2.5, -1.2)), "platform headroom is clear")
 
 
 func _test_catwalk_ring() -> void:
 	var samples: Array[Vector3] = [
-		Vector3(-8.0, 1.0, -10.0),
-		Vector3(6.2, 1.0, -10.0),
+		Vector3(-9.0, 1.0, -10.0),
+		Vector3(7.1, 1.0, -10.0),
 		Vector3(-0.5, 1.0, -20.2),
 		Vector3(-0.5, 1.0, 9.2),
 	]

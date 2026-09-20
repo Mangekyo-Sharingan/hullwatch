@@ -57,7 +57,7 @@ func _run() -> void:
 		await _capture(player, Vector3(3.0, 0.1, -16.6), 0.0, "shot_comms.png")
 		comms_terminal.call("close")
 
-	await _capture(player, Vector3(-8.1, 0.1, -6.0), 0.0, "shot_eva_platform.png")
+	await _capture(player, Vector3(-8.9, 0.1, -6.0), 0.0, "shot_eva_platform.png")
 	await _capture(player, Vector3(-6.0, 3.7, -6.0), PI * 0.5, "shot_hull_deck.png")
 	await _capture(player, Vector3(1.5, 0.2, 11.5), PI, "shot_aft_ramp.png")
 

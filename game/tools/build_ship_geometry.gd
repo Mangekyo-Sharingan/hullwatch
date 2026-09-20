@@ -25,14 +25,14 @@ const EPSILON: float = 0.000001
 ## Vertical profiles as (height, inset) rings: flat floor, lower cant, vertical band,
 ## upper cove, flat ceiling. The inset is measured from each space's plan outline via a
 ## mitered offset, so every corner stays a true mitre joint. Rooms get big slanted coves;
-## the 1.4 m spine corridor caps at a narrow flat ceiling (flat-bottom hexagon section).
+## the spine corridor is a regular hexagon: 60-degree cants, 3.5 m waist at 1.5 m,
+## floor and ceiling 1.75 m wide, no vertical band anywhere.
 const PROFILE_CORRIDOR: Array[Vector2] = [
-	Vector2(FLOOR_BOTTOM, 0.0),
-	Vector2(0.0, 0.0),
-	Vector2(0.5, 0.26),
-	Vector2(2.30, 0.26),
-	Vector2(CEILING_BOTTOM, 0.52),
-	Vector2(CEILING_TOP, 0.0),
+	Vector2(FLOOR_BOTTOM, 0.875),
+	Vector2(0.0, 0.875),
+	Vector2(1.50, 0.0),
+	Vector2(CEILING_BOTTOM, 0.875),
+	Vector2(CEILING_TOP, 0.875),
 ]
 const PROFILE_ROOM_L: Array[Vector2] = [
 	Vector2(FLOOR_BOTTOM, 0.0),
@@ -93,14 +93,14 @@ const SPACES: Array[Dictionary] = [
 		"walls": [0, 1, 2, 3, 4, 5, 6, 7],
 		"open": [],
 		"gaps": [
-			{"edge": 4, "from": -0.7, "to": 0.7, "top": CEILING_TOP},
+			{"edge": 4, "from": -0.88, "to": 0.88, "top": CEILING_TOP},
 			{"edge": 0, "from": -2.0, "to": 2.0, "bottom": 1.2, "top": 2.3},
 		],
 	},
 	{
 		"name": "Corridor",
-		"min": Vector2(-0.7, -14.0),
-		"max": Vector2(0.7, 1.4),
+		"min": Vector2(-1.75, -14.0),
+		"max": Vector2(1.75, 1.4),
 		"chamfer": 0.0,
 		"profile": "corridor",
 		"walls": [1, 3],
@@ -115,8 +115,8 @@ const SPACES: Array[Dictionary] = [
 	},
 	{
 		"name": "Quarters",
-		"min": Vector2(-5.4, -12.6),
-		"max": Vector2(-0.9, -8.2),
+		"min": Vector2(-6.45, -12.6),
+		"max": Vector2(-1.95, -8.2),
 		"chamfer": 1.4,
 		"profile": "room_m",
 		"walls": [0, 1, 3, 4, 5, 6, 7],
@@ -125,8 +125,8 @@ const SPACES: Array[Dictionary] = [
 	},
 	{
 		"name": "LifeSupport",
-		"min": Vector2(-4.4, -7.6),
-		"max": Vector2(-0.9, -5.0),
+		"min": Vector2(-5.45, -7.6),
+		"max": Vector2(-1.95, -5.0),
 		"chamfer": 0.75,
 		"profile": "room_m",
 		"walls": [0, 1, 3, 4, 5, 6, 7],
@@ -135,8 +135,8 @@ const SPACES: Array[Dictionary] = [
 	},
 	{
 		"name": "Galley",
-		"min": Vector2(0.9, -7.6),
-		"max": Vector2(4.9, -4.0),
+		"min": Vector2(1.95, -7.6),
+		"max": Vector2(5.95, -4.0),
 		"chamfer": 1.2,
 		"profile": "room_l",
 		"walls": [0, 1, 2, 3, 4, 5, 7],
@@ -145,8 +145,8 @@ const SPACES: Array[Dictionary] = [
 	},
 	{
 		"name": "WaterCloset",
-		"min": Vector2(0.9, -3.0),
-		"max": Vector2(3.5, -0.8),
+		"min": Vector2(1.95, -3.0),
+		"max": Vector2(4.55, -0.8),
 		"chamfer": 0.45,
 		"profile": "room_s",
 		"walls": [0, 1, 2, 3, 4, 5, 7],
@@ -155,8 +155,8 @@ const SPACES: Array[Dictionary] = [
 	},
 	{
 		"name": "Storage",
-		"min": Vector2(-4.6, -3.0),
-		"max": Vector2(-0.9, 0.6),
+		"min": Vector2(-5.65, -3.0),
+		"max": Vector2(-1.95, 0.6),
 		"chamfer": 1.0,
 		"profile": "room_m",
 		"walls": [0, 1, 3, 4, 5, 6, 7],
@@ -171,12 +171,12 @@ const SPACES: Array[Dictionary] = [
 		"profile": "room_l",
 		"walls": [0, 1, 2, 3, 4, 5, 6, 7],
 		"open": [],
-		"gaps": [{"edge": 0, "from": -0.7, "to": 0.7, "top": CEILING_TOP}],
+		"gaps": [{"edge": 0, "from": -0.88, "to": 0.88, "top": CEILING_TOP}],
 	},
 	{
 		"name": "Airlock",
-		"min": Vector2(-6.8, -2.2),
-		"max": Vector2(-4.8, -0.2),
+		"min": Vector2(-7.85, -2.2),
+		"max": Vector2(-5.85, -0.2),
 		"chamfer": 0.4,
 		"profile": "room_s",
 		"walls": [0, 1, 3, 4, 5, 6, 7],
@@ -185,8 +185,8 @@ const SPACES: Array[Dictionary] = [
 	},
 ]
 
-const HULL_PLAN_MIN: Vector2 = Vector2(-7.0, -19.0)
-const HULL_PLAN_MAX: Vector2 = Vector2(5.1, 8.0)
+const HULL_PLAN_MIN: Vector2 = Vector2(-8.05, -19.0)
+const HULL_PLAN_MAX: Vector2 = Vector2(6.15, 8.0)
 const HULL_CHAMFER: float = 1.8
 const HULL_BAND: float = 0.45
 const HULL_BOTTOM: float = -0.4
@@ -849,10 +849,10 @@ func _add_hexahedron(surface: Dictionary, corners: Array[Vector3], collision: Ar
 
 func _add_railings(hull: StaticBody3D) -> void:
 	var bars: Array[Array] = [
-		[Vector3(-8.83, 1.0, -5.5), Vector3(0.06, 0.08, 30.8)],
-		[Vector3(6.93, 1.0, -5.5), Vector3(0.06, 0.08, 30.8)],
-		[Vector3(-0.95, 1.0, -20.83), Vector3(15.9, 0.08, 0.06)],
-		[Vector3(-0.95, 1.0, 9.83), Vector3(15.9, 0.08, 0.06)],
+		[Vector3(-9.88, 1.0, -5.5), Vector3(0.06, 0.08, 30.8)],
+		[Vector3(7.98, 1.0, -5.5), Vector3(0.06, 0.08, 30.8)],
+		[Vector3(-0.95, 1.0, -20.83), Vector3(17.9, 0.08, 0.06)],
+		[Vector3(-0.95, 1.0, 9.83), Vector3(17.9, 0.08, 0.06)],
 		[Vector3(-3.93, 1.0, 12.45), Vector3(0.06, 0.08, 5.1)],
 		[Vector3(2.33, 1.0, 12.45), Vector3(0.06, 0.08, 5.1)],
 		[Vector3(-0.8, 1.0, 14.93), Vector3(6.4, 0.08, 0.06)],
@@ -886,7 +886,7 @@ func _add_hardpoints(hull: StaticBody3D) -> void:
 
 func _add_eva_anchors(hull: StaticBody3D) -> void:
 	var anchor_positions: Array[Vector3] = [
-		Vector3(-8.1, 0.25, -1.2),
+		Vector3(-9.0, 0.25, -1.2),
 		Vector3(0.0, 3.85, -14.0),
 		Vector3(0.0, 3.85, 4.0),
 		Vector3(-1.0, 0.25, 12.0),
@@ -899,7 +899,7 @@ func _add_eva_anchors(hull: StaticBody3D) -> void:
 		hull.add_child(anchor)
 	var zone: Area3D = Area3D.new()
 	zone.name = "TetherZone"
-	zone.position = Vector3(-8.1, 1.2, -1.2)
+	zone.position = Vector3(-9.0, 1.2, -1.2)
 	zone.set_script(load(SCRIPT_TETHER_ZONE) as Script)
 	hull.add_child(zone)
 	var box: BoxShape3D = BoxShape3D.new()

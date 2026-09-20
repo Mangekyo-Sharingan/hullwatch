@@ -69,7 +69,8 @@ const PROPS: Array[Dictionary] = [
 	{
 		"name": "BreakerPanel",
 		"script": "res://src/interactables/breaker_panel.gd",
-		"position": Vector3(0.595, 1.5, -3.5),
+		"position": Vector3(1.22, 0.8, -3.5),
+		"rotation": Vector3(0, 0, -30.0),
 		"size": Vector3(0.15, 1.0, 0.7),
 		"material": MATERIAL_PANEL_SCRATCHED,
 		"exports": {"circuit_id": &"lighting"},
@@ -77,7 +78,8 @@ const PROPS: Array[Dictionary] = [
 	{
 		"name": "StatusPanel",
 		"script": "res://src/ui/status_panel.gd",
-		"position": Vector3(-0.67, 1.5, -8.0),
+		"position": Vector3(-1.22, 0.8, -8.0),
+		"rotation": Vector3(0, 0, 30.0),
 		"size": Vector3(0.15, 1.0, 0.7),
 		"material": MATERIAL_SCREEN_GLOW,
 		"exports": {"compartment_id": &"main"},
@@ -86,7 +88,8 @@ const PROPS: Array[Dictionary] = [
 	{
 		"name": "MaintenanceBoard",
 		"script": "res://src/interactables/maintenance_board.gd",
-		"position": Vector3(-0.67, 1.6, -13.0),
+		"position": Vector3(-1.22, 0.8, -13.0),
+		"rotation": Vector3(0, 0, 30.0),
 		"size": Vector3(0.15, 0.7, 0.9),
 		"material": MATERIAL_SCREEN_GLOW,
 		"exports": {},
@@ -95,7 +98,7 @@ const PROPS: Array[Dictionary] = [
 	{
 		"name": "ManualBinder",
 		"script": "res://src/interactables/manual_binder.gd",
-		"position": Vector3(4.47, 0.9, -5.0),
+		"position": Vector3(5.53, 0.9, -5.0),
 		"size": Vector3(0.45, 0.32, 0.3),
 		"material": MATERIAL_WALL_PAINTED,
 		"exports": {},
@@ -158,7 +161,7 @@ const PROPS: Array[Dictionary] = [
 	{
 		"name": "O2CandleRack",
 		"script": "res://src/interactables/o2_candle.gd",
-		"position": Vector3(-1.2, 0.9, -6.8),
+		"position": Vector3(-2.5, 0.9, -6.8),
 		"size": Vector3(0.3, 0.2, 0.3),
 		"material": MATERIAL_METAL_RUSTED,
 		"exports": {"compartment_id": &"main"},
@@ -190,7 +193,7 @@ const PROPS: Array[Dictionary] = [
 	{
 		"name": "ProbePower",
 		"script": "res://src/interactables/diagnostic_probe.gd",
-		"position": Vector3(0.42, 0.35, -4.2),
+		"position": Vector3(0.9, 0.35, -4.2),
 		"size": Vector3(0.2, 0.2, 0.2),
 		"material": MATERIAL_SCREEN_GLOW,
 		"exports": {"system_group": &"power_system"},
@@ -222,7 +225,7 @@ const PROPS: Array[Dictionary] = [
 	{
 		"name": "ProbeWater",
 		"script": "res://src/interactables/diagnostic_probe.gd",
-		"position": Vector3(3.26, 0.35, -1.9),
+		"position": Vector3(4.31, 0.35, -1.9),
 		"size": Vector3(0.2, 0.2, 0.2),
 		"material": MATERIAL_SCREEN_GLOW,
 		"exports": {"system_group": &"water_system"},
@@ -271,7 +274,7 @@ const PROPS: Array[Dictionary] = [
 	{
 		"name": "CargoPort",
 		"script": "res://src/interactables/cargo_port.gd",
-		"position": Vector3(-7.6, 1.0, -2.2),
+		"position": Vector3(-8.63, 1.0, -2.2),
 		"size": Vector3(0.25, 0.5, 0.5),
 		"material": MATERIAL_MACHINE_TEAL,
 		"exports": {},
@@ -287,7 +290,7 @@ const PROPS: Array[Dictionary] = [
 	{
 		"name": "SampleCanister1",
 		"script": "res://src/interactables/sample_canister.gd",
-		"position": Vector3(-6.0, 0.16, -1.9),
+		"position": Vector3(-6.7, 0.16, -1.9),
 		"size": Vector3(0.2, 0.26, 0.2),
 		"material": MATERIAL_PANEL_SCRATCHED,
 		"exports": {"item_id": &"sample_canister", "item_name": "Sample canister"},
@@ -295,7 +298,7 @@ const PROPS: Array[Dictionary] = [
 	{
 		"name": "SampleCanister2",
 		"script": "res://src/interactables/sample_canister.gd",
-		"position": Vector3(-5.7, 0.16, -1.9),
+		"position": Vector3(-6.4, 0.16, -1.9),
 		"size": Vector3(0.2, 0.26, 0.2),
 		"material": MATERIAL_PANEL_SCRATCHED,
 		"exports": {"item_id": &"sample_canister", "item_name": "Sample canister"},
@@ -303,7 +306,7 @@ const PROPS: Array[Dictionary] = [
 	{
 		"name": "SampleCanister3",
 		"script": "res://src/interactables/sample_canister.gd",
-		"position": Vector3(-5.4, 0.16, -1.9),
+		"position": Vector3(-6.1, 0.16, -1.9),
 		"size": Vector3(0.2, 0.26, 0.2),
 		"material": MATERIAL_PANEL_SCRATCHED,
 		"exports": {"item_id": &"sample_canister", "item_name": "Sample canister"},
@@ -311,7 +314,7 @@ const PROPS: Array[Dictionary] = [
 	{
 		"name": "AirlockPanel",
 		"script": "res://src/interactables/airlock_panel.gd",
-		"position": Vector3(-4.86, 1.3, -0.35),
+		"position": Vector3(-6.03, 1.3, -0.35),
 		"size": Vector3(0.12, 0.4, 0.5),
 		"material": MATERIAL_SCREEN_GLOW,
 		"exports": {},
@@ -332,54 +335,54 @@ const DOORS: Array[Dictionary] = [
 	{
 		"name": "DoorCockpit",
 		"position": Vector3(0.0, 1.1, -14.1),
-		"size": Vector3(1.4, 2.2, 0.16),
+		"size": Vector3(1.75, 2.2, 0.16),
 		"exports": {"compartment_a": &"corridor", "compartment_b": &"cockpit"},
 	},
 	{
 		"name": "DoorEngine",
 		"position": Vector3(0.0, 1.1, 1.5),
-		"size": Vector3(1.4, 2.2, 0.16),
+		"size": Vector3(1.75, 2.2, 0.16),
 		"exports": {"compartment_a": &"corridor", "compartment_b": &"engine_bay"},
 	},
 	{
 		"name": "DoorQuarters",
-		"position": Vector3(-0.8, 1.1, -10.0),
+		"position": Vector3(-1.85, 1.1, -10.0),
 		"size": Vector3(0.16, 2.2, 1.2),
 		"exports": {"compartment_a": &"corridor", "compartment_b": &"quarters"},
 	},
 	{
 		"name": "DoorLifeSupport",
-		"position": Vector3(-0.8, 1.1, -6.0),
+		"position": Vector3(-1.85, 1.1, -6.0),
 		"size": Vector3(0.16, 2.2, 1.2),
 		"exports": {"compartment_a": &"corridor", "compartment_b": &"main"},
 	},
 	{
 		"name": "DoorStorage",
-		"position": Vector3(-0.8, 1.1, -1.2),
+		"position": Vector3(-1.85, 1.1, -1.2),
 		"size": Vector3(0.16, 2.2, 1.2),
 		"exports": {"compartment_a": &"corridor", "compartment_b": &"storage"},
 	},
 	{
 		"name": "DoorGalley",
-		"position": Vector3(0.8, 1.1, -5.6),
+		"position": Vector3(1.85, 1.1, -5.6),
 		"size": Vector3(0.16, 2.2, 1.2),
 		"exports": {"compartment_a": &"corridor", "compartment_b": &"galley"},
 	},
 	{
 		"name": "DoorWaterCloset",
-		"position": Vector3(0.8, 1.1, -1.6),
+		"position": Vector3(1.85, 1.1, -1.6),
 		"size": Vector3(0.16, 2.2, 1.2),
 		"exports": {"compartment_a": &"corridor", "compartment_b": &"water_closet"},
 	},
 	{
 		"name": "DoorAirlockInner",
-		"position": Vector3(-4.7, 1.1, -1.0),
+		"position": Vector3(-5.75, 1.1, -1.0),
 		"size": Vector3(0.16, 2.2, 1.2),
 		"exports": {"compartment_a": &"storage", "compartment_b": &"airlock", "airlock_id": &"airlock_main", "airlock_side": &"inner"},
 	},
 	{
 		"name": "DoorAirlockOuter",
-		"position": Vector3(-6.9, 1.1, -1.2),
+		"position": Vector3(-7.95, 1.1, -1.2),
 		"size": Vector3(0.16, 2.2, 1.0),
 		"exports": {"compartment_a": &"airlock", "compartment_b": &"", "airlock_id": &"airlock_main", "airlock_side": &"outer"},
 	},
@@ -388,21 +391,21 @@ const DOORS: Array[Dictionary] = [
 ## Kit-scene decorations: visual only, no collision added by this generator.
 const KIT_PROPS: Array[Dictionary] = [
 	{"name": "ContainerProp", "scene": KIT_CONTAINER, "position": Vector3(-3.0, 0.0, -0.2)},
-	{"name": "ComputerProp", "scene": KIT_COMPUTER, "position": Vector3(1.6, 0.75, -7.0)},
+	{"name": "ComputerProp", "scene": KIT_COMPUTER, "position": Vector3(2.6, 0.75, -7.0)},
 	{"name": "DisplayProp", "scene": KIT_DISPLAY, "position": Vector3(-2.5, 1.6, -18.45)},
 ]
 
 ## Atmosphere occupancy zones: Area3D + script + one BoxShape3D child named Shape.
 const ZONES: Array[Dictionary] = [
-	{"name": "ZoneCorridor", "size": Vector3(1.4, 3.0, 15.4), "position": Vector3(0.0, 1.5, -6.3), "exports": {"compartment_id": &"corridor"}},
+	{"name": "ZoneCorridor", "size": Vector3(3.5, 3.0, 15.4), "position": Vector3(0.0, 1.5, -6.3), "exports": {"compartment_id": &"corridor"}},
 	{"name": "ZoneCockpit", "size": Vector3(6.8, 3.0, 4.6), "position": Vector3(0.0, 1.5, -16.5), "exports": {"compartment_id": &"cockpit"}},
-	{"name": "ZoneQuarters", "size": Vector3(4.5, 3.0, 4.4), "position": Vector3(-3.15, 1.5, -10.4), "exports": {"compartment_id": &"quarters"}},
-	{"name": "ZoneLifeSupport", "size": Vector3(3.5, 3.0, 2.6), "position": Vector3(-2.65, 1.5, -6.3), "exports": {"compartment_id": &"main"}},
-	{"name": "ZoneGalley", "size": Vector3(4.0, 3.0, 3.6), "position": Vector3(2.9, 1.5, -5.8), "exports": {"compartment_id": &"galley"}},
-	{"name": "ZoneWaterCloset", "size": Vector3(2.6, 3.0, 2.2), "position": Vector3(2.2, 1.5, -1.9), "exports": {"compartment_id": &"water_closet"}},
-	{"name": "ZoneStorage", "size": Vector3(3.7, 3.0, 3.6), "position": Vector3(-2.75, 1.5, -1.2), "exports": {"compartment_id": &"storage"}},
+	{"name": "ZoneQuarters", "size": Vector3(4.5, 3.0, 4.4), "position": Vector3(-4.2, 1.5, -10.4), "exports": {"compartment_id": &"quarters"}},
+	{"name": "ZoneLifeSupport", "size": Vector3(3.5, 3.0, 2.6), "position": Vector3(-3.7, 1.5, -6.3), "exports": {"compartment_id": &"main"}},
+	{"name": "ZoneGalley", "size": Vector3(4.0, 3.0, 3.6), "position": Vector3(3.95, 1.5, -5.8), "exports": {"compartment_id": &"galley"}},
+	{"name": "ZoneWaterCloset", "size": Vector3(2.6, 3.0, 2.2), "position": Vector3(3.25, 1.5, -1.9), "exports": {"compartment_id": &"water_closet"}},
+	{"name": "ZoneStorage", "size": Vector3(3.7, 3.0, 3.6), "position": Vector3(-3.8, 1.5, -1.2), "exports": {"compartment_id": &"storage"}},
 	{"name": "ZoneEngineBay", "size": Vector3(7.2, 3.0, 6.2), "position": Vector3(0.0, 1.5, 4.7), "exports": {"compartment_id": &"engine_bay"}},
-	{"name": "ZoneAirlock", "size": Vector3(2.0, 3.0, 2.0), "position": Vector3(-5.8, 1.5, -1.2), "exports": {"compartment_id": &"airlock"}},
+	{"name": "ZoneAirlock", "size": Vector3(2.0, 3.0, 2.0), "position": Vector3(-6.85, 1.5, -1.2), "exports": {"compartment_id": &"airlock"}},
 ]
 
 ## Atmosphere mixing links: corridor paired with every side compartment.
@@ -487,6 +490,8 @@ func _build_prop(spec: Dictionary) -> void:
 	var prop: StaticBody3D = StaticBody3D.new()
 	prop.name = String(spec["name"])
 	prop.position = spec["position"]
+	if spec.has("rotation"):
+		prop.rotation_degrees = spec["rotation"]
 	prop.set_script(load(String(spec["script"])) as Script)
 	_apply_exports(prop, spec)
 	_props.add_child(prop)

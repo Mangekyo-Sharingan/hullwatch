@@ -57,8 +57,10 @@ protrude or overlap:
   lintels at doorways), not stacked boxes.
 - **Interior spaces are prismatic:** a plan polygon (chamfered corners) extruded through a
   vertical profile of rings (floor, lower cant band, vertical band, upper cove, ceiling).
-- **The spine corridor is a flat-bottom hexagon**: flat floor, two lower cants, two upper
-  cants, flat ceiling. Its profile is the reference the rest of the hull echoes.
+- **The spine corridor is a regular hexagon**: 60-degree cants throughout, no vertical band,
+  3.5 m waist at 1.5 m height, 1.75 m flat floor and ceiling. The ship plan is sized around
+  it (x -8.05..6.15), and the side rooms, hull plan, catwalk, railings and EVA anchors all
+  follow the widened spine.
 - **Shared boundaries are built once** (ownership table in the generator); the corridor
   owns its spine walls and rooms omit the edges that face it.
 - **Collision is generated from the same surfaces** (ConcavePolygonShape3D), not separate

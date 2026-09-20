@@ -23,12 +23,12 @@ const EXPECTED_SPACES: Array[StringName] = [
 const ROOM_CENTERS: Dictionary = {
 	&"Cockpit": Vector3(0.0, RAY_Y, -16.5),
 	&"Corridor": Vector3(0.0, RAY_Y, -6.3),
-	&"Quarters": Vector3(-3.15, RAY_Y, -10.4),
-	&"LifeSupport": Vector3(-2.65, RAY_Y, -6.3),
-	&"Galley": Vector3(2.9, RAY_Y, -5.8),
-	&"WaterCloset": Vector3(2.2, RAY_Y, -1.9),
-	&"Storage": Vector3(-2.75, RAY_Y, -1.2),
-	&"Airlock": Vector3(-5.8, RAY_Y, -1.2),
+	&"Quarters": Vector3(-4.2, RAY_Y, -10.4),
+	&"LifeSupport": Vector3(-3.7, RAY_Y, -6.3),
+	&"Galley": Vector3(3.95, RAY_Y, -5.8),
+	&"WaterCloset": Vector3(3.25, RAY_Y, -1.9),
+	&"Storage": Vector3(-3.8, RAY_Y, -1.2),
+	&"Airlock": Vector3(-6.85, RAY_Y, -1.2),
 	&"EngineBay": Vector3(0.0, RAY_Y, 4.7),
 }
 
@@ -48,23 +48,23 @@ const DOORWAYS: Array = [
 ]
 
 const SOLID_CONTROLS: Array = [
-	[Vector3(0.0, RAY_Y, -12.0), Vector3(-1.4, RAY_Y, -12.0), "corridor west wall beside quarters"],
-	[Vector3(0.0, RAY_Y, -7.5), Vector3(1.4, RAY_Y, -7.5), "corridor east wall beside galley"],
-	[Vector3(-3.15, RAY_Y, -10.4), Vector3(-6.2, RAY_Y, -10.4), "quarters west wall"],
-	[Vector3(-2.65, RAY_Y, -6.3), Vector3(-5.0, RAY_Y, -6.3), "life support west wall"],
-	[Vector3(2.9, RAY_Y, -5.8), Vector3(5.6, RAY_Y, -5.8), "galley east wall"],
-	[Vector3(2.2, RAY_Y, -1.9), Vector3(4.0, RAY_Y, -1.9), "water closet east wall"],
-	[Vector3(-2.75, RAY_Y, -2.6), Vector3(-5.3, RAY_Y, -2.6), "storage west wall beside the airlock gap"],
-	[Vector3(-6.2, RAY_Y, -1.8), Vector3(-7.4, RAY_Y, -1.8), "airlock west wall beside the outer gap"],
+	[Vector3(0.0, RAY_Y, -12.0), Vector3(-1.95, RAY_Y, -12.0), "corridor west wall beside quarters"],
+	[Vector3(0.0, RAY_Y, -7.5), Vector3(1.95, RAY_Y, -7.5), "corridor east wall beside galley"],
+	[Vector3(-4.2, RAY_Y, -10.4), Vector3(-6.6, RAY_Y, -10.4), "quarters west wall"],
+	[Vector3(-3.7, RAY_Y, -6.3), Vector3(-5.6, RAY_Y, -6.3), "life support west wall"],
+	[Vector3(3.95, RAY_Y, -5.8), Vector3(6.15, RAY_Y, -5.8), "galley east wall"],
+	[Vector3(3.25, RAY_Y, -1.9), Vector3(4.75, RAY_Y, -1.9), "water closet east wall"],
+	[Vector3(-3.8, RAY_Y, -2.6), Vector3(-5.85, RAY_Y, -2.6), "storage west wall beside the airlock gap"],
+	[Vector3(-6.85, RAY_Y, -1.8), Vector3(-8.05, RAY_Y, -1.8), "airlock west wall beside the outer gap"],
 	[Vector3(0.0, RAY_Y, -16.5), Vector3(0.0, RAY_Y, -19.5), "cockpit north wall"],
 	[Vector3(0.0, RAY_Y, 4.7), Vector3(0.0, RAY_Y, 8.5), "engine bay south wall"],
 ]
 
 ## Corridor cross-section sweeps: [y, clear half-width, blocked half-width].
 const PROFILE_SWEEPS: Array = [
-	[1.5, 0.36, 0.52],
-	[0.2, 0.50, 0.68],
-	[2.6, 0.26, 0.42],
+	[1.5, 1.55, 1.80],
+	[0.2, 0.85, 1.05],
+	[2.6, 0.95, 1.20],
 ]
 
 var _failures: int = 0
@@ -173,17 +173,17 @@ func _test_floor_and_ceiling() -> void:
 	if not ceiling_hit.is_empty():
 		_check(absf(float((ceiling_hit["position"] as Vector3).y) - 3.0) < 0.02, "corridor ceiling surface is at head height")
 		_check((ceiling_hit["normal"] as Vector3).dot(Vector3.DOWN) > 0.9, "corridor ceiling faces down")
-	var quarters_hit: Dictionary = _ray_result(Vector3(-3.15, 1.0, -10.4), Vector3(-3.15, -0.5, -10.4))
+	var quarters_hit: Dictionary = _ray_result(Vector3(-4.2, 1.0, -10.4), Vector3(-4.2, -0.5, -10.4))
 	_check(not quarters_hit.is_empty() and absf(float((quarters_hit["position"] as Vector3).y)) < 0.02, "quarters floor surface is at deck height")
 
 
 func _test_wall_planes() -> void:
-	var wall_hit: Dictionary = _ray_result(Vector3(0.0, RAY_Y, -12.0), Vector3(-1.4, RAY_Y, -12.0))
+	var wall_hit: Dictionary = _ray_result(Vector3(0.0, RAY_Y, -12.0), Vector3(-1.8, RAY_Y, -12.0))
 	_check(not wall_hit.is_empty(), "corridor west wall is solid")
 	if not wall_hit.is_empty():
 		var hit_x: float = float((wall_hit["position"] as Vector3).x)
-		_check(hit_x > -0.50 and hit_x < -0.38, "corridor west wall face sits at the canted profile (x=%.3f)" % hit_x)
-		_check((wall_hit["normal"] as Vector3).dot(Vector3.RIGHT) > 0.9, "corridor west wall faces into the corridor")
+		_check(hit_x > -1.65 and hit_x < -1.50, "corridor west wall face sits at the canted profile (x=%.3f)" % hit_x)
+		_check((wall_hit["normal"] as Vector3).dot(Vector3.RIGHT) > 0.8, "corridor west wall faces into the corridor")
 
 
 func _test_cockpit_dash() -> void:
