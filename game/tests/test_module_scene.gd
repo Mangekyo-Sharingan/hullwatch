@@ -42,9 +42,14 @@ func _run() -> void:
 
 	cargo.call("add_material", &"metal", 20.0)
 	cargo.call("add_material", &"ore", 10.0)
-	_check(plate.select_action(&"build:utility_pod"), "mount builds the module")
+	_check(plate.select_action(&"build:utility_pod"), "mount starts the nanite build")
 	await process_frame
-	_check(modules.call("get_installed_at", HARDPOINT_ID) == MODULE_ID, "sim records the install")
+	_check(not bool(modules.call("is_installed", MODULE_ID)), "nothing stands while the nanites work")
+	_check(plate.get_actions().has(&"cancel_build"), "the mount offers to cancel a running build")
+	_check(main.get_node_or_null("ShipGeometry/HullExterior/Pod_hp_quarters") == null, "no pod on the hull yet")
+	modules.call("sim_tick", 8.1)
+	await process_frame
+	_check(modules.call("get_installed_at", HARDPOINT_ID) == MODULE_ID, "the build lands after its hours")
 	_check(bool(atmosphere.call("has_compartment", &"module_utility")), "pod compartment registered")
 	var pod: Node3D = main.get_node_or_null("ShipGeometry/HullExterior/Pod_hp_quarters") as Node3D
 	_check(pod != null, "pod stands in the world")
@@ -73,6 +78,8 @@ func _run() -> void:
 	var saved: Dictionary = modules.call("save_state") as Dictionary
 	_check(room.select_action(&"teardown"), "teardown uninstalls the module")
 	await process_frame
+	_check(is_equal_approx(float(cargo.call("get_units", &"metal")), 20.0), "teardown returns the metal")
+	_check(is_equal_approx(float(cargo.call("get_units", &"ore")), 10.0), "teardown returns the ore")
 	_check(main.get_node_or_null("ShipGeometry/HullExterior/Pod_hp_quarters") == null, "pod leaves the world")
 	_check((plate.get_node(^"Mesh") as MeshInstance3D).visible, "plate comes back")
 	_check(not (plate.get_node(^"Shape") as CollisionShape3D).disabled, "plate seals the dock again")

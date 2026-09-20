@@ -8,10 +8,10 @@ extends SceneTree
 const OUTPUT_PATH: String = "res://scenes/ship_geometry.tscn"
 const OUTPUT_POD_PATH: String = "res://scenes/dock_pod.tscn"
 
-const MATERIAL_FLOOR: String = "res://src/data/materials/mat_floor_grate.tres"
+const MATERIAL_FLOOR: String = "res://src/data/materials/mat_deck_plate.tres"
 const MATERIAL_XENON: String = "res://src/data/materials/mat_xenon_metal.tres"
 const MATERIAL_STRIP: String = "res://src/data/materials/mat_light_strip.tres"
-const MATERIAL_CONDUIT: String = "res://src/data/materials/mat_metal_rusted.tres"
+const MATERIAL_CONDUIT: String = "res://src/data/materials/mat_machined_metal.tres"
 const MATERIAL_WINDOW: String = "res://src/data/materials/mat_space_window.tres"
 const SCRIPT_TETHER_ANCHOR: String = "res://src/world/tether_anchor.gd"
 const SCRIPT_TETHER_ZONE: String = "res://src/world/tether_zone.gd"

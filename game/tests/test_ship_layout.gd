@@ -4,7 +4,7 @@ extends SceneTree
 
 const GEOMETRY_PATH: String = "res://scenes/ship_geometry.tscn"
 const XENON_MATERIAL_PATH: String = "res://src/data/materials/mat_xenon_metal.tres"
-const FLOOR_MATERIAL_PATH: String = "res://src/data/materials/mat_floor_grate.tres"
+const FLOOR_MATERIAL_PATH: String = "res://src/data/materials/mat_deck_plate.tres"
 const WINDOW_MATERIAL_PATH: String = "res://src/data/materials/mat_space_window.tres"
 const RAY_Y: float = 1.2
 
@@ -208,7 +208,7 @@ func _test_surface_materials() -> void:
 	var walls: MeshInstance3D = _geometry.get_node_or_null(NodePath("Cockpit/WallsMesh")) as MeshInstance3D
 	_check(walls != null and walls.material_override != null and walls.material_override.resource_path == XENON_MATERIAL_PATH, "cockpit walls use the xenon-metal material")
 	var floor: MeshInstance3D = _geometry.get_node_or_null(NodePath("Cockpit/FloorMesh")) as MeshInstance3D
-	_check(floor != null and floor.material_override != null and floor.material_override.resource_path == FLOOR_MATERIAL_PATH, "cockpit floor uses the floor-grate material")
+	_check(floor != null and floor.material_override != null and floor.material_override.resource_path == FLOOR_MATERIAL_PATH, "cockpit floor uses the deck-plate material")
 
 
 func _ray_hits(from: Vector3, to: Vector3) -> bool:

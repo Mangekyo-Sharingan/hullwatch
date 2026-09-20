@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://src/interactables/module_mount.gd" id="1_vs6rp"]
 [ext_resource type="Material" path="res://src/data/materials/mat_xenon_metal.tres" id="2_0aall"]
-[ext_resource type="Material" path="res://src/data/materials/mat_floor_grate.tres" id="3_6jp1p"]
+[ext_resource type="Material" path="res://src/data/materials/mat_deck_plate.tres" id="3_6jp1p"]
 [ext_resource type="Script" path="res://src/world/compartment_zone.gd" id="4_7oj5o"]
 [ext_resource type="Script" path="res://src/world/compartment_link.gd" id="5_pove3"]
 

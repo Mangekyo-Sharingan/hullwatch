@@ -9,6 +9,7 @@ extends Interactable
 const POD_SCENE: String = "res://scenes/dock_pod.tscn"
 const ACTION_BUILD_PREFIX: String = "build:"
 const ACTION_TEARDOWN: StringName = &"teardown"
+const ACTION_CANCEL: StringName = &"cancel_build"
 
 @export var hardpoint_id: StringName = &""
 @export var spawns: bool = true
@@ -45,6 +46,7 @@ func _ready() -> void:
 	if bus != null:
 		bus.connect(&"module_installed", _on_module_changed)
 		bus.connect(&"module_uninstalled", _on_module_changed)
+		bus.connect(&"construction_started", _on_module_changed)
 	_sync()
 
 
@@ -86,8 +88,10 @@ func select_action(action: StringName) -> bool:
 	var performed: bool = false
 	if action == ACTION_TEARDOWN:
 		performed = bool(modules.call(&"uninstall", _installed_module()))
+	elif action == ACTION_CANCEL:
+		performed = bool(modules.call(&"cancel_build", hardpoint_id))
 	else:
-		performed = bool(modules.call(&"install", StringName(String(action).trim_prefix(ACTION_BUILD_PREFIX))))
+		performed = bool(modules.call(&"start_build", StringName(String(action).trim_prefix(ACTION_BUILD_PREFIX))))
 	if not performed:
 		_emit_sim_event(&"procedure_error", {
 			"reason": _refusal(action),
@@ -100,14 +104,22 @@ func select_action(action: StringName) -> bool:
 
 func build_readout() -> PackedStringArray:
 	var lines: PackedStringArray = PackedStringArray()
+	var modules: Node = _get_system(&"module_system")
 	var installed: StringName = _installed_module()
+	var job: Dictionary = _job()
+	if not job.is_empty():
+		lines.append("NANITE BUILD: %s" % _module_name(StringName(job.get("module_id", &""))).to_upper())
+		lines.append("%.1f / %.1f h" % [float(job.get("total", 0.0)) - float(job.get("remaining", 0.0)), float(job.get("total", 0.0))])
+		lines.append("")
+		lines.append("The nanites work whether you watch or not.")
+		lines.append("Cancelling returns the committed material.")
+		return lines
 	if installed != &"":
 		lines.append("STANDING: %s" % _module_name(installed).to_upper())
 		lines.append("")
-		lines.append("Tear it down from this panel to open the dock")
-		lines.append("again. Materials are not recovered.")
+		lines.append("Tearing it down returns the full material cost")
+		lines.append("to the hold.")
 		return lines
-	var modules: Node = _get_system(&"module_system")
 	if modules == null:
 		lines.append("MOUNT OFFLINE")
 		return lines
@@ -239,6 +251,14 @@ func _hardpoint_marker() -> Node3D:
 	return null
 
 
+## The nanite job running at this dock, empty when there is none.
+func _job() -> Dictionary:
+	var modules: Node = _get_system(&"module_system")
+	if modules == null or not modules.has_method(&"get_job"):
+		return {}
+	return modules.call(&"get_job", hardpoint_id) as Dictionary
+
+
 func _installed_module() -> StringName:
 	var modules: Node = _get_system(&"module_system")
 	if modules == null or not modules.has_method(&"get_installed_at"):
@@ -256,12 +276,15 @@ func _module_name(module_id: StringName) -> String:
 	return module.display_name
 
 
-## What the menu offers for this dock right now: teardown when a module stands, else every
-## catalog module that docks here.
+## What the menu offers for this dock right now: cancel while nanites build, teardown when a
+## module stands, else every catalog module that docks here.
 func _collect_actions() -> void:
 	_actions.clear()
 	var modules: Node = _get_system(&"module_system")
 	var installed: StringName = _installed_module()
+	if not _job().is_empty():
+		_actions.append(ACTION_CANCEL)
+		return
 	if installed != &"":
 		_actions.append(ACTION_TEARDOWN)
 		return
@@ -284,6 +307,8 @@ func _refresh_menu() -> void:
 	for action: StringName in _actions:
 		if action == ACTION_TEARDOWN:
 			items.append("Tear down %s" % _module_name(installed))
+		elif action == ACTION_CANCEL:
+			items.append("Cancel build (refund)")
 		else:
 			var module_id: StringName = StringName(String(action).trim_prefix(ACTION_BUILD_PREFIX))
 			var ship_module: ShipModule = modules.call(&"get_module", module_id) as ShipModule
@@ -305,6 +330,8 @@ func _refusal(action: StringName) -> StringName:
 		return &"mount_offline"
 	if action == ACTION_TEARDOWN:
 		return &"module_not_installed"
+	if action == ACTION_CANCEL:
+		return &"no_build_job"
 	var module_id: StringName = StringName(String(action).trim_prefix(ACTION_BUILD_PREFIX))
 	if modules.has_method(&"can_install"):
 		return StringName(modules.call(&"can_install", module_id))

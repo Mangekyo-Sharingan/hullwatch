@@ -16,8 +16,8 @@ metalness where published; displacement/AO intentionally omitted).
 | Asset | Source URL | License | Used for | Local path | Size |
 |---|---|---|---|---|---|
 | Metal Plate | https://polyhaven.com/a/metal_plate | CC0 1.0 | Scratched/worn painted metal panels (`mat_panel_scratched.tres`) | `game/assets/textures/metal_plate/` | 11.6 MB |
-| Metal Grate Rusty | https://polyhaven.com/a/metal_grate_rusty | CC0 1.0 | Rusted metal grate floor (`mat_floor_grate.tres`) | `game/assets/textures/metal_grate_rusty/` | 14.3 MB |
-| Rusty Metal | https://polyhaven.com/a/rusty_metal | CC0 1.0 | Heavy corrosion/rust detailing (`mat_metal_rusted.tres`) | `game/assets/textures/rusty_metal/` | 4.9 MB |
+| Metal Grate Rusty | https://polyhaven.com/a/metal_grate_rusty | CC0 1.0 | Retired from the ship 2026-09-20 (floors are `mat_deck_plate.tres` now); kept for derelict/wreckage use | `game/assets/textures/metal_grate_rusty/` | 14.3 MB |
+| Rusty Metal | https://polyhaven.com/a/rusty_metal | CC0 1.0 | Retired from the ship 2026-09-20 (the vessel is advanced, not a wreck); kept in the repo in case derelict wreckage needs it (`mat_metal_rusted.tres`) | `game/assets/textures/rusty_metal/` | 4.9 MB |
 | Painted Metal Shutter | https://polyhaven.com/a/painted_metal_shutter | CC0 1.0 | Painted, scratched wall panels (`mat_wall_painted.tres`) | `game/assets/textures/painted_metal_shutter/` | 7.9 MB |
 | Container Side | https://polyhaven.com/a/container_side | CC0 1.0 | Chipped-paint corrugated wall panels (`mat_wall_container.tres`) | `game/assets/textures/container_side/` | 5.6 MB |
 

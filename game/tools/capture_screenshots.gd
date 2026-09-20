@@ -70,7 +70,8 @@ func _run() -> void:
 	if cargo != null and modules != null and not bool(modules.call("is_installed", &"utility_pod")):
 		cargo.call("add_material", &"metal", 8.0)
 		cargo.call("add_material", &"ore", 4.0)
-		modules.call("install", &"utility_pod")
+		modules.call("start_build", &"utility_pod")
+		modules.call("sim_tick", 999.0)
 		await process_frame
 		await _capture(player, Vector3(-9.2, 0.2, -10.4), PI * 0.5, "shot_dock_mount.png")
 		await _capture(player, Vector3(-14.6, 0.4, -10.4), -PI * 0.5, "shot_pod_outside.png")

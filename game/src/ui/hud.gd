@@ -27,6 +27,13 @@ const PROCEDURE_ERROR_TEXT: Dictionary = {
 	&"fabricator_busy": "FABRICATOR IS ALREADY RUNNING",
 	&"no_power": "NO POWER TO THAT CIRCUIT",
 	&"unknown_recipe": "UNKNOWN RECIPE",
+	&"already_building": "NANITES ALREADY BUILDING HERE",
+	&"hardpoint_occupied": "DOCK MOUNT IS OCCUPIED",
+	&"missing_materials": "NOT ENOUGH MATERIALS",
+	&"no_build_job": "NO BUILD TO CANCEL",
+	&"unknown_module": "NO SUCH MODULE",
+	&"already_installed": "THAT MODULE ALREADY STANDS",
+	&"module_not_installed": "NOTHING TO TEAR DOWN",
 }
 
 
@@ -132,6 +139,15 @@ func _message_for(event_name: StringName, payload: Dictionary) -> String:
 			return "ANOMALY SURVEY LOGGED: %d EXOTIC" % int(payload.get("units", 0.0))
 		&"procedure_error":
 			return _procedure_error_text(StringName(payload.get("reason", &"")))
+		&"construction_started":
+			return "NANITE BUILD STARTED: %s  (%.0f h)" % [
+				String(payload.get("module_id", &"")).to_upper(),
+				float(payload.get("hours", 0.0)),
+			]
+		&"construction_completed":
+			return "POD ONLINE: %s" % String(payload.get("module_id", &"")).to_upper()
+		&"construction_cancelled":
+			return "BUILD CANCELLED: MATERIALS RETURNED"
 	return ""
 
 

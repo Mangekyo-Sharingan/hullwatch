@@ -1,10 +1,10 @@
 [gd_scene format=4]
 
 [ext_resource type="Material" path="res://src/data/materials/mat_xenon_metal.tres" id="1_plyof"]
-[ext_resource type="Material" path="res://src/data/materials/mat_floor_grate.tres" id="2_2r3x6"]
+[ext_resource type="Material" path="res://src/data/materials/mat_deck_plate.tres" id="2_2r3x6"]
 [ext_resource type="Material" path="res://src/data/materials/mat_light_strip.tres" id="3_cqto6"]
 [ext_resource type="Material" path="res://src/data/materials/mat_space_window.tres" id="4_5ytwx"]
-[ext_resource type="Material" path="res://src/data/materials/mat_metal_rusted.tres" id="5_s6buk"]
+[ext_resource type="Material" path="res://src/data/materials/mat_machined_metal.tres" id="5_s6buk"]
 [ext_resource type="Script" path="res://src/interactables/module_mount.gd" id="6_rjl3k"]
 [ext_resource type="Script" path="res://src/world/tether_anchor.gd" id="7_1c1m7"]
 [ext_resource type="Script" path="res://src/world/tether_zone.gd" id="8_8hsps"]

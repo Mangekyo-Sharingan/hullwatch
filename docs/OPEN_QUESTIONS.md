@@ -3,6 +3,24 @@
 Answers to these are needed before the work they block can be called done. Each entry says
 what is already in the repo, what the options are, and what I would pick if left alone.
 
+## Answer log, 2026-09-20 (decisions taken)
+
+- **Q2 — build hours: real, as nanite jobs.** Materials commit up front, the pod assembles over
+  `ShipModule.build_hours` (longer the more difficult the machine), the job survives save/load,
+  and the mount can cancel it. Implemented.
+- **Q3 — pods are fully modular inside.** The player places whichever machines they want in a
+  pod; pre-installed machines can be moved; the ship's **vital life-support machinery is fixed**
+  in place. M10.4 must give machines a placement model.
+- **Q4 — teardown refunds everything.** Implemented (cancellation and teardown both return the
+  full material cost).
+- **Q5 — option 1: keep the two placeholder entries** as the "bare pod" tier.
+- **Q6 — dock doorways: 1.0 m for now, 1.2 m at M13.** Widening now would regenerate all four
+  docks and their tests only to move them again when they become radial ports in M13, where the
+  bore matches interior doors at no extra cost.
+- **Q7 — hull form:** reference is the player's ship; visitable stations deferred; interior stays
+  as it is for now (tubes later); grim palette, and **the rust is removed** (advanced vessel, not
+  a wreck) — see the M13 section of the expansion spec.
+
 ---
 
 ## Q1 — Which door leaf ships? (blocked the door pass; DECIDED)

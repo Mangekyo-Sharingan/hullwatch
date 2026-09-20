@@ -125,6 +125,16 @@ The layout is settled in `docs/design/study_hull_*.png` (built by `game/tools/bu
 11 sections, one room per section, bulkhead hatches at the flanges, pods on radial ports,
 cupola forward, tanks and arrays aft. Span ≈ 32 m, section diameters 3.2–5.2 m.
 
+**Operator's 2026-09-20 answers:** the reference is for the **player's ship**; visitable
+stations keep their own future design; **keep the interior as is for now** (the tube interior
+stays planned, later); palette stays Hullwatch grey and dim, and **the rust is gone** — the
+ship is advanced, not a wreck (fittings and decks now use `mat_machined_metal` /
+`mat_deck_plate`; the rusty metal and rusty grate materials are retired from the ship).
+Consequence while the interior stays flat: the shell's section diameters must enclose the 14 m
+beam, so the stack reads as a wide multi-section hull rather than a slim ISS column. The section
+table is the single dial that slims when the interior converts — the generator work is not
+wasted either way.
+
 | Sub-step | Deliverable | Exit criteria |
 |---|---|---|
 | **M13.1 — Section hull generator** | `SectionHull` helpers in `src/world/` (lathe rings, drums, domes, ribs, flanges, radial ports) + the section table + collision generated from the same table; replaces the offset-polygon shell in `build_ship_geometry.gd` | Tool output deterministic; hull collides exactly where it renders; no room interior clips the shell; `test_hull_profile`/`test_hull_exterior` re-baselined and green |
@@ -225,6 +235,16 @@ suite `test_module_scene` (build → walk-in doorway → teardown → save/load)
 catalog entries (`utility_pod`, `storage_pod`) give the menu content; their functions arrive in
 M10.4. Build hours are *displayed* but not yet simulated — see `docs/OPEN_QUESTIONS.md` Q2 (the
 operator would otherwise stand inside the materializing pod). Next: M10.4 catalog & function.
+
+**Operator answers, 2026-09-20 (post-M10.3):** build hours are real — a module's build is a
+**nanite construction job**: materials are committed up front, the pod assembles over
+`ShipModule.build_hours` of ship time (longer the more difficult the machine), the job survives
+save/load, and the mount can cancel it. **Teardown and cancellation both return the full
+material cost** to the hold. Pods are **fully modular inside**: the player places whichever
+machines they want in a pod (M10.4 must give machines a placement model), pre-installed machines
+can be moved, and the ship's vital life-support machinery is fixed in place. The two placeholder
+catalog entries stay as the "bare pod" tier. Dock doorways stay 1.0 m for now; when M13 turns
+the docks into radial ports the bore goes to 1.2 m to match interior doors, at no extra cost.
 
 ## Test strategy
 
