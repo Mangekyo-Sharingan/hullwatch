@@ -61,6 +61,7 @@
 [ext_resource type="Resource" path="res://src/data/fabrication/recipe_co2_filter.tres" id="79_recipe_co2"]
 [ext_resource type="Resource" path="res://src/data/fabrication/recipe_gasket.tres" id="80_recipe_gasket"]
 [ext_resource type="Script" path="res://src/components/fabricator_recipe.gd" id="81_recipe_script"]
+[ext_resource type="Script" path="res://src/systems/modules.gd" id="82_modules"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_sky"]
 shader = ExtResource("71_space_sky")
@@ -239,6 +240,10 @@ script = ExtResource("74_cargo")
 [node name="FabricatorSystem" type="Node" parent="Systems"]
 script = ExtResource("76_fabricator")
 recipes = Array[ExtResource("81_recipe_script")]([ExtResource("77_recipe_water"), ExtResource("78_recipe_candle"), ExtResource("79_recipe_co2"), ExtResource("80_recipe_gasket")])
+
+[node name="ModuleSystem" type="Node" parent="Systems"]
+script = ExtResource("82_modules")
+
 
 [node name="UI" type="Node" parent="."]
 

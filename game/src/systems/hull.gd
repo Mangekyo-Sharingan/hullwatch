@@ -57,6 +57,13 @@ func has_compartment(compartment_id: StringName) -> bool:
 	return _compartments.has(compartment_id)
 
 
+func remove_compartment(compartment_id: StringName) -> bool:
+	if not _compartments.has(compartment_id):
+		return false
+	_compartments.erase(compartment_id)
+	return true
+
+
 func add_puncture(compartment_id: StringName, severity: float) -> bool:
 	var state: Dictionary = _require_state(compartment_id, "add_puncture")
 	if state.is_empty():

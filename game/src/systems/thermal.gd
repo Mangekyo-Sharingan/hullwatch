@@ -52,6 +52,13 @@ func has_compartment(compartment_id: StringName) -> bool:
 	return _compartments.has(compartment_id)
 
 
+func remove_compartment(compartment_id: StringName) -> bool:
+	if not _compartments.has(compartment_id):
+		return false
+	_compartments.erase(compartment_id)
+	return true
+
+
 func get_compartment_status(compartment_id: StringName) -> Dictionary:
 	if not _compartments.has(compartment_id):
 		push_error("ThermalSystem.get_compartment_status: unknown compartment_id '%s'." % String(compartment_id))

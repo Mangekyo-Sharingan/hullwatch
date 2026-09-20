@@ -23,6 +23,8 @@ signal component_diagnosed(component_id: StringName, failure_mode_id: StringName
 signal message_received(message_id: StringName, sender: String)
 signal message_sent(message_id: StringName)
 signal airlock_state_changed(airlock_id: StringName, state: StringName)
+signal module_installed(module_id: StringName, hardpoint_id: StringName)
+signal module_uninstalled(module_id: StringName, hardpoint_id: StringName)
 
 const LOG_LIMIT: int = 500
 
