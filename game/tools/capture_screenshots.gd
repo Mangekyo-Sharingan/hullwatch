@@ -65,6 +65,19 @@ func _run() -> void:
 	player.look_at(Vector3(-8.5, 1.4, -10.4), Vector3.UP)
 	await _capture(player, player.global_position, player.rotation.y, "shot_dock_plate.png")
 
+	var cargo: Node = _main.get_node_or_null("Systems/CargoSystem")
+	var modules: Node = _main.get_node_or_null("Systems/ModuleSystem")
+	if cargo != null and modules != null and not bool(modules.call("is_installed", &"utility_pod")):
+		cargo.call("add_material", &"metal", 8.0)
+		cargo.call("add_material", &"ore", 4.0)
+		modules.call("install", &"utility_pod")
+		await process_frame
+		await _capture(player, Vector3(-9.2, 0.2, -10.4), PI * 0.5, "shot_dock_mount.png")
+		await _capture(player, Vector3(-14.6, 0.4, -10.4), -PI * 0.5, "shot_pod_outside.png")
+		await _capture(player, Vector3(-12.6, 0.1, -10.4), -PI * 0.5, "shot_pod_inside.png")
+		player.global_position = Vector3(-4.2, 0.1, -9.6)
+		await _capture(player, Vector3(-4.2, 0.1, -9.6), PI * 0.5, "shot_pod_doorway.png")
+
 	print("PASS: capture_screenshots -> ", ProjectSettings.globalize_path(OUTPUT_DIR))
 	quit(0)
 
