@@ -69,7 +69,7 @@ const PROPS: Array[Dictionary] = [
 	{
 		"name": "BreakerPanel",
 		"script": "res://src/interactables/breaker_panel.gd",
-		"position": Vector3(0.75, 1.5, -3.5),
+		"position": Vector3(0.595, 1.5, -3.5),
 		"size": Vector3(0.15, 1.0, 0.7),
 		"material": MATERIAL_PANEL_SCRATCHED,
 		"exports": {"circuit_id": &"lighting"},
@@ -77,7 +77,7 @@ const PROPS: Array[Dictionary] = [
 	{
 		"name": "StatusPanel",
 		"script": "res://src/ui/status_panel.gd",
-		"position": Vector3(-0.75, 1.5, -8.0),
+		"position": Vector3(-0.67, 1.5, -8.0),
 		"size": Vector3(0.15, 1.0, 0.7),
 		"material": MATERIAL_SCREEN_GLOW,
 		"exports": {"compartment_id": &"main"},
@@ -86,8 +86,8 @@ const PROPS: Array[Dictionary] = [
 	{
 		"name": "MaintenanceBoard",
 		"script": "res://src/interactables/maintenance_board.gd",
-		"position": Vector3(-0.75, 1.6, -13.0),
-		"size": Vector3(0.9, 0.7, 0.1),
+		"position": Vector3(-0.67, 1.6, -13.0),
+		"size": Vector3(0.15, 0.7, 0.9),
 		"material": MATERIAL_SCREEN_GLOW,
 		"exports": {},
 		"crt": {"facing": "x+", "phosphor": "amber", "keys": false},
@@ -95,7 +95,7 @@ const PROPS: Array[Dictionary] = [
 	{
 		"name": "ManualBinder",
 		"script": "res://src/interactables/manual_binder.gd",
-		"position": Vector3(4.7, 0.9, -5.0),
+		"position": Vector3(4.47, 0.9, -5.0),
 		"size": Vector3(0.45, 0.32, 0.3),
 		"material": MATERIAL_WALL_PAINTED,
 		"exports": {},
@@ -150,7 +150,7 @@ const PROPS: Array[Dictionary] = [
 	{
 		"name": "HullPatch",
 		"script": "res://src/interactables/hull_patch.gd",
-		"position": Vector3(2.8, 1.2, 7.7),
+		"position": Vector3(2.8, 1.2, 7.56),
 		"size": Vector3(0.6, 0.6, 0.12),
 		"material": MATERIAL_METAL_RUSTED,
 		"exports": {"compartment_id": &"main"},
@@ -190,7 +190,7 @@ const PROPS: Array[Dictionary] = [
 	{
 		"name": "ProbePower",
 		"script": "res://src/interactables/diagnostic_probe.gd",
-		"position": Vector3(0.55, 0.35, -4.2),
+		"position": Vector3(0.42, 0.35, -4.2),
 		"size": Vector3(0.2, 0.2, 0.2),
 		"material": MATERIAL_SCREEN_GLOW,
 		"exports": {"system_group": &"power_system"},
@@ -206,7 +206,7 @@ const PROPS: Array[Dictionary] = [
 	{
 		"name": "ProbeThermal",
 		"script": "res://src/interactables/diagnostic_probe.gd",
-		"position": Vector3(3.4, 0.35, 4.7),
+		"position": Vector3(3.28, 0.35, 4.7),
 		"size": Vector3(0.2, 0.2, 0.2),
 		"material": MATERIAL_SCREEN_GLOW,
 		"exports": {"system_group": &"thermal_system"},
@@ -214,7 +214,7 @@ const PROPS: Array[Dictionary] = [
 	{
 		"name": "ProbeHull",
 		"script": "res://src/interactables/diagnostic_probe.gd",
-		"position": Vector3(1.6, 0.35, 7.6),
+		"position": Vector3(1.6, 0.35, 7.48),
 		"size": Vector3(0.2, 0.2, 0.2),
 		"material": MATERIAL_SCREEN_GLOW,
 		"exports": {"system_group": &"hull_system"},
@@ -222,7 +222,7 @@ const PROPS: Array[Dictionary] = [
 	{
 		"name": "ProbeWater",
 		"script": "res://src/interactables/diagnostic_probe.gd",
-		"position": Vector3(3.4, 0.35, -1.9),
+		"position": Vector3(3.26, 0.35, -1.9),
 		"size": Vector3(0.2, 0.2, 0.2),
 		"material": MATERIAL_SCREEN_GLOW,
 		"exports": {"system_group": &"water_system"},
@@ -319,7 +319,7 @@ const PROPS: Array[Dictionary] = [
 	{
 		"name": "SuitLocker",
 		"script": "res://src/interactables/suit_locker.gd",
-		"position": Vector3(-6.3, 1.0, -0.32),
+		"position": Vector3(-6.3, 1.0, -0.445),
 		"size": Vector3(0.6, 1.5, 0.25),
 		"material": MATERIAL_PANEL_SCRATCHED,
 		"exports": {},
@@ -389,7 +389,7 @@ const DOORS: Array[Dictionary] = [
 const KIT_PROPS: Array[Dictionary] = [
 	{"name": "ContainerProp", "scene": KIT_CONTAINER, "position": Vector3(-3.0, 0.0, -0.2)},
 	{"name": "ComputerProp", "scene": KIT_COMPUTER, "position": Vector3(1.6, 0.75, -7.0)},
-	{"name": "DisplayProp", "scene": KIT_DISPLAY, "position": Vector3(-2.5, 1.6, -18.7)},
+	{"name": "DisplayProp", "scene": KIT_DISPLAY, "position": Vector3(-2.5, 1.6, -18.45)},
 ]
 
 ## Atmosphere occupancy zones: Area3D + script + one BoxShape3D child named Shape.

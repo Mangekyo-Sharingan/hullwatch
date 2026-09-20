@@ -62,9 +62,9 @@ const SOLID_CONTROLS: Array = [
 
 ## Corridor cross-section sweeps: [y, clear half-width, blocked half-width].
 const PROFILE_SWEEPS: Array = [
-	[1.5, 0.55, 0.62],
-	[0.2, 0.62, 0.70],
-	[2.6, 0.58, 0.66],
+	[1.5, 0.36, 0.52],
+	[0.2, 0.50, 0.68],
+	[2.6, 0.26, 0.42],
 ]
 
 var _failures: int = 0
@@ -182,7 +182,7 @@ func _test_wall_planes() -> void:
 	_check(not wall_hit.is_empty(), "corridor west wall is solid")
 	if not wall_hit.is_empty():
 		var hit_x: float = float((wall_hit["position"] as Vector3).x)
-		_check(hit_x > -0.62 and hit_x < -0.50, "corridor west wall face sits at the canted profile (x=%.3f)" % hit_x)
+		_check(hit_x > -0.50 and hit_x < -0.38, "corridor west wall face sits at the canted profile (x=%.3f)" % hit_x)
 		_check((wall_hit["normal"] as Vector3).dot(Vector3.RIGHT) > 0.9, "corridor west wall faces into the corridor")
 
 

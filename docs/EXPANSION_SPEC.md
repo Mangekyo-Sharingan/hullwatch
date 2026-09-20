@@ -63,6 +63,13 @@ protrude or overlap:
   owns its spine walls and rooms omit the edges that face it.
 - **Collision is generated from the same surfaces** (ConcavePolygonShape3D), not separate
   box shapes, so what you see is what you collide with.
+- **Winding:** Godot treats clockwise-wound triangles as front faces. The builder orients a
+  triangle's CCW normal to the normal hint (so the normal attribute points at the visible
+  side) and then reverses the winding for both the mesh and collision. Forgetting the mesh
+  reversal makes every interior face back-facing — the ship then renders as its outer
+  shells only (fixed 2026-09-20; the bug dates to M7.3).
+- **Interior surfaces are mitered:** wall bands are swept between `HullProfile` inset rings,
+  not per-edge offsets, so chamfered corners keep true mitre joints at every height.
 - **Exterior follows the same language**: plan polygons offset outward, the airlock as a
   protruding vestibule, hardpoints on flat facets.
 

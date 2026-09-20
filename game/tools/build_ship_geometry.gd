@@ -22,14 +22,48 @@ const CEILING_BOTTOM: float = 3.0
 const CEILING_TOP: float = 3.2
 const EPSILON: float = 0.000001
 
-## Vertical profile as (height, inset) rings: flat floor, lower cant, vertical band,
-## upper cove, flat ceiling. Flat-bottom hexagon section; insets must stay < wall thickness.
-const PROFILE: Array[Vector2] = [
+## Vertical profiles as (height, inset) rings: flat floor, lower cant, vertical band,
+## upper cove, flat ceiling. The inset is measured from each space's plan outline via a
+## mitered offset, so every corner stays a true mitre joint. Rooms get big slanted coves;
+## the 1.4 m spine corridor caps at a narrow flat ceiling (flat-bottom hexagon section).
+const PROFILE_CORRIDOR: Array[Vector2] = [
 	Vector2(FLOOR_BOTTOM, 0.0),
 	Vector2(0.0, 0.0),
-	Vector2(0.7, 0.14),
-	Vector2(2.3, 0.14),
-	Vector2(CEILING_BOTTOM, 0.0),
+	Vector2(0.5, 0.26),
+	Vector2(2.30, 0.26),
+	Vector2(CEILING_BOTTOM, 0.52),
+	Vector2(CEILING_TOP, 0.0),
+]
+const PROFILE_ROOM_L: Array[Vector2] = [
+	Vector2(FLOOR_BOTTOM, 0.0),
+	Vector2(0.0, 0.0),
+	Vector2(0.50, 0.20),
+	Vector2(2.15, 0.20),
+	Vector2(CEILING_BOTTOM, 0.85),
+	Vector2(CEILING_TOP, 0.0),
+]
+const PROFILE_ROOM_M: Array[Vector2] = [
+	Vector2(FLOOR_BOTTOM, 0.0),
+	Vector2(0.0, 0.0),
+	Vector2(0.50, 0.20),
+	Vector2(2.15, 0.20),
+	Vector2(CEILING_BOTTOM, 0.65),
+	Vector2(CEILING_TOP, 0.0),
+]
+const PROFILE_ROOM_S: Array[Vector2] = [
+	Vector2(FLOOR_BOTTOM, 0.0),
+	Vector2(0.0, 0.0),
+	Vector2(0.35, 0.12),
+	Vector2(2.10, 0.12),
+	Vector2(CEILING_BOTTOM, 0.40),
+	Vector2(CEILING_TOP, 0.0),
+]
+const PROFILE_COCKPIT: Array[Vector2] = [
+	Vector2(FLOOR_BOTTOM, 0.0),
+	Vector2(0.0, 0.0),
+	Vector2(0.50, 0.20),
+	Vector2(2.45, 0.20),
+	Vector2(CEILING_BOTTOM, 0.60),
 	Vector2(CEILING_TOP, 0.0),
 ]
 
@@ -45,24 +79,30 @@ const SPACE_NAMES: Array[String] = [
 	"Airlock",
 ]
 
-## Spaces: interior plan bounds, corner chamfer, wall edges, open edges and doorway gaps.
-## Gaps name the varying world axis coordinate; `top` defaults to the door head height and
-## uses CEILING_TOP for a full-height junction opening.
+## Spaces: interior plan bounds, corner chamfer, wall profile, wall edges, open edges and
+## doorway gaps. Gaps name the varying world axis coordinate; `top` defaults to the door
+## head height, `bottom` raises the opening into a window band, and `top` uses CEILING_TOP
+## for a full-height junction opening.
 const SPACES: Array[Dictionary] = [
 	{
 		"name": "Cockpit",
 		"min": Vector2(-3.4, -18.8),
 		"max": Vector2(3.4, -14.2),
-		"chamfer": 0.9,
+		"chamfer": 1.2,
+		"profile": "cockpit",
 		"walls": [0, 1, 2, 3, 4, 5, 6, 7],
 		"open": [],
-		"gaps": [{"edge": 4, "from": -0.7, "to": 0.7, "top": CEILING_TOP}],
+		"gaps": [
+			{"edge": 4, "from": -0.7, "to": 0.7, "top": CEILING_TOP},
+			{"edge": 0, "from": -2.0, "to": 2.0, "bottom": 1.2, "top": 2.3},
+		],
 	},
 	{
 		"name": "Corridor",
 		"min": Vector2(-0.7, -14.0),
 		"max": Vector2(0.7, 1.4),
 		"chamfer": 0.0,
+		"profile": "corridor",
 		"walls": [1, 3],
 		"open": [0, 2],
 		"gaps": [
@@ -77,7 +117,8 @@ const SPACES: Array[Dictionary] = [
 		"name": "Quarters",
 		"min": Vector2(-5.4, -12.6),
 		"max": Vector2(-0.9, -8.2),
-		"chamfer": 0.9,
+		"chamfer": 1.4,
+		"profile": "room_m",
 		"walls": [0, 1, 3, 4, 5, 6, 7],
 		"open": [2],
 		"gaps": [],
@@ -86,7 +127,8 @@ const SPACES: Array[Dictionary] = [
 		"name": "LifeSupport",
 		"min": Vector2(-4.4, -7.6),
 		"max": Vector2(-0.9, -5.0),
-		"chamfer": 0.9,
+		"chamfer": 0.75,
+		"profile": "room_m",
 		"walls": [0, 1, 3, 4, 5, 6, 7],
 		"open": [2],
 		"gaps": [],
@@ -95,7 +137,8 @@ const SPACES: Array[Dictionary] = [
 		"name": "Galley",
 		"min": Vector2(0.9, -7.6),
 		"max": Vector2(4.9, -4.0),
-		"chamfer": 0.9,
+		"chamfer": 1.2,
+		"profile": "room_l",
 		"walls": [0, 1, 2, 3, 4, 5, 7],
 		"open": [6],
 		"gaps": [],
@@ -104,7 +147,8 @@ const SPACES: Array[Dictionary] = [
 		"name": "WaterCloset",
 		"min": Vector2(0.9, -3.0),
 		"max": Vector2(3.5, -0.8),
-		"chamfer": 0.25,
+		"chamfer": 0.45,
+		"profile": "room_s",
 		"walls": [0, 1, 2, 3, 4, 5, 7],
 		"open": [6],
 		"gaps": [],
@@ -113,7 +157,8 @@ const SPACES: Array[Dictionary] = [
 		"name": "Storage",
 		"min": Vector2(-4.6, -3.0),
 		"max": Vector2(-0.9, 0.6),
-		"chamfer": 0.9,
+		"chamfer": 1.0,
+		"profile": "room_m",
 		"walls": [0, 1, 3, 4, 5, 6, 7],
 		"open": [2],
 		"gaps": [{"edge": 6, "from": -1.6, "to": -0.4}],
@@ -122,7 +167,8 @@ const SPACES: Array[Dictionary] = [
 		"name": "EngineBay",
 		"min": Vector2(-3.6, 1.6),
 		"max": Vector2(3.6, 7.8),
-		"chamfer": 0.9,
+		"chamfer": 1.8,
+		"profile": "room_l",
 		"walls": [0, 1, 2, 3, 4, 5, 6, 7],
 		"open": [],
 		"gaps": [{"edge": 0, "from": -0.7, "to": 0.7, "top": CEILING_TOP}],
@@ -131,7 +177,8 @@ const SPACES: Array[Dictionary] = [
 		"name": "Airlock",
 		"min": Vector2(-6.8, -2.2),
 		"max": Vector2(-4.8, -0.2),
-		"chamfer": 0.25,
+		"chamfer": 0.4,
+		"profile": "room_s",
 		"walls": [0, 1, 3, 4, 5, 6, 7],
 		"open": [2],
 		"gaps": [{"edge": 6, "from": -1.7, "to": -0.7}],
@@ -183,6 +230,23 @@ func _build() -> void:
 	_build_dressing()
 
 
+func _profile_for(profile_name: StringName) -> Array[Vector2]:
+	match profile_name:
+		&"corridor":
+			return PROFILE_CORRIDOR
+		&"room_l":
+			return PROFILE_ROOM_L
+		&"room_m":
+			return PROFILE_ROOM_M
+		&"room_s":
+			return PROFILE_ROOM_S
+		&"cockpit":
+			return PROFILE_COCKPIT
+	_failures += 1
+	print("FAIL: unknown profile ", profile_name)
+	return PROFILE_ROOM_M
+
+
 func _make_space(space_name: String) -> StaticBody3D:
 	var space: StaticBody3D = StaticBody3D.new()
 	space.name = space_name
@@ -197,6 +261,8 @@ func _build_space(spec: Dictionary) -> void:
 		_failures += 1
 		print("FAIL: empty outline for ", spec["name"])
 		return
+	var profile: Array[Vector2] = _profile_for(StringName(spec["profile"]))
+	var rings: Array[PackedVector2Array] = HullProfile.profile_rings(outline, profile)
 	var outer: PackedVector2Array = HullProfile.offset_polygon(outline, WALL_THICKNESS)
 	var walls: Dictionary = _surface()
 	var floors: Dictionary = _surface()
@@ -204,19 +270,21 @@ func _build_space(spec: Dictionary) -> void:
 	var collision: Array[Vector3] = []
 	var open_edges: Array = spec["open"]
 	for edge_index: int in spec["walls"]:
-		_add_wall_edge(walls, outline, outer, edge_index, _gaps_for(spec, edge_index), collision)
+		_add_wall_edge(walls, outline, outer, profile, rings, edge_index, _gaps_for(spec, edge_index), collision)
 	for edge_index: int in open_edges:
-		_add_threshold(floors, outline, outer, edge_index, 0.0, 1.0, collision)
+		_add_threshold(floors, outline, outer, profile, rings, edge_index, 0.0, 1.0, collision)
 	for gap: Dictionary in spec["gaps"]:
+		if float(gap.get("bottom", FLOOR_BOTTOM)) > FLOOR_BOTTOM + EPSILON:
+			continue
 		var span: Vector2 = _gap_span(outline, int(gap["edge"]), float(gap["from"]), float(gap["to"]))
-		_add_threshold(floors, outline, outer, int(gap["edge"]), span.x, span.y, collision)
+		_add_threshold(floors, outline, outer, profile, rings, int(gap["edge"]), span.x, span.y, collision)
 	for edge_index: int in spec["walls"]:
 		var previous: int = (edge_index - 1 + outline.size()) % outline.size()
 		var following: int = (edge_index + 1) % outline.size()
 		if open_edges.has(previous):
-			_add_end_cap(walls, outline, outer, edge_index, 1.0, collision)
+			_add_end_cap(walls, outer, profile, rings, edge_index, 1.0, collision)
 		if open_edges.has(following):
-			_add_end_cap(walls, outline, outer, edge_index, 0.0, collision)
+			_add_end_cap(walls, outer, profile, rings, edge_index, 0.0, collision)
 	_add_cap(floors, outline, FLOOR_BOTTOM, 0.0, collision)
 	_add_cap(ceilings, outline, CEILING_BOTTOM, CEILING_TOP, collision)
 
@@ -231,9 +299,10 @@ func _build_space(spec: Dictionary) -> void:
 	space.add_child(shape_node)
 
 
-## One wall edge: swept inner surface split around doorway gaps, a straight outer face,
-## top and bottom rims, jamb faces and lintels at every gap.
-func _add_wall_edge(surface: Dictionary, outline: PackedVector2Array, outer: PackedVector2Array, edge_index: int, gaps: Array, collision: Array[Vector3]) -> void:
+## One wall edge: the inner surface swept between mitered profile rings (split around
+## doorway/window gaps), a straight outer face, top and bottom rims, and jamb, lintel
+## and sill faces at every opening.
+func _add_wall_edge(surface: Dictionary, outline: PackedVector2Array, outer: PackedVector2Array, profile: Array[Vector2], rings: Array[PackedVector2Array], edge_index: int, gaps: Array, collision: Array[Vector3]) -> void:
 	var count: int = outline.size()
 	var a: Vector2 = outline[edge_index]
 	var b: Vector2 = outline[(edge_index + 1) % count]
@@ -244,20 +313,22 @@ func _add_wall_edge(surface: Dictionary, outline: PackedVector2Array, outer: Pac
 	var inward_3d: Vector3 = -outward_3d
 	var direction_3d: Vector3 = Vector3(b.x - a.x, 0.0, b.y - a.y).normalized()
 	var spans: Array = _spans_without_gaps(outline, edge_index, gaps)
-	for band: int in PROFILE.size() - 1:
-		var y0: float = PROFILE[band].x
-		var y1: float = PROFILE[band + 1].x
+	for band: int in profile.size() - 1:
+		var y0: float = profile[band].x
+		var y1: float = profile[band + 1].x
 		for slice: Array in _band_slices(y0, y1, gaps):
 			var sy0: float = slice[0]
 			var sy1: float = slice[1]
+			var ring_low: PackedVector2Array = _ring_at(rings, profile, sy0)
+			var ring_high: PackedVector2Array = _ring_at(rings, profile, sy1)
 			var active_spans: Array = spans if bool(slice[2]) else [Vector2(0.0, 1.0)]
 			for span: Vector2 in active_spans:
 				_add_quad(
 					surface,
-					_profile_point(a, b, outward, span.x, sy0),
-					_profile_point(a, b, outward, span.y, sy0),
-					_profile_point(a, b, outward, span.y, sy1),
-					_profile_point(a, b, outward, span.x, sy1),
+					_ring_point(ring_low, edge_index, span.x, sy0),
+					_ring_point(ring_low, edge_index, span.y, sy0),
+					_ring_point(ring_high, edge_index, span.y, sy1),
+					_ring_point(ring_high, edge_index, span.x, sy1),
 					inward_3d, collision
 				)
 	for span: Vector2 in spans:
@@ -280,17 +351,25 @@ func _add_wall_edge(surface: Dictionary, outline: PackedVector2Array, outer: Pac
 	for gap: Dictionary in gaps:
 		var span: Vector2 = _gap_span(outline, edge_index, float(gap["from"]), float(gap["to"]))
 		var top: float = float(gap.get("top", DOOR_TOP))
-		_add_jamb(surface, outline, outer, edge_index, span.x, FLOOR_BOTTOM, top, direction_3d, collision)
-		_add_jamb(surface, outline, outer, edge_index, span.y, FLOOR_BOTTOM, top, -direction_3d, collision)
-		if top < CEILING_TOP - EPSILON:
-			var inner_a: Vector3 = _profile_point(a, b, outward, span.x, top)
-			var inner_b: Vector3 = _profile_point(a, b, outward, span.y, top)
-			var outer_a2: Vector2 = oa.lerp(ob, span.x)
-			var outer_b2: Vector2 = oa.lerp(ob, span.y)
+		var bottom: float = float(gap.get("bottom", FLOOR_BOTTOM))
+		_add_jamb(surface, outer, profile, rings, edge_index, span.x, bottom, top, direction_3d, collision)
+		_add_jamb(surface, outer, profile, rings, edge_index, span.y, bottom, top, -direction_3d, collision)
+		if bottom > FLOOR_BOTTOM + EPSILON:
+			var ring_bottom: PackedVector2Array = _ring_at(rings, profile, bottom)
 			_add_quad(
 				surface,
-				inner_a, inner_b,
-				Vector3(outer_b2.x, top, outer_b2.y), Vector3(outer_a2.x, top, outer_a2.y),
+				_ring_point(ring_bottom, edge_index, span.x, bottom), _ring_point(ring_bottom, edge_index, span.y, bottom),
+				Vector3(oa.lerp(ob, span.y).x, bottom, oa.lerp(ob, span.y).y),
+				Vector3(oa.lerp(ob, span.x).x, bottom, oa.lerp(ob, span.x).y),
+				Vector3.UP, collision
+			)
+		if top < CEILING_TOP - EPSILON:
+			var ring_top: PackedVector2Array = _ring_at(rings, profile, top)
+			_add_quad(
+				surface,
+				_ring_point(ring_top, edge_index, span.x, top), _ring_point(ring_top, edge_index, span.y, top),
+				Vector3(oa.lerp(ob, span.y).x, top, oa.lerp(ob, span.y).y),
+				Vector3(oa.lerp(ob, span.x).x, top, oa.lerp(ob, span.x).y),
 				Vector3.DOWN, collision
 			)
 
@@ -304,42 +383,40 @@ func _add_cap(surface: Dictionary, outline: PackedVector2Array, y_low: float, y_
 		_add_tri(surface, Vector3(a.x, y_low, a.y), Vector3(b.x, y_low, b.y), Vector3(c.x, y_low, c.y), Vector3.DOWN, collision)
 
 
-func _add_threshold(surface: Dictionary, outline: PackedVector2Array, outer: PackedVector2Array, edge_index: int, t0: float, t1: float, collision: Array[Vector3]) -> void:
+func _add_threshold(surface: Dictionary, outline: PackedVector2Array, outer: PackedVector2Array, profile: Array[Vector2], rings: Array[PackedVector2Array], edge_index: int, t0: float, t1: float, collision: Array[Vector3]) -> void:
 	var count: int = outline.size()
 	var a: Vector2 = outline[edge_index]
 	var b: Vector2 = outline[(edge_index + 1) % count]
 	var oa: Vector2 = outer[edge_index]
 	var ob: Vector2 = outer[(edge_index + 1) % count]
-	var inner0: Vector2 = a.lerp(b, t0)
-	var inner1: Vector2 = a.lerp(b, t1)
+	var ring_floor: PackedVector2Array = _ring_at(rings, profile, 0.0)
+	var inner0: Vector3 = _ring_point(ring_floor, edge_index, t0, 0.0)
+	var inner1: Vector3 = _ring_point(ring_floor, edge_index, t1, 0.0)
 	var outer0: Vector2 = oa.lerp(ob, t0)
 	var outer1: Vector2 = oa.lerp(ob, t1)
 	_add_quad(
 		surface,
-		Vector3(inner0.x, 0.0, inner0.y), Vector3(inner1.x, 0.0, inner1.y),
+		inner0, inner1,
 		Vector3(outer1.x, 0.0, outer1.y), Vector3(outer0.x, 0.0, outer0.y),
 		Vector3.UP, collision
 	)
 	_add_quad(
 		surface,
-		Vector3(inner0.x, FLOOR_BOTTOM, inner0.y), Vector3(inner1.x, FLOOR_BOTTOM, inner1.y),
+		Vector3(inner0.x, FLOOR_BOTTOM, inner0.z), Vector3(inner1.x, FLOOR_BOTTOM, inner1.z),
 		Vector3(outer1.x, FLOOR_BOTTOM, outer1.y), Vector3(outer0.x, FLOOR_BOTTOM, outer0.y),
 		Vector3.DOWN, collision
 	)
 
 
 ## Vertical face from the inner profile line at parameter t to the outer wall line,
-## spanning y0..y1. Used for jambs at doorway boundaries and caps at open-edge ends.
-func _add_jamb(surface: Dictionary, outline: PackedVector2Array, outer: PackedVector2Array, edge_index: int, t: float, y0: float, y1: float, normal_hint: Vector3, collision: Array[Vector3]) -> void:
-	var count: int = outline.size()
-	var a: Vector2 = outline[edge_index]
-	var b: Vector2 = outline[(edge_index + 1) % count]
+## spanning y0..y1 and segmented at profile ring heights. Used for jambs at opening
+## boundaries and caps at open-edge ends.
+func _add_jamb(surface: Dictionary, outer: PackedVector2Array, profile: Array[Vector2], rings: Array[PackedVector2Array], edge_index: int, t: float, y0: float, y1: float, normal_hint: Vector3, collision: Array[Vector3]) -> void:
 	var oa: Vector2 = outer[edge_index]
-	var ob: Vector2 = outer[(edge_index + 1) % count]
-	var outward: Vector2 = _outward(a, b)
+	var ob: Vector2 = outer[(edge_index + 1) % outer.size()]
 	var outer_point: Vector2 = oa.lerp(ob, t)
 	var heights: Array[float] = [y0]
-	for ring: Vector2 in PROFILE:
+	for ring: Vector2 in profile:
 		if ring.x > y0 + EPSILON and ring.x < y1 - EPSILON:
 			heights.append(ring.x)
 	heights.append(y1)
@@ -348,57 +425,98 @@ func _add_jamb(surface: Dictionary, outline: PackedVector2Array, outer: PackedVe
 		var high: float = heights[i + 1]
 		if high - low <= EPSILON:
 			continue
-		var inner_low: Vector3 = _profile_point(a, b, outward, t, low)
-		var inner_high: Vector3 = _profile_point(a, b, outward, t, high)
+		var ring_low: PackedVector2Array = _ring_at(rings, profile, low)
+		var ring_high: PackedVector2Array = _ring_at(rings, profile, high)
+		var inner_low: Vector3 = _ring_point(ring_low, edge_index, t, low)
+		var inner_high: Vector3 = _ring_point(ring_high, edge_index, t, high)
 		var outer_low: Vector3 = Vector3(outer_point.x, low, outer_point.y)
 		var outer_high: Vector3 = Vector3(outer_point.x, high, outer_point.y)
 		_add_quad(surface, inner_low, inner_high, outer_high, outer_low, normal_hint, collision)
 
 
-func _add_end_cap(surface: Dictionary, outline: PackedVector2Array, outer: PackedVector2Array, edge_index: int, t: float, collision: Array[Vector3]) -> void:
-	var a: Vector2 = outline[edge_index]
-	var b: Vector2 = outline[(edge_index + 1) % outline.size()]
+func _add_end_cap(surface: Dictionary, outer: PackedVector2Array, profile: Array[Vector2], rings: Array[PackedVector2Array], edge_index: int, t: float, collision: Array[Vector3]) -> void:
+	var count: int = outer.size()
+	var a: Vector2 = outer[edge_index]
+	var b: Vector2 = outer[(edge_index + 1) % count]
 	var direction_3d: Vector3 = Vector3(b.x - a.x, 0.0, b.y - a.y).normalized()
 	var hint: Vector3 = -direction_3d if t <= 0.0 else direction_3d
-	_add_jamb(surface, outline, outer, edge_index, t, FLOOR_BOTTOM, CEILING_TOP, hint, collision)
+	_add_jamb(surface, outer, profile, rings, edge_index, t, FLOOR_BOTTOM, CEILING_TOP, hint, collision)
 
 
-func _profile_point(a: Vector2, b: Vector2, outward: Vector2, t: float, y: float) -> Vector3:
-	var inset: float = _inset_at(y)
-	var point: Vector2 = a.lerp(b, t) - outward * inset
+## Vertical jamb face without profile rings, for the exterior hull band openings.
+func _add_flat_jamb(surface: Dictionary, inner: PackedVector2Array, outer: PackedVector2Array, edge_index: int, t: float, y0: float, y1: float, normal_hint: Vector3, collision: Array[Vector3]) -> void:
+	var oa: Vector2 = outer[edge_index]
+	var ob: Vector2 = outer[(edge_index + 1) % outer.size()]
+	var ia: Vector2 = inner[edge_index]
+	var ib: Vector2 = inner[(edge_index + 1) % inner.size()]
+	var outer_point: Vector2 = oa.lerp(ob, t)
+	var inner_point: Vector2 = ia.lerp(ib, t)
+	_add_quad(
+		surface,
+		Vector3(inner_point.x, y0, inner_point.y),
+		Vector3(inner_point.x, y1, inner_point.y),
+		Vector3(outer_point.x, y1, outer_point.y),
+		Vector3(outer_point.x, y0, outer_point.y),
+		normal_hint, collision
+	)
+
+
+## The mitered inner polygon at height y, interpolated between the two profile rings
+## that bracket it. Ring polygons share their vertex count, so the lerp is exact.
+func _ring_at(rings: Array[PackedVector2Array], profile: Array[Vector2], y: float) -> PackedVector2Array:
+	if y <= profile[0].x:
+		return rings[0]
+	var last: int = profile.size() - 1
+	if y >= profile[last].x:
+		return rings[last]
+	for i: int in last:
+		var low: Vector2 = profile[i]
+		var high: Vector2 = profile[i + 1]
+		if y <= high.x:
+			var span: float = high.x - low.x
+			var t: float = 0.0 if span <= EPSILON else (y - low.x) / span
+			var result: PackedVector2Array = PackedVector2Array()
+			for j: int in rings[i].size():
+				result.append(rings[i][j].lerp(rings[i + 1][j], t))
+			return result
+	return rings[last]
+
+
+func _ring_point(ring: PackedVector2Array, edge_index: int, t: float, y: float) -> Vector3:
+	var a: Vector2 = ring[edge_index]
+	var b: Vector2 = ring[(edge_index + 1) % ring.size()]
+	var point: Vector2 = a.lerp(b, t)
 	return Vector3(point.x, y, point.y)
 
 
-func _inset_at(y: float) -> float:
-	if y <= PROFILE[0].x:
-		return PROFILE[0].y
-	for i: int in PROFILE.size() - 1:
-		var low: Vector2 = PROFILE[i]
-		var high: Vector2 = PROFILE[i + 1]
-		if y <= high.x:
-			var span: float = high.x - low.x
-			if span <= EPSILON:
-				return high.y
-			return lerpf(low.y, high.y, (y - low.x) / span)
-	return PROFILE[PROFILE.size() - 1].y
-
-
-## Sub-bands of a profile band clipped by the door head: [y0, y1, gap_active].
+## Sub-bands of a profile band clipped by opening sills and heads: [y0, y1, gap_active].
 func _band_slices(y0: float, y1: float, gaps: Array) -> Array:
-	var slices: Array = []
 	if gaps.is_empty():
-		slices.append([y0, y1, false])
-		return slices
-	var cut: float = 0.0
+		return [[y0, y1, false]]
+	var cuts: Array[float] = [y0, y1]
 	for gap: Dictionary in gaps:
-		cut = maxf(cut, float(gap.get("top", DOOR_TOP)))
-	if cut <= y0 + EPSILON:
-		slices.append([y0, y1, false])
-	elif cut >= y1 - EPSILON:
-		slices.append([y0, y1, true])
-	else:
-		slices.append([y0, cut, true])
-		slices.append([cut, y1, false])
+		var bottom: float = float(gap.get("bottom", FLOOR_BOTTOM))
+		var top: float = float(gap.get("top", DOOR_TOP))
+		if bottom > y0 + EPSILON and bottom < y1 - EPSILON:
+			cuts.append(bottom)
+		if top > y0 + EPSILON and top < y1 - EPSILON:
+			cuts.append(top)
+	cuts.sort()
+	var slices: Array = []
+	for i: int in cuts.size() - 1:
+		var low: float = cuts[i]
+		var high: float = cuts[i + 1]
+		if high - low <= EPSILON:
+			continue
+		var mid: float = (low + high) * 0.5
+		var active: bool = false
+		for gap: Dictionary in gaps:
+			var bottom: float = float(gap.get("bottom", FLOOR_BOTTOM))
+			var top: float = float(gap.get("top", DOOR_TOP))
+			if mid > bottom + EPSILON and mid < top - EPSILON:
+				active = true
+				break
+		slices.append([low, high, active])
 	return slices
 
 
@@ -468,6 +586,9 @@ func _add_quad(surface: Dictionary, a: Vector3, b: Vector3, c: Vector3, d: Vecto
 	_add_tri(surface, a, c, d, normal_hint, collision)
 
 
+## Emits a triangle whose CCW normal agrees with `normal_hint` (so the normal attribute
+## points at the visible side), then reverses the winding for the mesh and collision:
+## Godot treats clockwise-wound triangles as front faces.
 func _add_tri(surface: Dictionary, a: Vector3, b: Vector3, c: Vector3, normal_hint: Vector3, collision: Array[Vector3]) -> void:
 	var normal: Vector3 = (b - a).cross(c - a)
 	var hint: Vector3 = normal_hint.normalized() if normal_hint.length_squared() > EPSILON else Vector3.UP
@@ -488,8 +609,8 @@ func _add_tri(surface: Dictionary, a: Vector3, b: Vector3, c: Vector3, normal_hi
 		vertices.append(point)
 		normals.append(normal)
 	indices.append(base + 0)
-	indices.append(base + 1)
 	indices.append(base + 2)
+	indices.append(base + 1)
 	if collision != null:
 		collision.append(a)
 		collision.append(c)
@@ -546,21 +667,22 @@ func _build_cockpit_dash() -> void:
 	_build_cockpit_window(cockpit)
 
 
-## Forward windshield: a framed, solid pane with the space shader inset into the wall band.
+## Forward windshield: the wall band carries a real opening (SPACES cockpit gap with a
+## bottom), lined with sill, header and jamb parts and closed by the space pane.
 func _build_cockpit_window(space: Node3D) -> void:
 	var pane: MeshInstance3D = MeshInstance3D.new()
 	pane.name = "DressingWindowPane"
 	var pane_mesh: BoxMesh = BoxMesh.new()
-	pane_mesh.size = Vector3(4.4, 1.1, 0.04)
+	pane_mesh.size = Vector3(3.8, 1.06, 0.04)
 	pane.mesh = pane_mesh
 	pane.material_override = _materials[MATERIAL_WINDOW] as Material
-	pane.position = Vector3(0.0, 1.75, -18.78)
+	pane.position = Vector3(0.0, 1.75, -18.72)
 	space.add_child(pane)
-	_add_dash_panel(space, "WindowSill", Vector3(0.0, 1.14, -18.74), Vector3(4.9, 0.14, 0.16), Vector3.ZERO)
-	_add_dash_panel(space, "WindowHeader", Vector3(0.0, 2.36, -18.74), Vector3(4.9, 0.14, 0.16), Vector3.ZERO)
-	_add_dash_panel(space, "WindowJambW", Vector3(-2.28, 1.75, -18.74), Vector3(0.14, 1.36, 0.16), Vector3.ZERO)
-	_add_dash_panel(space, "WindowJambE", Vector3(2.28, 1.75, -18.74), Vector3(0.14, 1.36, 0.16), Vector3.ZERO)
-	_add_dressing("Cockpit", "WindowStrip", Vector3(0.0, 2.44, -18.72), Vector3(4.6, 0.03, 0.05), MATERIAL_STRIP)
+	_add_dash_panel(space, "WindowSill", Vector3(0.0, 1.19, -18.72), Vector3(4.0, 0.14, 0.22), Vector3.ZERO)
+	_add_dash_panel(space, "WindowHeader", Vector3(0.0, 2.31, -18.72), Vector3(4.0, 0.14, 0.22), Vector3.ZERO)
+	_add_dash_panel(space, "WindowJambW", Vector3(-1.97, 1.75, -18.72), Vector3(0.14, 1.06, 0.22), Vector3.ZERO)
+	_add_dash_panel(space, "WindowJambE", Vector3(1.97, 1.75, -18.72), Vector3(0.14, 1.06, 0.22), Vector3.ZERO)
+	_add_dressing("Cockpit", "WindowStrip", Vector3(0.0, 2.4, -18.62), Vector3(3.8, 0.03, 0.06), MATERIAL_STRIP)
 
 
 ## A dash panel: box mesh + its own collision shape inside the cockpit body.
@@ -642,8 +764,8 @@ func _add_hull_band(surface: Dictionary, plan: PackedVector2Array, outer: Packed
 		_add_quad(surface, in_a2, in_b2, out_b2, out_a2, Vector3.UP, collision)
 	if edge_index == 6:
 		var gap_span: Vector2 = _gap_span(plan, edge_index, AIRLOCK_GAP_FROM, AIRLOCK_GAP_TO)
-		_add_jamb(surface, plan, outer, edge_index, gap_span.x, HULL_BOTTOM, DOOR_TOP, direction_3d, collision)
-		_add_jamb(surface, plan, outer, edge_index, gap_span.y, HULL_BOTTOM, DOOR_TOP, -direction_3d, collision)
+		_add_flat_jamb(surface, plan, outer, edge_index, gap_span.x, HULL_BOTTOM, DOOR_TOP, direction_3d, collision)
+		_add_flat_jamb(surface, plan, outer, edge_index, gap_span.y, HULL_BOTTOM, DOOR_TOP, -direction_3d, collision)
 		var inner_gap_a: Vector2 = a.lerp(b, gap_span.x)
 		var inner_gap_b: Vector2 = a.lerp(b, gap_span.y)
 		var outer_gap_a: Vector2 = oa.lerp(ob, gap_span.x)
@@ -788,23 +910,18 @@ func _add_eva_anchors(hull: StaticBody3D) -> void:
 	zone.add_child(shape)
 
 
-## Visual greeble only (no collision): ceiling light strips, corridor ribs, conduit runs.
+## Visual greeble only (no collision): ceiling light strips tucked into the flat ceiling
+## centre of each space, clear of the canted coves.
 func _build_dressing() -> void:
-	_add_dressing("Corridor", "Strip", Vector3(0, 2.94, -6.3), Vector3(0.22, 0.04, 14.2), MATERIAL_STRIP)
-	_add_dressing("Cockpit", "Strip", Vector3(0, 2.94, -16.5), Vector3(0.22, 0.04, 4.0), MATERIAL_STRIP)
-	_add_dressing("Quarters", "Strip", Vector3(-3.15, 2.94, -10.4), Vector3(0.22, 0.04, 3.8), MATERIAL_STRIP)
-	_add_dressing("LifeSupport", "Strip", Vector3(-2.65, 2.94, -6.3), Vector3(2.9, 0.04, 0.22), MATERIAL_STRIP)
-	_add_dressing("Galley", "Strip", Vector3(2.9, 2.94, -5.8), Vector3(0.22, 0.04, 3.0), MATERIAL_STRIP)
-	_add_dressing("WaterCloset", "Strip", Vector3(2.2, 2.94, -1.9), Vector3(0.22, 0.04, 1.6), MATERIAL_STRIP)
-	_add_dressing("Storage", "Strip", Vector3(-2.75, 2.94, -1.2), Vector3(0.22, 0.04, 3.0), MATERIAL_STRIP)
-	_add_dressing("EngineBay", "Strip", Vector3(0, 2.94, 4.7), Vector3(6.6, 0.04, 0.22), MATERIAL_STRIP)
-	_add_dressing("Airlock", "Strip", Vector3(-5.8, 2.94, -1.2), Vector3(0.22, 0.04, 1.6), MATERIAL_STRIP)
-	var spine_z: Array[float] = [-13.0, -10.6, -8.2, -5.8, -3.4, -1.0, 1.2]
-	for i: int in spine_z.size():
-		_add_dressing("Corridor", "RibW%d" % i, Vector3(-0.55, 1.2, spine_z[i]), Vector3(0.08, 1.0, 0.12), MATERIAL_XENON)
-		_add_dressing("Corridor", "RibE%d" % i, Vector3(0.55, 1.2, spine_z[i]), Vector3(0.08, 1.0, 0.12), MATERIAL_XENON)
-	_add_dressing("Corridor", "ConduitW", Vector3(-0.6, 2.62, -6.3), Vector3(0.07, 0.07, 15.0), MATERIAL_CONDUIT)
-	_add_dressing("Corridor", "ConduitE", Vector3(0.6, 2.62, -6.3), Vector3(0.07, 0.07, 15.0), MATERIAL_CONDUIT)
+	_add_dressing("Corridor", "Strip", Vector3(0, 2.96, -6.3), Vector3(0.24, 0.04, 12.0), MATERIAL_STRIP)
+	_add_dressing("Cockpit", "Strip", Vector3(0, 2.96, -16.6), Vector3(4.6, 0.04, 0.24), MATERIAL_STRIP)
+	_add_dressing("Quarters", "Strip", Vector3(-3.15, 2.96, -10.4), Vector3(0.24, 0.04, 3.2), MATERIAL_STRIP)
+	_add_dressing("LifeSupport", "Strip", Vector3(-2.65, 2.96, -6.3), Vector3(2.4, 0.04, 0.24), MATERIAL_STRIP)
+	_add_dressing("Galley", "Strip", Vector3(2.9, 2.96, -5.8), Vector3(0.24, 0.04, 2.2), MATERIAL_STRIP)
+	_add_dressing("WaterCloset", "Strip", Vector3(2.2, 2.96, -1.9), Vector3(0.24, 0.04, 1.2), MATERIAL_STRIP)
+	_add_dressing("Storage", "Strip", Vector3(-2.75, 2.96, -1.2), Vector3(0.24, 0.04, 2.4), MATERIAL_STRIP)
+	_add_dressing("EngineBay", "Strip", Vector3(0, 2.96, 4.7), Vector3(4.8, 0.04, 0.24), MATERIAL_STRIP)
+	_add_dressing("Airlock", "Strip", Vector3(-5.8, 2.96, -1.2), Vector3(0.24, 0.04, 1.0), MATERIAL_STRIP)
 
 
 func _add_dressing(space_name: String, part_name: String, center: Vector3, size: Vector3, material_path: String) -> void:
