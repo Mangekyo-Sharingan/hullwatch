@@ -467,7 +467,7 @@ func _build_tube_interior() -> void:
 		var collision: Array[Vector3] = []
 		var gaps: Array = []
 		if TubeLayout.port_of(index) != &"":
-			gaps.append({"edge": SectionHull.TUBE_EDGE_STARBOARD, "from": center_z - 0.5, "to": center_z + 0.5, "top": 2.1})
+			gaps.append({"edge": _tube_port_edge(index), "from": center_z - 0.5, "to": center_z + 0.5, "top": 2.1})
 		if bool(section.get("outer_hatch", false)):
 			gaps.append({"edge": SectionHull.TUBE_EDGE_PORT, "from": center_z - 0.5, "to": center_z + 0.5, "top": 2.0})
 		_add_tunnel_band(walls, ring, bounds.x, bounds.y, gaps, collision, true)
@@ -1099,7 +1099,7 @@ func _build_tube_hull(hull: StaticBody3D, shell: Dictionary, decks: Dictionary, 
 				z1 -= SectionHull.TUBE_STEP * 0.5
 		var gaps: Array = []
 		if TubeLayout.port_of(index) != &"":
-			gaps.append({"edge": SectionHull.TUBE_EDGE_STARBOARD, "from": center_z - 0.5, "to": center_z + 0.5, "top": 2.1})
+			gaps.append({"edge": _tube_port_edge(index), "from": center_z - 0.5, "to": center_z + 0.5, "top": 2.1})
 		if bool(TubeLayout.sections()[index].get("outer_hatch", false)):
 			gaps.append({"edge": SectionHull.TUBE_EDGE_PORT, "from": center_z - 0.5, "to": center_z + 0.5, "top": 2.0})
 		_add_tunnel_band(shell, SectionHull.tube_section(radius), z0, z1, gaps, collision, false)
@@ -1129,6 +1129,7 @@ func _build_tube_hull(hull: StaticBody3D, shell: Dictionary, decks: Dictionary, 
 		_add_washer(shell, collar_radius, float(joint["radius_b"]), joint_z + half_step, Vector3(0.0, 0.0, 1.0), collision)
 	_add_tank_cluster(shell, decks, collision)
 	_add_arrays(hull)
+	_build_tube_fittings(hull, decks, collision)
 
 
 ## The hull radius of the neck bridging joint `index`: the interior's narrower section plus
@@ -1138,6 +1139,154 @@ func _tube_neck_radius(index: int) -> float:
 		float(TubeLayout.sections()[index]["radius"]),
 		float(TubeLayout.sections()[index + 1]["radius"])
 	) + SectionHull.TUBE_BAND
+
+
+## The tube hull's fittings: a mount plate, hardpoint marker and sill on every docked
+## section, the EVA platform with its railings and tether hardware outside the airlock, and
+## a cabin light in every room so the chain is lit without main.tscn's flat-layout lights.
+func _build_tube_fittings(hull: StaticBody3D, decks: Dictionary, collision: Array[Vector3]) -> void:
+	for index: int in TubeLayout.sections().size():
+		var center_z: float = (TubeLayout.span(index).x + TubeLayout.span(index).y) * 0.5
+		if TubeLayout.is_walkable(index):
+			_add_tube_cabin_light(hull, center_z)
+		if TubeLayout.port_of(index) == &"":
+			continue
+		var id: String = String(TubeLayout.port_of(index)).trim_prefix("hp_")
+		var outward: float = 1.0
+		for dock: Dictionary in DOCKS:
+			if String(dock["id"]) == id:
+				outward = float(dock["outward"])
+		var radius: float = float(TubeLayout.sections()[index]["radius"]) + SectionHull.TUBE_BAND
+		_add_tube_dock_mount(hull, decks, collision, id, outward, radius * outward, center_z)
+	if TubeLayout.index_of("airlock") >= 0:
+		_add_tube_eva_deck(hull, decks, collision)
+
+
+func _add_tube_cabin_light(hull: StaticBody3D, center_z: float) -> void:
+	var light: OmniLight3D = OmniLight3D.new()
+	light.name = "CabinLight%.1f" % center_z
+	light.position = Vector3(0.0, 2.15, center_z)
+	light.light_color = Color(1.0, 0.85, 0.65, 1.0)
+	light.light_energy = 1.2
+	light.omni_range = 5.5
+	light.shadow_enabled = true
+	hull.add_child(light)
+
+
+## A dock mount on its drum, under the same contract as the flat hull's: the plate is the
+## EVA mount the build menu stands pods on, the marker is the hardpoint, and the sill floors
+## the slot between the drum face and the standing pod's near wall.
+func _add_tube_dock_mount(hull: StaticBody3D, decks: Dictionary, collision: Array[Vector3], id: String, outward: float, face: float, z: float) -> void:
+	var y_min: float = -0.25
+	var y_max: float = 2.15
+	var plate: StaticBody3D = StaticBody3D.new()
+	plate.name = "DockPlate_" + id
+	plate.position = Vector3(face + outward * DOCK_PLATE_THICKNESS * 0.5, (y_min + y_max) * 0.5, z)
+	_join_group(plate, &"dock_plate")
+	plate.set_meta(&"hardpoint_id", StringName("hp_" + id))
+	plate.set_script(load(SCRIPT_MODULE_MOUNT) as Script)
+	plate.set(&"hardpoint_id", StringName("hp_" + id))
+	hull.add_child(plate)
+	var size: Vector3 = Vector3(DOCK_PLATE_THICKNESS, y_max - y_min, DOCK_DOOR_HALF * 2.0)
+	var box_shape: BoxShape3D = BoxShape3D.new()
+	box_shape.size = size
+	var shape: CollisionShape3D = CollisionShape3D.new()
+	shape.name = "Shape"
+	shape.shape = box_shape
+	plate.add_child(shape)
+	var box_mesh: BoxMesh = BoxMesh.new()
+	box_mesh.size = size
+	var mesh: MeshInstance3D = MeshInstance3D.new()
+	mesh.name = "Mesh"
+	mesh.mesh = box_mesh
+	mesh.material_override = _materials[MATERIAL_CONDUIT] as Material
+	plate.add_child(mesh)
+	var marker: Node3D = Node3D.new()
+	marker.name = "Hardpoint_" + id
+	marker.position = Vector3(face + outward * (DOCK_PLATE_THICKNESS + 0.1), 1.4, z)
+	_join_group(marker, &"hardpoint")
+	marker.set_meta(&"hardpoint_id", StringName("hp_" + id))
+	hull.add_child(marker)
+	var x_in: float = face
+	var x_out: float = face - outward * DOCK_SILL_DEPTH
+	_add_hexahedron(decks, [
+		Vector3(x_in, CATWALK_BOTTOM, z - DOCK_DOOR_HALF),
+		Vector3(x_out, CATWALK_BOTTOM, z - DOCK_DOOR_HALF),
+		Vector3(x_out, CATWALK_BOTTOM, z + DOCK_DOOR_HALF),
+		Vector3(x_in, CATWALK_BOTTOM, z + DOCK_DOOR_HALF),
+		Vector3(x_in, CATWALK_TOP, z - DOCK_DOOR_HALF),
+		Vector3(x_out, CATWALK_TOP, z - DOCK_DOOR_HALF),
+		Vector3(x_out, CATWALK_TOP, z + DOCK_DOOR_HALF),
+		Vector3(x_in, CATWALK_TOP, z + DOCK_DOOR_HALF),
+	], collision)
+
+
+## The EVA platform outside the airlock's outer hatch: a deck at cabin level, railings on
+## three sides, the tether anchors and zone, so EVA works off the slim hull the same way it
+## worked off the flat one.
+func _add_tube_eva_deck(hull: StaticBody3D, decks: Dictionary, collision: Array[Vector3]) -> void:
+	var airlock: int = TubeLayout.index_of("airlock")
+	var bounds: Vector2 = TubeLayout.span(airlock)
+	var center_z: float = (bounds.x + bounds.y) * 0.5
+	var face: float = -(float(TubeLayout.sections()[airlock]["radius"]) + SectionHull.TUBE_BAND)
+	var outer_x: float = face - 3.0
+	var half_z: float = 1.7
+	_add_hexahedron(decks, [
+		Vector3(face, CATWALK_BOTTOM, center_z - half_z),
+		Vector3(outer_x, CATWALK_BOTTOM, center_z - half_z),
+		Vector3(outer_x, CATWALK_BOTTOM, center_z + half_z),
+		Vector3(face, CATWALK_BOTTOM, center_z + half_z),
+		Vector3(face, CATWALK_TOP, center_z - half_z),
+		Vector3(outer_x, CATWALK_TOP, center_z - half_z),
+		Vector3(outer_x, CATWALK_TOP, center_z + half_z),
+		Vector3(face, CATWALK_TOP, center_z + half_z),
+	], collision)
+	for bar: Array in [
+		[Vector3(outer_x, 0.95, center_z), Vector3(0.08, 0.08, half_z * 2.0)],
+		[Vector3((face + outer_x) * 0.5, 0.95, center_z - half_z), Vector3(face - outer_x, 0.08, 0.08)],
+		[Vector3((face + outer_x) * 0.5, 0.95, center_z + half_z), Vector3(face - outer_x, 0.08, 0.08)],
+	]:
+		var rail: MeshInstance3D = MeshInstance3D.new()
+		rail.name = "TubeRailing"
+		var mesh: BoxMesh = BoxMesh.new()
+		mesh.size = bar[1]
+		rail.mesh = mesh
+		rail.material_override = _materials[MATERIAL_CONDUIT] as Material
+		rail.position = bar[0]
+		hull.add_child(rail)
+	var anchor_positions: Array[Vector3] = [
+		Vector3(outer_x + 0.5, 0.25, center_z - half_z + 0.3),
+		Vector3(outer_x + 0.5, 0.25, center_z + half_z - 0.3),
+		Vector3(-1.0, 0.25, 8.6),
+		Vector3(2.7, 0.25, -19.6),
+	]
+	for i: int in anchor_positions.size():
+		var anchor: Node3D = Node3D.new()
+		anchor.name = "TetherAnchor%d" % i
+		anchor.position = anchor_positions[i]
+		anchor.set_script(load(SCRIPT_TETHER_ANCHOR) as Script)
+		hull.add_child(anchor)
+	var zone: Area3D = Area3D.new()
+	zone.name = "TetherZone"
+	zone.position = Vector3((face + outer_x) * 0.5, 1.2, center_z)
+	zone.set_script(load(SCRIPT_TETHER_ZONE) as Script)
+	hull.add_child(zone)
+	var box: BoxShape3D = BoxShape3D.new()
+	box.size = Vector3(absf(face - outer_x), 2.4, half_z * 2.0)
+	var zone_shape: CollisionShape3D = CollisionShape3D.new()
+	zone_shape.name = "Shape"
+	zone_shape.shape = box
+	zone.add_child(zone_shape)
+
+
+## The cross-section facet a section's dock port opens through: starboard for an east dock,
+## portside for a west one, matching the flat docks' sides.
+func _tube_port_edge(index: int) -> int:
+	var id: String = String(TubeLayout.port_of(index)).trim_prefix("hp_")
+	for dock: Dictionary in DOCKS:
+		if String(dock["id"]) == id:
+			return SectionHull.TUBE_EDGE_STARBOARD if float(dock["outward"]) > 0.0 else SectionHull.TUBE_EDGE_PORT
+	return SectionHull.TUBE_EDGE_STARBOARD
 
 
 ## Doorway openings in the shell's west/east facets: the airlock's outer door plus every

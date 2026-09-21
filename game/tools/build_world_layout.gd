@@ -296,6 +296,7 @@ const PROPS: Array[Dictionary] = [
 	},
 	{
 		"name": "CargoPort",
+		"tube_platform": true,
 		"script": "res://src/interactables/cargo_port.gd",
 		"position": Vector3(-8.63, 1.0, -2.2),
 		"size": Vector3(0.25, 0.5, 0.5),
@@ -312,6 +313,7 @@ const PROPS: Array[Dictionary] = [
 	},
 	{
 		"name": "SampleCanister1",
+		"tube_platform": true,
 		"script": "res://src/interactables/sample_canister.gd",
 		"position": Vector3(-6.7, 0.16, -1.9),
 		"size": Vector3(0.2, 0.26, 0.2),
@@ -644,8 +646,22 @@ func _build_airlock_hatch() -> void:
 ## A prop or kit entry carried into its tube section.
 func _carried(spec: Dictionary) -> Dictionary:
 	var carried: Dictionary = spec.duplicate()
-	carried["position"] = _tube_position(spec["position"])
+	if bool(spec.get("tube_platform", false)):
+		carried["position"] = _tube_platform_position(spec["position"])
+	else:
+		carried["position"] = _tube_position(spec["position"])
 	return carried
+
+
+## EVA-platform gear (the cargo port, the sample canister) has no flat room to be carried
+## from: it belongs on the deck outside the tube airlock.
+func _tube_platform_position(flat: Vector3) -> Vector3:
+	var airlock: int = TubeLayout.index_of("airlock")
+	if airlock < 0:
+		return flat
+	var center_z: float = (TubeLayout.span(airlock).x + TubeLayout.span(airlock).y) * 0.5
+	var face: float = -(float(TubeLayout.sections()[airlock]["radius"]) + SectionHull.TUBE_BAND)
+	return Vector3(face - 1.4, flat.y, center_z + 0.4)
 
 
 func _build() -> void:
