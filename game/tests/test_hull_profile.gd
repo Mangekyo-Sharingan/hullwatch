@@ -43,6 +43,19 @@ func _test_section_hull() -> void:
 	_check(SectionHull.outline_at(0.0).size() == 8, "the body ring is an eight-vertex chamfered rectangle")
 	_check(SectionHull.outline_at(0.0) == SectionHull.outline_at(5.0), "the ring is constant inside the body")
 	_check(SectionHull.encloses_cabin(SectionHull.outline_at(0.0)), "the body ring encloses the cabin envelope")
+	var tube_drums: Array[Dictionary] = SectionHull.tube_drums()
+	_check(tube_drums.size() == TubeLayout.sections().size(), "every tube section gets one hull drum")
+	var meets: bool = true
+	for i2: int in tube_drums.size():
+		if i2 > 0 and absf(float(tube_drums[i2 - 1]["z1"]) - float(tube_drums[i2]["z0"])) > 0.001:
+			meets = false
+		var tube_section: Dictionary = TubeLayout.sections()[i2]
+		if absf(float(tube_drums[i2]["radius"]) - (float(tube_section["radius"]) + SectionHull.TUBE_BAND)) > 0.001:
+			meets = false
+	_check(meets, "tube drums meet at every joint and follow their sections")
+	_check(absf(float(tube_drums[0]["z0"]) - TubeLayout.span(0).x) < 0.001 and absf(float(tube_drums[-1]["z1"]) - TubeLayout.span(TubeLayout.sections().size() - 1).y) < 0.001, "the drum chain spans the interior exactly")
+	_check(SectionHull.tube_joints().size() > 0, "the varying radii leave step joints for the collars")
+	_check(SectionHull.validate_tube().is_empty(), "the tube drum tables validate cleanly")
 	_check(SectionHull.encloses_cabin(SectionHull.outline_at(-19.2)), "the bow window ring encloses the cabin envelope")
 	_check(not SectionHull.encloses_cabin(HullProfile.rectangle_outline(Vector2(-4.0, -0.5), Vector2(4.0, 3.0), 0.4)), "a slimmed ring admits it clips the cabin")
 

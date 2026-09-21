@@ -90,6 +90,71 @@ static func outline(ring: Dictionary) -> PackedVector2Array:
 	return HullProfile.rectangle_outline(ring["min"], ring["max"], ring.get("cut", 0.0))
 
 
+## Tube-mode shell (M13.2): the hull that wraps the tube interior is one constant-radius drum
+## per TubeLayout section, since the section polygons already carry the shape. Drums meet at
+## the joint centrelines so the shell is continuous; where the radii differ the joint gets a
+## step band and a flange collar over it, which is what gives the converted ship its drum
+## silhouette. Ring geometry (the twelve-gon itself) is built by the generator, which knows
+## the section frames.
+const TUBE_BAND: float = 0.14
+const TUBE_STEP: float = 0.35
+
+## The drums of a tube-mode hull, bow to stern: the section name, the z span clipped to the
+## joint centrelines, and the outer radius (the section's own radius plus the band).
+static func tube_drums() -> Array[Dictionary]:
+	var sections: Array[Dictionary] = TubeLayout.sections()
+	var drums: Array[Dictionary] = []
+	for index: int in sections.size():
+		var bounds: Vector2 = TubeLayout.span(index)
+		var z0: float = bounds.x
+		var z1: float = bounds.y
+		if index > 0:
+			z0 = (TubeLayout.span(index - 1).y + bounds.x) * 0.5
+		if index < sections.size() - 1:
+			z1 = (bounds.y + TubeLayout.span(index + 1).x) * 0.5
+		drums.append({
+			"name": String(sections[index]["name"]),
+			"z0": z0,
+			"z1": z1,
+			"radius": float(sections[index]["radius"]) + TUBE_BAND,
+		})
+	return drums
+
+
+## The joints between drums whose radii differ: the z, and the two radii the step covers.
+static func tube_joints() -> Array[Dictionary]:
+	var drums: Array[Dictionary] = tube_drums()
+	var joints: Array[Dictionary] = []
+	for index: int in drums.size() - 1:
+		if absf(float(drums[index]["radius"]) - float(drums[index + 1]["radius"])) <= EPSILON:
+			continue
+		joints.append({
+			"z": (float(drums[index]["z1"]) + float(drums[index + 1]["z0"])) * 0.5,
+			"radius_a": float(drums[index]["radius"]),
+			"radius_b": float(drums[index + 1]["radius"]),
+		})
+	return joints
+
+
+static func validate_tube() -> PackedStringArray:
+	var problems: PackedStringArray = PackedStringArray()
+	var drums: Array[Dictionary] = tube_drums()
+	if drums.size() != TubeLayout.sections().size():
+		problems.append("every tube section needs a drum")
+	for index: int in drums.size():
+		var drum: Dictionary = drums[index]
+		if float(drum["z1"]) <= float(drum["z0"]) + EPSILON:
+			problems.append("drum %s has an empty z span" % String(drum["name"]))
+		if index > 0 and absf(float(drums[index - 1]["z1"]) - float(drum["z0"])) > EPSILON:
+			problems.append("drum %s does not meet its forward neighbour" % String(drum["name"]))
+		var section: Dictionary = TubeLayout.sections()[index]
+		if absf(float(drum["radius"]) - (float(section["radius"]) + TUBE_BAND)) > EPSILON:
+			problems.append("drum %s radius does not follow its section" % String(drum["name"]))
+	for joint: Dictionary in tube_joints():
+		if float(joint["z"]) < float(drums[0]["z0"]) or float(joint["z"]) > float(drums[-1]["z1"]):
+			problems.append("a step joint lands outside the chain")
+	return problems
+
 ## The section whose z span contains z; empty dictionary when z is outside the stack.
 static func section_at(z: float) -> Dictionary:
 	for section: Dictionary in SECTIONS:
