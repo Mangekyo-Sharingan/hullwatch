@@ -144,6 +144,7 @@ static func tube_half_width(radius: float, y: float) -> float:
 ## the section frames.
 const TUBE_BAND: float = 0.3
 const TUBE_STEP: float = 0.35
+const TUBE_FLANGE_WIDTH: float = 0.22
 
 ## The drums of a tube-mode hull, bow to stern: the section name, the z span clipped to the
 ## joint centrelines, and the outer radius (the section's own radius plus the band).

@@ -473,9 +473,8 @@ func _build_tube_interior() -> void:
 		_add_tunnel_band(walls, ring, bounds.x, bounds.y, gaps, collision, true)
 		_add_tunnel_deck(floors, ring, bounds.x, bounds.y, collision)
 		if index == 0:
-			var bore: float = bounds.x - SectionHull.PROW_DEPTH
 			for facing: Vector3 in [Vector3(0.0, 0.0, -1.0), Vector3(0.0, 0.0, 1.0)]:
-				_add_tube_face(walls, radius, bounds.x, SectionHull.TUBE_WINDOW_MIN, SectionHull.TUBE_WINDOW_MAX, facing, collision, bore)
+				_add_tube_face(walls, radius, bounds.x, SectionHull.TUBE_WINDOW_MIN, SectionHull.TUBE_WINDOW_MAX, facing, collision, bounds.x)
 		if index == last_walkable and index + 1 < count and not TubeLayout.is_walkable(index + 1):
 			for facing: Vector3 in [Vector3(0.0, 0.0, -1.0), Vector3(0.0, 0.0, 1.0)]:
 				_add_tube_face(walls, radius, bounds.y, Vector2.ZERO, Vector2.ZERO, facing, collision, bounds.y)
@@ -1038,6 +1037,23 @@ func _build_hull_exterior() -> void:
 	var shell: Dictionary = _surface()
 	var decks: Dictionary = _surface()
 	var collision: Array[Vector3] = []
+	if _interior_style() == "tube":
+		_build_tube_hull(hull, shell, decks, collision)
+	else:
+		_build_flat_hull(hull, shell, decks, collision)
+	hull.add_child(_make_surface_node("Hull", shell, MATERIAL_XENON, collision))
+	hull.add_child(_make_surface_node("Deck", decks, MATERIAL_FLOOR, collision))
+	var shape: ConcavePolygonShape3D = ConcavePolygonShape3D.new()
+	shape.set_faces(PackedVector3Array(collision))
+	var shape_node: CollisionShape3D = CollisionShape3D.new()
+	shape_node.name = "ShellShape"
+	shape_node.shape = shape
+	hull.add_child(shape_node)
+
+
+## The flat hull (M13.1): the wide chamfered-rectangle sweep with its airlock sleeve, prow,
+## flange and rib collars, stern tanks, arrays and the EVA fittings.
+func _build_flat_hull(hull: StaticBody3D, shell: Dictionary, decks: Dictionary, collision: Array[Vector3]) -> void:
 	var sections: Array[Dictionary] = SectionHull.sections()
 	var outline: PackedVector2Array = SectionHull.outline(sections[0])
 	var z_bow: float = float(sections[0]["z0"])
@@ -1059,14 +1075,69 @@ func _build_hull_exterior() -> void:
 	_add_railings(hull)
 	_add_dock_plates(hull, decks, collision)
 	_add_eva_anchors(hull)
-	hull.add_child(_make_surface_node("Hull", shell, MATERIAL_XENON, collision))
-	hull.add_child(_make_surface_node("Deck", decks, MATERIAL_FLOOR, collision))
-	var shape: ConcavePolygonShape3D = ConcavePolygonShape3D.new()
-	shape.set_faces(PackedVector3Array(collision))
-	var shape_node: CollisionShape3D = CollisionShape3D.new()
-	shape_node.name = "ShellShape"
-	shape_node.shape = shape
-	hull.add_child(shape_node)
+
+
+## The tube hull (M13.2): one drum per TubeLayout section. A drum is the interior's own
+## cross-section swept at radius plus TUBE_BAND, so the shell wraps the rooms; the joints are
+## necks at the narrower radius, each closed by a washer where the radius steps and girdled
+## by a flange collar over the step. The bow is a cowl face with the viewport bore, the stern
+## a solid cap, and the dock doorways and airlock hatch open through the drum walls. The tank
+## cluster and arrays keep their M13.1 mounts aft of the last drum.
+func _build_tube_hull(hull: StaticBody3D, shell: Dictionary, decks: Dictionary, collision: Array[Vector3]) -> void:
+	var drums: Array[Dictionary] = SectionHull.tube_drums()
+	var joints: Array[Dictionary] = SectionHull.tube_joints()
+	for index: int in drums.size():
+		var drum: Dictionary = drums[index]
+		var radius: float = float(drum["radius"])
+		var center_z: float = (float(drum["z0"]) + float(drum["z1"])) * 0.5
+		var z0: float = float(drum["z0"])
+		var z1: float = float(drum["z1"])
+		for joint: Dictionary in joints:
+			if absf(float(joint["z"]) - z0) <= SectionHull.TUBE_STEP:
+				z0 += SectionHull.TUBE_STEP * 0.5
+			elif absf(float(joint["z"]) - z1) <= SectionHull.TUBE_STEP:
+				z1 -= SectionHull.TUBE_STEP * 0.5
+		var gaps: Array = []
+		if TubeLayout.port_of(index) != &"":
+			gaps.append({"edge": SectionHull.TUBE_EDGE_STARBOARD, "from": center_z - 0.5, "to": center_z + 0.5, "top": 2.1})
+		if bool(TubeLayout.sections()[index].get("outer_hatch", false)):
+			gaps.append({"edge": SectionHull.TUBE_EDGE_PORT, "from": center_z - 0.5, "to": center_z + 0.5, "top": 2.0})
+		_add_tunnel_band(shell, SectionHull.tube_section(radius), z0, z1, gaps, collision, false)
+	if drums.is_empty():
+		return
+	var first: Dictionary = drums[0]
+	var last: Dictionary = drums[drums.size() - 1]
+	for facing: Vector3 in [Vector3(0.0, 0.0, -1.0), Vector3(0.0, 0.0, 1.0)]:
+		_add_tube_face(shell, float(last["radius"]), float(last["z1"]), Vector2.ZERO, Vector2.ZERO, facing, collision, float(last["z1"]))
+		_add_tube_face(shell, float(first["radius"]), float(first["z0"]) - SectionHull.PROW_DEPTH, SectionHull.TUBE_WINDOW_MIN, SectionHull.TUBE_WINDOW_MAX, facing, collision, float(first["z0"]))
+	for index: int in drums.size() - 1:
+		if not TubeLayout.has_hatch(index) or not TubeLayout.is_walkable(index) or not TubeLayout.is_walkable(index + 1):
+			continue
+		var z0: float = TubeLayout.span(index).y
+		var z1: float = TubeLayout.span(index + 1).x
+		_add_tunnel_band(shell, SectionHull.tube_section(_tube_neck_radius(index)), z0, z1, [], collision, false)
+		if _tube_neck_radius(index) < float(drums[index]["radius"]) - EPSILON:
+			_add_washer(shell, float(drums[index]["radius"]), _tube_neck_radius(index), z0, Vector3(0.0, 0.0, 1.0), collision)
+		if _tube_neck_radius(index) < float(drums[index + 1]["radius"]) - EPSILON:
+			_add_washer(shell, float(drums[index + 1]["radius"]), _tube_neck_radius(index), z1, Vector3(0.0, 0.0, -1.0), collision)
+	for joint: Dictionary in joints:
+		var joint_z: float = float(joint["z"])
+		var collar_radius: float = maxf(float(joint["radius_a"]), float(joint["radius_b"])) + SectionHull.TUBE_FLANGE_WIDTH
+		var half_step: float = SectionHull.TUBE_STEP * 0.5
+		_add_tunnel_band(shell, SectionHull.tube_section(collar_radius), joint_z - half_step, joint_z + half_step, [], collision, false)
+		_add_washer(shell, collar_radius, float(joint["radius_a"]), joint_z - half_step, Vector3(0.0, 0.0, -1.0), collision)
+		_add_washer(shell, collar_radius, float(joint["radius_b"]), joint_z + half_step, Vector3(0.0, 0.0, 1.0), collision)
+	_add_tank_cluster(shell, decks, collision)
+	_add_arrays(hull)
+
+
+## The hull radius of the neck bridging joint `index`: the interior's narrower section plus
+## the band.
+func _tube_neck_radius(index: int) -> float:
+	return minf(
+		float(TubeLayout.sections()[index]["radius"]),
+		float(TubeLayout.sections()[index + 1]["radius"])
+	) + SectionHull.TUBE_BAND
 
 
 ## Doorway openings in the shell's west/east facets: the airlock's outer door plus every
