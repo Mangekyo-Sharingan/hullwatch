@@ -1,7 +1,6 @@
-## Generates the faceted polygonal ship: plan outlines (chamfered rectangles) extruded
-## through profile rings into mitered wall bands, floor/ceiling caps and doorway cutouts.
-## Geometry is built in memory and packed, so it is reproducible from the tables below.
-## Re-run after changing the layout:
+## Generates the ship: faceted prism interiors (plan outlines extruded through profile
+## rings) inside the M13 lathed section shell (SectionHull). Geometry is built in memory
+## and packed, so it is reproducible from the tables. Re-run after changing the layout:
 ## & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tools/build_ship_geometry.gd
 extends SceneTree
 
@@ -204,18 +203,20 @@ const SPACES: Array[Dictionary] = [
 	},
 ]
 
-const HULL_PLAN_MIN: Vector2 = Vector2(-8.05, -19.0)
-const HULL_PLAN_MAX: Vector2 = Vector2(6.15, 8.0)
-const HULL_CHAMFER: float = 1.8
-const HULL_BAND: float = 0.45
-const HULL_BOTTOM: float = -0.4
-const DECK_BOTTOM: float = 3.2
-const DECK_TOP: float = 3.6
-const CATWALK_MARGIN: float = 1.45
+## M13.1 section shell: SectionHull (src/world) owns the shape tables — the sweep
+## constants below are the tool-side dressing only. The catwalk ring hugs the shell's
+## side faces, the doorway openings start at deck level, and the dock plates sit proud
+## of the shell (their outward face is the pod's mating plane).
+const CATWALK_WIDTH: float = 1.0
 const CATWALK_TOP: float = 0.0
 const CATWALK_BOTTOM: float = -0.15
 const AIRLOCK_GAP_FROM: float = -1.7
 const AIRLOCK_GAP_TO: float = -0.7
+const SHELL_WEST_EDGE: int = 6
+const SHELL_EAST_EDGE: int = 2
+const DOCK_PLATE_Y_MIN: float = -0.4
+const DOCK_PLATE_Y_MAX: float = 3.2
+const DOCK_SILL_DEPTH: float = 0.34
 
 ## M10 dock mounts: a doorway in a parent room's outer wall, a throat across the void to the
 ## hull band, and a 1 m aperture in the hull band sealed by a flush mount plate until a pod
@@ -565,24 +566,6 @@ func _add_end_cap(surface: Dictionary, outer: PackedVector2Array, profile: Array
 	_add_jamb(surface, outer, profile, rings, edge_index, t, FLOOR_BOTTOM, CEILING_TOP, hint, collision)
 
 
-## Vertical jamb face without profile rings, for the exterior hull band openings.
-func _add_flat_jamb(surface: Dictionary, inner: PackedVector2Array, outer: PackedVector2Array, edge_index: int, t: float, y0: float, y1: float, normal_hint: Vector3, collision: Array[Vector3]) -> void:
-	var oa: Vector2 = outer[edge_index]
-	var ob: Vector2 = outer[(edge_index + 1) % outer.size()]
-	var ia: Vector2 = inner[edge_index]
-	var ib: Vector2 = inner[(edge_index + 1) % inner.size()]
-	var outer_point: Vector2 = oa.lerp(ob, t)
-	var inner_point: Vector2 = ia.lerp(ib, t)
-	_add_quad(
-		surface,
-		Vector3(inner_point.x, y0, inner_point.y),
-		Vector3(inner_point.x, y1, inner_point.y),
-		Vector3(outer_point.x, y1, outer_point.y),
-		Vector3(outer_point.x, y0, outer_point.y),
-		normal_hint, collision
-	)
-
-
 ## The mitered inner polygon at height y, interpolated between the two profile rings
 ## that bracket it. Ring polygons share their vertex count, so the lerp is exact.
 func _ring_at(rings: Array[PackedVector2Array], profile: Array[Vector2], y: float) -> PackedVector2Array:
@@ -828,8 +811,11 @@ func _add_dash_panel(space: Node3D, part_name: String, center: Vector3, size: Ve
 	space.add_child(mesh_node)
 
 
-## Faceted outer hull: chamfered plan band with the airlock doorway, keel and deck caps,
-## the perimeter catwalk, an aft deck with a roof ramp, railings and hardpoint markers.
+## M13.1 lathed section shell (SectionHull owns the tables): one continuous chamfered-
+## rectangle sweep from the bow window face to the stern band face, the airlock and dock
+## doorways cut from its west/east facets, the framed prow over the cockpit window, flange
+## collars at the interior joints, rib rings, the stern tank cluster and solar arrays.
+## Collision is generated from the same triangles.
 func _build_hull_exterior() -> void:
 	var hull: StaticBody3D = StaticBody3D.new()
 	hull.name = "HullExterior"
@@ -837,17 +823,26 @@ func _build_hull_exterior() -> void:
 	var shell: Dictionary = _surface()
 	var decks: Dictionary = _surface()
 	var collision: Array[Vector3] = []
-	var plan: PackedVector2Array = HullProfile.rectangle_outline(HULL_PLAN_MIN, HULL_PLAN_MAX, HULL_CHAMFER)
-	var outer: PackedVector2Array = HullProfile.offset_polygon(plan, HULL_BAND)
-	for edge_index: int in plan.size():
-		_add_hull_band(shell, plan, outer, edge_index, collision)
-	_add_prism(decks, shell, plan, -0.85, HULL_BOTTOM, collision)
-	_add_prism(decks, shell, outer, DECK_BOTTOM, DECK_TOP, collision)
+	var sections: Array[Dictionary] = SectionHull.sections()
+	var outline: PackedVector2Array = SectionHull.outline(sections[0])
+	var z_bow: float = float(sections[0]["z0"])
+	var z_stern: float = float(sections[2]["z1"])
+	_add_shell_sweep(shell, outline, z_bow, z_stern, _shell_openings(), collision)
+	_add_framed_face(shell, sections[0], SectionHull.BOW_WINDOW_MIN, SectionHull.BOW_WINDOW_MAX, z_bow, float(sections[1]["z0"]), collision)
+	_add_airlock_sleeve(shell, collision)
+	_add_prow(shell, collision)
+	_add_xy_fan(shell, outline, z_stern, Vector3(0.0, 0.0, 1.0), collision)
+	for z: float in SectionHull.FLANGES_Z:
+		_add_collar(shell, SectionHull.collar_outline(sections[1], SectionHull.FLANGE_OFFSET), outline, z - SectionHull.FLANGE_HALF, z + SectionHull.FLANGE_HALF, collision)
+	for z: float in SectionHull.RIBS_Z:
+		_add_collar(shell, SectionHull.collar_outline(sections[1], SectionHull.RIB_OFFSET), outline, z - SectionHull.RIB_HALF, z + SectionHull.RIB_HALF, collision)
+	_add_tank_cluster(shell, decks, collision)
+	_add_arrays(hull)
 	_add_catwalk(decks, shell, collision)
 	_add_aft_deck(decks, shell, collision)
 	_add_ramp(decks, shell, collision)
 	_add_railings(hull)
-	_add_dock_plates(hull)
+	_add_dock_plates(hull, decks, collision)
 	_add_eva_anchors(hull)
 	hull.add_child(_make_surface_node("Hull", shell, MATERIAL_XENON, collision))
 	hull.add_child(_make_surface_node("Deck", decks, MATERIAL_FLOOR, collision))
@@ -859,58 +854,269 @@ func _build_hull_exterior() -> void:
 	hull.add_child(shape_node)
 
 
-func _add_hull_band(surface: Dictionary, plan: PackedVector2Array, outer: PackedVector2Array, edge_index: int, collision: Array[Vector3]) -> void:
-	var count: int = plan.size()
-	var a: Vector2 = plan[edge_index]
-	var b: Vector2 = plan[(edge_index + 1) % count]
-	var oa: Vector2 = outer[edge_index]
-	var ob: Vector2 = outer[(edge_index + 1) % count]
-	var outward: Vector2 = _outward(a, b)
-	var outward_3d: Vector3 = Vector3(outward.x, 0.0, outward.y)
-	var direction_3d: Vector3 = Vector3(b.x - a.x, 0.0, b.y - a.y).normalized()
-	var spans: Array = [Vector2(0.0, 1.0)]
-	var gaps: Array = _hull_gaps_for_edge(edge_index)
-	if not gaps.is_empty():
-		spans = _spans_without_gaps(plan, edge_index, gaps)
-	for span: Vector2 in spans:
-		var in_a: Vector3 = Vector3(a.lerp(b, span.x).x, HULL_BOTTOM, a.lerp(b, span.x).y)
-		var in_b: Vector3 = Vector3(a.lerp(b, span.y).x, HULL_BOTTOM, a.lerp(b, span.y).y)
-		var in_a2: Vector3 = Vector3(in_a.x, DECK_BOTTOM, in_a.z)
-		var in_b2: Vector3 = Vector3(in_b.x, DECK_BOTTOM, in_b.z)
-		var out_a: Vector3 = Vector3(oa.lerp(ob, span.x).x, HULL_BOTTOM, oa.lerp(ob, span.x).y)
-		var out_b: Vector3 = Vector3(oa.lerp(ob, span.y).x, HULL_BOTTOM, oa.lerp(ob, span.y).y)
-		var out_a2: Vector3 = Vector3(out_a.x, DECK_BOTTOM, out_a.z)
-		var out_b2: Vector3 = Vector3(out_b.x, DECK_BOTTOM, out_b.z)
-		_add_quad(surface, in_a, in_b, in_b2, in_a2, -outward_3d, collision)
-		_add_quad(surface, out_a, out_b, out_b2, out_a2, outward_3d, collision)
-		_add_quad(surface, in_a, in_b, out_b, out_a, Vector3.DOWN, collision)
-		_add_quad(surface, in_a2, in_b2, out_b2, out_a2, Vector3.UP, collision)
-	for gap: Dictionary in gaps:
-		var gap_span: Vector2 = _gap_span(plan, edge_index, float(gap["from"]), float(gap["to"]))
-		_add_flat_jamb(surface, plan, outer, edge_index, gap_span.x, HULL_BOTTOM, DOOR_TOP, direction_3d, collision)
-		_add_flat_jamb(surface, plan, outer, edge_index, gap_span.y, HULL_BOTTOM, DOOR_TOP, -direction_3d, collision)
-		var inner_gap_a: Vector2 = a.lerp(b, gap_span.x)
-		var inner_gap_b: Vector2 = a.lerp(b, gap_span.y)
-		var outer_gap_a: Vector2 = oa.lerp(ob, gap_span.x)
-		var outer_gap_b: Vector2 = oa.lerp(ob, gap_span.y)
-		_add_quad(
-			surface,
-			Vector3(inner_gap_a.x, DOOR_TOP, inner_gap_a.y), Vector3(inner_gap_b.x, DOOR_TOP, inner_gap_b.y),
-			Vector3(outer_gap_b.x, DOOR_TOP, outer_gap_b.y), Vector3(outer_gap_a.x, DOOR_TOP, outer_gap_a.y),
-			Vector3.DOWN, collision
+## Doorway openings in the shell's west/east facets: the airlock's outer door plus every
+## dock, each spanning deck level to the door head.
+func _shell_openings() -> Array:
+	var openings: Array = [{"edge": SHELL_WEST_EDGE, "from": AIRLOCK_GAP_FROM, "to": AIRLOCK_GAP_TO}]
+	for dock: Dictionary in DOCKS:
+		openings.append({
+			"edge": int(dock["hull_edge"]),
+			"from": float(dock["z"]) - DOCK_DOOR_HALF,
+			"to": float(dock["z"]) + DOCK_DOOR_HALF,
+		})
+	return openings
+
+
+## The continuous shell surface: each facet of the cross-section swept bow..stern, the
+## vertical facets sliced around the doorway openings.
+func _add_shell_sweep(surface: Dictionary, ring: PackedVector2Array, z0: float, z1: float, openings: Array, collision: Array[Vector3]) -> void:
+	for edge_index: int in ring.size():
+		var a: Vector2 = ring[edge_index]
+		var b: Vector2 = ring[(edge_index + 1) % ring.size()]
+		var outward: Vector2 = _outward(a, b)
+		var hint: Vector3 = Vector3(outward.x, outward.y, 0.0)
+		var edge_openings: Array = []
+		for opening: Dictionary in openings:
+			if int(opening["edge"]) == edge_index:
+				edge_openings.append(opening)
+		if edge_openings.is_empty():
+			_add_quad(surface, Vector3(a.x, a.y, z0), Vector3(b.x, b.y, z0), Vector3(b.x, b.y, z1), Vector3(a.x, a.y, z1), hint, collision)
+			continue
+		var y_lo: float = minf(a.y, b.y)
+		var y_hi: float = maxf(a.y, b.y)
+		var bands: Array = [[y_lo, 0.0, false], [0.0, DOOR_TOP, true], [DOOR_TOP, y_hi, false]]
+		for band: Array in bands:
+			var band_lo: float = float(band[0])
+			var band_hi: float = float(band[1])
+			if band_hi - band_lo <= EPSILON:
+				continue
+			var spans: Array = [Vector2(z0, z1)] if not bool(band[2]) else _z_spans(z0, z1, edge_openings)
+			for span: Vector2 in spans:
+				_add_quad(
+					surface,
+					Vector3(a.x, band_lo, span.x), Vector3(a.x, band_hi, span.x),
+					Vector3(a.x, band_hi, span.y), Vector3(a.x, band_lo, span.y),
+					hint, collision
+				)
+
+
+func _z_spans(z0: float, z1: float, openings: Array) -> Array:
+	var spans: Array = [Vector2(z0, z1)]
+	for opening: Dictionary in openings:
+		var cut: Vector2 = Vector2(
+			minf(float(opening["from"]), float(opening["to"])),
+			maxf(float(opening["from"]), float(opening["to"]))
 		)
-		_add_quad(
-			surface,
-			Vector3(inner_gap_a.x, CATWALK_TOP, inner_gap_a.y), Vector3(inner_gap_b.x, CATWALK_TOP, inner_gap_b.y),
-			Vector3(outer_gap_b.x, CATWALK_TOP, outer_gap_b.y), Vector3(outer_gap_a.x, CATWALK_TOP, outer_gap_a.y),
-			Vector3.UP, collision
-		)
-		_add_quad(
-			surface,
-			Vector3(inner_gap_a.x, CATWALK_BOTTOM, inner_gap_a.y), Vector3(inner_gap_b.x, CATWALK_BOTTOM, inner_gap_b.y),
-			Vector3(outer_gap_b.x, CATWALK_BOTTOM, outer_gap_b.y), Vector3(outer_gap_a.x, CATWALK_BOTTOM, outer_gap_a.y),
-			Vector3.DOWN, collision
-		)
+		var result: Array = []
+		for span: Vector2 in spans:
+			if cut.y <= span.x + EPSILON or cut.x >= span.y - EPSILON:
+				result.append(span)
+				continue
+			if cut.x > span.x + EPSILON:
+				result.append(Vector2(span.x, cut.x))
+			if cut.y < span.y - EPSILON:
+				result.append(Vector2(cut.y, span.y))
+		spans = result
+	return spans
+
+
+## The airlock's outer doorway crosses the void between the lock's wall and the shell:
+## floor, side walls and a lintel keep the passage solid and closed to sightlines.
+func _add_airlock_sleeve(surface: Dictionary, collision: Array[Vector3]) -> void:
+	var x_inner: float = SectionHull.CABIN_MIN.x
+	var x_outer: float = _shell_face_for(-1.0)
+	_add_quad(surface, Vector3(x_inner, 0.0, AIRLOCK_GAP_FROM), Vector3(x_outer, 0.0, AIRLOCK_GAP_FROM), Vector3(x_outer, 0.0, AIRLOCK_GAP_TO), Vector3(x_inner, 0.0, AIRLOCK_GAP_TO), Vector3.UP, collision)
+	_add_quad(surface, Vector3(x_inner, 0.0, AIRLOCK_GAP_FROM), Vector3(x_inner, DOOR_TOP, AIRLOCK_GAP_FROM), Vector3(x_outer, DOOR_TOP, AIRLOCK_GAP_FROM), Vector3(x_outer, 0.0, AIRLOCK_GAP_FROM), Vector3(0.0, 0.0, 1.0), collision)
+	_add_quad(surface, Vector3(x_inner, 0.0, AIRLOCK_GAP_TO), Vector3(x_outer, 0.0, AIRLOCK_GAP_TO), Vector3(x_outer, DOOR_TOP, AIRLOCK_GAP_TO), Vector3(x_inner, DOOR_TOP, AIRLOCK_GAP_TO), Vector3(0.0, 0.0, -1.0), collision)
+	_add_quad(surface, Vector3(x_inner, DOOR_TOP, AIRLOCK_GAP_FROM), Vector3(x_inner, DOOR_TOP, AIRLOCK_GAP_TO), Vector3(x_outer, DOOR_TOP, AIRLOCK_GAP_TO), Vector3(x_outer, DOOR_TOP, AIRLOCK_GAP_FROM), Vector3.DOWN, collision)
+
+
+## The faceted prow: taper rings from the bow face to the framed nose viewport,
+## double-walled so the cockpit window looks into a closed cowl, never through culled
+## backfaces.
+func _add_prow(surface: Dictionary, collision: Array[Vector3]) -> void:
+	var rings: Array[PackedVector2Array] = []
+	var z_s: Array[float] = []
+	for ring: Dictionary in SectionHull.PROW_RINGS:
+		rings.append(SectionHull.outline(ring))
+		z_s.append(float(ring["z"]))
+	for i: int in rings.size() - 1:
+		_add_loft_band(surface, rings[i], rings[i + 1], z_s[i], z_s[i + 1], collision)
+	var nose: Dictionary = SectionHull.PROW_RINGS[rings.size() - 1]
+	_add_framed_face(surface, nose, nose["window_min"], nose["window_max"], z_s[z_s.size() - 1], z_s[z_s.size() - 2], collision)
+
+
+func _add_loft_band(surface: Dictionary, ring_a: PackedVector2Array, ring_b: PackedVector2Array, z_a: float, z_b: float, collision: Array[Vector3]) -> void:
+	var inward: Array[Vector3] = []
+	for edge_index: int in ring_a.size():
+		var a0: Vector2 = ring_a[edge_index]
+		var b0: Vector2 = ring_a[(edge_index + 1) % ring_a.size()]
+		var a1: Vector2 = ring_b[edge_index]
+		var b1: Vector2 = ring_b[(edge_index + 1) % ring_b.size()]
+		var hint: Vector3 = _ring_edge_hint(ring_a, ring_b, edge_index, z_a, z_b)
+		_add_quad(surface, Vector3(a0.x, a0.y, z_a), Vector3(b0.x, b0.y, z_a), Vector3(b1.x, b1.y, z_b), Vector3(a1.x, a1.y, z_b), hint, collision)
+		_add_quad(surface, Vector3(a0.x, a0.y, z_a), Vector3(a1.x, a1.y, z_b), Vector3(b1.x, b1.y, z_b), Vector3(b0.x, b0.y, z_a), -hint, inward)
+
+
+func _ring_edge_hint(ring_a: PackedVector2Array, ring_b: PackedVector2Array, edge_index: int, z_a: float, z_b: float) -> Vector3:
+	var a0: Vector2 = ring_a[edge_index]
+	var b0: Vector2 = ring_a[(edge_index + 1) % ring_a.size()]
+	var a1: Vector2 = ring_b[edge_index]
+	var b1: Vector2 = ring_b[(edge_index + 1) % ring_b.size()]
+	var mid: Vector2 = (a0 + b0 + a1 + b1) * 0.25
+	var center_a: Vector2 = Vector2.ZERO
+	var center_b: Vector2 = Vector2.ZERO
+	for i: int in ring_a.size():
+		center_a += ring_a[i]
+		center_b += ring_b[i]
+	center_a /= float(ring_a.size())
+	center_b /= float(ring_b.size())
+	var hint: Vector2 = mid - center_a.lerp(center_b, 0.5)
+	if hint.length() <= EPSILON:
+		return Vector3(1.0, 0.0, 0.0)
+	return Vector3(hint.x, hint.y, 0.0).normalized()
+
+
+## A chamfered ring closed by a framed window: four bands and four corner regions leave
+## the window rect open. Emitted facing both ways (the cowl interior stays visible
+## through the cockpit window), with sill/lintel/jamb faces lining the bore back to
+## `z_bore`.
+func _add_framed_face(surface: Dictionary, ring: Dictionary, window_min: Vector2, window_max: Vector2, z: float, z_bore: float, collision: Array[Vector3]) -> void:
+	var ring_min: Vector2 = ring["min"]
+	var ring_max: Vector2 = ring["max"]
+	var cut: float = float(ring.get("cut", 0.0))
+	var inward: Array[Vector3] = []
+	for region: Array in _framed_face_regions(ring_min, ring_max, cut, window_min, window_max):
+		var points: Array = region
+		if points.size() == 4:
+			_add_quad(surface, _xy(points[0], z), _xy(points[1], z), _xy(points[2], z), _xy(points[3], z), Vector3(0.0, 0.0, -1.0), collision)
+			_add_quad(surface, _xy(points[0], z), _xy(points[3], z), _xy(points[2], z), _xy(points[1], z), Vector3(0.0, 0.0, 1.0), inward)
+		else:
+			_add_tri(surface, _xy(points[0], z), _xy(points[1], z), _xy(points[2], z), Vector3(0.0, 0.0, -1.0), collision)
+			_add_tri(surface, _xy(points[0], z), _xy(points[2], z), _xy(points[1], z), Vector3(0.0, 0.0, 1.0), inward)
+	_add_quad(surface, _xy(window_min, z), _xy(Vector2(window_max.x, window_min.y), z), _xy(Vector2(window_max.x, window_min.y), z_bore), _xy(window_min, z_bore), Vector3.UP, collision)
+	_add_quad(surface, _xy(Vector2(window_min.x, window_max.y), z), _xy(window_max, z), _xy(window_max, z_bore), _xy(Vector2(window_min.x, window_max.y), z_bore), Vector3.DOWN, collision)
+	_add_quad(surface, _xy(window_min, z), _xy(window_min, z_bore), _xy(Vector2(window_min.x, window_max.y), z_bore), _xy(Vector2(window_min.x, window_max.y), z), Vector3(-1.0, 0.0, 0.0), collision)
+	_add_quad(surface, _xy(Vector2(window_max.x, window_min.y), z), _xy(Vector2(window_max.x, window_max.y), z), _xy(Vector2(window_max.x, window_max.y), z_bore), _xy(Vector2(window_max.x, window_min.y), z_bore), Vector3(1.0, 0.0, 0.0), collision)
+
+
+func _xy(point: Vector2, z: float) -> Vector3:
+	return Vector3(point.x, point.y, z)
+
+
+## The closed regions of a chamfered ring minus a window rect: four bands whose outer
+## edges land exactly on the ring's straight edges, plus corner regions (quads, or
+## triangles where the window edge meets the chamfer junction).
+func _framed_face_regions(ring_min: Vector2, ring_max: Vector2, cut: float, window_min: Vector2, window_max: Vector2) -> Array:
+	var regions: Array = []
+	regions.append([Vector2(ring_min.x + cut, window_max.y), Vector2(ring_max.x - cut, window_max.y), Vector2(ring_max.x - cut, ring_max.y), Vector2(ring_min.x + cut, ring_max.y)])
+	regions.append([Vector2(ring_min.x + cut, ring_min.y), Vector2(ring_max.x - cut, ring_min.y), Vector2(ring_max.x - cut, window_min.y), Vector2(ring_min.x + cut, window_min.y)])
+	regions.append([Vector2(ring_min.x, window_min.y), Vector2(window_min.x, window_min.y), Vector2(window_min.x, window_max.y), Vector2(ring_min.x, window_max.y)])
+	regions.append([Vector2(window_max.x, window_min.y), Vector2(ring_max.x, window_min.y), Vector2(ring_max.x, window_max.y), Vector2(window_max.x, window_max.y)])
+	if absf(window_max.y - (ring_max.y - cut)) <= EPSILON:
+		regions.append([Vector2(ring_min.x, window_max.y), Vector2(ring_min.x + cut, ring_max.y), Vector2(ring_min.x + cut, window_max.y)])
+		regions.append([Vector2(ring_max.x - cut, ring_max.y), Vector2(ring_max.x, window_max.y), Vector2(ring_max.x - cut, window_max.y)])
+	else:
+		regions.append([Vector2(ring_min.x, window_max.y), Vector2(ring_min.x, ring_max.y - cut), Vector2(ring_min.x + cut, ring_max.y), Vector2(ring_min.x + cut, window_max.y)])
+		regions.append([Vector2(ring_max.x - cut, ring_max.y), Vector2(ring_max.x, ring_max.y - cut), Vector2(ring_max.x, window_max.y), Vector2(ring_max.x - cut, window_max.y)])
+	if absf(window_min.y - (ring_min.y + cut)) <= EPSILON:
+		regions.append([Vector2(ring_min.x, window_min.y), Vector2(ring_min.x + cut, ring_min.y), Vector2(ring_min.x + cut, window_min.y)])
+		regions.append([Vector2(ring_max.x, window_min.y), Vector2(ring_max.x - cut, window_min.y), Vector2(ring_max.x - cut, ring_min.y)])
+	else:
+		regions.append([Vector2(ring_min.x, window_min.y), Vector2(ring_min.x, ring_min.y + cut), Vector2(ring_min.x + cut, ring_min.y), Vector2(ring_min.x + cut, window_min.y)])
+		regions.append([Vector2(ring_max.x - cut, ring_min.y), Vector2(ring_max.x, ring_min.y + cut), Vector2(ring_max.x, window_min.y), Vector2(ring_max.x - cut, window_min.y)])
+	return regions
+
+
+## A fan cap over a chamfered ring in the XY plane at constant z.
+func _add_xy_fan(surface: Dictionary, ring: PackedVector2Array, z: float, facing: Vector3, collision: Array[Vector3]) -> void:
+	for i: int in range(1, ring.size() - 1):
+		_add_tri(surface, _xy(ring[0], z), _xy(ring[i], z), _xy(ring[i + 1], z), facing, collision)
+
+
+## A ring collar girdling the shell (flanges, ribs, tank ribs): outer facets plus closing
+## annuli at its ends. The top facet is skipped where the collar is flush with the roof
+## walk so it never z-fights the shell's own roof.
+func _add_collar(surface: Dictionary, collar: PackedVector2Array, section: PackedVector2Array, z0: float, z1: float, collision: Array[Vector3]) -> void:
+	var top_y: float = section[4].y
+	for edge_index: int in collar.size():
+		var a: Vector2 = collar[edge_index]
+		var b: Vector2 = collar[(edge_index + 1) % collar.size()]
+		if absf(a.y - top_y) <= EPSILON and absf(b.y - top_y) <= EPSILON:
+			continue
+		var outward: Vector2 = _outward(a, b)
+		_add_quad(surface, Vector3(a.x, a.y, z0), Vector3(b.x, b.y, z0), Vector3(b.x, b.y, z1), Vector3(a.x, a.y, z1), Vector3(outward.x, outward.y, 0.0), collision)
+	for edge_index: int in section.size():
+		var i0: Vector2 = section[edge_index]
+		var i1: Vector2 = section[(edge_index + 1) % section.size()]
+		var o0: Vector2 = collar[edge_index]
+		var o1: Vector2 = collar[(edge_index + 1) % collar.size()]
+		_add_quad(surface, _xy(i0, z0), _xy(i1, z0), _xy(o1, z0), _xy(o0, z0), Vector3(0.0, 0.0, -1.0), collision)
+		_add_quad(surface, _xy(i0, z1), _xy(i1, z1), _xy(o1, z1), _xy(o0, z1), Vector3(0.0, 0.0, 1.0), collision)
+
+
+## The stern propellant cluster: two ribbed drums on pylons over the aft deck, clear of
+## the roof ramp channel.
+func _add_tank_cluster(shell: Dictionary, decks: Dictionary, collision: Array[Vector3]) -> void:
+	_add_drum(shell, SectionHull.TANK_A, collision)
+	_add_drum(shell, SectionHull.TANK_B, collision)
+	var drum: PackedVector2Array = SectionHull.outline(SectionHull.TANK_A)
+	for z: float in SectionHull.TANK_RIBS_Z:
+		var rib: PackedVector2Array = SectionHull.collar_outline(SectionHull.TANK_A, SectionHull.TANK_RIB_OFFSET)
+		_add_collar(shell, rib, drum, z - SectionHull.TANK_RIB_HALF, z + SectionHull.TANK_RIB_HALF, collision)
+	for pylon: Dictionary in SectionHull.TANK_PYLONS:
+		var x0: float = float(pylon["x0"])
+		var x1: float = float(pylon["x1"])
+		var y0: float = float(pylon["y0"])
+		var y1: float = float(pylon["y1"])
+		var z0: float = float(pylon["z0"])
+		var z1: float = float(pylon["z1"])
+		_add_hexahedron(decks, [
+			Vector3(x0, y0, z0), Vector3(x1, y0, z0), Vector3(x1, y0, z1), Vector3(x0, y0, z1),
+			Vector3(x0, y1, z0), Vector3(x1, y1, z0), Vector3(x1, y1, z1), Vector3(x0, y1, z1),
+		], collision)
+
+
+func _add_drum(surface: Dictionary, tank: Dictionary, collision: Array[Vector3]) -> void:
+	var ring: PackedVector2Array = SectionHull.outline(tank)
+	var z0: float = float(tank["z0"])
+	var z1: float = float(tank["z1"])
+	for edge_index: int in ring.size():
+		var a: Vector2 = ring[edge_index]
+		var b: Vector2 = ring[(edge_index + 1) % ring.size()]
+		var outward: Vector2 = _outward(a, b)
+		_add_quad(surface, Vector3(a.x, a.y, z0), Vector3(b.x, b.y, z0), Vector3(b.x, b.y, z1), Vector3(a.x, a.y, z1), Vector3(outward.x, outward.y, 0.0), collision)
+	_add_xy_fan(surface, ring, z0, Vector3(0.0, 0.0, -1.0), collision)
+	_add_xy_fan(surface, ring, z1, Vector3(0.0, 0.0, 1.0), collision)
+
+
+## Solar arrays on booms off the stern band's aft face — visual furniture only, no
+## collision (nothing walks there; the tether is the recovery).
+func _add_arrays(hull: StaticBody3D) -> void:
+	var panel_material: StandardMaterial3D = StandardMaterial3D.new()
+	panel_material.albedo_color = Color(0.05, 0.07, 0.18)
+	panel_material.metallic = 0.25
+	panel_material.roughness = 0.35
+	for array: Dictionary in SectionHull.ARRAYS:
+		var boom_x: float = float(array["boom_x"])
+		var boom: MeshInstance3D = MeshInstance3D.new()
+		boom.name = "ArrayBoom"
+		var boom_mesh: BoxMesh = BoxMesh.new()
+		boom_mesh.size = Vector3(0.24, 0.24, SectionHull.ARRAY_PANEL_Z0 - SectionHull.ARRAY_BOOM_Z0)
+		boom.mesh = boom_mesh
+		boom.material_override = _materials[MATERIAL_CONDUIT] as Material
+		boom.position = Vector3(boom_x, SectionHull.ARRAY_BOOM_Y, (SectionHull.ARRAY_BOOM_Z0 + SectionHull.ARRAY_PANEL_Z0) * 0.5)
+		hull.add_child(boom)
+		var panel_min: Vector2 = array["panel_min"]
+		var panel_max: Vector2 = array["panel_max"]
+		var panel: MeshInstance3D = MeshInstance3D.new()
+		panel.name = "ArrayPanel"
+		var panel_mesh: BoxMesh = BoxMesh.new()
+		panel_mesh.size = Vector3(panel_max.x - panel_min.x, panel_max.y - panel_min.y, SectionHull.ARRAY_PANEL_Z1 - SectionHull.ARRAY_PANEL_Z0)
+		panel.mesh = panel_mesh
+		panel.material_override = panel_material
+		panel.position = Vector3((panel_min.x + panel_max.x) * 0.5, (panel_min.y + panel_max.y) * 0.5, (SectionHull.ARRAY_PANEL_Z0 + SectionHull.ARRAY_PANEL_Z1) * 0.5)
+		hull.add_child(panel)
 
 
 ## Prism between a plan polygon and its outward offset: caps go to `caps`, sides to `sides`.
@@ -929,14 +1135,15 @@ func _add_prism(caps: Dictionary, sides: Dictionary, polygon: PackedVector2Array
 
 
 func _add_catwalk(decks: Dictionary, sides: Dictionary, collision: Array[Vector3]) -> void:
-	var outer_min: Vector2 = HULL_PLAN_MIN - Vector2(CATWALK_MARGIN, CATWALK_MARGIN)
-	var outer_max: Vector2 = HULL_PLAN_MAX + Vector2(CATWALK_MARGIN, CATWALK_MARGIN)
-	var inner_min: Vector2 = HULL_PLAN_MIN - Vector2(HULL_BAND, HULL_BAND)
-	var inner_max: Vector2 = HULL_PLAN_MAX + Vector2(HULL_BAND, HULL_BAND)
-	_add_slab(decks, sides, Vector2(outer_min.x, outer_min.y), Vector2(outer_max.x, inner_min.y), collision)
-	_add_slab(decks, sides, Vector2(outer_min.x, inner_max.y), Vector2(outer_max.x, outer_max.y), collision)
-	_add_slab(decks, sides, Vector2(outer_min.x, inner_min.y), Vector2(inner_min.x, inner_max.y), collision)
-	_add_slab(decks, sides, Vector2(inner_max.x, inner_min.y), Vector2(outer_max.x, inner_max.y), collision)
+	var shell: Dictionary = SectionHull.sections()[0]
+	var shell_min: Vector2 = Vector2(float(shell["min"].x), float(shell["z0"]))
+	var shell_max: Vector2 = Vector2(float(shell["max"].x), float(SectionHull.sections()[2]["z1"]))
+	var outer_min: Vector2 = shell_min - Vector2(CATWALK_WIDTH, CATWALK_WIDTH)
+	var outer_max: Vector2 = shell_max + Vector2(CATWALK_WIDTH, CATWALK_WIDTH)
+	_add_slab(decks, sides, Vector2(outer_min.x, outer_min.y), Vector2(outer_max.x, shell_min.y), collision)
+	_add_slab(decks, sides, Vector2(outer_min.x, shell_max.y), Vector2(outer_max.x, outer_max.y), collision)
+	_add_slab(decks, sides, Vector2(outer_min.x, shell_min.y), Vector2(shell_min.x, shell_max.y), collision)
+	_add_slab(decks, sides, Vector2(shell_max.x, shell_min.y), Vector2(outer_max.x, shell_max.y), collision)
 
 
 func _add_aft_deck(decks: Dictionary, sides: Dictionary, collision: Array[Vector3]) -> void:
@@ -974,7 +1181,8 @@ func _add_railings(hull: StaticBody3D) -> void:
 	var bars: Array[Array] = [
 		[Vector3(-9.88, 1.0, -5.5), Vector3(0.06, 0.08, 30.8)],
 		[Vector3(7.98, 1.0, -5.5), Vector3(0.06, 0.08, 30.8)],
-		[Vector3(-0.95, 1.0, -20.83), Vector3(17.9, 0.08, 0.06)],
+		[Vector3(-7.5, 1.0, -20.83), Vector3(4.8, 0.08, 0.06)],
+		[Vector3(5.8, 1.0, -20.83), Vector3(4.2, 0.08, 0.06)],
 		[Vector3(-0.95, 1.0, 9.83), Vector3(17.9, 0.08, 0.06)],
 		[Vector3(-3.93, 1.0, 12.45), Vector3(0.06, 0.08, 5.1)],
 		[Vector3(2.33, 1.0, 12.45), Vector3(0.06, 0.08, 5.1)],
@@ -1000,7 +1208,7 @@ func _build_dock_throats() -> void:
 
 
 func _build_dock_throat(dock: Dictionary) -> void:
-	var hull_face: float = _hull_face_for(float(dock["outward"]))
+	var hull_face: float = _shell_face_for(float(dock["outward"]))
 	var room_face: float = float(dock["room_face"])
 	if absf(room_face - hull_face) <= EPSILON:
 		return
@@ -1021,16 +1229,17 @@ func _build_dock_throat(dock: Dictionary) -> void:
 	})
 
 
-## Flush mount plate + hardpoint marker per dock, children of the hull shell. The plate
-## spans the hull band's full height so it seals the aperture (M10.3 swaps it for the pod).
-func _add_dock_plates(hull: StaticBody3D) -> void:
+## M10/M13 dock mounts: a proud collar plate sealing each shell doorway (its outward face
+## is the pod's mating plane), the hardpoint marker just off it, and a sill slab flooring
+## the slot between the shell face and the standing pod's near wall.
+func _add_dock_plates(hull: StaticBody3D, decks: Dictionary, collision: Array[Vector3]) -> void:
 	for dock: Dictionary in DOCKS:
 		var id: String = String(dock["id"])
 		var outward: float = float(dock["outward"])
-		var band_outer: float = _hull_face_for(outward) + outward * HULL_BAND
+		var shell_face: float = _shell_face_for(outward)
 		var plate: StaticBody3D = StaticBody3D.new()
 		plate.name = "DockPlate_" + id
-		plate.position = Vector3(band_outer - outward * DOCK_PLATE_THICKNESS * 0.5, (HULL_BOTTOM + DECK_BOTTOM) * 0.5, float(dock["z"]))
+		plate.position = Vector3(shell_face + outward * DOCK_PLATE_THICKNESS * 0.5, (DOCK_PLATE_Y_MIN + DOCK_PLATE_Y_MAX) * 0.5, float(dock["z"]))
 		_join_group(plate, &"dock_plate")
 		plate.set_meta(&"hardpoint_id", StringName("hp_" + id))
 		# The plate is the dock mount the operator builds from EVA; it hides and stops
@@ -1038,7 +1247,7 @@ func _add_dock_plates(hull: StaticBody3D) -> void:
 		plate.set_script(load(SCRIPT_MODULE_MOUNT) as Script)
 		plate.set(&"hardpoint_id", StringName("hp_" + id))
 		hull.add_child(plate)
-		var size: Vector3 = Vector3(DOCK_PLATE_THICKNESS, DECK_BOTTOM - HULL_BOTTOM, DOCK_DOOR_HALF * 2.0)
+		var size: Vector3 = Vector3(DOCK_PLATE_THICKNESS, DOCK_PLATE_Y_MAX - DOCK_PLATE_Y_MIN, DOCK_DOOR_HALF * 2.0)
 		var box_shape: BoxShape3D = BoxShape3D.new()
 		box_shape.size = size
 		var shape: CollisionShape3D = CollisionShape3D.new()
@@ -1054,10 +1263,22 @@ func _add_dock_plates(hull: StaticBody3D) -> void:
 		plate.add_child(mesh)
 		var marker: Node3D = Node3D.new()
 		marker.name = "Hardpoint_" + id
-		marker.position = Vector3(band_outer + outward * 0.1, 1.4, float(dock["z"]))
+		marker.position = Vector3(shell_face + outward * (DOCK_PLATE_THICKNESS + 0.1), 1.4, float(dock["z"]))
 		_join_group(marker, &"hardpoint")
 		marker.set_meta(&"hardpoint_id", StringName("hp_" + id))
 		hull.add_child(marker)
+		var x_in: float = shell_face
+		var x_out: float = shell_face + outward * DOCK_SILL_DEPTH
+		_add_hexahedron(decks, [
+			Vector3(minf(x_in, x_out), CATWALK_BOTTOM, float(dock["z"]) - DOCK_DOOR_HALF),
+			Vector3(maxf(x_in, x_out), CATWALK_BOTTOM, float(dock["z"]) - DOCK_DOOR_HALF),
+			Vector3(maxf(x_in, x_out), CATWALK_BOTTOM, float(dock["z"]) + DOCK_DOOR_HALF),
+			Vector3(minf(x_in, x_out), CATWALK_BOTTOM, float(dock["z"]) + DOCK_DOOR_HALF),
+			Vector3(minf(x_in, x_out), CATWALK_TOP, float(dock["z"]) - DOCK_DOOR_HALF),
+			Vector3(maxf(x_in, x_out), CATWALK_TOP, float(dock["z"]) - DOCK_DOOR_HALF),
+			Vector3(maxf(x_in, x_out), CATWALK_TOP, float(dock["z"]) + DOCK_DOOR_HALF),
+			Vector3(minf(x_in, x_out), CATWALK_TOP, float(dock["z"]) + DOCK_DOOR_HALF),
+		], collision)
 
 
 ## Group membership must be marked persistent to reach the packed scene; do it while the
@@ -1068,18 +1289,9 @@ func _join_group(node: Node, group: StringName) -> void:
 	root.remove_child(node)
 
 
-func _hull_face_for(outward: float) -> float:
-	return HULL_PLAN_MIN.x if outward < 0.0 else HULL_PLAN_MAX.x
-
-
-func _hull_gaps_for_edge(edge_index: int) -> Array:
-	var gaps: Array = []
-	if edge_index == 6:
-		gaps.append({"from": AIRLOCK_GAP_FROM, "to": AIRLOCK_GAP_TO})
-	for dock: Dictionary in DOCKS:
-		if int(dock["hull_edge"]) == edge_index:
-			gaps.append({"from": float(dock["z"]) - DOCK_DOOR_HALF, "to": float(dock["z"]) + DOCK_DOOR_HALF})
-	return gaps
+func _shell_face_for(outward: float) -> float:
+	var shell: Dictionary = SectionHull.sections()[0]
+	return float(shell["min"].x) if outward < 0.0 else float(shell["max"].x)
 
 
 func _add_eva_anchors(hull: StaticBody3D) -> void:

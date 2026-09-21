@@ -57,7 +57,8 @@ func _test_dock_walkways() -> void:
 		var marker: Node = hull.get_node_or_null(NodePath("Hardpoint_" + id))
 		_check(plate != null and plate.is_in_group(&"dock_plate"), "mount plate exists: " + id)
 		_check(marker != null and marker.is_in_group(&"hardpoint"), "hardpoint marker exists: " + id)
-		var plate_face: float = -8.35 if outward < 0.0 else 6.45
+		# M13.1: the plate sits proud of the shell; its inward face is the shell face.
+		var plate_face: float = -8.5 if outward < 0.0 else 6.6
 		var target: Vector3 = Vector3(plate_face + outward * 0.1, 1.2, start.z)
 		var walk: Dictionary = _ray_result(start, target)
 		var walk_x: float = float((walk["position"] as Vector3).x) if not walk.is_empty() else 0.0

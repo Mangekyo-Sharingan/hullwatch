@@ -65,6 +65,10 @@ func _run() -> void:
 	player.look_at(Vector3(-8.5, 1.4, -10.4), Vector3.UP)
 	await _capture(player, player.global_position, player.rotation.y, "shot_dock_plate.png")
 
+	await _hull_shot(Vector3(-13.0, 2.2, -24.0), Vector3(0.0, 1.8, -19.5), "shot_hull_bow.png")
+	await _hull_shot(Vector3(-16.5, 2.2, -5.0), Vector3(0.0, 1.5, -6.0), "shot_hull_broadside.png")
+	await _hull_shot(Vector3(3.0, 3.2, 18.0), Vector3(-1.0, 1.6, 10.0), "shot_hull_stern.png")
+
 	var cargo: Node = _main.get_node_or_null("Systems/CargoSystem")
 	var modules: Node = _main.get_node_or_null("Systems/ModuleSystem")
 	if cargo != null and modules != null and not bool(modules.call("is_installed", &"utility_pod")):
@@ -103,6 +107,15 @@ func _run() -> void:
 
 	print("PASS: capture_screenshots -> ", ProjectSettings.globalize_path(OUTPUT_DIR))
 	quit(0)
+
+
+## An exterior vantage: park the player, aim at the hull, carry a work light (the
+## exterior has no lighting until the M12 pass).
+func _hull_shot(position: Vector3, target: Vector3, file_name: String) -> void:
+	var player: Node3D = _main.get_node("Player")
+	player.global_position = position
+	player.look_at(target, Vector3.UP)
+	await _capture(player, player.global_position, player.rotation.y, file_name)
 
 
 func _capture(player: Node3D, position: Vector3, yaw: float, file_name: String) -> void:

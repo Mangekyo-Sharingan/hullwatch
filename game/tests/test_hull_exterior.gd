@@ -43,9 +43,29 @@ func _run() -> void:
 	_test_ramp_is_walkable()
 	_test_hull_stays_out_of_rooms()
 	_test_hardpoints()
+	_test_section_shell()
 
 	_geometry.free()
 	_finish()
+
+
+## M13.1 section shell: the hull's own top facet is the roof walk, the stern band face
+## closes the stack, the prow cowl is solid around its viewport, and the flange collars
+## leave a walkable squeeze-by on the catwalk.
+func _test_section_shell() -> void:
+	var roof: Dictionary = _ray_result(Vector3(0.0, 5.0, 0.0), Vector3(0.0, 1.0, 0.0))
+	_check(not roof.is_empty(), "the hull's top facet is the roof walk")
+	if not roof.is_empty():
+		_check(absf(float((roof["position"] as Vector3).y) - 3.6) < 0.05, "the roof facet sits at walk height")
+		_check((roof["normal"] as Vector3).dot(Vector3.UP) > 0.9, "the roof facet faces up")
+	var stern: Dictionary = _ray_result(Vector3(0.0, 1.2, 10.0), Vector3(0.0, 1.2, 8.0))
+	_check(not stern.is_empty(), "the stern band's aft face closes the stack")
+	if not stern.is_empty():
+		_check(absf(float((stern["position"] as Vector3).z) - 8.45) < 0.05, "the stern face sits flush with the catwalk's aft leg")
+	var prow: Dictionary = _ray_result(Vector3(0.0, 2.75, -22.5), Vector3(0.0, 2.75, -21.0))
+	_check(not prow.is_empty(), "the prow cowl is solid above its viewport")
+	_check(not _ray_hits(Vector3(-9.0, 0.5, -13.0), Vector3(-9.0, 0.5, -15.0)), "the catwalk passage stays open past the midship flange")
+	_check(_ray_hits(Vector3(-8.7, 0.5, -13.0), Vector3(-8.7, 0.5, -15.0)), "the flange collar girdles the hull at the cockpit joint")
 
 
 func _test_hull_node() -> void:

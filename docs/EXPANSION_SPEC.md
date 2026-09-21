@@ -143,6 +143,28 @@ wasted either way.
 | **M13.4 — Ring decks** | Second deck inside the larger sections (mezzanine ring, ladder between decks) for the rooms that need the area (engine bay, storage, quarters) | Decks walkable, no headroom clash, compartments re-measured |
 | **M13.5 — Verification** | Captures, `test_scene_loop` with the new geometry, manual/manual-binder text, docs | Full loop headless; captures reviewed; docs consistent |
 
+**Status: M13.1 landed (2026-09-20).** `SectionHull` (`game/src/world/section_hull.gd`) owns the
+shape tables — the section stack (BowWindow / Body / SternBand over one shared wide
+cross-section while the interior stays flat), the prow taper rings with a framed nose viewport,
+the flange/rib collars, the stern tank cluster and the solar arrays — all validated by the
+extended `test_hull_profile`. `build_ship_geometry.gd` sweeps the shell as one continuous
+chamfered-rectangle loft from the bow window face to the stern band face and cuts the airlock
+plus the four dock doorways from its west/east facets; the old offset-polygon band, keel and
+deck prisms are gone — the hull's own top facet is the roof walk now, flange collars girdle the
+hull at the cockpit/corridor and corridor/engine joints, rib rings carry the panel-frame
+language along the body, and the prow is a double-walled faceted cowl whose viewport aligns
+with the cockpit windshield (the pane looks through a closed cowl, never through culled
+backfaces). Dock plates sit proud of the shell face (their outward face is still the pod mating
+plane, so standing pods keep their geometry; a sill slab floors the slot between shell and pod),
+and dock throats now reach the shell directly. The catwalk, aft deck, ramp, railings, EVA
+anchors and tether zone keep their world positions — the shell hugs the old envelope wherever
+the walkable furniture needs it; only the bow rail splits around the prow. Re-baselined:
+`test_hull_exterior` (roof facet, stern face, prow cowl, flange squeeze-by, plate faces) and
+`test_module_geometry` (plate face = shell face); new exterior vantage captures
+(`shot_hull_bow/broadside/stern.png`) joined the capture set. 63 of 64 suites pass, the outlier being the long-standing `test_failures` grep false positive. Exteriors stay
+dark until the M12 lighting pass; the tube interior (M13.2) slims the section table — the dial
+is the tables in `SectionHull`.
+
 One milestone per commit series; each milestone ships with its tests and a playable build
 when the user wants one. Polish is explicitly M12 — do not pull it forward.
 

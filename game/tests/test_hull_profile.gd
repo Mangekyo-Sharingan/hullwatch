@@ -1,5 +1,6 @@
 ## Unit tests for the faceted-hull polygon math: outlines, CCW handling, mitered
-## offsets/insets and profile rings. Pure functions, no scene tree.
+## offsets/insets, profile rings, and the M13 section-hull tables. Pure functions, no
+## scene tree.
 extends SceneTree
 
 const TOLERANCE: float = 0.0001
@@ -19,12 +20,62 @@ func _run() -> void:
 	_test_chamfer_vertices_stay_parallel()
 	_test_profile_rings()
 	_test_degenerate_inputs()
+	_test_section_hull()
 	if _failures == 0:
 		print("PASS: test_hull_profile")
 		quit(0)
 	else:
 		print("FAILURES: ", _failures)
 		quit(1)
+
+
+func _test_section_hull() -> void:
+	for problem: String in SectionHull.validate():
+		_check(false, "section table: " + problem)
+	_check(SectionHull.validate().is_empty(), "the section-hull tables validate cleanly")
+
+	var body: Dictionary = SectionHull.section_at(0.0)
+	_check(String(body["name"]) == "Body", "the body section contains midship")
+	_check(String(SectionHull.section_at(-19.2)["name"]) == "BowWindow", "the bow window section sits forward")
+	_check(String(SectionHull.section_at(8.2)["name"]) == "SternBand", "the stern band section sits aft")
+	_check(SectionHull.section_at(-25.0).is_empty(), "nothing exists forward of the stack")
+	_check(SectionHull.section_at(20.0).is_empty(), "nothing exists aft of the stack")
+	_check(SectionHull.outline_at(0.0).size() == 8, "the body ring is an eight-vertex chamfered rectangle")
+	_check(SectionHull.outline_at(0.0) == SectionHull.outline_at(5.0), "the ring is constant inside the body")
+	_check(SectionHull.encloses_cabin(SectionHull.outline_at(0.0)), "the body ring encloses the cabin envelope")
+	_check(SectionHull.encloses_cabin(SectionHull.outline_at(-19.2)), "the bow window ring encloses the cabin envelope")
+	_check(not SectionHull.encloses_cabin(HullProfile.rectangle_outline(Vector2(-4.0, -0.5), Vector2(4.0, 3.0), 0.4)), "a slimmed ring admits it clips the cabin")
+
+	var bow: PackedVector2Array = SectionHull.outline(SectionHull.sections()[0])
+	var nose: PackedVector2Array = SectionHull.outline(SectionHull.PROW_RINGS[2])
+	_check(SectionHull.contains_point(bow, SectionHull.BOW_WINDOW_MIN), "the bow face contains the window's lower corner")
+	_check(SectionHull.contains_point(bow, SectionHull.BOW_WINDOW_MAX), "the bow face contains the window's upper corner")
+	_check(SectionHull.contains_point(nose, SectionHull.BOW_WINDOW_MIN) and SectionHull.contains_point(nose, SectionHull.BOW_WINDOW_MAX), "the nose viewport clears the windshield's view shaft")
+	var nose_window: Dictionary = SectionHull.PROW_RINGS[2]
+	_check(
+		(nose_window["window_min"] as Vector2).x <= SectionHull.BOW_WINDOW_MIN.x
+			and (nose_window["window_max"] as Vector2).x >= SectionHull.BOW_WINDOW_MAX.x,
+		"the nose viewport is wider than the windshield"
+	)
+
+	var ring_a: PackedVector2Array = SectionHull.outline(SectionHull.PROW_RINGS[0])
+	var ring_b: PackedVector2Array = SectionHull.outline(SectionHull.PROW_RINGS[1])
+	_check(SectionHull.taper_ring(ring_a, ring_b, 0.0) == ring_a, "taper t=0 returns the aft ring")
+	_check(SectionHull.taper_ring(ring_a, ring_b, 1.0) == ring_b, "taper t=1 returns the forward ring")
+	var mid: PackedVector2Array = SectionHull.taper_ring(ring_a, ring_b, 0.5)
+	_check(mid.size() == ring_a.size() and absf(mid[0].distance_to(ring_a[0].lerp(ring_b[0], 0.5))) < TOLERANCE, "taper t=0.5 lerps exactly")
+	_check(SectionHull.taper_ring(ring_a, PackedVector2Array(), 0.5).is_empty(), "taper refuses mismatched rings")
+
+	var collar: PackedVector2Array = SectionHull.collar_outline(SectionHull.sections()[1], SectionHull.FLANGE_OFFSET)
+	_check(collar.size() == 8, "the collar keeps the eight-vertex structure")
+	_check(absf(HullProfile.signed_area(collar) - HullProfile.signed_area(bow)) > 0.1, "the collar is strictly larger than its section")
+	_check(absf(collar[4].y - bow[4].y) < TOLERANCE and absf(collar[5].y - bow[5].y) < TOLERANCE, "the collar top stays flush with the roof walk")
+	for point: Vector2 in bow:
+		_check(SectionHull.contains_point(collar, point), "the collar encloses its section")
+
+	_check(float(SectionHull.TANK_A["max"].x) < 1.2 and float(SectionHull.TANK_B["max"].x) < 1.2, "the tank cluster stays clear of the roof ramp channel")
+	_check(float(SectionHull.TANK_A["z0"]) > 9.45, "the tank cluster clears the catwalk's aft leg")
+	_check(float(SectionHull.TANK_B["min"].y) >= float(SectionHull.TANK_A["max"].y) - TOLERANCE, "the upper tank rests on the lower drum")
 
 
 func _test_rectangle_outline() -> void:
