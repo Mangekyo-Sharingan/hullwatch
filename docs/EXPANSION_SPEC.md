@@ -138,8 +138,7 @@ wasted either way.
 | Sub-step | Deliverable | Exit criteria |
 |---|---|---|
 | **M13.1 — Section hull generator** | `SectionHull` helpers in `src/world/` (lathe rings, drums, domes, ribs, flanges, radial ports) + the section table + collision generated from the same table; replaces the offset-polygon shell in `build_ship_geometry.gd` | Tool output deterministic; hull collides exactly where it renders; no room interior clips the shell; `test_hull_profile`/`test_hull_exterior` re-baselined and green |
-| **M13.2 — Tube interior** | Each room becomes a section: circular deck plate, curved wall, bulkhead doorway at the flange, ladderway or crawl to the next section; corridor retires into the section chain (train layout) | Every room reachable on foot; doors at bulkheads; atmosphere/thermal/hull compartment defs follow the section volumes; layout suites green |
-| **M13.3 — Radial docks & exterior fittings** | Four docks as radial ports on their sections (pods hang perpendicular to the hull axis); airlock outer hatch, EVA platform, truss walkway with railings, tether anchors, cargo port re-mounted on the curved shell | Build → EVA → enter a pod on foot; tether clips; hull-exterior rays green |
+| **M13.2 — Tube interior** | Each room becomes a section: circular deck plate, curved wall, bulkhead doorway at the flange, ladderway or crawl to the next section; corridor retires into the section chain (train layout) | Every room reachable on foot; doors at bulkheads; atmosphere/thermal/hull compartment defs follow the section volumes; layout suites green || **M13.3 — Radial docks & exterior fittings** | Four docks as radial ports on their sections (pods hang perpendicular to the hull axis); airlock outer hatch, EVA platform, truss walkway with railings, tether anchors, cargo port re-mounted on the curved shell | Build → EVA → enter a pod on foot; tether clips; hull-exterior rays green |
 | **M13.4 — Ring decks** | Second deck inside the larger sections (mezzanine ring, ladder between decks) for the rooms that need the area (engine bay, storage, quarters) | Decks walkable, no headroom clash, compartments re-measured |
 | **M13.5 — Verification** | Captures, `test_scene_loop` with the new geometry, manual/manual-binder text, docs | Full loop headless; captures reviewed; docs consistent |
 
@@ -164,6 +163,20 @@ the walkable furniture needs it; only the bow rail splits around the prow. Re-ba
 (`shot_hull_bow/broadside/stern.png`) joined the capture set. 63 of 64 suites pass, the outlier being the long-standing `test_failures` grep false positive. Exteriors stay
 dark until the M12 lighting pass; the tube interior (M13.2) slims the section table — the dial
 is the tables in `SectionHull`.
+
+**Status: M13.2 groundwork landed (2026-09-20).** `TubeLayout` (`game/src/world/tube_layout.gd`)
+holds the chain the interior converts to: eleven sections bow to stern (cupola head, cockpit,
+quarters, life support, galley, head, storage, airlock, two engine sections, stern tank), each
+with a radius, length and the room it serves, the four dock mounts as radial ports on their own
+sections, and hatch rules (hatches only between living sections; the tank has none; the airlock
+carries the outer hatch). `validate()` proves the tables keep what the conversion must not lose:
+deck-area parity against every flat room it replaces (the corridor's 54 m² dissolves into the
+chain — that is what makes the engine bay and cockpit fit as two sections each), a port for
+every dock, and radii that clear their hatches. `test_tube_layout` covers the chain, the parity
+numbers, the ports and the hatch rules. The room-to-section map assumes the **train layout**
+(walk from section to section, the way ISS modules connect) and the study's ordering; the
+interior sweep that swaps the flat rooms for this chain is the next block, and it is the point
+of no return for those two assumptions.
 
 One milestone per commit series; each milestone ships with its tests and a playable build
 when the user wants one. Polish is explicitly M12 — do not pull it forward.
