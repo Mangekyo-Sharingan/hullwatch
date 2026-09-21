@@ -23,6 +23,12 @@ func _run() -> void:
 	var player: Node3D = _main.get_node("Player")
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
+	if _tube_preview():
+		await _capture(player, Vector3(0.0, 0.1, -17.0), 0.0, "shot_tube_cockpit.png")
+		await _capture(player, Vector3(0.0, 0.1, -13.9), 0.0, "shot_tube_quarters.png")
+		await _capture(player, Vector3(0.0, 0.1, -4.0), PI, "shot_tube_chain.png")
+		await _capture(player, Vector3(0.0, 0.1, -0.65), PI * 0.5, "shot_tube_airlock.png")
+
 	await _capture(player, Vector3(-4.2, 0.1, -9.6), 0.0, "shot_quarters.png")
 	await _capture(player, Vector3(0.0, 0.1, -2.5), 0.0, "shot_corridor_north.png")
 	await _capture(player, Vector3(-3.7, 0.1, -5.3), 0.0, "shot_life_support.png")
@@ -136,6 +142,14 @@ func _capture(player: Node3D, position: Vector3, yaw: float, file_name: String) 
 	image.save_png(OUTPUT_DIR + "/" + file_name)
 	if work_light != null:
 		work_light.queue_free()
+
+
+## True when the scene was generated with the M13.2 tube interior (preview run).
+func _tube_preview() -> bool:
+	for arg: String in OS.get_cmdline_user_args():
+		if arg == "--interior-style=tube":
+			return true
+	return false
 
 
 ## The exterior has no lighting yet (M12); carry a work light so exterior captures read.

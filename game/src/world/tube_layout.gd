@@ -18,8 +18,10 @@ const DECK_HEIGHT: float = 2.6
 const WALL: float = 0.12
 ## Flange length between two sections; a hatch sits in every one.
 const BULKHEAD: float = 0.35
-const HATCH_HALF_WIDTH: float = 0.5
-const HATCH_HEIGHT: float = 1.9
+## Sections are twelve-sided (a 3r^2-gon: the flat bow and stern edges must clear a hatch).
+const SEGMENTS: int = 12
+const HATCH_HALF_WIDTH: float = 0.45
+const HATCH_HEIGHT: float = 1.85
 ## The chain starts here (bow) and runs aft; the shell's current span is z -21.3..12.7.
 const BOW_Z: float = -21.0
 
@@ -32,11 +34,11 @@ const SECTIONS: Array[Dictionary] = [
 	{"name": "cupola", "room": "cockpit", "radius": 2.4, "length": 2.2, "kind": "dome"},
 	{"name": "cockpit", "room": "cockpit", "radius": 2.4, "length": 2.8, "kind": "drum", "replaces_area_m2": 31.3},
 	{"name": "quarters", "room": "quarters", "radius": 2.7, "length": 2.8, "kind": "drum", "port": "hp_quarters", "replaces_area_m2": 19.8},
-	{"name": "life_support", "room": "life_support", "radius": 1.9, "length": 2.2, "kind": "drum", "port": "hp_life_support", "replaces_area_m2": 9.1},
+	{"name": "life_support", "room": "life_support", "radius": 2.1, "length": 2.2, "kind": "drum", "port": "hp_life_support", "replaces_area_m2": 9.1},
 	{"name": "galley", "room": "galley", "radius": 2.3, "length": 2.6, "kind": "drum", "port": "hp_galley", "replaces_area_m2": 14.4},
-	{"name": "water_closet", "room": "water_closet", "radius": 1.6, "length": 1.8, "kind": "drum", "replaces_area_m2": 5.7},
+	{"name": "water_closet", "room": "water_closet", "radius": 2.0, "length": 1.8, "kind": "drum", "replaces_area_m2": 5.7},
 	{"name": "storage", "room": "storage", "radius": 2.3, "length": 2.6, "kind": "drum", "replaces_area_m2": 13.3},
-	{"name": "airlock", "room": "airlock", "radius": 1.6, "length": 1.8, "kind": "drum", "outer_hatch": true, "replaces_area_m2": 4.0},
+	{"name": "airlock", "room": "airlock", "radius": 2.0, "length": 1.8, "kind": "drum", "outer_hatch": true, "replaces_area_m2": 4.0},
 	{"name": "engine_bay_a", "room": "engine_bay", "radius": 2.8, "length": 2.8, "kind": "drum", "replaces_area_m2": 22.3},
 	{"name": "engine_bay_b", "room": "engine_bay", "radius": 2.8, "length": 2.8, "kind": "drum", "port": "hp_engine_bay", "replaces_area_m2": 22.3},
 	{"name": "tank", "room": "", "radius": 2.6, "length": 3.0, "kind": "tank"},
@@ -95,10 +97,11 @@ static func index_of(section_name: String) -> int:
 	return -1
 
 
-## Floor area of a section's deck (a full circle inside the pressure wall).
+## Floor area of a section's deck: the inner boundary is the section's polygon itself (the
+## pressure wall is offset outside it), so a SEGMENTS-gon of radius r decks area = 1/2 n r^2 sin(2pi/n).
 static func deck_area(index: int) -> float:
-	var usable: float = maxf(float(SECTIONS[index]["radius"]) - WALL, 0.0)
-	return PI * usable * usable
+	var radius: float = maxf(float(SECTIONS[index]["radius"]), 0.0)
+	return 0.5 * float(SEGMENTS) * radius * radius * sin(TAU / float(SEGMENTS))
 
 
 static func room_deck_area(room: StringName) -> float:
@@ -153,6 +156,9 @@ static func validate() -> Array[String]:
 		var radius: float = float(section.get("radius", 0.0))
 		if radius * 2.0 < HATCH_HEIGHT * 0.75:
 			problems.append("section is too narrow for its hatch: " + name)
+		var end_edge: float = 2.0 * radius * sin(PI / float(SEGMENTS))
+		if end_edge < HATCH_HALF_WIDTH * 2.0 + 0.05:
+			problems.append("section end edge is too narrow for a hatch: " + name)
 		var room: StringName = StringName(section.get("room", &""))
 		if room != &"" and not ROOM_COMPARTMENTS.has(room):
 			problems.append("section serves an unknown room: " + name + " / " + String(room))

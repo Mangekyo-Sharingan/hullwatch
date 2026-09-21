@@ -17,6 +17,11 @@ const SCRIPT_TETHER_ZONE: String = "res://src/world/tether_zone.gd"
 const SCRIPT_ZONE: String = "res://src/world/compartment_zone.gd"
 const SCRIPT_LINK: String = "res://src/world/compartment_link.gd"
 const SCRIPT_MODULE_MOUNT: String = "res://src/interactables/module_mount.gd"
+## Interior style. "flat" is the shipped layout (wide rooms off the hexagon corridor); "tube"
+## is the M13.2 chain of TubeLayout sections (train layout). Both are generated from tables, so
+## flipping this is the conversion; `--interior-style=tube` previews it without touching the
+## committed scene.
+const INTERIOR_STYLE: String = "flat"
 const SCRIPT_MACHINE_SOCKET: String = "res://src/interactables/machine_socket.gd"
 ## Socket pad z positions along the pod's far wall.
 const MACHINE_SOCKETS: Array[float] = [-1.0, 0.0, 1.0]
@@ -263,12 +268,17 @@ func _load_materials() -> void:
 func _build() -> void:
 	_root = Node3D.new()
 	_root.name = "ShipGeometry"
-	for spec: Dictionary in SPACES:
-		_build_space(spec)
-	_build_cockpit_dash()
+	if _interior_style() == "tube":
+		# Geometry preview of the M13.2 chain: the dash and the flat-room dressing come across
+		# with the props pass, once the tube sections are the shipped interior.
+		_build_tube_interior()
+	else:
+		for spec: Dictionary in SPACES:
+			_build_space(spec)
+		_build_cockpit_dash()
+		_build_dressing()
 	_build_hull_exterior()
 	_build_dock_throats()
-	_build_dressing()
 
 
 ## The generated dock pod: a placeable module room in the same faceted language, origin at
@@ -376,7 +386,7 @@ func _build_prism_space(parent: Node3D, space_name: String, spec: Dictionary) ->
 	var space: StaticBody3D = StaticBody3D.new()
 	space.name = space_name
 	parent.add_child(space)
-	var outline: PackedVector2Array = HullProfile.rectangle_outline(spec["min"], spec["max"], spec["chamfer"])
+	var outline: PackedVector2Array = spec.get("outline", HullProfile.rectangle_outline(spec["min"], spec["max"], spec["chamfer"]))
 	if outline.is_empty():
 		_failures += 1
 		print("FAIL: empty outline for ", space_name)
@@ -420,6 +430,137 @@ func _build_prism_space(parent: Node3D, space_name: String, spec: Dictionary) ->
 	shape_node.name = "ShellShape"
 	shape_node.shape = shape
 	space.add_child(shape_node)
+
+
+## Which interior the run generates: the constant above, or `--interior-style=<name>`.
+func _interior_style() -> String:
+	for arg: String in OS.get_cmdline_user_args():
+		if arg.begins_with("--interior-style="):
+			var override: String = arg.trim_prefix("--interior-style=")
+			if override in ["flat", "tube"]:
+				return override
+			print("WARN: unknown interior style, keeping ", INTERIOR_STYLE, ": ", override)
+	return INTERIOR_STYLE
+
+
+## The M13.2 interior: one pressurised section per TubeLayout room, bow to stern, joined by
+## short sleeves with a bulkhead hatch in every joint. Radii, lengths and hatch sizes come from
+## TubeLayout, which stays the single dial; the cupola head carries the forward viewport and the
+## airlock section carries the outer hatch out through the hull.
+func _build_tube_interior() -> void:
+	for index: int in TubeLayout.sections().size():
+		if not TubeLayout.is_walkable(index):
+			continue
+		var section: Dictionary = TubeLayout.sections()[index]
+		var bounds: Vector2 = TubeLayout.span(index)
+		var radius: float = float(section["radius"])
+		var center_z: float = (bounds.x + bounds.y) * 0.5
+		var outline: PackedVector2Array = _tube_outline(radius, center_z)
+		var gaps: Array = []
+		if TubeLayout.has_hatch(index - 1):
+			gaps.append(_tube_gap(outline, center_z, true, TubeLayout.HATCH_HEIGHT))
+		if TubeLayout.has_hatch(index):
+			gaps.append(_tube_gap(outline, center_z, false, TubeLayout.HATCH_HEIGHT))
+		if index == 0:
+			gaps.append({
+				"edge": _tube_end_edge(outline, center_z, true),
+				"from": SectionHull.BOW_WINDOW_MIN.x,
+				"to": SectionHull.BOW_WINDOW_MAX.x,
+				"bottom": SectionHull.BOW_WINDOW_MIN.y,
+				"top": SectionHull.BOW_WINDOW_MAX.y,
+			})
+		var port: StringName = TubeLayout.port_of(index)
+		if port != &"":
+			gaps.append({"edge": _tube_side_edge(outline, center_z, true), "from": center_z - 0.5, "to": center_z + 0.5, "top": 2.1})
+		if bool(section.get("outer_hatch", false)):
+			gaps.append({"edge": _tube_side_edge(outline, center_z, false), "from": center_z - 0.5, "to": center_z + 0.5, "top": 2.0})
+		var profile: String = "room_l" if radius >= 2.3 else ("room_m" if radius >= 2.1 else "room_s")
+		_build_prism_space(_root, "Section_" + String(section["name"]), {
+			"name": "Section_" + String(section["name"]),
+			"min": Vector2(-radius, bounds.x),
+			"max": Vector2(radius, bounds.y),
+			"chamfer": 0.0,
+			"outline": outline,
+			"profile": profile,
+			"walls": _all_edges(outline.size()),
+			"open": [],
+			"gaps": gaps,
+		})
+	for index: int in TubeLayout.sections().size() - 1:
+		if not TubeLayout.has_hatch(index):
+			continue
+		var aft: Dictionary = TubeLayout.sections()[index]
+		_build_prism_space(_root, "Joint_%s_%s" % [String(aft["name"]), String(TubeLayout.sections()[index + 1]["name"])], {
+			"name": "Joint",
+			"min": Vector2(-TubeLayout.HATCH_HALF_WIDTH, TubeLayout.span(index).y),
+			"max": Vector2(TubeLayout.HATCH_HALF_WIDTH, TubeLayout.span(index + 1).x),
+			"chamfer": 0.0,
+			"profile": "room_s",
+			"walls": [1, 3],
+			"open": [0, 2],
+			"naked_edges": [0, 2],
+			"gaps": [],
+		})
+
+
+## A twelve-sided section outline in plan coordinates, flat edges at the bow and stern so a
+## hatch fits in each end (the shipped rooms are faceted too - the corridor is a hexagon).
+func _tube_outline(radius: float, center_z: float) -> PackedVector2Array:
+	var points: PackedVector2Array = PackedVector2Array()
+	var half_step: float = PI / float(TubeLayout.SEGMENTS)
+	for k: int in TubeLayout.SEGMENTS:
+		var angle: float = -PI * 0.5 + half_step + TAU * float(k) / float(TubeLayout.SEGMENTS)
+		points.append(Vector2(sin(angle) * radius, center_z + cos(angle) * radius))
+	var forward: PackedVector2Array = PackedVector2Array()
+	for i: int in range(points.size() - 1, -1, -1):
+		forward.append(points[i])
+	return forward
+
+
+func _all_edges(count: int) -> Array:
+	var edges: Array = []
+	for i: int in count:
+		edges.append(i)
+	return edges
+
+
+## The section edge facing the bow (forward) or the stern (aft).
+func _tube_end_edge(outline: PackedVector2Array, center_z: float, forward: bool) -> int:
+	var best: int = 0
+	var best_value: float = INF if forward else -INF
+	for i: int in outline.size():
+		var mid: Vector2 = (outline[i] + outline[(i + 1) % outline.size()]) * 0.5
+		if forward and mid.y < best_value:
+			best_value = mid.y
+			best = i
+		elif not forward and mid.y > best_value:
+			best_value = mid.y
+			best = i
+	return best
+
+
+## The section edge facing west (the EVA side) or east (the dock side).
+func _tube_side_edge(outline: PackedVector2Array, center_z: float, west: bool) -> int:
+	var best: int = 0
+	var best_value: float = INF if west else -INF
+	for i: int in outline.size():
+		var mid: Vector2 = (outline[i] + outline[(i + 1) % outline.size()]) * 0.5
+		if west and mid.x < best_value:
+			best_value = mid.x
+			best = i
+		elif not west and mid.x > best_value:
+			best_value = mid.x
+			best = i
+	return best
+
+
+func _tube_gap(outline: PackedVector2Array, center_z: float, forward: bool, height: float) -> Dictionary:
+	return {
+		"edge": _tube_end_edge(outline, center_z, forward),
+		"from": -TubeLayout.HATCH_HALF_WIDTH,
+		"to": TubeLayout.HATCH_HALF_WIDTH,
+		"top": height,
+	}
 
 
 ## One wall edge: the inner surface swept between mitered profile rings (split around
@@ -1427,6 +1568,11 @@ func _verify() -> bool:
 		return false
 	var instance: Node = loaded.instantiate()
 	var parts: int = 0
+	if _interior_style() != "flat":
+		# Preview run: the flat rooms are gone by design, so only the hull-side checks apply.
+		print("PASS: build_ship_geometry (", _interior_style(), " preview)")
+		instance.free()
+		return true
 	for space_name: String in SPACE_NAMES:
 		var space: Node = instance.get_node_or_null(NodePath(space_name))
 		if space == null:
