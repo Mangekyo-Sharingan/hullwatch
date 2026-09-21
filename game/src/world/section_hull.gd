@@ -90,13 +90,59 @@ static func outline(ring: Dictionary) -> PackedVector2Array:
 	return HullProfile.rectangle_outline(ring["min"], ring["max"], ring.get("cut", 0.0))
 
 
+## The tunnel cross-section (M13.2): the faceted corridor section every tube room shares,
+## scaled by its radius. A flat deck at y = 0, canted walls, a cove, a flat ceiling - the
+## six points run portside deck, starboard deck, up the starboard wall and cove, across the
+## ceiling and back down. Edge 1 is the starboard (dock) wall, edge 5 the portside one.
+const TUBE_DECK_HALF: float = 0.46
+const TUBE_WALL_HALF: float = 0.88
+const TUBE_CEIL_HALF: float = 0.60
+const TUBE_WALL_TOP: float = 1.9
+const TUBE_CEILING: float = 2.5
+
+## The cross-section's facet indices the dock ports and the airlock hatch open through.
+const TUBE_EDGE_STARBOARD: int = 1
+const TUBE_EDGE_PORT: int = 5
+
+## How far the hull's bow face sits forward of the interior's cupola face, the cowl depth
+## the viewport looks through.
+const PROW_DEPTH: float = 0.45
+
+## The cockpit viewport on the cupola's forward face: smaller than the flat windshield,
+## because the tunnel's bow is a section face rather than a four-metre wall.
+const TUBE_WINDOW_MIN: Vector2 = Vector2(-1.05, 1.30)
+const TUBE_WINDOW_MAX: Vector2 = Vector2(1.05, 2.15)
+
+static func tube_section(radius: float) -> PackedVector2Array:
+	return PackedVector2Array([
+		Vector2(-radius * TUBE_DECK_HALF, 0.0),
+		Vector2(radius * TUBE_DECK_HALF, 0.0),
+		Vector2(radius * TUBE_WALL_HALF, TUBE_WALL_TOP),
+		Vector2(radius * TUBE_CEIL_HALF, TUBE_CEILING),
+		Vector2(-radius * TUBE_CEIL_HALF, TUBE_CEILING),
+		Vector2(-radius * TUBE_WALL_HALF, TUBE_WALL_TOP),
+	])
+
+
+## The section's half-width at height y, following the deck, the wall line and the cove.
+## Used for placing faces and consoles against a canted wall.
+static func tube_half_width(radius: float, y: float) -> float:
+	var deck: float = radius * TUBE_DECK_HALF
+	var wall: float = radius * TUBE_WALL_HALF
+	var ceiling: float = radius * TUBE_CEIL_HALF
+	if y <= 0.0:
+		return deck
+	if y <= TUBE_WALL_TOP:
+		return lerpf(deck, wall, y / TUBE_WALL_TOP)
+	return lerpf(wall, ceiling, clampf((y - TUBE_WALL_TOP) / (TUBE_CEILING - TUBE_WALL_TOP), 0.0, 1.0))
+
 ## Tube-mode shell (M13.2): the hull that wraps the tube interior is one constant-radius drum
 ## per TubeLayout section, since the section polygons already carry the shape. Drums meet at
 ## the joint centrelines so the shell is continuous; where the radii differ the joint gets a
 ## step band and a flange collar over it, which is what gives the converted ship its drum
 ## silhouette. Ring geometry (the twelve-gon itself) is built by the generator, which knows
 ## the section frames.
-const TUBE_BAND: float = 0.14
+const TUBE_BAND: float = 0.3
 const TUBE_STEP: float = 0.35
 
 ## The drums of a tube-mode hull, bow to stern: the section name, the z span clipped to the
