@@ -154,6 +154,10 @@ func _tube_preview() -> bool:
 
 ## The exterior has no lighting yet (M12); carry a work light so exterior captures read.
 func _needs_work_light(position: Vector3) -> bool:
+	if _tube_preview():
+		# The tube preview has no interior lighting yet (the cabin lights still sit at the flat
+		# layout positions), so every preview shot carries the work light.
+		return true
 	return position.y > 3.4 or absf(position.x) > 7.0 or position.z < -19.5 or position.z > 8.5 or position.x < -8.5
 
 

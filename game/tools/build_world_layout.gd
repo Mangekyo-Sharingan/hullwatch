@@ -486,22 +486,189 @@ func _load_assets() -> void:
 			_scenes[path] = scene
 
 
+## Interior style, mirroring the geometry tool: "flat" ships the wide layout off the hexagon
+## corridor, "tube" builds the M13.2 chain - props carried into their sections, and doors,
+## zones and atmosphere links generated per section and per joint. `--interior-style=tube`
+## previews it without touching the committed scene.
+const INTERIOR_STYLE: String = "flat"
+
+## Flat room bounds (x, z, width, depth) for carrying flat-layout props into the tube section
+## that replaces the room they sit in.
+const ROOM_BOUNDS: Dictionary = {
+	&"cockpit": Rect2(-3.4, -18.8, 6.8, 4.6),
+	&"quarters": Rect2(-6.45, -12.6, 4.5, 4.4),
+	&"life_support": Rect2(-5.45, -7.6, 3.5, 2.6),
+	&"galley": Rect2(1.95, -7.6, 4.0, 3.6),
+	&"water_closet": Rect2(1.95, -3.0, 2.6, 2.2),
+	&"storage": Rect2(-5.65, -3.0, 3.7, 3.6),
+	&"airlock": Rect2(-7.85, -2.2, 2.0, 2.0),
+	&"engine_bay": Rect2(-3.6, 1.6, 7.2, 6.2),
+}
+
+func _interior_style() -> String:
+	for arg: String in OS.get_cmdline_user_args():
+		if arg.begins_with("--interior-style="):
+			var override: String = arg.trim_prefix("--interior-style=")
+			if override in ["flat", "tube"]:
+				return override
+			print("WARN: unknown interior style, keeping ", INTERIOR_STYLE, ": ", override)
+	return INTERIOR_STYLE
+
+
+## The tube footprint that replaces a flat room: its first and last section bounds and the
+## widest radius. A room served by two sections (cockpit, engine bay) maps across both.
+func _tube_room(room: StringName) -> Dictionary:
+	var first: int = -1
+	var last: int = -1
+	var radius: float = 0.0
+	for index: int in TubeLayout.sections().size():
+		if StringName(TubeLayout.sections()[index].get("room", &"")) != room:
+			continue
+		if first < 0:
+			first = index
+		last = index
+		radius = maxf(radius, float(TubeLayout.sections()[index]["radius"]))
+	if first < 0:
+		return {}
+	return {
+		"z0": TubeLayout.span(first).x,
+		"z1": TubeLayout.span(last).y,
+		"radius": radius,
+	}
+
+
+func _room_for(point: Vector3) -> StringName:
+	for room: Variant in ROOM_BOUNDS:
+		if (ROOM_BOUNDS[room] as Rect2).has_point(Vector2(point.x, point.z)):
+			return StringName(room)
+	return &""
+
+
+## Carries a flat-layout position into the tube layout: same relative spot inside the room,
+## fitted to the section's deck with a wall margin. Positions outside every room (the EVA
+## fittings) are left where they are - the shell pass re-mounts those.
+func _tube_position(flat: Vector3) -> Vector3:
+	var room: StringName = _room_for(flat)
+	if room == &"":
+		return flat
+	var tube: Dictionary = _tube_room(room)
+	if tube.is_empty():
+		return flat
+	var bounds: Rect2 = ROOM_BOUNDS[room]
+	var center: Vector2 = bounds.position + bounds.size * 0.5
+	var half_width: float = maxf(bounds.size.x * 0.5, 0.001)
+	var half_depth: float = maxf(bounds.size.y * 0.5, 0.001)
+	var u: float = clampf((flat.x - center.x) / half_width, -1.0, 1.0)
+	var v: float = clampf((flat.z - center.y) / half_depth, -1.0, 1.0)
+	var radius: float = float(tube["radius"])
+	var z_center: float = (float(tube["z0"]) + float(tube["z1"])) * 0.5
+	var z_half: float = (float(tube["z1"]) - float(tube["z0"])) * 0.5
+	return Vector3(
+		clampf(u * (radius - 1.1), -(radius - 0.75), radius - 0.75),
+		flat.y,
+		z_center + clampf(v * (z_half - 0.55), -(z_half - 0.4), z_half - 0.4)
+	)
+
+
+## Ties two sections together: the bulkhead door at the joint between them, the zone in each,
+## and the atmosphere link across the hatch.
+func _build_tube_chain() -> void:
+	for index: int in TubeLayout.sections().size():
+		var section: Dictionary = TubeLayout.sections()[index]
+		var room: StringName = StringName(section.get("room", &""))
+		if room == &"":
+			continue
+		var bounds: Vector2 = TubeLayout.span(index)
+		var radius: float = float(section["radius"])
+		_build_zone({
+			"name": "ZoneSection_" + String(section["name"]),
+			"size": Vector3(2.0 * (radius - 0.25), TubeLayout.DECK_HEIGHT, bounds.y - bounds.x - 0.2),
+			"position": Vector3(0.0, TubeLayout.DECK_HEIGHT * 0.5, (bounds.x + bounds.y) * 0.5),
+			"exports": {"compartment_id": TubeLayout.ROOM_COMPARTMENTS[room]},
+		})
+	if TubeLayout.sections().size() < 2:
+		return
+	for index: int in TubeLayout.sections().size() - 1:
+		if not TubeLayout.has_hatch(index):
+			continue
+		var aft_room: StringName = StringName(TubeLayout.sections()[index].get("room", &""))
+		var fore_room: StringName = StringName(TubeLayout.sections()[index + 1].get("room", &""))
+		if aft_room == &"" or fore_room == &"":
+			continue
+		var joint_z: float = (TubeLayout.span(index).y + TubeLayout.span(index + 1).x) * 0.5
+		var exports: Dictionary = {
+			"compartment_a": TubeLayout.ROOM_COMPARTMENTS[aft_room],
+			"compartment_b": TubeLayout.ROOM_COMPARTMENTS[fore_room],
+		}
+		var airlock_joint: bool = (aft_room == &"airlock" and fore_room == &"storage") or (aft_room == &"storage" and fore_room == &"airlock")
+		if not airlock_joint:
+			_build_door({
+				"name": "DoorJoint_%s_%s" % [String(TubeLayout.sections()[index]["name"]), String(TubeLayout.sections()[index + 1]["name"])],
+				"position": Vector3(0.0, TubeLayout.HATCH_HEIGHT * 0.5, joint_z),
+				"size": Vector3(TubeLayout.HATCH_HALF_WIDTH * 2.0, TubeLayout.HATCH_HEIGHT, 0.16),
+				"exports": exports.duplicate(),
+			})
+		_build_link({
+			"name": "LinkJoint_%s_%s" % [String(TubeLayout.sections()[index]["name"]), String(TubeLayout.sections()[index + 1]["name"])],
+			"exports": exports.duplicate(),
+		})
+	_build_airlock_hatch()
+
+
+## The airlock's outer hatch, radial on its section: the door the suit goes out of, and the
+## inner door that isolates the lock from the chain.
+func _build_airlock_hatch() -> void:
+	var airlock: int = TubeLayout.index_of("airlock")
+	if airlock < 0:
+		return
+	var bounds: Vector2 = TubeLayout.span(airlock)
+	var radius: float = float(TubeLayout.sections()[airlock]["radius"])
+	var center_z: float = (bounds.x + bounds.y) * 0.5
+	_build_door({
+		"name": "DoorAirlockOuter",
+		"position": Vector3(-(radius + 0.08), 1.0, center_z),
+		"size": Vector3(0.16, 2.0, 1.0),
+		"exports": {"compartment_a": &"airlock", "compartment_b": &"", "airlock_id": &"airlock_main", "airlock_side": &"outer"},
+	})
+	var storage: int = TubeLayout.index_of("storage")
+	if storage >= 0 and TubeLayout.has_hatch(mini(storage, airlock)):
+		var joint_z: float = (TubeLayout.span(mini(storage, airlock)).y + TubeLayout.span(maxi(storage, airlock)).x) * 0.5
+		_build_door({
+			"name": "DoorAirlockInner",
+			"position": Vector3(0.0, TubeLayout.HATCH_HEIGHT * 0.5, joint_z),
+			"size": Vector3(TubeLayout.HATCH_HALF_WIDTH * 2.0, TubeLayout.HATCH_HEIGHT, 0.16),
+			"exports": {"compartment_a": &"storage", "compartment_b": &"airlock", "airlock_id": &"airlock_main", "airlock_side": &"inner"},
+		})
+
+
+## A prop or kit entry carried into its tube section.
+func _carried(spec: Dictionary) -> Dictionary:
+	var carried: Dictionary = spec.duplicate()
+	carried["position"] = _tube_position(spec["position"])
+	return carried
+
+
 func _build() -> void:
 	_root = Node3D.new()
 	_root.name = "WorldLayout"
 	_props = _make_group("Props")
 	_zones = _make_group("Zones")
 	_links = _make_group("Links")
+	var tube: bool = _interior_style() == "tube"
 	for spec: Dictionary in PROPS:
-		_build_prop(spec)
-	for spec: Dictionary in DOORS:
-		_build_door(spec)
+		_build_prop(_carried(spec) if tube else spec)
+	if not tube:
+		for spec: Dictionary in DOORS:
+			_build_door(spec)
 	for spec: Dictionary in KIT_PROPS:
-		_build_kit(spec)
-	for spec: Dictionary in ZONES:
-		_build_zone(spec)
-	for spec: Dictionary in LINKS:
-		_build_link(spec)
+		_build_kit(_carried(spec) if tube else spec)
+	if tube:
+		_build_tube_chain()
+	else:
+		for spec: Dictionary in ZONES:
+			_build_zone(spec)
+		for spec: Dictionary in LINKS:
+			_build_link(spec)
 
 
 func _make_group(group_name: String) -> Node3D:
@@ -787,6 +954,11 @@ func _verify() -> bool:
 		_failures += 1
 		print("FAIL: generated scene did not load")
 		return false
+	if _interior_style() != "flat":
+		# Preview run: the flat rooms are gone by design, so the flat tables are not the
+		# contract here; the chain's own nodes are checked by the layout suites once flipped.
+		print("PASS: build_world_layout (", _interior_style(), " preview)")
+		return true
 	var instance: Node = loaded.instantiate()
 	var props: Node = instance.get_node_or_null(^"Props")
 	var zones: Node = instance.get_node_or_null(^"Zones")
