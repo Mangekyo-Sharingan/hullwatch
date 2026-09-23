@@ -190,11 +190,32 @@ plane (`TUBE_DRUM_DECK_DROP`) and the wall bands no longer emit a second deck fa
 deck stops z-fighting.
 
 `test_ship_layout` is re-baselined for the chain and the flat `OmniLight3D`s moved out of
-`main.tscn` into the tube's own cabin lights. Remaining: `test_world_layout` still fails 13
-carried-prop assertions (wall props embedded in the canted wall, or leaving under 0.55 m of
-walkable lane) — the props are placed, the suite's expectations need re-baselining. Evidence
-captures in `docs/design/shot_tube_*.png`. `test_tube_layout` still covers the chain, parity,
-ports and hatch rules.
+`main.tscn` into the tube's own cabin lights. `test_world_layout`'s carried props now settle
+against the real wall (`_prop_bounds` walks to the layout root) and the suite measures the true
+wall line and the lane to the opposite wall, so the M13.2 item is closed.
+
+**Status: M13.3 radial docks & exterior fittings landed (2026-09-24).** The tube docks' bore
+goes to 1.2 m to match the interior doors (Q6): the interior tunnel aperture, the drum aperture,
+the throat, the mount plate, the sill and the pod doorway widen together, so room -> pod is one
+clean bore. The exterior grew the truss walkway - a deck slab with rails and truss posts from
+the EVA platform's forward edge toward the life support dock - which stops clear of the bay a
+standing pod owns (the pod occupies everything outboard of the plate) and ends within reach of
+the mount plate; the two tether anchors that hung in space off the bow and stern are re-mounted
+on the drum walls. The build -> EVA -> enter-a-pod-on-foot loop is asserted end to end in
+`test_module_scene` (the walk from the room through the throat into the pod), the walkway
+contract lives in `test_hull_exterior` (deck, headroom, rails, posts, plate reach, bay
+clearance), and `test_ship_layout` probes moved clear of the wider bore and the joint hatch
+jambs. Captures: `docs/design/shot_tube_walkway.png` plus the refreshed tube set.
+
+**Original Blender kits landed alongside (2026-09-24).** The cockpit hero kit (desktop CRT
+console, portrait status board, switch bank, gauge cluster, seven-segment module) and the pod
+machine kit (grow rack, work bench, battery cabinet, med cot, cargo rack, spare scrubber) are
+authored in `art/blender/` (sources) and exported to `game/assets/models/hullwatch/`. The six
+machines replace the sockets' placeholder boxes - `ShipMachine.model_path`, box fallback - and
+four cockpit pieces dress the chain as carried props (switch bank, gauge cluster, seven-segment,
+desk console). Integration is deliberately light: the interactive panels keep their procedural
+CRT housings for now, and the machinery kit (scrubber, reclaimer, fabricator, breaker cabinet)
+lands as its own pass. Polish stays M12; the kits give it the geometry to work with.
 
 One milestone per commit series; each milestone ships with its tests and a playable build
 when the user wants one. Polish is explicitly M12 — do not pull it forward.

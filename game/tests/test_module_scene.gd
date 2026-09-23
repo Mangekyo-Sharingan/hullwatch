@@ -89,6 +89,16 @@ func _run() -> void:
 	var model_name: StringName = prop.get_child(0).name if prop != null and prop.get_child_count() > 0 else &""
 	_check(String(model_name).begins_with("hw_"), "the fitted machine shows its authored model (%s)" % model_name)
 
+	# M13.3 exit: with the pod standing, the walk from its room through the throat and the
+	# pod's doorway is clear - the operator enters on foot.
+	var quarters: int = TubeLayout.index_of("quarters")
+	var quarters_z: float = (TubeLayout.span(quarters).x + TubeLayout.span(quarters).y) * 0.5
+	var doorway: float = plate.global_position.x - 0.075 - 0.2
+	_check(
+		not _ray_hits(Vector3(0.0, 1.0, quarters_z), Vector3(doorway, 1.0, quarters_z)),
+		"the pod is walkable from its room (build -> enter on foot)"
+	)
+
 	var saved: Dictionary = modules.call("save_state") as Dictionary
 	_check(room.select_action(&"teardown"), "teardown uninstalls the module")
 	await process_frame
@@ -114,6 +124,13 @@ func _check(condition: bool, label: String) -> void:
 		return
 	_failures += 1
 	print("FAIL: ", label)
+
+
+func _ray_hits(from: Vector3, to: Vector3) -> bool:
+	var params: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(from, to)
+	params.collide_with_areas = false
+	params.collide_with_bodies = true
+	return not root.world_3d.direct_space_state.intersect_ray(params).is_empty()
 
 
 func _finish() -> void:
