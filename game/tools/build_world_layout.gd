@@ -77,7 +77,8 @@ const PROPS: Array[Dictionary] = [
 		"name": "ScrubberUnit",
 		"script": "res://src/interactables/scrubber_unit.gd",
 		"position": Vector3(-2.6, 0.6, -7.2),
-		"size": Vector3(1.0, 1.2, 0.5),
+		"size": Vector3(0.5, 1.2, 1.0),
+		"model": "res://assets/models/hullwatch/machinery/hw_scrubber_unit.glb",
 		"material": MATERIAL_MACHINE_TEAL,
 		"exports": {"compartment_id": &"main", "part_id": &"filter_co2", "circuit_id": &"scrubber"},
 	},
@@ -85,7 +86,8 @@ const PROPS: Array[Dictionary] = [
 		"name": "WaterReclaimer",
 		"script": "res://src/interactables/water_reclaimer.gd",
 		"position": Vector3(2.2, 0.6, -2.65),
-		"size": Vector3(0.8, 1.2, 0.5),
+		"size": Vector3(0.5, 1.2, 0.8),
+		"model": "res://assets/models/hullwatch/machinery/hw_water_reclaimer.glb",
 		"material": MATERIAL_PANEL_SCRATCHED,
 		"exports": {},
 	},
@@ -95,6 +97,8 @@ const PROPS: Array[Dictionary] = [
 		"position": Vector3(1.22, 0.8, -3.5),
 		"rotation": Vector3(0, 0, -30.0),
 		"size": Vector3(0.15, 1.0, 0.7),
+		"model": "res://assets/models/hullwatch/machinery/hw_breaker_cabinet.glb",
+		"model_mount": "wall",
 		"material": MATERIAL_PANEL_SCRATCHED,
 		"exports": {"circuit_id": &"lighting"},
 	},
@@ -290,7 +294,8 @@ const PROPS: Array[Dictionary] = [
 		"name": "Fabricator",
 		"script": "res://src/interactables/fabricator_unit.gd",
 		"position": Vector3(-2.6, 0.6, 2.2),
-		"size": Vector3(1.0, 1.2, 0.6),
+		"size": Vector3(0.6, 1.2, 1.0),
+		"model": "res://assets/models/hullwatch/machinery/hw_fabricator.glb",
 		"material": MATERIAL_MACHINE_TEAL,
 		"exports": {},
 	},
@@ -764,10 +769,37 @@ func _build_prop(spec: Dictionary) -> void:
 	prop.set_script(load(String(spec["script"])) as Script)
 	_apply_exports(prop, spec)
 	_props.add_child(prop)
-	_add_box_children(prop, spec["size"], String(spec["material"]), not spec.has("crt"))
+	var has_model: bool = spec.has("model") and ResourceLoader.exists(String(spec["model"]))
+	_add_box_children(prop, spec["size"], String(spec["material"]), not spec.has("crt") and not has_model)
 	if spec.has("crt"):
 		_build_crt(prop, spec)
+	elif has_model:
+		_attach_model(prop, spec)
 	_settle_against_wall(prop)
+
+
+## Attaches an authored glTF to an interactive prop. The models are authored at their own
+## origin (floor centre for machines, back centre for wall panels) facing Blender -Y, which
+## the export maps to +Z; the prop's origin is the centre of its `size` box, so the model is
+## shifted to the box's floor or wall face and yawed to face inboard. The collision box is
+## kept, so the interaction ray and the walkthrough stay the same.
+func _attach_model(prop: StaticBody3D, spec: Dictionary) -> void:
+	var scene: PackedScene = load(String(spec["model"])) as PackedScene
+	if scene == null:
+		print("FAIL: missing prop model ", spec["model"])
+		_failures += 1
+		return
+	var model: Node3D = scene.instantiate() as Node3D
+	model.name = "Model"
+	var side: float = -1.0 if prop.position.x < 0.0 else 1.0
+	model.rotation_degrees.y = -90.0 * side
+	prop.add_child(model)
+	var size: Vector3 = spec["size"]
+	var box: AABB = _local_bounds(prop)
+	if String(spec.get("model_mount", "floor")) == "wall":
+		model.position.x += side * size.x * 0.5 - (box.position.x if side < 0.0 else box.end.x)
+	else:
+		model.position.y += -size.y * 0.5 - box.position.y
 
 
 ## After a prop's meshes exist, nudge it inboard until its own bounding box clears the

@@ -28,6 +28,8 @@ func _run() -> void:
 			player.call("release_tether")
 		await _capture(player, Vector3(0.0, 0.1, -17.0), 0.0, "shot_tube_cockpit.png")
 		await _capture(player, Vector3(0.0, 0.1, -13.9), 0.0, "shot_tube_quarters.png")
+		await _capture(player, Vector3(0.8, 0.1, -11.05), PI * 0.5, "shot_tube_life_support.png")
+		await _capture(player, Vector3(1.0, 0.1, 2.0), PI * 0.5, "shot_tube_engine_bay.png")
 		await _capture(player, Vector3(0.0, 0.1, -4.0), PI, "shot_tube_chain.png")
 		await _capture(player, Vector3(0.0, 0.1, -0.65), PI * 0.5, "shot_tube_airlock.png")
 		await _capture(player, Vector3(0.0, 1.4, -18.6), 0.0, "shot_tube_bow.png")
