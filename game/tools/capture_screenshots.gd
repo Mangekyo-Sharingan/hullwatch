@@ -33,6 +33,7 @@ func _run() -> void:
 		await _capture(player, Vector3(0.0, 1.4, -18.6), 0.0, "shot_tube_bow.png")
 		await _capture(player, Vector3(0.0, 1.4, -6.0), PI, "shot_tube_aft.png")
 		await _capture(player, Vector3(-4.3, 0.1, -0.65), -PI * 0.5, "shot_tube_eva.png")
+		await _capture(player, Vector3(-3.24, 0.1, -7.0), 0.0, "shot_tube_walkway.png")
 		await _hull_shot(Vector3(-9.5, 3.4, -25.5), Vector3(0.0, 1.6, -17.0), "shot_tube_hull_bow.png")
 		await _hull_shot(Vector3(-10.5, 3.8, -3.0), Vector3(0.0, 1.5, -5.0), "shot_tube_hull_broadside.png")
 		await _hull_shot(Vector3(5.0, 4.0, 17.5), Vector3(0.0, 1.6, 7.0), "shot_tube_hull_stern.png")

@@ -122,10 +122,16 @@ func _test_walls_block() -> void:
 		var radius: float = float(section["radius"])
 		var bounds: Vector2 = TubeLayout.span(index)
 		var center_z: float = (bounds.x + bounds.y) * 0.5
-		var probe_z: float = center_z + 0.55
+		var probe_z: float = _probe_z(index, center_z)
 		for side: float in [-1.0, 1.0]:
 			var target: float = side * (SectionHull.tube_half_width(radius, RAY_Y) + 0.5)
 			_check(_ray_hits(Vector3(0.0, RAY_Y, probe_z), Vector3(target, RAY_Y, probe_z)), "wall blocks beside the doorway: " + String(section["name"]))
+
+
+## A z beside the section's openings but clear of the joint hatch jambs (which reach 0.325 m
+## into a section): outside the 1.2 m dock bore, the 1.0 m airlock hatch, and the jambs.
+func _probe_z(index: int, center_z: float) -> float:
+	return center_z + (0.7 if TubeLayout.port_of(index) != &"" else 0.55)
 
 
 ## The swept cross-section keeps its profile: at three walk heights each section (the cupola
@@ -140,7 +146,7 @@ func _test_section_profile() -> void:
 		var radius: float = float(TubeLayout.sections()[index]["radius"])
 		var bounds: Vector2 = TubeLayout.span(index)
 		var center_z: float = (bounds.x + bounds.y) * 0.5
-		var probe_z: float = center_z + 0.55
+		var probe_z: float = _probe_z(index, center_z)
 		for y: float in [0.3, 1.2, 2.2]:
 			var half: float = SectionHull.tube_half_width(radius, y)
 			_check(

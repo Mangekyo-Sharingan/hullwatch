@@ -4,6 +4,9 @@
 extends SceneTree
 
 const GEOMETRY_PATH: String = "res://scenes/ship_geometry.tscn"
+## Mirrors the generator's plate thickness: the walkway's inner edge meets the sill, and the
+## mount plate's outward face is the last surface before the dock's bore.
+const DOCK_PLATE_THICKNESS: float = 0.15
 
 func _initialize() -> void:
 	_run()
@@ -30,6 +33,7 @@ func _run() -> void:
 	_test_bow_and_stern()
 	_test_airlock_opens_onto_the_platform()
 	_test_platform_railing()
+	_test_walkway()
 	_test_hull_stays_out_of_rooms()
 	_test_no_outboard_geometry()
 	_test_hardpoints()
@@ -209,6 +213,40 @@ func _test_platform_railing() -> void:
 			if String(child.name).begins_with("TubeRailing"):
 				rails += 1
 	_check(rails == 3 and absf(outer_x + 0.1) > 0.0, "the platform's three railings stand")
+
+
+## M13.3: the truss walkway runs from the platform toward the life support dock - deck solid,
+## headroom clear, rails and truss posts standing, the mount plate reachable from its end, and
+## the deck stops clear of the bay a standing pod owns.
+func _test_walkway() -> void:
+	var target: int = TubeLayout.index_of("life_support")
+	var dock_z: float = (TubeLayout.span(target).x + TubeLayout.span(target).y) * 0.5
+	var dock_face: float = float(TubeLayout.sections()[target]["radius"]) + SectionHull.TUBE_BAND
+	var x: float = -(dock_face + 0.5)
+	var end_z: float = dock_z + 1.7
+	_check(_ray_hits(Vector3(x, 0.5, -6.0), Vector3(x, -1.0, -6.0)), "walkway deck is solid along the spur")
+	_check(not _ray_hits(Vector3(x, 0.5, -6.0), Vector3(x, 2.5, -6.0)), "walkway headroom is clear")
+	var reach: Dictionary = _ray_result(Vector3(x, 1.0, end_z), Vector3(-dock_face - 0.075, 1.0, dock_z))
+	var hit_x: float = float((reach["position"] as Vector3).x) if not reach.is_empty() else 999.0
+	_check(
+		not reach.is_empty() and hit_x > -(dock_face + DOCK_PLATE_THICKNESS) - 0.05 and hit_x < -dock_face + 0.05,
+		"the walkway's end reaches the dock's mount plate"
+	)
+	_check(
+		not _ray_hits(Vector3(x, 0.5, dock_z + 1.0), Vector3(x, -1.0, dock_z + 1.0)),
+		"the walkway stops clear of the pod's bay"
+	)
+	var hull: Node = _geometry.get_node_or_null(^"HullExterior")
+	var rails: int = 0
+	var posts: int = 0
+	if hull != null:
+		for child: Node in hull.get_children():
+			if String(child.name).begins_with("TubeWalkRail"):
+				rails += 1
+			elif String(child.name).begins_with("TubeWalkPost"):
+				posts += 1
+	_check(rails >= 4, "the walkway's rails stand")
+	_check(posts >= 4, "the walkway carries its truss posts")
 
 
 ## No hull shell inside a room: a short step off each section's centre must leave the hull.
