@@ -234,10 +234,13 @@ func _test_crt_props() -> void:
 		if prop == null:
 			_check(false, "crt prop exists: " + prop_name)
 			continue
-		var screen: MeshInstance3D = prop.get_node_or_null(^"Crt/Screen") as MeshInstance3D
-		var housing: MeshInstance3D = prop.get_node_or_null(^"Crt/Housing") as MeshInstance3D
+		var screen: MeshInstance3D = prop.find_child("Screen", true, false) as MeshInstance3D
+		var model: Node3D = prop.get_node_or_null(^"Crt/Model") as Node3D
 		_check(screen != null and screen.material_override != null, "crt screen mesh: " + prop_name)
-		_check(housing != null, "crt housing mesh: " + prop_name)
+		_check(
+			model != null and model.find_children("*", "MeshInstance3D", true, false).size() > 0,
+			"crt uses the authored console: " + prop_name
+		)
 
 
 func _expected_doors() -> Array[String]:

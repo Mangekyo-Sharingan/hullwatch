@@ -18,6 +18,13 @@ const MATERIAL_DARK_PLASTIC: String = "res://src/data/materials/mat_dark_plastic
 const MATERIAL_PHOSPHOR_GREEN: String = "res://src/data/materials/mat_phosphor_green.tres"
 const MATERIAL_PHOSPHOR_AMBER: String = "res://src/data/materials/mat_phosphor_amber.tres"
 
+## The authored console kit (original Blender work, `art/blender/cockpit_kit.blend`) replaces
+## the procedural CRT housing when present: the tall board for the big wall panels, the
+## desktop terminal for the rest. The box height picks which.
+const CRT_MODEL_TALL: String = "res://assets/models/hullwatch/cockpit/hw_crt_console_tall.glb"
+const CRT_MODEL_DESKTOP: String = "res://assets/models/hullwatch/cockpit/hw_crt_console.glb"
+const CRT_MODEL_TALL_MIN: float = 0.8
+
 const MANUAL_BOOK: String = "res://src/data/manual/manual_book.tres"
 const LOG_ENTRY: String = "res://src/data/logs/log_01.tres"
 const LOG_ENTRY_2: String = "res://src/data/logs/log_02.tres"
@@ -52,6 +59,7 @@ const DOOR_STYLE: String = "kenney"
 const SCRIPT_ZONE: String = "res://src/world/compartment_zone.gd"
 const SCRIPT_LINK: String = "res://src/world/compartment_link.gd"
 const SCRIPT_DOOR_FRAME: String = "res://src/interactables/door_frame.gd"
+const SCRIPT_CRT_SCREEN: String = "res://src/interactables/crt_screen.gd"
 
 const MATERIAL_PATHS: Array[String] = [
 	MATERIAL_MACHINE_TEAL,
@@ -685,6 +693,12 @@ func _carried(spec: Dictionary) -> Dictionary:
 		carried["position"] = _tube_platform_position(spec["position"])
 	else:
 		carried["position"] = _tube_position(spec["position"], spec.get("size", Vector3(0.6, 0.6, 0.6)))
+	if carried.has("crt"):
+		# The flat facings look at the room's far wall; on the chain the wall gear hugs a side
+		# wall, so the screens turn to face the centre lane instead.
+		var config: Dictionary = (carried["crt"] as Dictionary).duplicate()
+		config["facing"] = "x+" if (carried["position"] as Vector3).x < 0.0 else "x-"
+		carried["crt"] = config
 	return carried
 
 
@@ -773,9 +787,24 @@ func _build_prop(spec: Dictionary) -> void:
 	_add_box_children(prop, spec["size"], String(spec["material"]), not spec.has("crt") and not has_model)
 	if spec.has("crt"):
 		_build_crt(prop, spec)
+		_fit_crt_collision(prop)
 	elif has_model:
 		_attach_model(prop, spec)
 	_settle_against_wall(prop)
+
+
+## The authored console is deeper than the flat panel's collision slab; grow the shape to the
+## model's own bounds so the operator cannot stand inside the terminal.
+func _fit_crt_collision(prop: StaticBody3D) -> void:
+	if prop.get_node_or_null(^"Crt/Model") == null:
+		return
+	var shape: CollisionShape3D = prop.get_node_or_null(^"Shape") as CollisionShape3D
+	var box: AABB = _local_bounds(prop)
+	var box_shape: BoxShape3D = shape.shape as BoxShape3D if shape != null else null
+	if box_shape == null or box.size == Vector3.ZERO:
+		return
+	box_shape.size = box.size
+	shape.position = box.get_center()
 
 
 ## Attaches an authored glTF to an interactive prop. The models are authored at their own
@@ -866,6 +895,31 @@ func _prop_bounds(prop: Node3D) -> AABB:
 	return aabb
 
 
+## Swaps in the authored console when the kit is present. The model is authored at the floor
+## centre facing Blender -Y (glTF +Z), so it drops to the box's floor inside the `Crt` node
+## (which already carries the facing) and the live phosphor material goes over its Screen
+## quad. Returns false when the kit is missing, so the procedural parts build instead.
+func _attach_crt_console(crt: Node3D, height: float, phosphor_path: String) -> bool:
+	var model_path: String = CRT_MODEL_TALL if height >= CRT_MODEL_TALL_MIN else CRT_MODEL_DESKTOP
+	if not ResourceLoader.exists(model_path):
+		return false
+	var scene: PackedScene = load(model_path) as PackedScene
+	if scene == null:
+		return false
+	var model: Node3D = scene.instantiate() as Node3D
+	model.name = "Model"
+	model.position = Vector3(0.0, -height * 0.5, 0.0)
+	crt.add_child(model)
+	# The phosphor tint cannot be written onto the model's Screen here (an override inside an
+	# instanced subtree is not serialized), so a small script node applies it on load.
+	var tint: Node = Node.new()
+	tint.name = "ScreenTint"
+	tint.set_script(load(SCRIPT_CRT_SCREEN) as Script)
+	tint.set(&"phosphor_material", _materials[phosphor_path] as Material)
+	crt.add_child(tint)
+	return true
+
+
 ## 90s CRT workstation: beige housing, recessed phosphor screen behind a dark glass rim,
 ## chin knobs, power LED, top vent and an optional keyboard shelf with chunky keys.
 func _build_crt(parent: StaticBody3D, spec: Dictionary) -> void:
@@ -885,6 +939,8 @@ func _build_crt(parent: StaticBody3D, spec: Dictionary) -> void:
 	crt.position = crt.basis * Vector3(0, 0, 0.06)
 	parent.add_child(crt)
 	var phosphor: String = MATERIAL_PHOSPHOR_AMBER if String(config.get("phosphor", "green")) == "amber" else MATERIAL_PHOSPHOR_GREEN
+	if _attach_crt_console(crt, height, phosphor):
+		return
 	var depth: float = 0.30
 	_add_crt_part(crt, "Housing", Vector3(0, 0, -0.05), Vector3(width, height, depth), MATERIAL_PLASTIC_BEIGE)
 	_add_crt_part(crt, "Glass", Vector3(0, 0.01, depth * 0.5 - 0.055), Vector3(width - 0.07, height - 0.07, 0.02), MATERIAL_DARK_PLASTIC)
