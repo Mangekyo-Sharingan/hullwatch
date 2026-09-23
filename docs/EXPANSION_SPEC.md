@@ -208,14 +208,17 @@ clearance), and `test_ship_layout` probes moved clear of the wider bore and the 
 jambs. Captures: `docs/design/shot_tube_walkway.png` plus the refreshed tube set.
 
 **Original Blender kits landed alongside (2026-09-24).** The cockpit hero kit (desktop CRT
-console, portrait status board, switch bank, gauge cluster, seven-segment module) and the pod
-machine kit (grow rack, work bench, battery cabinet, med cot, cargo rack, spare scrubber) are
-authored in `art/blender/` (sources) and exported to `game/assets/models/hullwatch/`. The six
-machines replace the sockets' placeholder boxes - `ShipMachine.model_path`, box fallback - and
-four cockpit pieces dress the chain as carried props (switch bank, gauge cluster, seven-segment,
-desk console). Integration is deliberately light: the interactive panels keep their procedural
-CRT housings for now, and the machinery kit (scrubber, reclaimer, fabricator, breaker cabinet)
-lands as its own pass. Polish stays M12; the kits give it the geometry to work with.
+console, portrait status board, switch bank, gauge cluster, seven-segment module), the pod
+machine kit (grow rack, work bench, battery cabinet, med cot, cargo rack, spare scrubber) and
+the life-support machinery kit (scrubber unit, water reclaimer, fabricator, breaker cabinet)
+are authored in `art/blender/` (sources) and exported to `game/assets/models/hullwatch/`. The
+integration: the six pod machines render their authored glTF in the sockets
+(`ShipMachine.model_path`, box fallback), the four machinery pieces replace their procedural
+props (scripts and collision kept), the seven interactive CRT props render the authored
+consoles (the tall board for the panels, the desktop unit for the terminals, the phosphor tint
+applied on load by `crt_screen.gd`, the procedural CRT kept as fallback), and four cockpit
+pieces dress the chain as carried props. Polish stays M12; the kits give it the geometry to
+work with.
 
 One milestone per commit series; each milestone ships with its tests and a playable build
 when the user wants one. Polish is explicitly M12 — do not pull it forward.

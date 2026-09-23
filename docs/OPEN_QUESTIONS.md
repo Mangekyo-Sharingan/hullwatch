@@ -206,3 +206,37 @@ Open sub-questions for the next sitting (answer while reviewing the study):
    31 m², engine bay 45 m², corridor 54 m²). The corridor's 54 m² disappears into the chain,
    and the engine bay needs both sections. Confirm the deck sizes feel right, or say which
    rooms deserve a second deck in M13.4.
+
+---
+
+## Q8 — How tall are the ring decks? (blocks M13.4)
+
+M13.4 asks for a "mezzanine ring, ladder between decks" in the larger sections (the spec names
+engine bay, storage, quarters). The blocker is arithmetic: a tube section's interior is
+**2.5 m tall** (`SectionHull.TUBE_CEILING`) and 3.9–4.9 m wide at the waist, so a deck across
+it splits ~2.5 m into two levels of ~1.2 m — crawl spaces for a 1.7 m operator. Nothing in the
+repo forces the height yet; `TubeLayout` and `SectionHull` are the dials.
+
+Options:
+
+1. **Crawl loft (no hull change).** A partial ring deck at ~1.9 m over the aft or fore half of
+   the section: standing headroom (1.9 m) on the main deck under it, a 0.6 m crawl/storage
+   level above, reached by a ladder. Cheap: a table row plus deck/ladder geometry, no shell
+   change. The upper level is storage and dressing, not a walkable deck.
+2. **Double-height sections (section-table change).** Raise the ceiling/radius of the three big
+   sections (e.g. `TUBE_CEILING` 2.5 → 4.3 m for those rooms) so both levels stand. The
+   section table *is* the dial the shell sweeps, so the geometry follows — but the drums get
+   fatter/taller, the dock plates and the walkway move out, the tank/array mounts follow, and
+   `test_hull_exterior`, `test_ship_layout`, `test_tube_layout` and the captures re-baseline.
+   This is the reference's read (its big modules are tall) and the honest "walkable decks"
+   answer; it is a hull pass, not a dressing pass.
+3. **Engine bay only.** Give the two engine-bay sections the double height (they are the rooms
+   the spec says need the area) and leave quarters/storage with crawl lofts or none. Middle
+   cost, keeps the rest of the ship's silhouette.
+
+My pick: **3 then 2** — the engine bay gets a real mezzanine first (it is the machinery room
+and the one the spec already doubles), and if the loft reads well in play, the same treatment
+extends to storage and quarters in the same pass. Option 1 is the cheap fallback if the hull
+pass is unwelcome before M12.
+
+Answer by picking a number (or amending the section table directly: `TubeLayout.SECTIONS`).
