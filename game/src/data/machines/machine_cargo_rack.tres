@@ -12,4 +12,5 @@ build_hours = 3.0
 cost = {
 "metal": 2.0
 }
+model_path = "res://assets/models/hullwatch/machines/hw_cargo_rack.glb"
 size_m = Vector3(1.2, 1.6, 0.7)

@@ -420,6 +420,17 @@ const KIT_PROPS: Array[Dictionary] = [
 	{"name": "DisplayProp", "scene": KIT_DISPLAY, "position": Vector3(-2.5, 1.6, -18.45), "size": Vector3(0.4, 0.46, 0.38)},
 ]
 
+## Authored model dressing (M13.3): original Blender glTF pieces, carried into the tube like
+## every other prop. Positions are flat-layout spots in the room they dress; wall pieces carry
+## their yaw (the model front is glTF +Z, the export of Blender -Y), floor pieces keep their
+## origin at the floor. The collision comes from the model's own bounds.
+const MODEL_PROPS: Array[Dictionary] = [
+	{"name": "SwitchBank", "model": "res://assets/models/hullwatch/cockpit/hw_switch_bank.glb", "position": Vector3(-2.8, 1.6, -16.5), "rotation": Vector3(0, 90, 0), "size": Vector3(0.12, 0.25, 0.35)},
+	{"name": "GaugeCluster", "model": "res://assets/models/hullwatch/cockpit/hw_gauge_cluster.glb", "position": Vector3(2.4, 1.3, 1.5), "rotation": Vector3(0, -90, 0), "size": Vector3(0.16, 0.3, 0.45)},
+	{"name": "SevenSegment", "model": "res://assets/models/hullwatch/cockpit/hw_seven_segment.glb", "position": Vector3(2.4, 1.5, -5.8), "rotation": Vector3(0, -90, 0), "size": Vector3(0.1, 0.1, 0.25)},
+	{"name": "DeskConsole", "model": "res://assets/models/hullwatch/cockpit/hw_crt_console.glb", "position": Vector3(-2.0, 0.0, -16.0), "rotation": Vector3(0, 90, 0), "size": Vector3(0.5, 0.52, 0.65)},
+]
+
 ## Atmosphere occupancy zones: Area3D + script + one BoxShape3D child named Shape.
 const ZONES: Array[Dictionary] = [
 	{"name": "ZoneCorridor", "size": Vector3(3.5, 3.0, 15.4), "position": Vector3(0.0, 1.5, -6.3), "exports": {"compartment_id": &"corridor"}},
@@ -697,6 +708,8 @@ func _build() -> void:
 			_build_door(spec)
 	for spec: Dictionary in KIT_PROPS:
 		_build_kit(_carried(spec) if tube else spec)
+	for spec: Dictionary in MODEL_PROPS:
+		_build_model_prop(_carried(spec) if tube else spec)
 	if tube:
 		_build_tube_chain()
 	else:
@@ -934,6 +947,60 @@ func _build_kit(spec: Dictionary) -> void:
 	instance.position = spec["position"]
 	_props.add_child(instance)
 	_settle_against_wall(instance)
+
+
+## An authored model prop: the glTF instance plus a collider sized to what the model actually
+## occupies, so the player cannot walk through it and the settle pass can still hug it to the
+## section wall.
+func _build_model_prop(spec: Dictionary) -> void:
+	var prop: StaticBody3D = StaticBody3D.new()
+	prop.name = String(spec["name"])
+	prop.position = spec["position"]
+	if spec.has("rotation"):
+		prop.rotation_degrees = spec["rotation"]
+	var scene: PackedScene = load(String(spec["model"])) as PackedScene
+	if scene == null:
+		print("FAIL: missing model prop ", spec["model"])
+		_failures += 1
+		return
+	var model: Node3D = scene.instantiate() as Node3D
+	model.name = "Model"
+	prop.add_child(model)
+	_props.add_child(prop)
+	var box: AABB = _local_bounds(prop)
+	if box.size == Vector3.ZERO:
+		return
+	var shape: BoxShape3D = BoxShape3D.new()
+	shape.size = box.size
+	var collider: CollisionShape3D = CollisionShape3D.new()
+	collider.name = "Shape"
+	collider.shape = shape
+	collider.position = box.get_center()
+	prop.add_child(collider)
+	_settle_against_wall(prop)
+
+
+## The bounds of a prop's own meshes in the prop's local space (the layout-space variant is
+## `_prop_bounds`).
+func _local_bounds(prop: Node3D) -> AABB:
+	var aabb: AABB = AABB()
+	var first: bool = true
+	for child: Node in prop.find_children("*", "MeshInstance3D", true, false):
+		var mesh: MeshInstance3D = child as MeshInstance3D
+		if mesh.mesh == null:
+			continue
+		var local: Transform3D = Transform3D.IDENTITY
+		var node: Node3D = mesh
+		while node != null and node != prop:
+			local = node.transform * local
+			node = node.get_parent() as Node3D
+		var box: AABB = local * mesh.get_aabb()
+		if first:
+			aabb = box
+			first = false
+		else:
+			aabb = aabb.merge(box)
+	return aabb
 
 
 func _build_zone(spec: Dictionary) -> void:

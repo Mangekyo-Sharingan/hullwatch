@@ -13,4 +13,5 @@ cost = {
 "metal": 4.0,
 "ore": 2.0
 }
+model_path = "res://assets/models/hullwatch/machines/hw_battery_cabinet.glb"
 size_m = Vector3(0.8, 1.5, 0.6)

@@ -15,4 +15,5 @@ cost = {
 "metal": 3.0,
 "ore": 1.0
 }
+model_path = "res://assets/models/hullwatch/machines/hw_work_bench.glb"
 size_m = Vector3(1.4, 1.0, 0.8)

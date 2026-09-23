@@ -15,7 +15,7 @@ var _menu: ScrollMenu
 var _content: Label
 var _root: HBoxContainer
 var _actions: Array[StringName] = []
-var _prop: MeshInstance3D
+var _prop: Node3D
 var _light: OmniLight3D
 
 
@@ -148,13 +148,13 @@ func _on_machine_changed(_machine_id: StringName, socket_id: StringName) -> void
 		_refresh_content()
 
 
-## Keeps the socket's placeholder prop in step with the sim (real machine meshes are M12 art).
+## Keeps the socket's prop in step with the sim: the machine's authored glTF when the catalog
+## names one, otherwise the placeholder box.
 func _sync() -> void:
 	var machine: ShipMachine = _machine(_fitted())
 	if _prop == null:
-		_prop = MeshInstance3D.new()
+		_prop = Node3D.new()
 		_prop.name = "MachineProp"
-		_prop.material_override = load("res://src/data/materials/mat_machine_teal.tres") as Material
 		add_child(_prop)
 	if _light == null:
 		_light = OmniLight3D.new()
@@ -168,12 +168,30 @@ func _sync() -> void:
 		_prop.visible = false
 		_light.visible = false
 		return
+	_build_prop(machine)
+	_prop.visible = true
+	_light.visible = true
+
+
+## The fitted machine's visual. The models are authored at the floor centre facing Blender
+## -Y, which the glTF export maps to +Z, so the socket yaws them to face its room (-X).
+func _build_prop(machine: ShipMachine) -> void:
+	for child: Node in _prop.get_children():
+		child.free()
+	if machine.model_path != "" and ResourceLoader.exists(machine.model_path):
+		var scene: PackedScene = load(machine.model_path) as PackedScene
+		if scene != null:
+			var model: Node3D = scene.instantiate() as Node3D
+			model.rotation_degrees.y = -90.0
+			_prop.add_child(model)
+			return
 	var box: BoxMesh = BoxMesh.new()
 	box.size = machine.size_m
-	_prop.mesh = box
-	_prop.visible = true
-	_prop.position = Vector3(0.0, machine.size_m.y * 0.5, 0.0)
-	_light.visible = true
+	var mesh: MeshInstance3D = MeshInstance3D.new()
+	mesh.mesh = box
+	mesh.material_override = load("res://src/data/materials/mat_machine_teal.tres") as Material
+	mesh.position = Vector3(0.0, machine.size_m.y * 0.5, 0.0)
+	_prop.add_child(mesh)
 
 
 func _collect_actions() -> void:

@@ -20,3 +20,6 @@ extends Resource
 @export var portable: bool = true
 ## Hint for the socket prop's size, in metres (width, height, depth).
 @export var size_m: Vector3 = Vector3(0.8, 1.1, 0.8)
+## Authored glTF that replaces the socket's placeholder box. Authored to the same envelope
+## as `size_m`, origin at the floor centre, front facing Blender -Y.
+@export_file("*.glb") var model_path: String = ""

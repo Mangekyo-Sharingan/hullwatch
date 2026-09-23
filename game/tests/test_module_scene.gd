@@ -86,6 +86,8 @@ func _run() -> void:
 	modules.call("sim_tick", 6.0)
 	var prop: Node3D = sockets[0].get_node_or_null(^"MachineProp") as Node3D
 	_check(prop != null and prop.visible, "the socket shows the fitted machine")
+	var model_name: StringName = prop.get_child(0).name if prop != null and prop.get_child_count() > 0 else &""
+	_check(String(model_name).begins_with("hw_"), "the fitted machine shows its authored model (%s)" % model_name)
 
 	var saved: Dictionary = modules.call("save_state") as Dictionary
 	_check(room.select_action(&"teardown"), "teardown uninstalls the module")

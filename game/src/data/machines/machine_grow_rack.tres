@@ -15,4 +15,5 @@ cost = {
 "ice": 1.0,
 "metal": 3.0
 }
+model_path = "res://assets/models/hullwatch/machines/hw_grow_rack.glb"
 size_m = Vector3(0.9, 1.4, 0.6)
