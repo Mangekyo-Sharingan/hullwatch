@@ -776,7 +776,6 @@ func _settle_against_wall(prop: Node3D) -> void:
 		return
 	var outboard: float = maxf(box.position.x * side, box.end.x * side)
 	var wall_x: float = SectionHull.tube_half_width(radius, maxf(box.position.y, 0.0))
-	print("SETTLE ", prop.name, " outboard=", outboard, " wall=", wall_x, " side=", side, " box=", box, " pos=", prop.position)
 	if outboard > wall_x + 0.02:
 		prop.position.x -= side * (outboard - wall_x - 0.02)
 
@@ -806,10 +805,11 @@ func _prop_bounds(prop: Node3D) -> AABB:
 		if mesh.mesh == null:
 			continue
 		# The layout is built off-tree, so global_transform does not accumulate here:
-		# walk the chain up to the prop by hand.
+		# walk the chain up to the layout root by hand, the prop's own transform included,
+		# so the bounds come out in layout space, comparable to the section wall widths.
 		var local: Transform3D = Transform3D.IDENTITY
 		var node: Node3D = mesh
-		while node != null and node != prop:
+		while node != null:
 			local = node.transform * local
 			node = node.get_parent() as Node3D
 		var box: AABB = local * mesh.get_aabb()

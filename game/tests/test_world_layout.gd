@@ -90,7 +90,8 @@ func _run() -> void:
 
 ## Every carried prop exists, sits inside a walkable section, and its own bounding box
 ## clears the section's canted wall (at the box's bottom height, where the wall is nearest)
-## without crossing the centre line. Platform gear stands off the airlock's drum face.
+## and leaves a walkable lane from its inboard face across to the opposite wall. Platform
+## gear stands off the airlock's drum face.
 func _test_props_carry() -> void:
 	for prop_name: String in CARRIED_PROPS:
 		var prop: Node3D = _props.get_node_or_null(NodePath(prop_name)) as Node3D
@@ -106,9 +107,11 @@ func _test_props_carry() -> void:
 			_check(false, "carried prop has meshes: " + prop_name)
 			continue
 		var radius: float = float(nearest["radius"])
-		var lane: float = SectionHull.tube_half_width(radius, 1.0) + box.end.x if box.position.x < 0.0 else SectionHull.tube_half_width(radius, 1.0) - box.position.x
+		var side: float = signf(prop.position.x) if absf(prop.position.x) > 0.01 else 1.0
+		var inboard: float = box.end.x if side < 0.0 else box.position.x
+		var lane: float = SectionHull.tube_half_width(radius, 1.0) + side * inboard
 		_check(lane >= 0.55, "carried prop leaves a walkable lane: " + prop_name)
-		var outboard: float = maxf(box.position.x if box.position.x < 0.0 else -1.0e9, box.end.x if box.end.x > 0.0 else -1.0e9)
+		var outboard: float = -box.position.x if side < 0.0 else box.end.x
 		_check(outboard <= SectionHull.tube_half_width(radius, maxf(box.position.y, 0.0)) + 0.03, "carried prop clears the canted wall: " + prop_name)
 		_check(box.position.y >= -0.05, "carried prop sits above the deck: " + prop_name)
 	for prop_name: String in PLATFORM_PROPS:

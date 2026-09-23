@@ -749,7 +749,7 @@ material_override = ExtResource("4_l1dot")
 mesh = SubResource("BoxMesh_wu7dw")
 
 [node name="BreakerPanel" type="StaticBody3D" parent="Props"]
-transform = Transform3D(0.8660254, 0.5, 0, -0.5, 0.8660254, 0, 0, 0, 1, 1.0855263, 0.8, -3.5)
+transform = Transform3D(0.8660254, 0.5, 0, -0.5, 0.8660254, 0, 0, 0, 1, 0.9305664, 0.8, -3.5)
 script = ExtResource("5_qv4kt")
 
 [node name="Shape" type="CollisionShape3D" parent="Props/BreakerPanel"]
@@ -760,7 +760,7 @@ material_override = ExtResource("4_l1dot")
 mesh = SubResource("BoxMesh_xoee5")
 
 [node name="StatusPanel" type="StaticBody3D" parent="Props"]
-transform = Transform3D(0.8660254, -0.5, 0, 0.5, 0.8660254, 0, 0, 0, 1, -1.0855263, 0.8, -8)
+transform = Transform3D(0.8660254, -0.5, 0, 0.5, 0.8660254, 0, 0, 0, 1, -0.857751, 0.8, -8)
 script = ExtResource("6_aaeum")
 
 [node name="Shape" type="CollisionShape3D" parent="Props/StatusPanel"]
@@ -805,7 +805,7 @@ material_override = ExtResource("9_8fgvk")
 mesh = SubResource("BoxMesh_teqmp")
 
 [node name="MaintenanceBoard" type="StaticBody3D" parent="Props"]
-transform = Transform3D(0.8660254, -0.5, 0, 0.5, 0.8660254, 0, 0, 0, 1, -1.385579, 0.8, -13)
+transform = Transform3D(0.8660254, -0.5, 0, 0.5, 0.8660254, 0, 0, 0, 1, -1.220543, 0.8, -13)
 script = ExtResource("10_g47lk")
 
 [node name="Shape" type="CollisionShape3D" parent="Props/MaintenanceBoard"]
@@ -862,7 +862,7 @@ material_override = ExtResource("13_0p4jm")
 mesh = SubResource("BoxMesh_by3am")
 
 [node name="LogTerminal" type="StaticBody3D" parent="Props"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.483, 1.2, -20.118479)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2665789, 1.2, -20.118479)
 script = ExtResource("14_vn0tf")
 log_entry = ExtResource("15_yfyt8")
 
@@ -983,7 +983,7 @@ material_override = ExtResource("8_6ugrf")
 mesh = SubResource("BoxMesh_ardir")
 
 [node name="CommsTerminal" type="StaticBody3D" parent="Props"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.483, 1.2, -20.118479)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2665789, 1.2, -20.118479)
 script = ExtResource("17_aj8qy")
 
 [node name="Shape" type="CollisionShape3D" parent="Props/CommsTerminal"]
@@ -1103,7 +1103,7 @@ material_override = ExtResource("8_6ugrf")
 mesh = SubResource("BoxMesh_sguak")
 
 [node name="ArchiveTerminal" type="StaticBody3D" parent="Props"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.483, 1.2, -20.118479)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.2665789, 1.2, -20.118479)
 script = ExtResource("14_vn0tf")
 log_entry = ExtResource("18_w1o5u")
 
@@ -1224,7 +1224,7 @@ material_override = ExtResource("8_6ugrf")
 mesh = SubResource("BoxMesh_gv5ms")
 
 [node name="NavConsole" type="StaticBody3D" parent="Props"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.483, 1.2, -20.118479)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2665789, 1.2, -20.118479)
 script = ExtResource("19_qbquv")
 
 [node name="Shape" type="CollisionShape3D" parent="Props/NavConsole"]
@@ -1508,7 +1508,7 @@ material_override = ExtResource("23_6wbkw")
 mesh = SubResource("BoxMesh_1gll6")
 
 [node name="ContactConsole" type="StaticBody3D" parent="Props"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.483, 1.2, -20.118479)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2665789, 1.2, -20.118479)
 script = ExtResource("28_frfji")
 
 [node name="Shape" type="CollisionShape3D" parent="Props/ContactConsole"]
