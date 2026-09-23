@@ -6,9 +6,12 @@ extends Interactable
 @export var compartment_b: StringName = &""
 @export var open_offset: Vector3 = Vector3(0, 2.1, 0)
 @export var airlock_id: StringName = &""
+@export var starts_open: bool = false
+@export var hide_when_open: bool = false
 @export var airlock_side: StringName = &""
 
 var _open: bool = false
+var _ready_open: bool = false
 var _slab: MeshInstance3D
 var _slab_shape: CollisionShape3D
 var _slab_base_position: Vector3 = Vector3.ZERO
@@ -22,6 +25,8 @@ func _ready() -> void:
 		_slab_base_position = _slab.position
 	if _slab_shape != null:
 		_slab_shape_base_position = _slab_shape.position
+	_open = starts_open
+	_ready_open = starts_open
 	_apply_open_state()
 
 
@@ -62,6 +67,7 @@ func _set_open(open: bool) -> void:
 func _apply_open_state() -> void:
 	var offset: Vector3 = open_offset if _open else Vector3.ZERO
 	if _slab != null:
+		_slab.visible = not _open or not hide_when_open
 		_slab.position = _slab_base_position + offset
 	if _slab_shape != null:
 		_slab_shape.position = _slab_shape_base_position + offset
@@ -80,7 +86,12 @@ func _sync_isolation() -> void:
 			continue
 		if atmosphere.has_method(&"has_compartment") and not bool(atmosphere.call(&"has_compartment", compartment_id)):
 			continue
-		atmosphere.call(&"set_isolated", compartment_id, not _open)
+		if _ready_open:
+			# A door that ships open is a passage: the compartments keep their own air, so
+			# the chain stays walkable without merging the whole ship into one volume.
+			atmosphere.call(&"set_isolated", compartment_id, true)
+		else:
+			atmosphere.call(&"set_isolated", compartment_id, not _open)
 
 
 func save_state() -> Dictionary:

@@ -164,19 +164,37 @@ the walkable furniture needs it; only the bow rail splits around the prow. Re-ba
 dark until the M12 lighting pass; the tube interior (M13.2) slims the section table — the dial
 is the tables in `SectionHull`.
 
-**Status: M13.2 groundwork landed (2026-09-20).** `TubeLayout` (`game/src/world/tube_layout.gd`)
-holds the chain the interior converts to: eleven sections bow to stern (cupola head, cockpit,
-quarters, life support, galley, head, storage, airlock, two engine sections, stern tank), each
-with a radius, length and the room it serves, the four dock mounts as radial ports on their own
-sections, and hatch rules (hatches only between living sections; the tank has none; the airlock
-carries the outer hatch). `validate()` proves the tables keep what the conversion must not lose:
-deck-area parity against every flat room it replaces (the corridor's 54 m² dissolves into the
-chain — that is what makes the engine bay and cockpit fit as two sections each), a port for
-every dock, and radii that clear their hatches. `test_tube_layout` covers the chain, the parity
-numbers, the ports and the hatch rules. The room-to-section map assumes the **train layout**
-(walk from section to section, the way ISS modules connect) and the study's ordering; the
-interior sweep that swaps the flat rooms for this chain is the next block, and it is the point
-of no return for those two assumptions.
+**Status: M13.2 tube interior flipped (2026-09-21).** The interior sweep landed:
+`build_ship_geometry.gd` builds the chain as one pressurised tunnel per section (the shared
+cross-section swept along each section's span), joined by short necks with bulkhead hatches,
+`build_world_layout.gd` carries every prop, door, zone and link into the tube, and the scenes
+now generate in tube mode (`INTERIOR_STYLE = "tube"`, `-- --interior-style=flat` still
+supported). The design language follows the reference interiors: wall-hugging gear with a clear
+centre lane, ceiling pipe runs, ribbed bulkhead collars, an open forward viewport with the
+dash console, and section doors that ship open (slab stowed; the airlock's two hatches stay
+shut).
+
+Two generator faults surfaced in play and are fixed, each with a permanent guard:
+- the sliced wall facets beside a port doorway were emitted as twisted quads (the z-span's ends
+  mapped to the y ends), leaving every ported section's canted wall open to space; a fan of 64
+  sightlines from eye height in every room must now land on geometry (`_test_no_sightlines_out`
+  in `test_hull_exterior`)
+- the solar arrays (and, before, the flat dock throats) were built at the flat layout's
+  coordinates and floated off the tube; arrays are now anchored to the stern tank drum, the
+  flat throats are flat-mode only, and no fitting may sit outside the hull's reach
+  (`_test_no_outboard_geometry`)
+
+Port openings now carry throat sleeves from the inner wall to the plate / hatch leaf (sealed
+sightlines, and a walkable floor into a pod), the drum bellies hang below the interior deck
+plane (`TUBE_DRUM_DECK_DROP`) and the wall bands no longer emit a second deck facet, so the
+deck stops z-fighting.
+
+`test_ship_layout` is re-baselined for the chain and the flat `OmniLight3D`s moved out of
+`main.tscn` into the tube's own cabin lights. Remaining: `test_world_layout` still fails 13
+carried-prop assertions (wall props embedded in the canted wall, or leaving under 0.55 m of
+walkable lane) — the props are placed, the suite's expectations need re-baselining. Evidence
+captures in `docs/design/shot_tube_*.png`. `test_tube_layout` still covers the chain, parity,
+ports and hatch rules.
 
 One milestone per commit series; each milestone ships with its tests and a playable build
 when the user wants one. Polish is explicitly M12 — do not pull it forward.

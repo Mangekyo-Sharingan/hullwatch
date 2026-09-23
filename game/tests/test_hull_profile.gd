@@ -50,7 +50,7 @@ func _test_section_hull() -> void:
 		if i2 > 0 and absf(float(tube_drums[i2 - 1]["z1"]) - float(tube_drums[i2]["z0"])) > 0.001:
 			meets = false
 		var tube_section: Dictionary = TubeLayout.sections()[i2]
-		if absf(float(tube_drums[i2]["radius"]) - (float(tube_section["radius"]) + SectionHull.TUBE_BAND)) > 0.001:
+		if absf(float(tube_drums[i2]["radius"]) - float(tube_section["radius"])) > 0.001:
 			meets = false
 	_check(meets, "tube drums meet at every joint and follow their sections")
 	_check(absf(float(tube_drums[0]["z0"]) - TubeLayout.span(0).x) < 0.001 and absf(float(tube_drums[-1]["z1"]) - TubeLayout.span(TubeLayout.sections().size() - 1).y) < 0.001, "the drum chain spans the interior exactly")

@@ -415,9 +415,9 @@ const DOORS: Array[Dictionary] = [
 
 ## Kit-scene decorations: visual only, no collision added by this generator.
 const KIT_PROPS: Array[Dictionary] = [
-	{"name": "ContainerProp", "scene": KIT_CONTAINER, "position": Vector3(-3.0, 0.0, -0.2)},
-	{"name": "ComputerProp", "scene": KIT_COMPUTER, "position": Vector3(2.6, 0.75, -7.0)},
-	{"name": "DisplayProp", "scene": KIT_DISPLAY, "position": Vector3(-2.5, 1.6, -18.45)},
+	{"name": "ContainerProp", "scene": KIT_CONTAINER, "position": Vector3(-3.0, 0.0, -0.2), "size": Vector3(0.575, 0.6, 0.575)},
+	{"name": "ComputerProp", "scene": KIT_COMPUTER, "position": Vector3(2.6, 0.75, -7.0), "size": Vector3(0.9, 0.6, 0.7)},
+	{"name": "DisplayProp", "scene": KIT_DISPLAY, "position": Vector3(-2.5, 1.6, -18.45), "size": Vector3(0.4, 0.46, 0.38)},
 ]
 
 ## Atmosphere occupancy zones: Area3D + script + one BoxShape3D child named Shape.
@@ -492,7 +492,7 @@ func _load_assets() -> void:
 ## corridor, "tube" builds the M13.2 chain - props carried into their sections, and doors,
 ## zones and atmosphere links generated per section and per joint. `--interior-style=tube`
 ## previews it without touching the committed scene.
-const INTERIOR_STYLE: String = "flat"
+const INTERIOR_STYLE: String = "tube"
 
 ## Flat room bounds (x, z, width, depth) for carrying flat-layout props into the tube section
 ## that replaces the room they sit in.
@@ -546,30 +546,46 @@ func _room_for(point: Vector3) -> StringName:
 	return &""
 
 
-## Carries a flat-layout position into the tube layout: same relative spot inside the room,
-## fitted to the section's deck with a wall margin. Positions outside every room (the EVA
-## fittings) are left where they are - the shell pass re-mounts those.
-func _tube_position(flat: Vector3) -> Vector3:
+## Carries a flat-layout position into the tube layout: room props keep their relative spot
+## inside their section, corridor props (the flat corridor dissolved into the chain) land in
+## whatever section covers their z. Either way the prop hugs its section's canted wall at
+## the prop's own footprint - the wall slopes outward, so the binding line is the wall at
+## the prop's bottom height, minus the prop's half width - which keeps the centre lane and
+## both hatch mouths clear without embedding anything in the wall. Positions outside every
+## room (the EVA fittings) are left where they are - the shell pass re-mounts those.
+func _tube_position(flat: Vector3, size: Vector3) -> Vector3:
 	var room: StringName = _room_for(flat)
-	if room == &"":
-		return flat
-	var tube: Dictionary = _tube_room(room)
+	var tube: Dictionary = _tube_room(room) if room != &"" else {}
+	var remap_z: bool = not tube.is_empty()
 	if tube.is_empty():
-		return flat
-	var bounds: Rect2 = ROOM_BOUNDS[room]
-	var center: Vector2 = bounds.position + bounds.size * 0.5
-	var half_width: float = maxf(bounds.size.x * 0.5, 0.001)
-	var half_depth: float = maxf(bounds.size.y * 0.5, 0.001)
-	var u: float = clampf((flat.x - center.x) / half_width, -1.0, 1.0)
-	var v: float = clampf((flat.z - center.y) / half_depth, -1.0, 1.0)
+		var covering: Dictionary = TubeLayout.section_at(flat.z)
+		if covering.is_empty():
+			return flat
+		var index: int = TubeLayout.index_of(String(covering["name"]))
+		if not TubeLayout.is_walkable(index):
+			return flat
+		tube = {
+			"z0": TubeLayout.span(index).x,
+			"z1": TubeLayout.span(index).y,
+			"radius": float(covering["radius"]),
+		}
 	var radius: float = float(tube["radius"])
 	var z_center: float = (float(tube["z0"]) + float(tube["z1"])) * 0.5
 	var z_half: float = (float(tube["z1"]) - float(tube["z0"])) * 0.5
-	return Vector3(
-		clampf(u * (radius - 1.1), -(radius - 0.75), radius - 0.75),
-		flat.y,
-		z_center + clampf(v * (z_half - 0.55), -(z_half - 0.4), z_half - 0.4)
-	)
+	var side: float = signf(flat.x) if absf(flat.x) > 0.01 else 1.0
+	var bottom: float = maxf(flat.y - size.y * 0.5, 0.0)
+	var wall_x: float = SectionHull.tube_half_width(radius, bottom)
+	var hug: float = maxf(wall_x - size.x * 0.5 - 0.05, 0.15)
+	var z: float
+	if remap_z:
+		var bounds: Rect2 = ROOM_BOUNDS[room]
+		var center: Vector2 = bounds.position + bounds.size * 0.5
+		var half_depth: float = maxf(bounds.size.y * 0.5, 0.001)
+		var v: float = clampf((flat.z - center.y) / half_depth, -1.0, 1.0)
+		z = z_center + v * maxf(z_half - 0.8, 0.2)
+	else:
+		z = clampf(flat.z, float(tube["z0"]) + 0.25, float(tube["z1"]) - 0.25)
+	return Vector3(side * hug, flat.y, z)
 
 
 ## Ties two sections together: the bulkhead door at the joint between them, the zone in each,
@@ -604,11 +620,14 @@ func _build_tube_chain() -> void:
 		}
 		var airlock_joint: bool = (aft_room == &"airlock" and fore_room == &"storage") or (aft_room == &"storage" and fore_room == &"airlock")
 		if not airlock_joint:
+			var joint_exports: Dictionary = exports.duplicate()
+			joint_exports["starts_open"] = true
+			joint_exports["hide_when_open"] = true
 			_build_door({
 				"name": "DoorJoint_%s_%s" % [String(TubeLayout.sections()[index]["name"]), String(TubeLayout.sections()[index + 1]["name"])],
 				"position": Vector3(0.0, TubeLayout.HATCH_HEIGHT * 0.5, joint_z),
 				"size": Vector3(TubeLayout.HATCH_HALF_WIDTH * 2.0, TubeLayout.HATCH_HEIGHT, 0.16),
-				"exports": exports.duplicate(),
+				"exports": joint_exports,
 			})
 		_build_link({
 			"name": "LinkJoint_%s_%s" % [String(TubeLayout.sections()[index]["name"]), String(TubeLayout.sections()[index + 1]["name"])],
@@ -649,7 +668,7 @@ func _carried(spec: Dictionary) -> Dictionary:
 	if bool(spec.get("tube_platform", false)):
 		carried["position"] = _tube_platform_position(spec["position"])
 	else:
-		carried["position"] = _tube_position(spec["position"])
+		carried["position"] = _tube_position(spec["position"], spec.get("size", Vector3(0.6, 0.6, 0.6)))
 	return carried
 
 
@@ -735,6 +754,71 @@ func _build_prop(spec: Dictionary) -> void:
 	_add_box_children(prop, spec["size"], String(spec["material"]), not spec.has("crt"))
 	if spec.has("crt"):
 		_build_crt(prop, spec)
+	_settle_against_wall(prop)
+
+
+## After a prop's meshes exist, nudge it inboard until its own bounding box clears the
+## section's canted wall at the box's bottom height (the wall slopes outward, so that is
+## the tight line). The nominal size is only a first guess - CRT parts and kit meshes can
+## reach past it.
+func _settle_against_wall(prop: Node3D) -> void:
+	if _interior_style() != "tube":
+		return
+	var section: Dictionary = _nearest_walkable(prop.position.z)
+	if section.is_empty():
+		return
+	var radius: float = float(section["radius"])
+	var side: float = signf(prop.position.x) if absf(prop.position.x) > 0.01 else 1.0
+	if absf(prop.position.x) > SectionHull.tube_half_width(radius, 1.0) + 0.6:
+		return
+	var box: AABB = _prop_bounds(prop)
+	if box.size == Vector3.ZERO:
+		return
+	var outboard: float = maxf(box.position.x * side, box.end.x * side)
+	var wall_x: float = SectionHull.tube_half_width(radius, maxf(box.position.y, 0.0))
+	print("SETTLE ", prop.name, " outboard=", outboard, " wall=", wall_x, " side=", side, " box=", box, " pos=", prop.position)
+	if outboard > wall_x + 0.02:
+		prop.position.x -= side * (outboard - wall_x - 0.02)
+
+
+func _nearest_walkable(z: float) -> Dictionary:
+	var covering: Dictionary = TubeLayout.section_at(z)
+	if not covering.is_empty() and TubeLayout.is_walkable(TubeLayout.index_of(String(covering["name"]))):
+		return covering
+	var best: Dictionary = {}
+	var best_distance: float = 1.0e9
+	for index: int in TubeLayout.sections().size():
+		if not TubeLayout.is_walkable(index):
+			continue
+		var bounds: Vector2 = TubeLayout.span(index)
+		var distance: float = maxf(0.0, maxf(bounds.x - z, z - bounds.y))
+		if distance < best_distance:
+			best_distance = distance
+			best = TubeLayout.sections()[index]
+	return best
+
+
+func _prop_bounds(prop: Node3D) -> AABB:
+	var aabb: AABB = AABB()
+	var first: bool = true
+	for child: Node in prop.find_children("*", "MeshInstance3D", true, false):
+		var mesh: MeshInstance3D = child as MeshInstance3D
+		if mesh.mesh == null:
+			continue
+		# The layout is built off-tree, so global_transform does not accumulate here:
+		# walk the chain up to the prop by hand.
+		var local: Transform3D = Transform3D.IDENTITY
+		var node: Node3D = mesh
+		while node != null and node != prop:
+			local = node.transform * local
+			node = node.get_parent() as Node3D
+		var box: AABB = local * mesh.get_aabb()
+		if first:
+			aabb = box
+			first = false
+		else:
+			aabb = aabb.merge(box)
+	return aabb
 
 
 ## 90s CRT workstation: beige housing, recessed phosphor screen behind a dark glass rim,
@@ -844,11 +928,12 @@ func _build_door(spec: Dictionary) -> void:
 
 
 func _build_kit(spec: Dictionary) -> void:
-	var packed: PackedScene = _scenes[String(spec["scene"])] as PackedScene
-	var instance: Node3D = packed.instantiate() as Node3D
+	var packed: PackedScene = load(String(spec["scene"])) as PackedScene
+	var instance: Node3D = (packed.instantiate() as Node3D) as Node3D
 	instance.name = String(spec["name"])
 	instance.position = spec["position"]
 	_props.add_child(instance)
+	_settle_against_wall(instance)
 
 
 func _build_zone(spec: Dictionary) -> void:

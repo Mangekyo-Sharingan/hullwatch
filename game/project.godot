@@ -123,3 +123,7 @@ toggle_tether={
 [internationalization]
 
 locale/translations=PackedStringArray("res://assets/locale/strings.en.translation")
+
+[physics]
+
+3d/physics_engine="GodotPhysics3D"

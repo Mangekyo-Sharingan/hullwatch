@@ -24,10 +24,14 @@ func _run() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 	if _tube_preview():
+		if player.has_method("release_tether"):
+			player.call("release_tether")
 		await _capture(player, Vector3(0.0, 0.1, -17.0), 0.0, "shot_tube_cockpit.png")
 		await _capture(player, Vector3(0.0, 0.1, -13.9), 0.0, "shot_tube_quarters.png")
 		await _capture(player, Vector3(0.0, 0.1, -4.0), PI, "shot_tube_chain.png")
 		await _capture(player, Vector3(0.0, 0.1, -0.65), PI * 0.5, "shot_tube_airlock.png")
+		await _capture(player, Vector3(0.0, 1.4, -18.6), 0.0, "shot_tube_bow.png")
+		await _capture(player, Vector3(0.0, 1.4, -6.0), PI, "shot_tube_aft.png")
 		await _capture(player, Vector3(-4.3, 0.1, -0.65), -PI * 0.5, "shot_tube_eva.png")
 		await _hull_shot(Vector3(-9.5, 3.4, -25.5), Vector3(0.0, 1.6, -17.0), "shot_tube_hull_bow.png")
 		await _hull_shot(Vector3(-10.5, 3.8, -3.0), Vector3(0.0, 1.5, -5.0), "shot_tube_hull_broadside.png")
@@ -139,6 +143,8 @@ func _capture(player: Node3D, position: Vector3, yaw: float, file_name: String) 
 		work_light.position = Vector3(0.8, -0.3, -0.8)
 		player.add_child(work_light)
 	await process_frame
+	await physics_frame
+	await physics_frame
 	await process_frame
 	await RenderingServer.frame_post_draw
 	var image: Image = root.get_texture().get_image()
@@ -149,11 +155,18 @@ func _capture(player: Node3D, position: Vector3, yaw: float, file_name: String) 
 
 
 ## True when the scene was generated with the M13.2 tube interior (preview run).
+## True when the scenes on disk are the tube interior, either because that is what ships or
+## because --interior-style=tube asked for it.
 func _tube_preview() -> bool:
 	for arg: String in OS.get_cmdline_user_args():
 		if arg == "--interior-style=tube":
 			return true
-	return false
+		if arg == "--interior-style=flat":
+			return false
+	var scene: Node = load("res://scenes/ship_geometry.tscn").instantiate()
+	var is_tube: bool = scene.get_node_or_null(^"Section_storage") != null
+	scene.free()
+	return is_tube
 
 
 ## The exterior has no lighting yet (M12); carry a work light so exterior captures read.

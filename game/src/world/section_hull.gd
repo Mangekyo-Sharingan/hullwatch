@@ -100,6 +100,13 @@ const TUBE_CEIL_HALF: float = 0.60
 const TUBE_WALL_TOP: float = 1.9
 const TUBE_CEILING: float = 2.5
 
+## How much taller the hull drums' ceilings sit above the interior's, how much the flange
+## collars clear the drums, and how far the drums' bellies hang below the interior deck, so
+## no two shell surfaces are ever coplanar.
+const TUBE_CEILING_LIFT: float = 0.3
+const TUBE_COLLAR_LIFT: float = 0.36
+const TUBE_DRUM_DECK_DROP: float = 0.12
+
 ## The cross-section's facet indices the dock ports and the airlock hatch open through.
 const TUBE_EDGE_STARBOARD: int = 1
 const TUBE_EDGE_PORT: int = 5
@@ -113,15 +120,30 @@ const PROW_DEPTH: float = 0.45
 const TUBE_WINDOW_MIN: Vector2 = Vector2(-1.05, 1.30)
 const TUBE_WINDOW_MAX: Vector2 = Vector2(1.05, 2.15)
 
-static func tube_section(radius: float) -> PackedVector2Array:
+static func tube_section(radius: float, ceiling_lift: float = 0.0) -> PackedVector2Array:
 	return PackedVector2Array([
 		Vector2(-radius * TUBE_DECK_HALF, 0.0),
 		Vector2(radius * TUBE_DECK_HALF, 0.0),
 		Vector2(radius * TUBE_WALL_HALF, TUBE_WALL_TOP),
-		Vector2(radius * TUBE_CEIL_HALF, TUBE_CEILING),
-		Vector2(-radius * TUBE_CEIL_HALF, TUBE_CEILING),
+		Vector2(radius * TUBE_CEIL_HALF, TUBE_CEILING + ceiling_lift),
+		Vector2(-radius * TUBE_CEIL_HALF, TUBE_CEILING + ceiling_lift),
 		Vector2(-radius * TUBE_WALL_HALF, TUBE_WALL_TOP),
 	])
+
+
+## The hull drum around a section: the same cross-section, band wider, lifted clear of the
+## interior's ceiling plane and dropped clear of its deck plane.
+static func tube_drum_section(radius: float) -> PackedVector2Array:
+	var ring: PackedVector2Array = tube_section(radius + TUBE_BAND, TUBE_CEILING_LIFT)
+	ring[0] = Vector2(ring[0].x, -TUBE_DRUM_DECK_DROP)
+	ring[1] = Vector2(ring[1].x, -TUBE_DRUM_DECK_DROP)
+	return ring
+
+
+## The collar ring around a joint: the drum ring plus the flange width, lifted again so its
+## ceiling plane clears the drum's.
+static func tube_collar_section(radius: float) -> PackedVector2Array:
+	return tube_section(radius + TUBE_BAND + TUBE_FLANGE_WIDTH, TUBE_COLLAR_LIFT)
 
 
 ## The section's half-width at height y, following the deck, the wall line and the cove.
@@ -147,7 +169,8 @@ const TUBE_STEP: float = 0.35
 const TUBE_FLANGE_WIDTH: float = 0.22
 
 ## The drums of a tube-mode hull, bow to stern: the section name, the z span clipped to the
-## joint centrelines, and the outer radius (the section's own radius plus the band).
+## joint centrelines, and the section radius the drum wraps (the drum ring itself comes from
+## tube_drum_section).
 static func tube_drums() -> Array[Dictionary]:
 	var sections: Array[Dictionary] = TubeLayout.sections()
 	var drums: Array[Dictionary] = []
@@ -163,7 +186,7 @@ static func tube_drums() -> Array[Dictionary]:
 			"name": String(sections[index]["name"]),
 			"z0": z0,
 			"z1": z1,
-			"radius": float(sections[index]["radius"]) + TUBE_BAND,
+			"radius": float(sections[index]["radius"]),
 		})
 	return drums
 
@@ -195,8 +218,10 @@ static func validate_tube() -> PackedStringArray:
 		if index > 0 and absf(float(drums[index - 1]["z1"]) - float(drum["z0"])) > EPSILON:
 			problems.append("drum %s does not meet its forward neighbour" % String(drum["name"]))
 		var section: Dictionary = TubeLayout.sections()[index]
-		if absf(float(drum["radius"]) - (float(section["radius"]) + TUBE_BAND)) > EPSILON:
+		if absf(float(drum["radius"]) - float(section["radius"])) > EPSILON:
 			problems.append("drum %s radius does not follow its section" % String(drum["name"]))
+		if HullProfile.signed_area(tube_drum_section(float(drum["radius"]))) <= HullProfile.signed_area(tube_section(float(drum["radius"]))) + EPSILON:
+			problems.append("drum %s ring does not enclose its section" % String(drum["name"]))
 	for joint: Dictionary in tube_joints():
 		if float(joint["z"]) < float(drums[0]["z0"]) or float(joint["z"]) > float(drums[-1]["z1"]):
 			problems.append("a step joint lands outside the chain")

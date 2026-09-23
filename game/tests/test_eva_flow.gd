@@ -43,7 +43,7 @@ func _run() -> void:
 
 	outer.interact(null)
 	_check(outer.is_open(), "outer hatch opens on vacuum")
-	player.global_position = Vector3(-8.9, 0.2, -1.2)
+	player.global_position = Vector3(-3.6, 0.2, -0.65)
 	await physics_frame
 	await physics_frame
 	await physics_frame
@@ -55,7 +55,7 @@ func _run() -> void:
 	var distance: float = float(player.call("get_tether_distance"))
 	_check(distance <= 14.05, "the taut line holds the operator (%.2f m)" % distance)
 
-	player.global_position = Vector3(-7.9, 0.2, -1.2)
+	player.global_position = Vector3(0.0, 0.2, -0.65)
 	await physics_frame
 	player.call("release_tether")
 	outer.interact(null)

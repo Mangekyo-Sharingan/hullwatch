@@ -101,8 +101,8 @@ func _test_world_wiring(main: Node, atmosphere: Node) -> void:
 			var id: StringName = link.get(key)
 			if not bool(atmosphere.call("has_compartment", id)):
 				missing.append("link:" + String(id))
-	_check(door_count == 9, "all nine doors are wired")
-	_check(link_count == 8, "all eight compartment links are wired")
+	_check(door_count == 10, "all ten doors are wired")
+	_check(link_count == 9, "all nine compartment links are wired")
 	_check(missing.is_empty(), "every zone, door and link maps to a registered compartment (%s)" % ", ".join(missing))
 
 

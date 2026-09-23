@@ -1,155 +1,31 @@
-## World layout regression: the generated station furniture, zones, links and doors exist, sit at
-## their contracted positions and fit their rooms. Guards the cramped-station layout independently
-## of scenes/main.tscn, which swaps this generated scene in.
+## World layout regression (tube chain): the flat tables' furniture, doors, zones and links
+## all made it onto the chain. Props sit inside their own tunnel section hugged to its
+## canted wall (never embedded, never across the centre line), the EVA platform kit stands
+## off the airlock, joint doors ship open with their slabs stowed while the airlock's two
+## hatches stay shut, one zone covers every walkable section with its compartment id, and
+## one atmosphere link crosses every hatched joint.
 extends SceneTree
 
 const LAYOUT_PATH: String = "res://scenes/world_layout.tscn"
-const POSITION_TOLERANCE: float = 0.001
+const POSITION_TOLERANCE: float = 0.02
 
-## Every named child of Props with its contracted position (all rows of the layout table:
-## 11 furnished props + 3 sealant cartridges + 7 doors + 3 kit decorations).
-const PROP_POSITIONS: Dictionary = {
-	"ScrubberUnit": Vector3(-2.6, 0.6, -7.2),
-	"WaterReclaimer": Vector3(2.2, 0.6, -2.65),
-	"BreakerPanel": Vector3(1.22, 0.8, -3.5),
-	"StatusPanel": Vector3(-1.22, 0.8, -8.0),
-	"MaintenanceBoard": Vector3(-1.22, 0.8, -13.0),
-	"ManualBinder": Vector3(5.53, 0.9, -5.0),
-	"LogTerminal": Vector3(2.0, 1.2, -18.7),
-	"ArchiveTerminal": Vector3(-2.0, 1.2, -18.7),
-	"CommsTerminal": Vector3(3.0, 1.2, -18.7),
-	"NavConsole": Vector3(0.0, 1.2, -18.7),
-	"ContactConsole": Vector3(1.0, 1.2, -18.7),
-	"Bunk": Vector3(-4.6, 0.25, -11.5),
-	"HullPatch": Vector3(2.8, 1.2, 7.56),
-	"O2CandleRack": Vector3(-2.5, 0.9, -6.8),
-	"MultimeterTool": Vector3(-3.9, 0.16, -2.4),
-	"WrenchTool": Vector3(-3.5, 0.16, -2.4),
-	"ScannerTool": Vector3(-3.1, 0.16, -2.4),
-	"ProbePower": Vector3(0.9, 0.35, -4.2),
-	"ProbeAtmosphere": Vector3(-3.8, 0.35, -7.2),
-	"ProbeThermal": Vector3(3.28, 0.35, 4.7),
-	"ProbeHull": Vector3(1.6, 0.35, 7.48),
-	"ProbeWater": Vector3(4.31, 0.35, -1.9),
-	"SealantCartridge1": Vector3(-3.9, 0.16, -1.8),
-	"SealantCartridge2": Vector3(-3.55, 0.16, -1.8),
-	"SealantCartridge3": Vector3(-3.2, 0.16, -1.8),
-	"DoorCockpit": Vector3(0.0, 1.1, -14.1),
-	"DoorEngine": Vector3(0.0, 1.1, 1.5),
-	"DoorQuarters": Vector3(-1.85, 1.1, -10.0),
-	"DoorLifeSupport": Vector3(-1.85, 1.1, -6.0),
-	"DoorStorage": Vector3(-1.85, 1.1, -1.2),
-	"DoorGalley": Vector3(1.85, 1.1, -5.6),
-	"DoorWaterCloset": Vector3(1.85, 1.1, -1.6),
-	"DoorAirlockInner": Vector3(-5.75, 1.1, -1.0),
-	"DoorAirlockOuter": Vector3(-7.95, 1.1, -1.2),
-	"AirlockPanel": Vector3(-6.03, 1.3, -0.35),
-	"SuitLocker": Vector3(-6.3, 1.0, -0.445),
-	"CargoPort": Vector3(-8.63, 1.0, -2.2),
-	"Fabricator": Vector3(-2.6, 0.6, 2.2),
-	"CutterTool": Vector3(-6.5, 0.16, -1.9),
-	"SampleCanister1": Vector3(-6.7, 0.16, -1.9),
-	"SampleCanister2": Vector3(-6.4, 0.16, -1.9),
-	"SampleCanister3": Vector3(-6.1, 0.16, -1.9),
-	"ContainerProp": Vector3(-3.0, 0.0, -0.2),
-	"ComputerProp": Vector3(2.6, 0.75, -7.0),
-	"DisplayProp": Vector3(-2.5, 1.6, -18.45),
-}
-
-## prop -> [x_min, x_max, z_min, z_max]. Free-standing props use the strict room interior; the
-## wall-mounted panels and doors sit in the wall plane, so their band is the room interior
-## +/- the 0.2 m wall thickness, or the doorway gap they close.
-const FIT_RECTS: Dictionary = {
-	"ScrubberUnit": [-5.45, -1.95, -7.6, -5.0],
-	"WaterReclaimer": [1.95, 4.55, -3.0, -0.8],
-	"ManualBinder": [1.95, 5.95, -7.6, -4.0],
-	"LogTerminal": [-3.4, 3.4, -18.8, -14.2],
-	"ArchiveTerminal": [-3.4, 3.4, -18.8, -14.2],
-	"CommsTerminal": [-3.4, 3.4, -18.8, -14.2],
-	"NavConsole": [-3.4, 3.4, -18.8, -14.2],
-	"ContactConsole": [-3.4, 3.4, -18.8, -14.2],
-	"Bunk": [-6.45, -1.95, -12.6, -8.2],
-	"HullPatch": [-3.6, 3.6, 1.6, 7.8],
-	"O2CandleRack": [-5.45, -1.95, -7.6, -5.0],
-	"MultimeterTool": [-5.65, -1.95, -3.0, 0.6],
-	"WrenchTool": [-5.65, -1.95, -3.0, 0.6],
-	"ScannerTool": [-5.65, -1.95, -3.0, 0.6],
-	"ProbePower": [-1.75, 1.75, -5.0, -2.2],
-	"ProbeAtmosphere": [-5.45, -1.95, -7.6, -5.0],
-	"ProbeThermal": [-3.6, 3.6, 1.6, 7.8],
-	"ProbeHull": [-3.6, 3.6, 1.6, 7.8],
-	"ProbeWater": [1.95, 4.55, -3.0, -0.8],
-	"SealantCartridge1": [-5.65, -1.95, -3.0, 0.6],
-	"SealantCartridge2": [-5.65, -1.95, -3.0, 0.6],
-	"SealantCartridge3": [-5.65, -1.95, -3.0, 0.6],
-	"BreakerPanel": [-1.75, 1.75, -5.0, -2.2],
-	"StatusPanel": [-1.9, 1.9, -9.4, -6.6],
-	"MaintenanceBoard": [-1.9, 1.9, -14.2, -10.6],
-	"DoorCockpit": [-0.88, 0.88, -14.2, -14.0],
-	"DoorEngine": [-0.88, 0.88, 1.4, 1.6],
-	"DoorQuarters": [-2.05, 1.75, -10.6, -9.4],
-	"DoorLifeSupport": [-2.05, 1.75, -6.6, -5.4],
-	"DoorStorage": [-2.05, 1.75, -1.8, -0.6],
-	"DoorGalley": [-1.75, 2.05, -6.2, -5.0],
-	"DoorWaterCloset": [-1.75, 2.05, -2.2, -1.0],
-	"DoorAirlockInner": [-5.85, -5.65, -1.6, -0.4],
-	"DoorAirlockOuter": [-8.05, -7.85, -1.7, -0.7],
-	"AirlockPanel": [-7.85, -5.85, -2.2, -0.2],
-	"SuitLocker": [-7.85, -5.85, -2.2, -0.2],
-	"CargoPort": [-8.85, -8.25, -2.6, -1.8],
-	"Fabricator": [-3.6, 3.6, 1.6, 7.8],
-	"CutterTool": [-7.85, -5.85, -2.2, -0.2],
-	"SampleCanister1": [-7.85, -5.85, -2.2, -0.2],
-	"SampleCanister2": [-7.85, -5.85, -2.2, -0.2],
-	"SampleCanister3": [-7.85, -5.85, -2.2, -0.2],
-	"ContainerProp": [-5.65, -1.95, -3.0, 0.6],
-	"ComputerProp": [1.95, 5.95, -7.6, -4.0],
-	"DisplayProp": [-3.4, 3.4, -18.8, -14.2],
-}
-
-const EXPECTED_ZONES: Dictionary = {
-	"ZoneCorridor": &"corridor",
-	"ZoneCockpit": &"cockpit",
-	"ZoneQuarters": &"quarters",
-	"ZoneLifeSupport": &"main",
-	"ZoneGalley": &"galley",
-	"ZoneWaterCloset": &"water_closet",
-	"ZoneStorage": &"storage",
-	"ZoneAirlock": &"airlock",
-	"ZoneEngineBay": &"engine_bay",
-}
-
-const EXPECTED_DOORS: Array[String] = [
-	"DoorCockpit",
-	"DoorEngine",
-	"DoorQuarters",
-	"DoorLifeSupport",
-	"DoorStorage",
-	"DoorGalley",
-	"DoorWaterCloset",
-	"DoorAirlockInner",
-	"DoorAirlockOuter",
+## The carried furniture (names are the contract; the tube derives their positions).
+const CARRIED_PROPS: Array[String] = [
+	"ScrubberUnit", "WaterReclaimer", "BreakerPanel", "StatusPanel", "MaintenanceBoard",
+	"ManualBinder", "LogTerminal", "CommsTerminal", "ArchiveTerminal", "NavConsole",
+	"ContactConsole", "Bunk", "HullPatch", "O2CandleRack", "MultimeterTool", "WrenchTool",
+	"ScannerTool", "ProbePower", "ProbeAtmosphere", "ProbeThermal", "ProbeHull",
+	"ProbeWater", "SealantCartridge1", "SealantCartridge2", "SealantCartridge3",
+	"Fabricator", "CutterTool", "SampleCanister2", "SampleCanister3", "AirlockPanel",
+	"SuitLocker", "ContainerProp", "ComputerProp", "DisplayProp",
 ]
 
-const EXPECTED_LINKS: Dictionary = {
-	"LinkCorridorCockpit": [&"corridor", &"cockpit"],
-	"LinkCorridorQuarters": [&"corridor", &"quarters"],
-	"LinkCorridorMain": [&"corridor", &"main"],
-	"LinkCorridorGalley": [&"corridor", &"galley"],
-	"LinkCorridorWaterCloset": [&"corridor", &"water_closet"],
-	"LinkCorridorStorage": [&"corridor", &"storage"],
-	"LinkCorridorEngineBay": [&"corridor", &"engine_bay"],
-	"LinkStorageAirlock": [&"storage", &"airlock"],
-}
+## Gear that belongs on the EVA platform outside the airlock, not inside the tube.
+const PLATFORM_PROPS: Array[String] = ["CargoPort", "SampleCanister1"]
 
 const CRT_PROPS: Array[String] = [
-	"StatusPanel",
-	"MaintenanceBoard",
-	"LogTerminal",
-	"ArchiveTerminal",
-	"CommsTerminal",
-	"NavConsole",
-	"ContactConsole",
+	"StatusPanel", "MaintenanceBoard", "LogTerminal", "ArchiveTerminal", "CommsTerminal",
+	"NavConsole", "ContactConsole",
 ]
 
 var _failures: int = 0
@@ -199,84 +75,153 @@ func _run() -> void:
 		_finish()
 		return
 
-	_test_props()
-	_test_fit()
+	var expected_total: int = CARRIED_PROPS.size() + PLATFORM_PROPS.size() + _expected_doors().size()
+	_check(_props.get_child_count() == expected_total, "Props holds all %d named nodes (%d)" % [expected_total, _props.get_child_count()])
+
+	_test_props_carry()
+	_test_doors()
 	_test_zones()
 	_test_links()
-	_test_doors()
 	_test_crt_props()
 
 	layout.free()
 	_finish()
 
 
-func _test_props() -> void:
-	_check(_props.get_child_count() == PROP_POSITIONS.size(), "Props holds all %d named nodes" % PROP_POSITIONS.size())
-	for prop_name: String in PROP_POSITIONS:
+## Every carried prop exists, sits inside a walkable section, and its own bounding box
+## clears the section's canted wall (at the box's bottom height, where the wall is nearest)
+## without crossing the centre line. Platform gear stands off the airlock's drum face.
+func _test_props_carry() -> void:
+	for prop_name: String in CARRIED_PROPS:
 		var prop: Node3D = _props.get_node_or_null(NodePath(prop_name)) as Node3D
 		if prop == null:
-			_check(false, "prop exists: " + prop_name)
+			_check(false, "carried prop exists: " + prop_name)
 			continue
-		var expected: Vector3 = PROP_POSITIONS[prop_name]
-		_check(prop.position.distance_to(expected) <= POSITION_TOLERANCE, "prop position: " + prop_name)
-
-
-func _test_fit() -> void:
-	for prop_name: String in FIT_RECTS:
+		var nearest: Dictionary = _nearest_walkable(prop.position.z)
+		if nearest.is_empty():
+			_check(false, "carried prop sits in the chain: " + prop_name)
+			continue
+		var box: AABB = _world_bounds(prop)
+		if box.size == Vector3.ZERO:
+			_check(false, "carried prop has meshes: " + prop_name)
+			continue
+		var radius: float = float(nearest["radius"])
+		var lane: float = SectionHull.tube_half_width(radius, 1.0) + box.end.x if box.position.x < 0.0 else SectionHull.tube_half_width(radius, 1.0) - box.position.x
+		_check(lane >= 0.55, "carried prop leaves a walkable lane: " + prop_name)
+		var outboard: float = maxf(box.position.x if box.position.x < 0.0 else -1.0e9, box.end.x if box.end.x > 0.0 else -1.0e9)
+		_check(outboard <= SectionHull.tube_half_width(radius, maxf(box.position.y, 0.0)) + 0.03, "carried prop clears the canted wall: " + prop_name)
+		_check(box.position.y >= -0.05, "carried prop sits above the deck: " + prop_name)
+	for prop_name: String in PLATFORM_PROPS:
 		var prop: Node3D = _props.get_node_or_null(NodePath(prop_name)) as Node3D
 		if prop == null:
-			_check(false, "fit target exists: " + prop_name)
+			_check(false, "platform prop exists: " + prop_name)
 			continue
-		var rect: Array = FIT_RECTS[prop_name]
-		var fits: bool = (
-			prop.position.x >= float(rect[0]) - POSITION_TOLERANCE
-			and prop.position.x <= float(rect[1]) + POSITION_TOLERANCE
-			and prop.position.z >= float(rect[2]) - POSITION_TOLERANCE
-			and prop.position.z <= float(rect[3]) + POSITION_TOLERANCE
-		)
-		_check(fits, "prop fits its room: " + prop_name)
+		var airlock: int = TubeLayout.index_of("airlock")
+		var face: float = float(TubeLayout.sections()[airlock]["radius"]) + SectionHull.TUBE_BAND
+		_check(prop.position.x < -face, "platform prop stands off the airlock's drum face: " + prop_name)
 
 
-func _test_zones() -> void:
-	_check(_zones.get_child_count() == EXPECTED_ZONES.size(), "Zones holds %d zones" % EXPECTED_ZONES.size())
-	for zone_name: String in EXPECTED_ZONES:
-		var zone: Node = _zones.get_node_or_null(NodePath(zone_name))
-		if zone == null:
-			_check(false, "zone exists: " + zone_name)
-			continue
-		_check(zone.get("compartment_id") == EXPECTED_ZONES[zone_name], "zone compartment_id: " + zone_name)
-		var shape: CollisionShape3D = zone.get_node_or_null(^"Shape") as CollisionShape3D
-		_check(shape != null and shape.shape is BoxShape3D, "zone has a box shape: " + zone_name)
-
-
-func _test_links() -> void:
-	_check(_links.get_child_count() == EXPECTED_LINKS.size(), "Links holds %d links" % EXPECTED_LINKS.size())
-	for link_name: String in EXPECTED_LINKS:
-		var link: Node = _links.get_node_or_null(NodePath(link_name))
-		if link == null:
-			_check(false, "link exists: " + link_name)
-			continue
-		var pair: Array = EXPECTED_LINKS[link_name]
-		var forward: bool = link.get("compartment_a") == pair[0] and link.get("compartment_b") == pair[1]
-		var reverse: bool = link.get("compartment_a") == pair[1] and link.get("compartment_b") == pair[0]
-		_check(forward or reverse, "link connects %s and %s" % [pair[0], pair[1]])
-
-
+## One door per hatched joint - open with the slab stowed, except the storage/airlock joint
+## which the airlock's inner hatch closes - plus the airlock's outer hatch, shut.
 func _test_doors() -> void:
-	var found: int = 0
-	for door_name: String in EXPECTED_DOORS:
+	var expected: Array[String] = _expected_doors()
+	for door_name: String in expected:
 		var door: Node = _props.get_node_or_null(NodePath(door_name))
 		if door == null:
 			_check(false, "door exists: " + door_name)
 			continue
-		found += 1
 		var slab: MeshInstance3D = door.get_node_or_null(^"Slab") as MeshInstance3D
 		var slab_shape: CollisionShape3D = door.get_node_or_null(^"SlabShape") as CollisionShape3D
 		_check(slab != null and slab.mesh != null and not (slab.mesh is BoxMesh), "door slab uses the Kenney leaf: " + door_name)
 		_check(slab_shape != null and slab_shape.shape is BoxShape3D, "door slab collision: " + door_name)
 		var frame: StaticBody3D = door.get_node_or_null(^"Frame") as StaticBody3D
 		_check(frame != null and frame.collision_layer == 2 and frame.collision_mask == 0, "door keeps a sensor frame: " + door_name)
-	_check(found == EXPECTED_DOORS.size(), "all %d doors found" % EXPECTED_DOORS.size())
+	for index: int in TubeLayout.sections().size() - 1:
+		if not TubeLayout.has_hatch(index):
+			continue
+		var aft_room: StringName = StringName(TubeLayout.sections()[index].get("room", &""))
+		var fore_room: StringName = StringName(TubeLayout.sections()[index + 1].get("room", &""))
+		var joint_z: float = (TubeLayout.span(index).y + TubeLayout.span(index + 1).x) * 0.5
+		var airlock_joint: bool = (aft_room == &"storage" and fore_room == &"airlock") or (aft_room == &"airlock" and fore_room == &"storage")
+		var door_name: String = "DoorAirlockInner" if airlock_joint else "DoorJoint_%s_%s" % [
+			String(TubeLayout.sections()[index]["name"]),
+			String(TubeLayout.sections()[index + 1]["name"]),
+		]
+		var door: Node = _props.get_node_or_null(NodePath(door_name))
+		if door == null:
+			_check(false, "joint door exists: " + door_name)
+			continue
+		var expected_open: bool = not airlock_joint
+		_check(bool(door.get("starts_open")) == expected_open and bool(door.get("hide_when_open")) == expected_open, "joint door ships open with its slab stowed: " + door_name)
+		var position: Vector3 = (door as Node3D).position
+		_check(absf(position.z - joint_z) <= POSITION_TOLERANCE, "joint door sits at its bulkhead: " + door_name)
+		if airlock_joint:
+			_check(absf(position.y - TubeLayout.HATCH_HEIGHT * 0.5) <= 0.001, "airlock inner door is centred on its hatch: " + door_name)
+	_check(_airlock_outer_door_ok(), "airlock outer hatch sits shut on its radial opening")
+
+
+func _airlock_outer_door_ok() -> bool:
+	var airlock: int = TubeLayout.index_of("airlock")
+	if airlock < 0:
+		return false
+	var door: Node = _props.get_node_or_null(^"DoorAirlockOuter")
+	if door == null or bool(door.get("starts_open")):
+		return false
+	var radius: float = float(TubeLayout.sections()[airlock]["radius"])
+	var center_z: float = (TubeLayout.span(airlock).x + TubeLayout.span(airlock).y) * 0.5
+	var position: Vector3 = (door as Node3D).position
+	return absf(position.x + radius + 0.08) <= POSITION_TOLERANCE and absf(position.z - center_z) <= POSITION_TOLERANCE
+
+
+## One zone per walkable section: the section's compartment id, a box spanning its span.
+func _test_zones() -> void:
+	var walkable: int = 0
+	for index: int in TubeLayout.sections().size():
+		if not TubeLayout.is_walkable(index):
+			continue
+		walkable += 1
+		var section: Dictionary = TubeLayout.sections()[index]
+		var zone_name: String = "ZoneSection_" + String(section["name"])
+		var zone: Node = _zones.get_node_or_null(NodePath(zone_name))
+		if zone == null:
+			_check(false, "zone exists: " + zone_name)
+			continue
+		var room: StringName = StringName(section.get("room", &""))
+		_check(zone.get("compartment_id") == TubeLayout.ROOM_COMPARTMENTS[room], "zone compartment_id: " + zone_name)
+		var shape: CollisionShape3D = zone.get_node_or_null(^"Shape") as CollisionShape3D
+		if shape == null or not (shape.shape is BoxShape3D):
+			_check(false, "zone has a box shape: " + zone_name)
+			continue
+		var bounds: Vector2 = TubeLayout.span(index)
+		var box: BoxShape3D = shape.shape as BoxShape3D
+		_check(absf(box.size.z - (bounds.y - bounds.x - 0.2)) <= 0.05, "zone spans its section: " + zone_name)
+		_check(absf((zone as Node3D).position.z - (bounds.x + bounds.y) * 0.5) <= POSITION_TOLERANCE, "zone is centred on its section: " + zone_name)
+	_check(_zones.get_child_count() == walkable, "Zones holds one zone per walkable section (%d)" % walkable)
+
+
+## One atmosphere link per hatched joint, across the two rooms' compartments.
+func _test_links() -> void:
+	var hatches: int = 0
+	for index: int in TubeLayout.sections().size() - 1:
+		if not TubeLayout.has_hatch(index):
+			continue
+		hatches += 1
+		var link_name: String = "LinkJoint_%s_%s" % [
+			String(TubeLayout.sections()[index]["name"]),
+			String(TubeLayout.sections()[index + 1]["name"]),
+		]
+		var link: Node = _links.get_node_or_null(NodePath(link_name))
+		if link == null:
+			_check(false, "link exists: " + link_name)
+			continue
+		var aft_room: StringName = StringName(TubeLayout.sections()[index].get("room", &""))
+		var fore_room: StringName = StringName(TubeLayout.sections()[index + 1].get("room", &""))
+		var pair_a: StringName = TubeLayout.ROOM_COMPARTMENTS[aft_room]
+		var pair_b: StringName = TubeLayout.ROOM_COMPARTMENTS[fore_room]
+		var forward: bool = link.get("compartment_a") == pair_a and link.get("compartment_b") == pair_b
+		var reverse: bool = link.get("compartment_a") == pair_b and link.get("compartment_b") == pair_a
+		_check(forward or reverse, "link connects %s and %s" % [pair_a, pair_b])
+	_check(_links.get_child_count() == hatches, "Links holds one link per hatched joint (%d)" % hatches)
 
 
 func _test_crt_props() -> void:
@@ -289,6 +234,55 @@ func _test_crt_props() -> void:
 		var housing: MeshInstance3D = prop.get_node_or_null(^"Crt/Housing") as MeshInstance3D
 		_check(screen != null and screen.material_override != null, "crt screen mesh: " + prop_name)
 		_check(housing != null, "crt housing mesh: " + prop_name)
+
+
+func _expected_doors() -> Array[String]:
+	var names: Array[String] = ["DoorAirlockInner", "DoorAirlockOuter"]
+	for index: int in TubeLayout.sections().size() - 1:
+		if not TubeLayout.has_hatch(index):
+			continue
+		var aft_room: StringName = StringName(TubeLayout.sections()[index].get("room", &""))
+		var fore_room: StringName = StringName(TubeLayout.sections()[index + 1].get("room", &""))
+		var airlock_joint: bool = (aft_room == &"storage" and fore_room == &"airlock") or (aft_room == &"airlock" and fore_room == &"storage")
+		if not airlock_joint:
+			names.append("DoorJoint_%s_%s" % [
+				String(TubeLayout.sections()[index]["name"]),
+				String(TubeLayout.sections()[index + 1]["name"]),
+			])
+	return names
+
+
+func _nearest_walkable(z: float) -> Dictionary:
+	var covering: Dictionary = TubeLayout.section_at(z)
+	if not covering.is_empty() and TubeLayout.is_walkable(TubeLayout.index_of(String(covering["name"]))):
+		return covering
+	var best: Dictionary = {}
+	var best_distance: float = 1.0e9
+	for index: int in TubeLayout.sections().size():
+		if not TubeLayout.is_walkable(index):
+			continue
+		var bounds: Vector2 = TubeLayout.span(index)
+		var distance: float = maxf(0.0, maxf(bounds.x - z, z - bounds.y))
+		if distance < best_distance:
+			best_distance = distance
+			best = TubeLayout.sections()[index]
+	return best
+
+
+func _world_bounds(prop: Node3D) -> AABB:
+	var aabb: AABB = AABB()
+	var first: bool = true
+	for child: Node in prop.find_children("*", "MeshInstance3D", true, false):
+		var mesh: MeshInstance3D = child as MeshInstance3D
+		if mesh.mesh == null:
+			continue
+		var box: AABB = mesh.global_transform * mesh.get_aabb()
+		if first:
+			aabb = box
+			first = false
+		else:
+			aabb = aabb.merge(box)
+	return aabb
 
 
 func _remove_root_child(node_name: StringName) -> void:

@@ -6,12 +6,10 @@ const GEOMETRY_PATH: String = "res://scenes/ship_geometry.tscn"
 const POD_PATH: String = "res://scenes/dock_pod.tscn"
 
 ## id -> [room entry point, throat floor sample, wall sample beside the doorway, outward]
-const DOCKS: Array = [
-	["quarters", Vector3(-5.5, 1.2, -10.4), Vector3(-7.35, 1.0, -10.4), -9.75, -1.0],
-	["life_support", Vector3(-4.5, 1.2, -6.3), Vector3(-7.0, 1.0, -6.3), -5.7, -1.0],
-	["galley", Vector3(4.5, 1.2, -5.8), Vector3(6.35, 1.0, -5.8), -5.25, 1.0],
-	["engine_bay", Vector3(2.0, 1.2, 4.7), Vector3(5.0, 1.0, 4.7), 3.6, 1.0],
-]
+## The docks' sides, matching the flat layout's; the sections own the rest of the geometry.
+const DOCK_SIDES: Dictionary = {
+	&"quarters": -1.0, &"life_support": -1.0, &"galley": 1.0, &"engine_bay": 1.0,
+}
 
 var _failures: int = 0
 var _geometry: Node3D
@@ -47,18 +45,22 @@ func _test_dock_walkways() -> void:
 	_check(hull != null, "hull shell exists")
 	if hull == null:
 		return
-	for dock: Array in DOCKS:
-		var id: String = dock[0]
-		var start: Vector3 = dock[1]
-		var floor_sample: Vector3 = dock[2]
-		var beside_z: float = dock[3]
-		var outward: float = dock[4]
+	for index: int in TubeLayout.sections().size():
+		var port: StringName = TubeLayout.port_of(index)
+		if port == &"":
+			continue
+		var id: String = String(port).trim_prefix("hp_")
+		var outward: float = float(DOCK_SIDES.get(StringName(id), 1.0))
+		var center_z: float = (TubeLayout.span(index).x + TubeLayout.span(index).y) * 0.5
+		var plate_face: float = (float(TubeLayout.sections()[index]["radius"]) + SectionHull.TUBE_BAND) * outward
+		var start: Vector3 = Vector3(0.0, 1.2, center_z)
+		var floor_sample: Vector3 = Vector3(plate_face - outward * 0.12, 1.0, center_z)
+		var beside_z: float = center_z + 1.0
 		var plate: Node = hull.get_node_or_null(NodePath("DockPlate_" + id))
 		var marker: Node = hull.get_node_or_null(NodePath("Hardpoint_" + id))
 		_check(plate != null and plate.is_in_group(&"dock_plate"), "mount plate exists: " + id)
 		_check(marker != null and marker.is_in_group(&"hardpoint"), "hardpoint marker exists: " + id)
-		# M13.1: the plate sits proud of the shell; its inward face is the shell face.
-		var plate_face: float = -8.5 if outward < 0.0 else 6.6
+		# M13.2: the plate sits proud of the drum; its inward face is the drum face.
 		var target: Vector3 = Vector3(plate_face + outward * 0.1, 1.2, start.z)
 		var walk: Dictionary = _ray_result(start, target)
 		var walk_x: float = float((walk["position"] as Vector3).x) if not walk.is_empty() else 0.0
@@ -71,7 +73,7 @@ func _test_dock_walkways() -> void:
 			not floor_hit.is_empty() and absf(float((floor_hit["position"] as Vector3).y)) < 0.05,
 			"throat floor is solid: " + id
 		)
-		var beside: Vector3 = Vector3(start.x, 1.2, beside_z)
+		var beside: Vector3 = Vector3(start.x, 1.6, beside_z)
 		var beside_hit: Dictionary = _ray_result(beside, Vector3(beside.x + outward * 4.0, beside.y, beside.z))
 		_check(not beside_hit.is_empty(), "wall beside the doorway is solid: " + id)
 

@@ -1,5 +1,8 @@
-## M7.3 layout regression: the faceted hull exists, doorway gaps are ray-passable, the
-## corridor cross-section matches the flat-bottom hexagon profile, and walls block.
+## M13.2 layout regression: the interior chain exists as one section body per walkable
+## TubeLayout entry plus a joint body per hatch, every bulkhead hatch is walkable end to
+## end, the airlock's outer opening is clear, walls block beside the port doorways, the
+## swept cross-section keeps its profile at walk heights, deck and ceiling sit at their
+## planes, and the cupola carries the dash and the viewport pane.
 extends SceneTree
 
 const GEOMETRY_PATH: String = "res://scenes/ship_geometry.tscn"
@@ -7,65 +10,6 @@ const XENON_MATERIAL_PATH: String = "res://src/data/materials/mat_xenon_metal.tr
 const FLOOR_MATERIAL_PATH: String = "res://src/data/materials/mat_deck_plate.tres"
 const WINDOW_MATERIAL_PATH: String = "res://src/data/materials/mat_space_window.tres"
 const RAY_Y: float = 1.2
-
-const EXPECTED_SPACES: Array[StringName] = [
-	&"Cockpit",
-	&"Corridor",
-	&"Quarters",
-	&"LifeSupport",
-	&"Galley",
-	&"WaterCloset",
-	&"Storage",
-	&"Airlock",
-	&"EngineBay",
-]
-
-const ROOM_CENTERS: Dictionary = {
-	&"Cockpit": Vector3(0.0, RAY_Y, -16.5),
-	&"Corridor": Vector3(0.0, RAY_Y, -6.3),
-	&"Quarters": Vector3(-4.2, RAY_Y, -10.4),
-	&"LifeSupport": Vector3(-3.7, RAY_Y, -6.3),
-	&"Galley": Vector3(3.95, RAY_Y, -5.8),
-	&"WaterCloset": Vector3(3.25, RAY_Y, -1.9),
-	&"Storage": Vector3(-3.8, RAY_Y, -1.2),
-	&"Airlock": Vector3(-6.85, RAY_Y, -1.2),
-	&"EngineBay": Vector3(0.0, RAY_Y, 4.7),
-}
-
-## One ray per doorway, aimed through the opening: from a point on the room side of the
-## gap (0.8 m inside, at the doorway's lateral centre) to the corridor centerline. Room
-## centers clip chamfered corners on diagonal doorways, so the origin is doorway-local.
-const DOORWAYS: Array = [
-	[Vector3(0.0, RAY_Y, -15.2), Vector3(0.0, RAY_Y, -13.5), "Cockpit"],
-	[Vector3(-1.7, RAY_Y, -10.0), Vector3(0.0, RAY_Y, -10.0), "Quarters"],
-	[Vector3(-1.7, RAY_Y, -6.0), Vector3(0.0, RAY_Y, -6.0), "LifeSupport"],
-	[Vector3(1.7, RAY_Y, -5.6), Vector3(0.0, RAY_Y, -5.6), "Galley"],
-	[Vector3(1.7, RAY_Y, -1.6), Vector3(0.0, RAY_Y, -1.6), "WaterCloset"],
-	[Vector3(-1.7, RAY_Y, -1.2), Vector3(0.0, RAY_Y, -1.2), "Storage"],
-	[Vector3(-3.7, RAY_Y, -1.0), Vector3(-6.3, RAY_Y, -1.0), "Airlock"],
-	[Vector3(-5.6, RAY_Y, -1.2), Vector3(-7.3, RAY_Y, -1.2), "Airlock outer"],
-	[Vector3(0.0, RAY_Y, 2.4), Vector3(0.0, RAY_Y, 1.0), "EngineBay"],
-]
-
-const SOLID_CONTROLS: Array = [
-	[Vector3(0.0, RAY_Y, -12.0), Vector3(-1.95, RAY_Y, -12.0), "corridor west wall beside quarters"],
-	[Vector3(0.0, RAY_Y, -7.5), Vector3(1.95, RAY_Y, -7.5), "corridor east wall beside galley"],
-	[Vector3(-4.2, RAY_Y, -9.75), Vector3(-6.6, RAY_Y, -9.75), "quarters west wall beside the dock doorway"],
-	[Vector3(-3.7, RAY_Y, -7.0), Vector3(-5.6, RAY_Y, -7.0), "life support west wall beside the dock doorway"],
-	[Vector3(3.95, RAY_Y, -4.5), Vector3(6.15, RAY_Y, -4.5), "galley east wall beside the dock doorway"],
-	[Vector3(3.25, RAY_Y, -1.9), Vector3(4.75, RAY_Y, -1.9), "water closet east wall"],
-	[Vector3(-3.8, RAY_Y, -2.6), Vector3(-5.85, RAY_Y, -2.6), "storage west wall beside the airlock gap"],
-	[Vector3(-6.85, RAY_Y, -1.8), Vector3(-8.05, RAY_Y, -1.8), "airlock west wall beside the outer gap"],
-	[Vector3(0.0, RAY_Y, -16.5), Vector3(0.0, RAY_Y, -19.5), "cockpit north wall"],
-	[Vector3(0.0, RAY_Y, 4.7), Vector3(0.0, RAY_Y, 8.5), "engine bay south wall"],
-]
-
-## Corridor cross-section sweeps: [y, clear half-width, blocked half-width].
-const PROFILE_SWEEPS: Array = [
-	[1.5, 1.55, 1.80],
-	[0.2, 0.85, 1.05],
-	[2.6, 0.95, 1.20],
-]
 
 var _failures: int = 0
 var _geometry: Node3D
@@ -81,7 +25,6 @@ func _run() -> void:
 		var event_bus: Node = load("res://src/autoload/event_bus.gd").new()
 		event_bus.name = &"EventBus"
 		root.add_child(event_bus)
-
 	var packed: PackedScene = load(GEOMETRY_PATH) as PackedScene
 	_check(packed != null, "ship geometry scene loads")
 	if packed == null:
@@ -96,13 +39,12 @@ func _run() -> void:
 	await physics_frame
 	await physics_frame
 
-	_test_spaces_exist()
-	_test_shell_collision()
-	_test_doorways_passable()
-	_test_solid_walls_block()
-	_test_corridor_profile()
+	_test_sections_exist()
+	_test_hatches_walkable()
+	_test_airlock_outer_opening()
+	_test_walls_block()
+	_test_section_profile()
 	_test_floor_and_ceiling()
-	_test_wall_planes()
 	_test_cockpit_dash()
 	_test_surface_materials()
 
@@ -110,105 +52,161 @@ func _run() -> void:
 	_finish()
 
 
-func _test_spaces_exist() -> void:
-	for space_name: StringName in EXPECTED_SPACES:
-		var space: Node = _geometry.get_node_or_null(NodePath(String(space_name)))
-		_check(space != null, "space exists: %s" % space_name)
-
-
-func _test_shell_collision() -> void:
-	for space_name: StringName in EXPECTED_SPACES:
-		var space: Node = _geometry.get_node_or_null(NodePath(String(space_name)))
-		if space == null:
+## Every walkable section is a body with wall mesh, floor mesh and trimesh collision, and
+## every hatched joint is a body too - the whole chain is generated, never hand-placed.
+func _test_sections_exist() -> void:
+	var walkable: int = 0
+	for index: int in TubeLayout.sections().size():
+		if not TubeLayout.is_walkable(index):
 			continue
-		var shape_node: CollisionShape3D = space.get_node_or_null(^"ShellShape") as CollisionShape3D
-		if shape_node == null or not (shape_node.shape is ConcavePolygonShape3D):
-			_check(false, "space has a shell collision: %s" % space_name)
+		walkable += 1
+		var section_name: String = String(TubeLayout.sections()[index]["name"])
+		var body: Node = _geometry.get_node_or_null("Section_" + section_name)
+		_check(body != null and body is StaticBody3D, "section body exists: " + section_name)
+		if body == null:
 			continue
-		var shape: ConcavePolygonShape3D = shape_node.shape as ConcavePolygonShape3D
-		_check(shape.get_faces().size() >= 3, "space shell has faces: %s" % space_name)
+		_check(body.get_node_or_null(^"WallsMesh") is MeshInstance3D, "section walls mesh: " + section_name)
+		_check(body.get_node_or_null(^"FloorMesh") is MeshInstance3D, "section floor mesh: " + section_name)
+		var shape: CollisionShape3D = body.get_node_or_null(^"ShellShape") as CollisionShape3D
+		var solid: bool = shape != null and shape.shape is ConcavePolygonShape3D
+		if solid:
+			solid = (shape.shape as ConcavePolygonShape3D).get_faces().size() >= 3
+		_check(solid, "section shell collision: " + section_name)
+	_check(walkable >= 8, "the chain keeps at least 8 walkable sections (%d)" % walkable)
+	var joints: int = 0
+	for index: int in TubeLayout.sections().size() - 1:
+		if not TubeLayout.has_hatch(index):
+			continue
+		joints += 1
+		var label: String = "Joint_%s_%s" % [
+			String(TubeLayout.sections()[index]["name"]),
+			String(TubeLayout.sections()[index + 1]["name"]),
+		]
+		var joint: Node = _geometry.get_node_or_null(label)
+		_check(joint != null and joint is StaticBody3D and joint.get_node_or_null(^"ShellShape") is CollisionShape3D, "joint body exists: " + label)
+	_check(joints >= 8, "the chain keeps at least 8 hatched joints (%d)" % joints)
 
 
-func _test_doorways_passable() -> void:
-	for doorway: Array in DOORWAYS:
-		var from: Vector3 = doorway[0]
-		var to: Vector3 = doorway[1]
-		var label: String = doorway[2]
-		_check(not _ray_hits(from, to), "doorway %s is free of geometry" % label)
+## Walking the chain: a ray down the centre line from each section into the next passes the
+## bulkhead's hatch. The doors themselves are world_layout's business.
+func _test_hatches_walkable() -> void:
+	for index: int in TubeLayout.sections().size() - 1:
+		if not TubeLayout.has_hatch(index):
+			continue
+		var from_z: float = (TubeLayout.span(index).x + TubeLayout.span(index).y) * 0.5
+		var to_z: float = (TubeLayout.span(index + 1).x + TubeLayout.span(index + 1).y) * 0.5
+		var label: String = "%s_%s" % [
+			String(TubeLayout.sections()[index]["name"]),
+			String(TubeLayout.sections()[index + 1]["name"]),
+		]
+		_check(not _ray_hits(Vector3(0.0, RAY_Y, from_z), Vector3(0.0, RAY_Y, to_z)), "hatch walkable: " + label)
 
 
-func _test_solid_walls_block() -> void:
-	for control: Array in SOLID_CONTROLS:
-		var from: Vector3 = control[0]
-		var to: Vector3 = control[1]
-		var label: String = control[2]
-		_check(_ray_hits(from, to), "control: ray into %s hits" % label)
-
-
-func _test_corridor_profile() -> void:
-	for sweep: Array in PROFILE_SWEEPS:
-		var y: float = sweep[0]
-		var clear: float = sweep[1]
-		var blocked: float = sweep[2]
-		_check(
-			not _ray_hits(Vector3(-clear, y, -5.0), Vector3(clear, y, -5.0)),
-			"corridor clear across x[%.2f, %.2f] at y=%.1f" % [-clear, clear, y]
-		)
-		_check(
-			_ray_hits(Vector3(-blocked, y, -5.0), Vector3(blocked, y, -5.0)),
-			"corridor blocked across x[%.2f, %.2f] at y=%.1f" % [-blocked, blocked, y]
-		)
-	_check(not _ray_hits(Vector3(0.0, 0.5, -5.0), Vector3(0.0, 1.0, -5.0)), "corridor floor band is walkable")
-	_check(not _ray_hits(Vector3(0.0, 2.4, -5.0), Vector3(0.0, 2.6, -5.0)), "corridor headroom exists")
-
-
-func _test_floor_and_ceiling() -> void:
-	var floor_hit: Dictionary = _ray_result(Vector3(0.0, 1.0, -5.0), Vector3(0.0, -0.5, -5.0))
-	_check(not floor_hit.is_empty(), "corridor floor is solid")
-	if not floor_hit.is_empty():
-		_check(absf(float((floor_hit["position"] as Vector3).y)) < 0.02, "corridor floor surface is at deck height")
-		_check((floor_hit["normal"] as Vector3).dot(Vector3.UP) > 0.9, "corridor floor faces up")
-	var ceiling_hit: Dictionary = _ray_result(Vector3(0.0, 2.0, -5.0), Vector3(0.0, 3.4, -5.0))
-	_check(not ceiling_hit.is_empty(), "corridor ceiling is solid")
-	if not ceiling_hit.is_empty():
-		_check(absf(float((ceiling_hit["position"] as Vector3).y) - 3.0) < 0.02, "corridor ceiling surface is at head height")
-		_check((ceiling_hit["normal"] as Vector3).dot(Vector3.DOWN) > 0.9, "corridor ceiling faces down")
-	var quarters_hit: Dictionary = _ray_result(Vector3(-4.2, 1.0, -10.4), Vector3(-4.2, -0.5, -10.4))
-	_check(not quarters_hit.is_empty() and absf(float((quarters_hit["position"] as Vector3).y)) < 0.02, "quarters floor surface is at deck height")
-
-
-func _test_wall_planes() -> void:
-	var wall_hit: Dictionary = _ray_result(Vector3(0.0, RAY_Y, -12.0), Vector3(-1.8, RAY_Y, -12.0))
-	_check(not wall_hit.is_empty(), "corridor west wall is solid")
-	if not wall_hit.is_empty():
-		var hit_x: float = float((wall_hit["position"] as Vector3).x)
-		_check(hit_x > -1.65 and hit_x < -1.50, "corridor west wall face sits at the canted profile (x=%.3f)" % hit_x)
-		_check((wall_hit["normal"] as Vector3).dot(Vector3.RIGHT) > 0.8, "corridor west wall faces into the corridor")
-
-
-func _test_cockpit_dash() -> void:
-	var cockpit: Node = _geometry.get_node_or_null(^"Cockpit")
-	_check(cockpit != null, "cockpit exists for the dash check")
-	if cockpit == null:
+## The airlock's radial outer opening is clear through the inner wall, the drum and out.
+func _test_airlock_outer_opening() -> void:
+	var airlock: int = TubeLayout.index_of("airlock")
+	_check(airlock >= 0, "airlock section exists in the table")
+	if airlock < 0:
 		return
-	var panels: int = 0
-	for child: Node in cockpit.get_children():
-		if String(child.name).begins_with("Dash") and child is CollisionShape3D:
-			panels += 1
-	_check(panels >= 11, "the wraparound dash has its panels (%d collision parts)" % panels)
-	var dash_hit: Dictionary = _ray_result(Vector3(0.0, 0.95, -17.4), Vector3(0.0, 0.95, -18.4))
-	_check(not dash_hit.is_empty(), "the dash blocks at console height")
-	var pane: MeshInstance3D = cockpit.get_node_or_null(^"DressingWindowPane") as MeshInstance3D
-	_check(pane != null and pane.material_override != null, "the windshield pane exists")
+	var center_z: float = (TubeLayout.span(airlock).x + TubeLayout.span(airlock).y) * 0.5
+	_check(not _ray_hits(Vector3(0.0, RAY_Y, center_z), Vector3(-12.0, RAY_Y, center_z)), "airlock outer opening is clear through both walls")
+
+
+## Walls block beside the port doorways: probing at a z just outside the port band, on both
+## sides, every section's canted wall is solid.
+func _test_walls_block() -> void:
+	for index: int in TubeLayout.sections().size():
+		if not TubeLayout.is_walkable(index):
+			continue
+		var section: Dictionary = TubeLayout.sections()[index]
+		var radius: float = float(section["radius"])
+		var bounds: Vector2 = TubeLayout.span(index)
+		var center_z: float = (bounds.x + bounds.y) * 0.5
+		var probe_z: float = center_z + 0.55
+		for side: float in [-1.0, 1.0]:
+			var target: float = side * (SectionHull.tube_half_width(radius, RAY_Y) + 0.5)
+			_check(_ray_hits(Vector3(0.0, RAY_Y, probe_z), Vector3(target, RAY_Y, probe_z)), "wall blocks beside the doorway: " + String(section["name"]))
+
+
+## The swept cross-section keeps its profile: at three walk heights each section (the cupola
+## carries the dash instead) is clear inside its wall line and blocked just outside it.
+func _test_section_profile() -> void:
+	for index: int in TubeLayout.sections().size():
+		if not TubeLayout.is_walkable(index):
+			continue
+		var section_name: String = String(TubeLayout.sections()[index]["name"])
+		if section_name == "cupola":
+			continue
+		var radius: float = float(TubeLayout.sections()[index]["radius"])
+		var bounds: Vector2 = TubeLayout.span(index)
+		var center_z: float = (bounds.x + bounds.y) * 0.5
+		var probe_z: float = center_z + 0.55
+		for y: float in [0.3, 1.2, 2.2]:
+			var half: float = SectionHull.tube_half_width(radius, y)
+			_check(
+				not _ray_hits(Vector3(-half + 0.06, y, probe_z), Vector3(half - 0.06, y, probe_z)),
+				"%s clear inside the wall at y=%.2f" % [section_name, y]
+			)
+			_check(
+				_ray_hits(Vector3(-half - 0.25, y, probe_z), Vector3(half + 0.25, y, probe_z)),
+				"%s blocked outside the wall at y=%.2f" % [section_name, y]
+			)
+
+
+## Deck at the deck plane facing up, ceiling at the cove's crown facing down.
+func _test_floor_and_ceiling() -> void:
+	var storage: int = TubeLayout.index_of("storage")
+	_check(storage >= 0, "storage section exists in the table")
+	if storage < 0:
+		return
+	var center_z: float = (TubeLayout.span(storage).x + TubeLayout.span(storage).y) * 0.5
+	var floor_hit: Dictionary = _ray_result(Vector3(0.0, 1.0, center_z), Vector3(0.0, -0.5, center_z))
+	_check(not floor_hit.is_empty(), "section floor is solid")
+	if not floor_hit.is_empty():
+		_check(absf(float((floor_hit["position"] as Vector3).y)) < 0.02, "floor surface is at deck height")
+		_check((floor_hit["normal"] as Vector3).dot(Vector3.UP) > 0.9, "floor faces up")
+	var ceiling_hit: Dictionary = _ray_result(Vector3(0.0, 2.0, center_z), Vector3(0.0, 3.2, center_z))
+	_check(not ceiling_hit.is_empty(), "section ceiling is solid")
+	if not ceiling_hit.is_empty():
+		_check(absf(float((ceiling_hit["position"] as Vector3).y) - SectionHull.TUBE_CEILING) < 0.02, "ceiling surface is at the cove crown")
+		_check((ceiling_hit["normal"] as Vector3).dot(Vector3.DOWN) > 0.9, "ceiling faces down")
+
+
+## The cupola's console bank and viewport: the dash panels and the window trim carry
+## collision, the pane uses the space shader, and the dash blocks at console height.
+func _test_cockpit_dash() -> void:
+	var cupola: Node = _geometry.get_node_or_null(^"Section_cupola")
+	_check(cupola != null, "cupola section exists for the dash check")
+	if cupola == null:
+		return
+	var dash: int = 0
+	var trim: int = 0
+	for child: Node in cupola.get_children():
+		if not (child is CollisionShape3D):
+			continue
+		if String(child.name).begins_with("Dash"):
+			dash += 1
+		elif String(child.name).begins_with("Window"):
+			trim += 1
+	_check(dash >= 6, "the dash has its panels (%d collision parts)" % dash)
+	_check(trim >= 4, "the viewport carries its trim (%d collision parts)" % trim)
+	var face_z: float = TubeLayout.span(TubeLayout.index_of("cupola")).x + 0.28
+	_check(_ray_hits(Vector3(0.0, 0.9, face_z + 1.2), Vector3(0.0, 0.9, face_z - 0.2)), "the dash blocks at console height")
+	var pane: MeshInstance3D = cupola.get_node_or_null(^"DressingWindowPane") as MeshInstance3D
+	_check(pane != null and pane.material_override != null, "the viewport pane exists")
 	if pane != null and pane.material_override != null:
-		_check(pane.material_override.resource_path == WINDOW_MATERIAL_PATH, "the windshield uses the space window shader")
+		_check(pane.material_override.resource_path == WINDOW_MATERIAL_PATH, "the viewport uses the space window shader")
 
 
 func _test_surface_materials() -> void:
-	var walls: MeshInstance3D = _geometry.get_node_or_null(NodePath("Cockpit/WallsMesh")) as MeshInstance3D
-	_check(walls != null and walls.material_override != null and walls.material_override.resource_path == XENON_MATERIAL_PATH, "cockpit walls use the xenon-metal material")
-	var floor: MeshInstance3D = _geometry.get_node_or_null(NodePath("Cockpit/FloorMesh")) as MeshInstance3D
-	_check(floor != null and floor.material_override != null and floor.material_override.resource_path == FLOOR_MATERIAL_PATH, "cockpit floor uses the deck-plate material")
+	var cockpit: Node = _geometry.get_node_or_null(^"Section_cockpit")
+	_check(cockpit != null, "cockpit section exists for the material check")
+	if cockpit == null:
+		return
+	var walls: MeshInstance3D = cockpit.get_node_or_null(^"WallsMesh") as MeshInstance3D
+	_check(walls != null and walls.material_override != null and walls.material_override.resource_path == XENON_MATERIAL_PATH, "section walls use the xenon-metal material")
+	var floor: MeshInstance3D = cockpit.get_node_or_null(^"FloorMesh") as MeshInstance3D
+	_check(floor != null and floor.material_override != null and floor.material_override.resource_path == FLOOR_MATERIAL_PATH, "section floor uses the deck-plate material")
 
 
 func _ray_hits(from: Vector3, to: Vector3) -> bool:
