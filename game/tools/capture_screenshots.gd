@@ -27,6 +27,7 @@ func _run() -> void:
 		if player.has_method("release_tether"):
 			player.call("release_tether")
 		await _capture(player, Vector3(0.0, 0.1, -17.0), 0.0, "shot_tube_cockpit.png")
+		await _capture(player, Vector3(0.0, 0.1, -4.5), PI, "shot_tube_storage.png")
 		await _capture(player, Vector3(0.0, 0.1, -13.9), 0.0, "shot_tube_quarters.png")
 		await _capture(player, Vector3(-0.8, 0.1, -13.9), -PI * 0.5, "shot_tube_quarters_locker.png")
 		await _capture(player, Vector3(0.6, 0.1, -8.3), PI * 0.5, "shot_tube_galley.png")
