@@ -41,7 +41,9 @@ Everything is committed and pushed to `origin/main`; the full suite is green.
 1. **Q8 in `docs/OPEN_QUESTIONS.md` — ring decks (blocks M13.4).** The tube interior is
    2.5 m tall, so a mezzanine splits it into two crawl levels unless the big sections grow.
    Options: crawl loft (no hull change), double-height sections (a section-table pass), or
-   engine bay only. My pick: engine bay first, then the same treatment elsewhere.
+   engine bay only. My pick: engine bay first, then the same treatment elsewhere. A grey-block
+   study of the three options is in `docs/design/study_deck_*.png` (built by
+   `game/tools/build_deck_study.gd`).
 2. **Interactive CRT placement.** The seven interactive props are wall-mounted boards and now
    render the authored consoles. The authored *desktop* console is a floor unit with a
    keyboard shelf; if you would rather have floor consoles in the rooms (a layout change),

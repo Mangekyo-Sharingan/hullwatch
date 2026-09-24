@@ -217,6 +217,10 @@ engine bay, storage, quarters). The blocker is arithmetic: a tube section's inte
 it splits ~2.5 m into two levels of ~1.2 m — crawl spaces for a 1.7 m operator. Nothing in the
 repo forces the height yet; `TubeLayout` and `SectionHull` are the dials.
 
+Study renders (grey-block, the engine bay's radius): `docs/design/study_deck_section.png` and
+`study_deck_three_quarter.png` — built by `game/tools/build_deck_study.gd`, shot by
+`capture_deck_study.gd`, the three options side by side.
+
 Options:
 
 1. **Crawl loft (no hull change).** A partial ring deck at ~1.9 m over the aft or fore half of
