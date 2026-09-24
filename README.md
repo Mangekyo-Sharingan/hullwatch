@@ -4,8 +4,8 @@ A first-person ship-maintenance simulation about keeping a decaying long-haul ve
 
 - **Engine:** Godot 4.7.2 (local binary in `Engine/`)
 - **Language:** GDScript (typed)
-- **Spec:** [`docs/PRODUCTION_SPEC.md`](docs/PRODUCTION_SPEC.md)
-- **Status:** M6 — release prep. Playable test build available.
+- **Spec:** [`docs/PRODUCTION_SPEC.md`](docs/PRODUCTION_SPEC.md) · expansion plan: [`docs/EXPANSION_SPEC.md`](docs/EXPANSION_SPEC.md)
+- **Status:** v0.11.0 released for playtest; early-access expansion in progress (M13 — the modular hull, now in the tube-interior and exterior-fitting passes)
 
 ## Play it
 
@@ -37,6 +37,8 @@ F flashlight, Esc settings/pause.
 | Doc | Purpose |
 |---|---|
 | [`docs/PRODUCTION_SPEC.md`](docs/PRODUCTION_SPEC.md) | Authoritative design spec |
+| [`docs/EXPANSION_SPEC.md`](docs/EXPANSION_SPEC.md) | Early-access milestones M7–M13 |
+| [`docs/OPEN_QUESTIONS.md`](docs/OPEN_QUESTIONS.md) | Decisions awaiting the operator |
 | [`docs/SHIPPING_CHECKLIST.md`](docs/SHIPPING_CHECKLIST.md) | M6 gap list |
 | [`docs/STORE_PAGE.md`](docs/STORE_PAGE.md) | Draft store copy + capsule assets |
 | [`docs/ASSET_CREDITS.md`](docs/ASSET_CREDITS.md) | CC0 asset provenance |
@@ -50,6 +52,7 @@ F flashlight, Esc settings/pause.
 |---|---|
 | `docs/` | Production spec, store copy, credits |
 | `game/` | Godot project root (scenes, src, assets, tests, tools) |
+| `art/` | Blender sources for the authored kits (`art/blender/`) |
 | `build/` | Export output (gitignored) |
 | `Engine/` | Local Godot binaries (gitignored) |
 | `tools/` | Dev utilities, MCP configs |
