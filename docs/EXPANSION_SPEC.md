@@ -216,9 +216,11 @@ integration: the six pod machines render their authored glTF in the sockets
 (`ShipMachine.model_path`, box fallback), the four machinery pieces replace their procedural
 props (scripts and collision kept), the seven interactive CRT props render the authored
 consoles (the tall board for the panels, the desktop unit for the terminals, the phosphor tint
-applied on load by `crt_screen.gd`, the procedural CRT kept as fallback), and four cockpit
-pieces dress the chain as carried props. Polish stays M12; the kits give it the geometry to
-work with.
+applied on load by `crt_screen.gd`, the procedural CRT kept as fallback), the airlock's outer
+hatch is the authored pressure hatch (fitted through `DOOR_STYLES["hullwatch"]`, its own
+materials kept), and a dressing kit (crew locker, mess table, filter rack, tool cart) plus four
+cockpit pieces fill and dress the chain as carried props. Polish stays M12; the kits give it
+the geometry to work with.
 
 One milestone per commit series; each milestone ships with its tests and a playable build
 when the user wants one. Polish is explicitly M12 — do not pull it forward.

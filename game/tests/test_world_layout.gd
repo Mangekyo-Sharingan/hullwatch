@@ -19,6 +19,7 @@ const CARRIED_PROPS: Array[String] = [
 	"Fabricator", "CutterTool", "SampleCanister2", "SampleCanister3", "AirlockPanel",
 	"SuitLocker", "ContainerProp", "ComputerProp", "DisplayProp",
 	"SwitchBank", "GaugeCluster", "SevenSegment", "DeskConsole",
+	"CrewLocker", "MessTable", "FilterRack", "ToolCart",
 ]
 
 ## Gear that belongs on the EVA platform outside the airlock, not inside the tube.
@@ -134,9 +135,15 @@ func _test_doors() -> void:
 		if door == null:
 			_check(false, "door exists: " + door_name)
 			continue
-		var slab: MeshInstance3D = door.get_node_or_null(^"Slab") as MeshInstance3D
+		var slab: Node = door.get_node_or_null(^"Slab")
 		var slab_shape: CollisionShape3D = door.get_node_or_null(^"SlabShape") as CollisionShape3D
-		_check(slab != null and slab.mesh != null and not (slab.mesh is BoxMesh), "door slab uses the Kenney leaf: " + door_name)
+		var slab_ok: bool = false
+		if slab is MeshInstance3D:
+			var slab_mesh: Mesh = (slab as MeshInstance3D).mesh
+			slab_ok = slab_mesh != null and not (slab_mesh is BoxMesh)
+		elif slab != null:
+			slab_ok = slab.find_children("*", "MeshInstance3D", true, false).size() > 0
+		_check(slab_ok, "door slab uses the authored leaf: " + door_name)
 		_check(slab_shape != null and slab_shape.shape is BoxShape3D, "door slab collision: " + door_name)
 		var frame: StaticBody3D = door.get_node_or_null(^"Frame") as StaticBody3D
 		_check(frame != null and frame.collision_layer == 2 and frame.collision_mask == 0, "door keeps a sensor frame: " + door_name)

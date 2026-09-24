@@ -53,6 +53,17 @@ const DOOR_STYLES: Dictionary = {
 		"max": Vector3(0.0, 4.049, 0.136),
 		"yaw": 90.0,
 	},
+	## The authored pressure hatch (original Blender work) is a multi-part leaf, so the whole
+	## prefab is fitted and its own palette materials stay. Used where a heavy hatch reads: the
+	## airlock's outer door.
+	"hullwatch": {
+		"scene": "res://assets/models/hullwatch/machinery/hw_pressure_hatch.glb",
+		"node": &"hw_pressure_hatch",
+		"min": Vector3(-0.498, 0.008, -0.14),
+		"max": Vector3(0.492, 1.992, 0.08),
+		"yaw": 90.0,
+		"keep_material": true,
+	},
 }
 const DOOR_STYLE: String = "kenney"
 
@@ -442,6 +453,12 @@ const MODEL_PROPS: Array[Dictionary] = [
 	{"name": "GaugeCluster", "model": "res://assets/models/hullwatch/cockpit/hw_gauge_cluster.glb", "position": Vector3(2.4, 1.3, 1.5), "rotation": Vector3(0, -90, 0), "size": Vector3(0.16, 0.3, 0.45)},
 	{"name": "SevenSegment", "model": "res://assets/models/hullwatch/cockpit/hw_seven_segment.glb", "position": Vector3(2.4, 1.5, -5.8), "rotation": Vector3(0, -90, 0), "size": Vector3(0.1, 0.1, 0.25)},
 	{"name": "DeskConsole", "model": "res://assets/models/hullwatch/cockpit/hw_crt_console.glb", "position": Vector3(-2.0, 0.0, -16.0), "rotation": Vector3(0, 90, 0), "size": Vector3(0.5, 0.52, 0.65)},
+	# The dressing kit's pieces sit at hand-picked tube spots: the carry compresses a short
+	# section's props into its middle, where the room's own gear already stands.
+	{"name": "CrewLocker", "model": "res://assets/models/hullwatch/props/hw_locker.glb", "position": Vector3(-3.0, 0.0, -10.5), "tube_position": Vector3(0.962, 0.0, -13.5), "rotation": Vector3(0, -90, 0), "size": Vector3(0.5, 1.9, 0.6)},
+	{"name": "MessTable", "model": "res://assets/models/hullwatch/props/hw_mess_table.glb", "position": Vector3(3.0, 0.0, -5.5), "tube_position": Vector3(-0.678, 0.0, -8.3), "rotation": Vector3(0, 90, 0), "size": Vector3(0.7, 0.75, 1.1)},
+	{"name": "FilterRack", "model": "res://assets/models/hullwatch/props/hw_filter_rack.glb", "position": Vector3(-2.5, 1.3, -6.5), "tube_position": Vector3(-1.331, 1.3, -10.3), "rotation": Vector3(0, 90, 0), "size": Vector3(0.3, 0.9, 0.7)},
+	{"name": "ToolCart", "model": "res://assets/models/hullwatch/props/hw_tool_cart.glb", "position": Vector3(2.0, 0.0, 2.0), "tube_position": Vector3(1.008, 0.0, 1.6), "rotation": Vector3(0, -90, 0), "size": Vector3(0.5, 0.9, 0.7)},
 ]
 
 ## Atmosphere occupancy zones: Area3D + script + one BoxShape3D child named Shape.
@@ -477,8 +494,7 @@ var _materials: Dictionary = {}
 var _resources: Dictionary = {}
 var _scenes: Dictionary = {}
 var _failures: int = 0
-var _door_leaf_info: Dictionary = {}
-var _door_leaf_loaded: bool = false
+var _door_leaf_infos: Dictionary = {}
 
 
 func _initialize() -> void:
@@ -673,6 +689,7 @@ func _build_airlock_hatch() -> void:
 		"name": "DoorAirlockOuter",
 		"position": Vector3(-(radius + 0.08), 1.0, center_z),
 		"size": Vector3(0.16, 2.0, 1.0),
+		"door_style": "hullwatch",
 		"exports": {"compartment_a": &"airlock", "compartment_b": &"", "airlock_id": &"airlock_main", "airlock_side": &"outer"},
 	})
 	var storage: int = TubeLayout.index_of("storage")
@@ -689,7 +706,9 @@ func _build_airlock_hatch() -> void:
 ## A prop or kit entry carried into its tube section.
 func _carried(spec: Dictionary) -> Dictionary:
 	var carried: Dictionary = spec.duplicate()
-	if bool(spec.get("tube_platform", false)):
+	if spec.has("tube_position"):
+		carried["position"] = spec["tube_position"]
+	elif bool(spec.get("tube_platform", false)):
 		carried["position"] = _tube_platform_position(spec["position"])
 	else:
 		carried["position"] = _tube_position(spec["position"], spec.get("size", Vector3(0.6, 0.6, 0.6)))
@@ -746,32 +765,40 @@ func _make_group(group_name: String) -> Node3D:
 
 
 ## The active door style's leaf mesh, resolved once per run.
-func _door_leaf() -> Dictionary:
-	if _door_leaf_loaded:
-		return _door_leaf_info
-	_door_leaf_loaded = true
-	var style: Dictionary = DOOR_STYLES[DOOR_STYLE] as Dictionary
-	for arg: String in OS.get_cmdline_user_args():
-		if arg.begins_with("--door-style="):
-			var override: String = arg.trim_prefix("--door-style=")
-			if DOOR_STYLES.has(override):
-				style = DOOR_STYLES[override] as Dictionary
-			else:
-				print("WARN: unknown door style, keeping ", DOOR_STYLE, ": ", override)
+## The leaf a door style fits: the source node's mesh (single-mesh leaves) or the prefab
+## itself (multi-part leaves), plus its bounds and yaw. Cached per style; the `--door-style=`
+## argument still swaps the default style for previews.
+func _door_leaf(style_name: String) -> Dictionary:
+	if _door_leaf_infos.has(style_name):
+		return _door_leaf_infos[style_name] as Dictionary
+	var style: Dictionary = DOOR_STYLES.get(style_name, DOOR_STYLES[DOOR_STYLE]) as Dictionary
+	if style_name == DOOR_STYLE:
+		for arg: String in OS.get_cmdline_user_args():
+			if arg.begins_with("--door-style="):
+				var override: String = arg.trim_prefix("--door-style=")
+				if DOOR_STYLES.has(override):
+					style = DOOR_STYLES[override] as Dictionary
+				else:
+					print("WARN: unknown door style, keeping ", DOOR_STYLE, ": ", override)
+	var info: Dictionary = {}
 	var scene_path: String = String(style["scene"])
 	var packed: PackedScene = load(scene_path) as PackedScene
 	if packed == null:
 		print("WARN: door prefab missing, using box slabs: ", scene_path)
-		return {}
-	var instance: Node = packed.instantiate()
-	var leaf: MeshInstance3D = instance.find_child(String(style["node"]), true, false) as MeshInstance3D
-	if leaf != null:
-		_door_leaf_info = style.duplicate()
-		_door_leaf_info["mesh"] = leaf.mesh
 	else:
-		print("WARN: door prefab has no leaf node ", style["node"], " in ", scene_path)
-	instance.free()
-	return _door_leaf_info
+		var instance: Node = packed.instantiate()
+		var leaf: MeshInstance3D = instance.find_child(String(style["node"]), true, false) as MeshInstance3D
+		if leaf != null:
+			info = style.duplicate()
+			info["mesh"] = leaf.mesh
+		elif instance.get_node_or_null(String(style["node"])) != null:
+			info = style.duplicate()
+			info["prefab"] = packed
+		else:
+			print("WARN: door prefab has no leaf node ", style["node"], " in ", scene_path)
+		instance.free()
+	_door_leaf_infos[style_name] = info
+	return info
 
 
 func _build_prop(spec: Dictionary) -> void:
@@ -981,9 +1008,9 @@ func _build_door(spec: Dictionary) -> void:
 	_apply_exports(door, spec)
 	_props.add_child(door)
 	var size: Vector3 = spec["size"]
-	var slab: MeshInstance3D = MeshInstance3D.new()
+	var slab: Node3D = Node3D.new()
 	slab.name = "Slab"
-	var leaf: Dictionary = _door_leaf()
+	var leaf: Dictionary = _door_leaf(String(spec.get("door_style", DOOR_STYLE)))
 	var leaf_mesh: Mesh = leaf.get("mesh") as Mesh
 	if leaf_mesh != null:
 		var leaf_min: Vector3 = leaf["min"] as Vector3
@@ -995,15 +1022,33 @@ func _build_door(spec: Dictionary) -> void:
 		# The leaf's bottom centre lands on the doorway box's bottom centre; the leaf node's
 		# own offset is rotated with it so either source origin works.
 		var rotated: Vector3 = Vector3(pivot.x * scale.x, 0.0, pivot.z * scale.z).rotated(Vector3.UP, deg_to_rad(yaw))
-		slab.mesh = leaf_mesh
-		slab.rotation_degrees.y = yaw
-		slab.scale = scale
-		slab.position = Vector3(0.0, -size.y * 0.5, 0.0) - rotated
+		var mesh_node: MeshInstance3D = MeshInstance3D.new()
+		mesh_node.name = "Leaf"
+		mesh_node.mesh = leaf_mesh
+		mesh_node.rotation_degrees.y = yaw
+		mesh_node.scale = scale
+		mesh_node.position = Vector3(0.0, -size.y * 0.5, 0.0) - rotated
+		slab.add_child(mesh_node)
+	elif not leaf.is_empty():
+		# Multi-part authored leaf: the whole prefab is fitted, so its own materials stay.
+		var prefab: PackedScene = leaf["prefab"] as PackedScene
+		var root: Node3D = prefab.instantiate() as Node3D
+		root.name = "Leaf"
+		root.rotation_degrees.y = float(leaf["yaw"])
+		root.scale = Vector3(size.z / (float(leaf["max"].x) - float(leaf["min"].x)), size.y / (float(leaf["max"].y) - float(leaf["min"].y)), size.x / (float(leaf["max"].z) - float(leaf["min"].z)))
+		root.position = Vector3(0.0, -size.y * 0.5, 0.0)
+		slab.add_child(root)
 	else:
 		var slab_mesh: BoxMesh = BoxMesh.new()
 		slab_mesh.size = size
-		slab.mesh = slab_mesh
-	slab.material_override = _materials[MATERIAL_PANEL_SCRATCHED] as Material
+		var box_node: MeshInstance3D = MeshInstance3D.new()
+		box_node.name = "Leaf"
+		box_node.mesh = slab_mesh
+		slab.add_child(box_node)
+	if not bool(leaf.get("keep_material", false)):
+		for child: Node in slab.get_children():
+			if child is MeshInstance3D:
+				(child as MeshInstance3D).material_override = _materials[MATERIAL_PANEL_SCRATCHED] as Material
 	door.add_child(slab)
 	var slab_box: BoxShape3D = BoxShape3D.new()
 	slab_box.size = size
