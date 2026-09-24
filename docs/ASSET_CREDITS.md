@@ -36,6 +36,20 @@ is retained at `game/assets/models/kenney_space_station_kit/License.txt`.
 Only the **GLB format** models and the `Textures/colormap.png` atlas were kept; OBJ/FBX exports,
 previews, and the preview HTML from the archive were discarded.
 
+## 3D models — original work (project-authored, 2026-09-24)
+
+Authored in Blender for this project (no third-party license applies; no attribution needed).
+Sources: `art/blender/*.blend` (Git LFS) · Exports: `game/assets/models/hullwatch/` ·
+Previews: `docs/design/asset_*.png`. Style rules in `docs/ASSET_SOURCES.md` / spec §6.1.
+
+| Kit | Pieces | Local path |
+|---|---|---|
+| Cockpit hero kit | CRT console, portrait status board, switch bank, gauge cluster, seven-segment module | `game/assets/models/hullwatch/cockpit/` |
+| Pod machine kit | Grow rack, work bench, battery cabinet, med cot, cargo rack, spare scrubber | `game/assets/models/hullwatch/machines/` |
+| Life-support machinery kit | Scrubber unit, water reclaimer, fabricator, breaker cabinet | `game/assets/models/hullwatch/machinery/` |
+| Pressure hatch | Airlock outer hatch leaf (fitted through `DOOR_STYLES["hullwatch"]`) | `game/assets/models/hullwatch/machinery/` |
+| Interior dressing kit | Crew locker, mess table, filter rack, tool cart | `game/assets/models/hullwatch/props/` |
+
 ## Notes
 
 - Materials generated from the texture sets live in `game/src/data/materials/` and are rebuilt by
