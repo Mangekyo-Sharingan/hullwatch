@@ -51,6 +51,7 @@ Previews: `docs/design/asset_*.png`. Style rules in `docs/ASSET_SOURCES.md` / sp
 | Interior dressing kit | Crew locker, mess table, filter rack, tool cart | `game/assets/models/hullwatch/props/` |
 | Storage & galley kit | Crate stack, shelf unit, galley counter, pod service panel | `game/assets/models/hullwatch/props/` |
 | Exterior fittings kit | Antenna dish, thruster cluster, hull vent, floodlight, handrail | `game/assets/models/hullwatch/exterior/` |
+| Lighting kit | Ceiling lamp (one per cabin light), wall conduit run | `game/assets/models/hullwatch/exterior/` |
 
 ## Notes
 

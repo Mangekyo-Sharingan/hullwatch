@@ -221,7 +221,8 @@ hatch is the authored pressure hatch (fitted through `DOOR_STYLES["hullwatch"]`,
 materials kept), and dressing kits (crew locker, mess table, filter rack, tool cart; crate
 stack, shelf unit, galley counter, pod service panel) plus four cockpit pieces fill the chain,
 while the exterior fittings kit (dish, thrusters, vents, floodlights, handrails) mounts on the
-drums. Polish stays M12; the kits give it the geometry to work with.
+drums and the lighting kit (a visible fixture at every cabin light, wall conduit runs) makes
+the light sources diegetic. Polish stays M12; the kits give it the geometry to work with.
 
 One milestone per commit series; each milestone ships with its tests and a playable build
 when the user wants one. Polish is explicitly M12 — do not pull it forward.
