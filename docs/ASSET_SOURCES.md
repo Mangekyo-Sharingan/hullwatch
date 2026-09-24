@@ -72,7 +72,16 @@ sound managers (our AudioDirector + `AudioStreamRandomizer` covers it).
 
 ## Custom Blender work required (no good free source)
 
-- Cockpit hero geometry: CRT screens with live emissive readouts, 7-segment displays, chunky
-  switch/knob panels, valve/gauge clusters — the player's hands-on surfaces.
-- Taped-label / hand-written docket decal set.
-- Life-support closet bespoke machinery (matches the scrubber unit's procedure).
+**Status 2026-09-24:** the first two items are authored and in the game (sources in
+`art/blender/`, exports in `game/assets/models/hullwatch/`, credits in `docs/ASSET_CREDITS.md`);
+the decal set is still open.
+
+- ~~Cockpit hero geometry: CRT screens with live emissive readouts, 7-segment displays, chunky
+  switch/knob panels, valve/gauge clusters — the player's hands-on surfaces.~~ **Done:** the
+  cockpit hero kit (CRT console, status board, switch bank, gauge cluster, seven-segment) is
+  fitted to the interactive panels and dressed through the chain.
+- Taped-label / hand-written docket decal set. **Open** — needs a texture pass (painted maps,
+  not geometry).
+- ~~Life-support closet bespoke machinery (matches the scrubber unit's procedure).~~ **Done:**
+  the machinery kit (scrubber unit, water reclaimer, fabricator, breaker cabinet) replaces the
+  procedural props; the pod machine kit and dressing kits cover the rest.
