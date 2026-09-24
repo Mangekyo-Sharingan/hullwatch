@@ -55,8 +55,8 @@ func _run() -> void:
 		player.call("release_tether")
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	var pod_z: float = -11.05
-	player.global_position = Vector3(-4.4, 0.1, pod_z)
-	player.look_at(Vector3(-7.0, 0.9, pod_z), Vector3.UP)
+	player.global_position = Vector3(-3.2, 0.1, pod_z + 0.6)
+	player.look_at(Vector3(-6.2, 0.7, pod_z - 0.9), Vector3.UP)
 	var work_light: OmniLight3D = OmniLight3D.new()
 	work_light.light_energy = 4.0
 	work_light.omni_range = 12.0

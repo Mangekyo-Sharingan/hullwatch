@@ -20,6 +20,7 @@ const CARRIED_PROPS: Array[String] = [
 	"SuitLocker", "ContainerProp", "ComputerProp", "DisplayProp",
 	"SwitchBank", "GaugeCluster", "SevenSegment", "DeskConsole",
 	"CrewLocker", "MessTable", "FilterRack", "ToolCart",
+	"CrateStack", "ShelfUnit", "GalleyUnit",
 ]
 
 ## Gear that belongs on the EVA platform outside the airlock, not inside the tube.

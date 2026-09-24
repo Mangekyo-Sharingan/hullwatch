@@ -459,6 +459,9 @@ const MODEL_PROPS: Array[Dictionary] = [
 	{"name": "MessTable", "model": "res://assets/models/hullwatch/props/hw_mess_table.glb", "position": Vector3(3.0, 0.0, -5.5), "tube_position": Vector3(-0.678, 0.0, -8.3), "rotation": Vector3(0, 90, 0), "size": Vector3(0.7, 0.75, 1.1)},
 	{"name": "FilterRack", "model": "res://assets/models/hullwatch/props/hw_filter_rack.glb", "position": Vector3(-2.5, 1.3, -6.5), "tube_position": Vector3(-1.331, 1.3, -10.3), "rotation": Vector3(0, 90, 0), "size": Vector3(0.3, 0.9, 0.7)},
 	{"name": "ToolCart", "model": "res://assets/models/hullwatch/props/hw_tool_cart.glb", "position": Vector3(2.0, 0.0, 2.0), "tube_position": Vector3(1.008, 0.0, 1.6), "rotation": Vector3(0, -90, 0), "size": Vector3(0.5, 0.9, 0.7)},
+	{"name": "CrateStack", "model": "res://assets/models/hullwatch/props/hw_crate_stack.glb", "position": Vector3(-4.0, 0.0, -1.0), "tube_position": Vector3(0.728, 0.0, -2.6), "rotation": Vector3(0, -90, 0), "size": Vector3(0.6, 1.5, 1.0)},
+	{"name": "ShelfUnit", "model": "res://assets/models/hullwatch/props/hw_shelf_unit.glb", "position": Vector3(-4.5, 0.95, -0.5), "tube_position": Vector3(-1.028, 0.95, -4.0), "rotation": Vector3(0, 90, 0), "size": Vector3(0.4, 1.8, 1.0)},
+	{"name": "GalleyUnit", "model": "res://assets/models/hullwatch/props/hw_galley_unit.glb", "position": Vector3(4.0, 0.0, -5.0), "tube_position": Vector3(0.678, 0.0, -9.0), "rotation": Vector3(0, -90, 0), "size": Vector3(0.6, 0.9, 1.2)},
 ]
 
 ## Atmosphere occupancy zones: Area3D + script + one BoxShape3D child named Shape.

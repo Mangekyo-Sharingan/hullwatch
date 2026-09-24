@@ -378,7 +378,32 @@ func _build_dock_pod() -> Node3D:
 	link.set(&"compartment_b", &"")
 	pod.add_child(link)
 	_add_machine_sockets(pod, room)
+	_add_pod_panel(pod)
 	return pod
+
+
+## A service panel on the pod's starboard wall, so a bare pod still reads as a room.
+func _add_pod_panel(pod: Node3D) -> void:
+	var path: String = "res://assets/models/hullwatch/props/hw_pod_panel.glb"
+	if not ResourceLoader.exists(path):
+		return
+	var scene: PackedScene = load(path) as PackedScene
+	if scene == null:
+		return
+	var panel: StaticBody3D = StaticBody3D.new()
+	panel.name = "ServicePanel"
+	panel.position = Vector3(2.0, 1.3, 1.58)
+	panel.rotation_degrees = Vector3(0, 180, 0)
+	var model: Node3D = scene.instantiate() as Node3D
+	model.name = "Model"
+	panel.add_child(model)
+	var shape: BoxShape3D = BoxShape3D.new()
+	shape.size = Vector3(0.8, 1.0, 0.12)
+	var collider: CollisionShape3D = CollisionShape3D.new()
+	collider.name = "Shape"
+	collider.shape = shape
+	panel.add_child(collider)
+	pod.add_child(panel)
 
 
 ## Three machine sockets along the pod's far wall: the pads the operator fits machines into.
@@ -1252,7 +1277,61 @@ func _build_tube_fittings(hull: StaticBody3D, decks: Dictionary, collision: Arra
 	if TubeLayout.index_of("airlock") >= 0:
 		_add_tube_eva_deck(hull, decks, collision)
 		_add_tube_walkway(hull, decks, collision)
+	_add_tube_exterior_kit(hull)
 	_add_tube_throats(hull)
+
+
+## Authored exterior fittings (original Blender kit): the dish, thruster blocks, vents,
+## floodlights and deck handrails that give the drum hull its hardware. Mount conventions:
+## dish/thrusters/floodlights/handrails are authored on their base plate (thrusters' nozzles
+## and floodlight lenses face +Z), vents are wall pieces (back at z = 0, front +Z).
+func _add_tube_exterior_kit(hull: StaticBody3D) -> void:
+	var base: String = "res://assets/models/hullwatch/exterior/"
+	_add_hull_model(hull, base + "hw_antenna_dish.glb", "AntennaDish", Vector3(0.5, 2.80, -19.9), Vector3.ZERO)
+	var thruster_spots: Array[Vector3] = [
+		Vector3(-1.958, 1.2, -20.2), Vector3(1.958, 1.2, -20.2),
+		Vector3(-2.103, 1.2, 8.4), Vector3(2.103, 1.2, 8.4),
+	]
+	for i: int in thruster_spots.size():
+		var yaw: float = -90.0 if thruster_spots[i].x < 0.0 else 90.0
+		_add_hull_model(hull, base + "hw_thruster_cluster.glb", "ThrusterCluster%d" % i, thruster_spots[i], Vector3(0.0, yaw, 0.0))
+	var vent_spots: Array[Vector3] = [
+		Vector3(-1.75, 0.9, -13.9), Vector3(1.51, 0.9, -8.3), Vector3(1.80, 1.4, -3.2),
+	]
+	for i: int in vent_spots.size():
+		var yaw: float = 90.0 if vent_spots[i].x < 0.0 else -90.0
+		_add_hull_model(hull, base + "hw_hull_vent.glb", "HullVent%d" % i, vent_spots[i], Vector3(0.0, yaw, 0.0))
+	var light_spots: Array[Vector3] = [
+		Vector3(-4.6, 0.0, -0.65), Vector3(-3.24, 0.0, -9.2),
+	]
+	for i: int in light_spots.size():
+		var yaw: float = 90.0 if i == 0 else 0.0
+		_add_hull_model(hull, base + "hw_floodlight.glb", "Floodlight%d" % i, light_spots[i], Vector3(0.0, yaw, 0.0))
+	var rail_spots: Array[Vector3] = [
+		Vector3(-3.6, 0.0, -6.0), Vector3(-3.6, 0.0, -8.0),
+		Vector3(-4.5, 0.0, -3.0), Vector3(-4.5, 0.0, -1.8),
+	]
+	for i: int in rail_spots.size():
+		_add_hull_model(hull, base + "hw_handrail.glb", "Handrail%d" % i, rail_spots[i], Vector3(0.0, 90.0, 0.0))
+
+
+## Attaches an authored model fitting to the hull at a fixed spot (the hull generator's
+## counterpart of the layout's model props). Fittings are dressing: the shell keeps the
+## collision, so they carry no shape of their own.
+func _add_hull_model(hull: StaticBody3D, path: String, node_name: String, position: Vector3, rotation: Vector3) -> void:
+	if not ResourceLoader.exists(path):
+		return
+	var scene: PackedScene = load(path) as PackedScene
+	if scene == null:
+		return
+	var node: Node3D = Node3D.new()
+	node.name = node_name
+	node.position = position
+	node.rotation_degrees = rotation
+	var model: Node3D = scene.instantiate() as Node3D
+	model.name = "Model"
+	node.add_child(model)
+	hull.add_child(node)
 
 
 ## Every opening through the inner shell gets a sleeve out to whatever closes it - the dock
