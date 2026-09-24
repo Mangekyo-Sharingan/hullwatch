@@ -699,6 +699,7 @@ func _build_airlock_hatch() -> void:
 			"name": "DoorAirlockInner",
 			"position": Vector3(0.0, TubeLayout.HATCH_HEIGHT * 0.5, joint_z),
 			"size": Vector3(TubeLayout.HATCH_HALF_WIDTH * 2.0, TubeLayout.HATCH_HEIGHT, 0.16),
+			"door_style": "hullwatch",
 			"exports": {"compartment_a": &"storage", "compartment_b": &"airlock", "airlock_id": &"airlock_main", "airlock_side": &"inner"},
 		})
 
@@ -1017,8 +1018,13 @@ func _build_door(spec: Dictionary) -> void:
 		var leaf_max: Vector3 = leaf["max"] as Vector3
 		var leaf_size: Vector3 = leaf_max - leaf_min
 		var pivot: Vector3 = Vector3((leaf_min.x + leaf_max.x) * 0.5, leaf_min.y, (leaf_min.z + leaf_max.z) * 0.5)
-		var yaw: float = float(leaf["yaw"])
-		var scale: Vector3 = Vector3(size.z / leaf_size.x, size.y / leaf_size.y, size.x / leaf_size.z)
+		# Doorway boxes come in two conventions: (thickness, height, width) - the airlock's
+		# radial outer hatch - and (width, height, thickness) - the bulkhead doors. Normalize
+		# so the leaf's own width always runs across the doorway and its thickness through it.
+		var thickness: float = minf(size.x, size.z)
+		var width: float = maxf(size.x, size.z)
+		var yaw: float = float(leaf["yaw"]) if size.x <= size.z else 0.0
+		var scale: Vector3 = Vector3(width / leaf_size.x, size.y / leaf_size.y, thickness / leaf_size.z)
 		# The leaf's bottom centre lands on the doorway box's bottom centre; the leaf node's
 		# own offset is rotated with it so either source origin works.
 		var rotated: Vector3 = Vector3(pivot.x * scale.x, 0.0, pivot.z * scale.z).rotated(Vector3.UP, deg_to_rad(yaw))

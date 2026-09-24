@@ -1055,7 +1055,7 @@ hide_when_open = true
 [node name="Slab" type="Node3D" parent="Props/DoorJoint_cupola_cockpit"]
 
 [node name="Leaf" type="MeshInstance3D" parent="Props/DoorJoint_cupola_cockpit/Slab"]
-transform = Transform3D(-2.9140923e-09, 0, 1.2857143, 0, 0.49731183, 0, -0.06666666, 0, -5.6200356e-08, 0, -0.925, 0)
+transform = Transform3D(0.37499997, 0, 0, 0, 0.49731183, 0, 0, 0, 0.22857143, 0, -0.925, 0)
 material_override = ExtResource("28_phy7b")
 mesh = SubResource("ArrayMesh_w74pf")
 
@@ -1081,7 +1081,7 @@ hide_when_open = true
 [node name="Slab" type="Node3D" parent="Props/DoorJoint_cockpit_quarters"]
 
 [node name="Leaf" type="MeshInstance3D" parent="Props/DoorJoint_cockpit_quarters/Slab"]
-transform = Transform3D(-2.9140923e-09, 0, 1.2857143, 0, 0.49731183, 0, -0.06666666, 0, -5.6200356e-08, 0, -0.925, 0)
+transform = Transform3D(0.37499997, 0, 0, 0, 0.49731183, 0, 0, 0, 0.22857143, 0, -0.925, 0)
 material_override = ExtResource("28_phy7b")
 mesh = SubResource("ArrayMesh_w74pf")
 
@@ -1107,7 +1107,7 @@ hide_when_open = true
 [node name="Slab" type="Node3D" parent="Props/DoorJoint_quarters_life_support"]
 
 [node name="Leaf" type="MeshInstance3D" parent="Props/DoorJoint_quarters_life_support/Slab"]
-transform = Transform3D(-2.9140923e-09, 0, 1.2857143, 0, 0.49731183, 0, -0.06666666, 0, -5.6200356e-08, 0, -0.925, 0)
+transform = Transform3D(0.37499997, 0, 0, 0, 0.49731183, 0, 0, 0, 0.22857143, 0, -0.925, 0)
 material_override = ExtResource("28_phy7b")
 mesh = SubResource("ArrayMesh_w74pf")
 
@@ -1133,7 +1133,7 @@ hide_when_open = true
 [node name="Slab" type="Node3D" parent="Props/DoorJoint_life_support_galley"]
 
 [node name="Leaf" type="MeshInstance3D" parent="Props/DoorJoint_life_support_galley/Slab"]
-transform = Transform3D(-2.9140923e-09, 0, 1.2857143, 0, 0.49731183, 0, -0.06666666, 0, -5.6200356e-08, 0, -0.925, 0)
+transform = Transform3D(0.37499997, 0, 0, 0, 0.49731183, 0, 0, 0, 0.22857143, 0, -0.925, 0)
 material_override = ExtResource("28_phy7b")
 mesh = SubResource("ArrayMesh_w74pf")
 
@@ -1159,7 +1159,7 @@ hide_when_open = true
 [node name="Slab" type="Node3D" parent="Props/DoorJoint_galley_water_closet"]
 
 [node name="Leaf" type="MeshInstance3D" parent="Props/DoorJoint_galley_water_closet/Slab"]
-transform = Transform3D(-2.9140923e-09, 0, 1.2857143, 0, 0.49731183, 0, -0.06666666, 0, -5.6200356e-08, 0, -0.925, 0)
+transform = Transform3D(0.37499997, 0, 0, 0, 0.49731183, 0, 0, 0, 0.22857143, 0, -0.925, 0)
 material_override = ExtResource("28_phy7b")
 mesh = SubResource("ArrayMesh_w74pf")
 
@@ -1185,7 +1185,7 @@ hide_when_open = true
 [node name="Slab" type="Node3D" parent="Props/DoorJoint_water_closet_storage"]
 
 [node name="Leaf" type="MeshInstance3D" parent="Props/DoorJoint_water_closet_storage/Slab"]
-transform = Transform3D(-2.9140923e-09, 0, 1.2857143, 0, 0.49731183, 0, -0.06666666, 0, -5.6200356e-08, 0, -0.925, 0)
+transform = Transform3D(0.37499997, 0, 0, 0, 0.49731183, 0, 0, 0, 0.22857143, 0, -0.925, 0)
 material_override = ExtResource("28_phy7b")
 mesh = SubResource("ArrayMesh_w74pf")
 
@@ -1211,7 +1211,7 @@ hide_when_open = true
 [node name="Slab" type="Node3D" parent="Props/DoorJoint_airlock_engine_bay_a"]
 
 [node name="Leaf" type="MeshInstance3D" parent="Props/DoorJoint_airlock_engine_bay_a/Slab"]
-transform = Transform3D(-2.9140923e-09, 0, 1.2857143, 0, 0.49731183, 0, -0.06666666, 0, -5.6200356e-08, 0, -0.925, 0)
+transform = Transform3D(0.37499997, 0, 0, 0, 0.49731183, 0, 0, 0, 0.22857143, 0, -0.925, 0)
 material_override = ExtResource("28_phy7b")
 mesh = SubResource("ArrayMesh_w74pf")
 
@@ -1237,7 +1237,7 @@ hide_when_open = true
 [node name="Slab" type="Node3D" parent="Props/DoorJoint_engine_bay_a_engine_bay_b"]
 
 [node name="Leaf" type="MeshInstance3D" parent="Props/DoorJoint_engine_bay_a_engine_bay_b/Slab"]
-transform = Transform3D(-2.9140923e-09, 0, 1.2857143, 0, 0.49731183, 0, -0.06666666, 0, -5.6200356e-08, 0, -0.925, 0)
+transform = Transform3D(0.37499997, 0, 0, 0, 0.49731183, 0, 0, 0, 0.22857143, 0, -0.925, 0)
 material_override = ExtResource("28_phy7b")
 mesh = SubResource("ArrayMesh_w74pf")
 
@@ -1287,9 +1287,8 @@ airlock_side = &"inner"
 [node name="Slab" type="Node3D" parent="Props/DoorAirlockInner"]
 
 [node name="Leaf" type="MeshInstance3D" parent="Props/DoorAirlockInner/Slab"]
-transform = Transform3D(-2.9140923e-09, 0, 1.2857143, 0, 0.49731183, 0, -0.06666666, 0, -5.6200356e-08, 0, -0.925, 0)
-material_override = ExtResource("28_phy7b")
-mesh = SubResource("ArrayMesh_w74pf")
+transform = Transform3D(0.9090909, 0, 0, 0, 0.9324597, 0, 0, 0, 0.7272727, 0.0027272645, -0.925, 0.021818181)
+mesh = SubResource("ArrayMesh_s5dqh")
 
 [node name="SlabShape" type="CollisionShape3D" parent="Props/DoorAirlockInner"]
 shape = SubResource("BoxShape3D_nhj3l")

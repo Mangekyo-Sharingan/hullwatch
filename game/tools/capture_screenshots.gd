@@ -37,6 +37,7 @@ func _run() -> void:
 		await _capture(player, Vector3(0.1, 1.1, -20.1), -PI * 0.5, "shot_tube_terminal.png")
 		await _capture(player, Vector3(0.0, 0.1, -4.0), PI, "shot_tube_chain.png")
 		await _capture(player, Vector3(0.0, 0.1, -0.65), PI * 0.5, "shot_tube_airlock.png")
+		await _capture(player, Vector3(0.0, 0.1, -0.65), 0.0, "shot_tube_airlock_inner.png")
 		await _capture(player, Vector3(0.0, 1.4, -18.6), 0.0, "shot_tube_bow.png")
 		await _capture(player, Vector3(0.0, 1.4, -6.0), PI, "shot_tube_aft.png")
 		await _capture(player, Vector3(-4.3, 0.1, -0.65), -PI * 0.5, "shot_tube_eva.png")
