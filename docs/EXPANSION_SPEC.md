@@ -218,9 +218,10 @@ props (scripts and collision kept), the seven interactive CRT props render the a
 consoles (the tall board for the panels, the desktop unit for the terminals, the phosphor tint
 applied on load by `crt_screen.gd`, the procedural CRT kept as fallback), the airlock's outer
 hatch is the authored pressure hatch (fitted through `DOOR_STYLES["hullwatch"]`, its own
-materials kept), and a dressing kit (crew locker, mess table, filter rack, tool cart) plus four
-cockpit pieces fill and dress the chain as carried props. Polish stays M12; the kits give it
-the geometry to work with.
+materials kept), and dressing kits (crew locker, mess table, filter rack, tool cart; crate
+stack, shelf unit, galley counter, pod service panel) plus four cockpit pieces fill the chain,
+while the exterior fittings kit (dish, thrusters, vents, floodlights, handrails) mounts on the
+drums. Polish stays M12; the kits give it the geometry to work with.
 
 One milestone per commit series; each milestone ships with its tests and a playable build
 when the user wants one. Polish is explicitly M12 — do not pull it forward.

@@ -29,10 +29,12 @@ Everything is committed and pushed to `origin/main`; the full suite is green.
   tether anchors are mounted on the drum walls; `test_module_scene` asserts the
   build -> enter-a-pod-on-foot walk from the room; the door fit is normalized so bulkhead
   leaves keep their detailing axis.
-- **Five original kits, in the game:** cockpit hero kit (consoles, switch bank, gauges,
+- **Seven original kits, in the game:** cockpit hero kit (consoles, switch bank, gauges,
   seven-segment), pod machine kit (six machines in the sockets), life-support machinery
   (scrubber, reclaimer, fabricator, breaker cabinet), the airlock pressure hatch (outer and
-  inner hatches), and the interior dressing kit (locker, mess table, filter rack, tool cart).
+  inner hatches), the interior dressing kit (locker, mess table, filter rack, tool cart), the
+  storage/galley kit (crate stack, shelf unit, galley counter, pod service panel) and the
+  exterior fittings kit (dish, thrusters, vents, floodlights, deck handrails).
 - **Docs:** AGENTS/EXPANSION status, asset credits, README, the EVA manual page (flat-era
   catwalk text replaced), and a new open question.
 
