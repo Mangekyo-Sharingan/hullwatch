@@ -9,13 +9,15 @@ Everything is committed and pushed to `origin/main`; the full suite is green.
 - **Playtest build:** `build/windows/Hullwatch.exe` (single file, rebuilt from the final
   source; the export verified as a PE32+ GUI executable with the kits embedded). Built on
   Linux — not run on Windows here, so it is untested by hand.
-- **Captures:** `docs/design/shot_tube_*.png` (refreshed) — of note:
+- **Captures:** `docs/design/shot_tube_*.png` (refreshed, 20 shots) — of note:
   `shot_tube_walkway.png`, `shot_tube_eva.png` (the authored outer hatch),
   `shot_tube_airlock_inner.png`, `shot_tube_terminal.png`, `shot_tube_galley.png`,
-  `shot_tube_filter_rack.png`, `shot_tube_tool_cart.png`,
-  `shot_tube_quarters_locker.png`, and `shot_pod_machines.png` (machines in a pod).
+  `shot_tube_storage.png`, `shot_tube_filter_rack.png`, `shot_tube_tool_cart.png`,
+  `shot_tube_quarters_locker.png`, `shot_pod_machines.png` (machines and the service panel in
+  a pod), and `shot_tube_engine_bay.png` (the fabricator, with the visible ceiling lamp).
 - **Kit previews:** `docs/design/asset_cockpit_kit.png`, `asset_machine_kit.png`,
-  `asset_machinery_kit.png`, `asset_hatch_kit.png`, `asset_dressing_kit.png`.
+  `asset_machinery_kit.png`, `asset_hatch_kit.png`, `asset_dressing_kit.png`,
+  `asset_storage_kit.png`, `asset_exterior_kit.png`, `asset_lighting_kit.png`.
 - **Blender sources:** `art/blender/*.blend` (cockpit, machines, machinery, hatch, dressing).
 
 ## What landed
@@ -29,12 +31,13 @@ Everything is committed and pushed to `origin/main`; the full suite is green.
   tether anchors are mounted on the drum walls; `test_module_scene` asserts the
   build -> enter-a-pod-on-foot walk from the room; the door fit is normalized so bulkhead
   leaves keep their detailing axis.
-- **Seven original kits, in the game:** cockpit hero kit (consoles, switch bank, gauges,
+- **Eight original kits, in the game:** cockpit hero kit (consoles, switch bank, gauges,
   seven-segment), pod machine kit (six machines in the sockets), life-support machinery
   (scrubber, reclaimer, fabricator, breaker cabinet), the airlock pressure hatch (outer and
   inner hatches), the interior dressing kit (locker, mess table, filter rack, tool cart), the
-  storage/galley kit (crate stack, shelf unit, galley counter, pod service panel) and the
-  exterior fittings kit (dish, thrusters, vents, floodlights, deck handrails).
+  storage/galley kit (crate stack, shelf unit, galley counter, pod service panel), the
+  exterior fittings kit (dish, thrusters, vents, floodlights, deck handrails) and the lighting
+  kit (a visible ceiling fixture at every cabin light, six wall conduit runs).
 - **Docs:** AGENTS/EXPANSION status, asset credits, README, the EVA manual page (flat-era
   catwalk text replaced), and a new open question.
 
