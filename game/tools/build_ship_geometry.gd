@@ -1313,12 +1313,20 @@ func _add_tube_exterior_kit(hull: StaticBody3D) -> void:
 	]
 	for i: int in rail_spots.size():
 		_add_hull_model(hull, base + "hw_handrail.glb", "Handrail%d" % i, rail_spots[i], Vector3(0.0, 90.0, 0.0))
+	# Wall conduit runs at the base of a few sections (the wall line at y = 0.3).
+	var conduit_spots: Array[Vector3] = [
+		Vector3(-1.075, 0.30, -11.0), Vector3(1.180, 0.30, -8.3), Vector3(1.180, 0.30, -3.2),
+		Vector3(-1.390, 0.30, -13.9), Vector3(1.443, 0.30, 2.0), Vector3(-1.232, 0.30, -17.0),
+	]
+	for i: int in conduit_spots.size():
+		var yaw: float = 90.0 if conduit_spots[i].x < 0.0 else -90.0
+		_add_hull_model(hull, base + "hw_wall_conduit.glb", "WallConduit%d" % i, conduit_spots[i], Vector3(0.0, yaw, 0.0))
 
 
 ## Attaches an authored model fitting to the hull at a fixed spot (the hull generator's
 ## counterpart of the layout's model props). Fittings are dressing: the shell keeps the
 ## collision, so they carry no shape of their own.
-func _add_hull_model(hull: StaticBody3D, path: String, node_name: String, position: Vector3, rotation: Vector3) -> void:
+func _add_hull_model(hull: StaticBody3D, path: String, node_name: String, position: Vector3, rotation: Vector3, scale: float = 1.0) -> void:
 	if not ResourceLoader.exists(path):
 		return
 	var scene: PackedScene = load(path) as PackedScene
@@ -1328,6 +1336,7 @@ func _add_hull_model(hull: StaticBody3D, path: String, node_name: String, positi
 	node.name = node_name
 	node.position = position
 	node.rotation_degrees = rotation
+	node.scale = Vector3.ONE * scale
 	var model: Node3D = scene.instantiate() as Node3D
 	model.name = "Model"
 	node.add_child(model)
@@ -1390,6 +1399,8 @@ func _add_tube_cabin_light(hull: StaticBody3D, center_z: float) -> void:
 	light.omni_range = 5.5
 	light.shadow_enabled = true
 	hull.add_child(light)
+	# The visible fixture, scaled to sit between the ceiling pipes (x = +/- 0.34).
+	_add_hull_model(hull, "res://assets/models/hullwatch/exterior/hw_ceiling_lamp.glb", "CabinLamp%.1f" % center_z, Vector3(0.0, SectionHull.TUBE_CEILING, center_z), Vector3.ZERO, 0.8)
 
 
 ## A dock mount on its drum, under the same contract as the flat hull's: the plate is the
