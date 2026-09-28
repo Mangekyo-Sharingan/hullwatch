@@ -165,6 +165,10 @@ func _event_text(event_name: StringName, payload: Dictionary) -> String:
 			return "HULL PUNCTURE: %s" % _upper(payload.get("compartment_id", &""))
 		&"hull_patched":
 			return "HULL PATCHED: %s" % _upper(payload.get("compartment_id", &""))
+		&"filter_installed":
+			return "FILTER INSTALLED: %s / %s" % [_upper(payload.get("part_id", &"")), _upper(payload.get("compartment_id", &""))]
+		&"reclaimer_serviced":
+			return "WATER RECLAIMER SERVICED: %s" % _upper(payload.get("part_id", &""))
 		&"stores_low":
 			return "STORES LOW: %s x%d" % [_upper(payload.get("part_id", &"")), int(payload.get("new_count", 0))]
 		&"water_low":
@@ -175,6 +179,8 @@ func _event_text(event_name: StringName, payload: Dictionary) -> String:
 			return "WATER CONTAMINATION %d%%" % int(roundf(float(payload.get("contamination", 0.0)) * 100.0))
 		&"water_purged":
 			return "WATER LOOP PURGED"
+		&"water_cartridge_installed":
+			return "WATER CARTRIDGE INSTALLED: CONTAMINATION %d%%" % int(roundf(float(payload.get("contamination", 0.0)) * 100.0))
 		&"compartment_freeze_risk":
 			return "FREEZE RISK %s: %s" % ["SET" if bool(payload.get("active", false)) else "CLEARED", _upper(payload.get("compartment_id", &""))]
 		&"o2_candle_lit":

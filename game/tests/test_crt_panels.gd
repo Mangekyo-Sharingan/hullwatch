@@ -133,6 +133,10 @@ func _first_label(panel: Control) -> Label:
 	for child: Node in panel.get_children():
 		if child is Label:
 			return child
+		if child is Control:
+			var found: Label = _first_label(child as Control)
+			if found != null:
+				return found
 	return null
 
 

@@ -205,6 +205,18 @@ const PROPS: Array[Dictionary] = [
 		"crt": {"facing": "z+", "phosphor": "green", "keys": true},
 	},
 	{
+		"name": "WallComputer",
+		"script": "res://src/interactables/wall_computer.gd",
+		"position": Vector3(-2.0, 1.15, -17.75),
+		"tube_position": Vector3(-1.55, 1.15, -17.75),
+		"size": Vector3(0.16, 0.74, 0.64),
+		"material": MATERIAL_PANEL_SCRATCHED,
+		"model": "res://assets/models/hullwatch/cockpit/hw_wall_computer.glb",
+		"model_mount": "wall",
+		"screen_tint": "green",
+		"exports": {},
+	},
+	{
 		"name": "Bunk",
 		"script": "res://src/interactables/bunk.gd",
 		"position": Vector3(-4.6, 0.35, -11.5),
@@ -510,9 +522,8 @@ const KIT_PROPS: Array[Dictionary] = [
 ## origin at the floor. The collision comes from the model's own bounds.
 const MODEL_PROPS: Array[Dictionary] = [
 	{"name": "SwitchBank", "model": "res://assets/models/hullwatch/cockpit/hw_switch_bank.glb", "position": Vector3(-2.8, 1.6, -16.5), "rotation": Vector3(0, 90, 0), "size": Vector3(0.12, 0.25, 0.35)},
-	{"name": "GaugeCluster", "model": "res://assets/models/hullwatch/cockpit/hw_gauge_cluster.glb", "position": Vector3(2.4, 1.3, 1.5), "rotation": Vector3(0, -90, 0), "size": Vector3(0.16, 0.3, 0.45)},
-	{"name": "SevenSegment", "model": "res://assets/models/hullwatch/cockpit/hw_seven_segment.glb", "position": Vector3(2.4, 1.5, -5.8), "rotation": Vector3(0, -90, 0), "size": Vector3(0.1, 0.1, 0.25)},
-	{"name": "DeskConsole", "model": "res://assets/models/hullwatch/cockpit/hw_crt_console.glb", "position": Vector3(-2.0, 0.0, -16.0), "rotation": Vector3(0, 90, 0), "size": Vector3(0.5, 0.52, 0.65)},
+	{"name": "GaugeCluster", "model": "res://assets/models/hullwatch/cockpit/hw_gauge_cluster.glb", "position": Vector3(2.4, 1.3, -17.4), "rotation": Vector3(0, -90, 0), "size": Vector3(0.16, 0.3, 0.45)},
+	{"name": "SevenSegment", "model": "res://assets/models/hullwatch/cockpit/hw_seven_segment.glb", "position": Vector3(2.4, 1.5, -16.9), "rotation": Vector3(0, -90, 0), "size": Vector3(0.1, 0.1, 0.25)},
 	# The dressing kit's pieces sit at hand-picked tube spots: the carry compresses a short
 	# section's props into its middle, where the room's own gear already stands.
 	{"name": "CrewLocker", "model": "res://assets/models/hullwatch/props/hw_locker.glb", "position": Vector3(-3.0, 0.0, -10.5), "tube_position": Vector3(0.962, 0.0, -13.5), "rotation": Vector3(0, -90, 0), "size": Vector3(0.5, 1.9, 0.6)},
@@ -919,6 +930,15 @@ func _attach_model(prop: StaticBody3D, spec: Dictionary) -> void:
 	if spec.has("model_scale"):
 		model.scale = spec["model_scale"]
 	prop.add_child(model)
+	if spec.has("screen_tint"):
+		var phosphor_path: String = MATERIAL_PHOSPHOR_AMBER if String(spec["screen_tint"]) == "amber" else MATERIAL_PHOSPHOR_GREEN
+		var tint: Node = Node.new()
+		tint.name = "ScreenTint"
+		tint.set_script(load(SCRIPT_CRT_SCREEN) as Script)
+		tint.set(&"phosphor_material", _materials[phosphor_path] as Material)
+		# A child added inside the instanced glTF would not serialize; the tint lives on the
+		# prop and finds the model's Screen recursively when it enters the tree.
+		prop.add_child(tint)
 	var size: Vector3 = spec["size"]
 	var box: AABB = _local_bounds(prop)
 	if String(spec.get("model_mount", "floor")) == "wall":

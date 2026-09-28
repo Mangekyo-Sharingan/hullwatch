@@ -9,6 +9,7 @@ const OUTPUT_POD_PATH: String = "res://scenes/dock_pod.tscn"
 
 const MATERIAL_FLOOR: String = "res://src/data/materials/mat_deck_plate.tres"
 const MATERIAL_XENON: String = "res://src/data/materials/mat_xenon_metal.tres"
+const MATERIAL_DARK_PLASTIC: String = "res://src/data/materials/mat_dark_plastic.tres"
 const MATERIAL_STRIP: String = "res://src/data/materials/mat_light_strip.tres"
 const MATERIAL_CONDUIT: String = "res://src/data/materials/mat_machined_metal.tres"
 const MATERIAL_WINDOW: String = "res://src/data/materials/mat_space_window.tres"
@@ -265,7 +266,7 @@ func _initialize() -> void:
 
 
 func _load_materials() -> void:
-	for path: String in [MATERIAL_FLOOR, MATERIAL_XENON, MATERIAL_STRIP, MATERIAL_CONDUIT, MATERIAL_WINDOW]:
+	for path: String in [MATERIAL_FLOOR, MATERIAL_XENON, MATERIAL_DARK_PLASTIC, MATERIAL_STRIP, MATERIAL_CONDUIT, MATERIAL_WINDOW]:
 		var material: Material = load(path) as Material
 		if material == null:
 			_failures += 1
@@ -332,14 +333,14 @@ func _build_tube_cockpit_dash() -> void:
 	var tilt: float = -22.0
 	var panel_x: Array[float] = [-1.05, 0.0, 1.05]
 	for i: int in panel_x.size():
-		_add_dash_panel(cupola, "DashN%d" % i, Vector3(panel_x[i], 0.9, face_z), Vector3(0.94, 0.18, 0.46), Vector3(tilt, 0, 0))
-		_add_dressing("Section_cupola", "DashScreenN%d" % i, Vector3(panel_x[i], 0.99, face_z + 0.13), Vector3(0.4, 0.02, 0.2), MATERIAL_STRIP)
+		_add_dash_panel(cupola, "DashN%d" % i, Vector3(panel_x[i], 0.9, face_z), Vector3(1.02, 0.18, 0.46), Vector3(tilt, 0, 0))
+		_add_dressing("Section_cupola", "DashScreenN%d" % i, Vector3(panel_x[i], 0.99, face_z + 0.13), Vector3(0.48, 0.02, 0.24), MATERIAL_STRIP)
 	var half: float = SectionHull.tube_half_width(radius, 0.9) - 0.35
 	for side: int in [-1, 1]:
 		_add_dash_panel(cupola, "DashSide%d" % side, Vector3(half * float(side), 0.9, face_z + 0.9), Vector3(0.46, 0.18, 1.0), Vector3(0, 0, tilt * float(side)))
 		_add_dressing("Section_cupola", "DashScreenSide%d" % side, Vector3(half * float(side) - 0.12 * float(side), 0.99, face_z + 0.9), Vector3(0.2, 0.02, 0.42), MATERIAL_STRIP)
-	_add_dash_panel(cupola, "DashPedestal", Vector3(0.0, 0.44, face_z + 0.20), Vector3(0.7, 0.88, 0.46), Vector3.ZERO)
-	_add_dressing("Section_cupola", "DashPedestalScreen", Vector3(0.0, 0.9, face_z + 0.40), Vector3(0.36, 0.02, 0.22), MATERIAL_STRIP)
+	_add_dash_panel(cupola, "DashPedestal", Vector3(0.0, 0.44, face_z + 0.20), Vector3(0.84, 0.88, 0.46), Vector3.ZERO)
+	_add_dressing("Section_cupola", "DashPedestalScreen", Vector3(0.0, 0.9, face_z + 0.40), Vector3(0.46, 0.02, 0.24), MATERIAL_STRIP)
 
 
 ## The generated dock pod: a placeable module room in the same faceted language, origin at
@@ -1136,7 +1137,7 @@ func _add_dash_panel(space: Node3D, part_name: String, center: Vector3, size: Ve
 	var mesh_node: MeshInstance3D = MeshInstance3D.new()
 	mesh_node.name = part_name + "Mesh"
 	mesh_node.mesh = mesh
-	mesh_node.material_override = _materials[MATERIAL_XENON] as Material
+	mesh_node.material_override = _materials[MATERIAL_DARK_PLASTIC] as Material
 	mesh_node.position = center
 	mesh_node.rotation_degrees = rotation_degrees
 	space.add_child(mesh_node)

@@ -1,199 +1,201 @@
 [gd_scene format=4]
 
-[ext_resource type="Script" path="res://src/interactables/scrubber_unit.gd" id="1_53dvq"]
-[ext_resource type="PackedScene" path="res://assets/models/hullwatch/machinery/hw_scrubber_unit.glb" id="2_6wbkw"]
-[ext_resource type="Script" path="res://src/interactables/water_reclaimer.gd" id="3_1l27l"]
-[ext_resource type="PackedScene" path="res://assets/models/hullwatch/machinery/hw_water_reclaimer.glb" id="4_ye103"]
-[ext_resource type="Script" path="res://src/interactables/breaker_panel.gd" id="5_j71kx"]
-[ext_resource type="PackedScene" path="res://assets/models/hullwatch/machinery/hw_breaker_cabinet.glb" id="6_djiuy"]
-[ext_resource type="Script" path="res://src/ui/status_panel.gd" id="7_frfji"]
-[ext_resource type="PackedScene" path="res://assets/models/hullwatch/cockpit/hw_crt_console_tall.glb" id="8_jwm3n"]
-[ext_resource type="Script" path="res://src/interactables/crt_screen.gd" id="9_g732p"]
-[ext_resource type="Material" path="res://src/data/materials/mat_phosphor_amber.tres" id="10_ns8pg"]
-[ext_resource type="Script" path="res://src/interactables/maintenance_board.gd" id="11_vd0g3"]
-[ext_resource type="PackedScene" path="res://assets/models/hullwatch/cockpit/hw_crt_console.glb" id="12_aqd4q"]
-[ext_resource type="Script" path="res://src/interactables/manual_binder.gd" id="13_ry1gd"]
-[ext_resource type="Resource" path="res://src/data/manual/manual_book.tres" id="14_6q8r1"]
-[ext_resource type="PackedScene" path="res://assets/models/hullwatch/interior/hw_manual_stand.glb" id="15_qaogk"]
-[ext_resource type="Script" path="res://src/interactables/log_terminal.gd" id="16_glxky"]
-[ext_resource type="Resource" path="res://src/data/logs/log_01.tres" id="17_kv3ui"]
-[ext_resource type="Material" path="res://src/data/materials/mat_phosphor_green.tres" id="18_4cltb"]
-[ext_resource type="Script" path="res://src/interactables/comms_terminal.gd" id="19_phy7b"]
-[ext_resource type="Resource" path="res://src/data/logs/log_02.tres" id="20_vnr65"]
-[ext_resource type="Script" path="res://src/interactables/nav_console.gd" id="21_co4hq"]
-[ext_resource type="Script" path="res://src/interactables/bunk.gd" id="22_02pvy"]
-[ext_resource type="PackedScene" path="res://assets/models/hullwatch/interior/hw_bunk.glb" id="23_ofujo"]
-[ext_resource type="Script" path="res://src/interactables/hull_patch.gd" id="24_plr0f"]
-[ext_resource type="PackedScene" path="res://assets/models/hullwatch/interior/hw_hull_patch.glb" id="25_wu7dw"]
-[ext_resource type="Script" path="res://src/interactables/o2_candle.gd" id="26_c6hib"]
-[ext_resource type="PackedScene" path="res://assets/models/hullwatch/interior/hw_o2_rack.glb" id="27_xoee5"]
-[ext_resource type="Script" path="res://src/interactables/carriable.gd" id="28_d2apg"]
-[ext_resource type="PackedScene" path="res://assets/models/hullwatch/tools/hw_multimeter.glb" id="29_1qtv4"]
-[ext_resource type="PackedScene" path="res://assets/models/hullwatch/tools/hw_wrench.glb" id="30_7wcb8"]
-[ext_resource type="PackedScene" path="res://assets/models/hullwatch/tools/hw_scanner.glb" id="31_mr6g1"]
-[ext_resource type="Script" path="res://src/interactables/diagnostic_probe.gd" id="32_uyrho"]
-[ext_resource type="PackedScene" path="res://assets/models/hullwatch/interior/hw_probe.glb" id="33_rv5bu"]
-[ext_resource type="PackedScene" path="res://assets/models/hullwatch/tools/hw_sealant.glb" id="34_jqscp"]
-[ext_resource type="Script" path="res://src/interactables/approach_console.gd" id="35_teqmp"]
-[ext_resource type="Script" path="res://src/interactables/fabricator_unit.gd" id="36_wv0xx"]
-[ext_resource type="PackedScene" path="res://assets/models/hullwatch/machinery/hw_fabricator.glb" id="37_hybgy"]
-[ext_resource type="Script" path="res://src/interactables/cargo_port.gd" id="38_vogw0"]
-[ext_resource type="PackedScene" path="res://assets/models/hullwatch/interior/hw_cargo_port.glb" id="39_g4u7x"]
-[ext_resource type="Script" path="res://src/interactables/cutter_tool.gd" id="40_fkekk"]
-[ext_resource type="PackedScene" path="res://assets/models/hullwatch/tools/hw_cutter.glb" id="41_5qyyk"]
-[ext_resource type="Script" path="res://src/interactables/sample_canister.gd" id="42_soyol"]
-[ext_resource type="PackedScene" path="res://assets/models/hullwatch/tools/hw_canister.glb" id="43_vthgh"]
-[ext_resource type="Script" path="res://src/interactables/airlock_panel.gd" id="44_5yyb3"]
-[ext_resource type="PackedScene" path="res://assets/models/hullwatch/interior/hw_airlock_panel.glb" id="45_by3am"]
-[ext_resource type="Script" path="res://src/interactables/suit_locker.gd" id="46_0nq3h"]
-[ext_resource type="PackedScene" path="res://assets/models/hullwatch/props/hw_locker.glb" id="47_8fswo"]
-[ext_resource type="PackedScene" path="res://assets/models/hullwatch/interior/hw_container.glb" id="48_ui4no"]
-[ext_resource type="PackedScene" path="res://assets/models/hullwatch/interior/hw_computer.glb" id="49_lgrg1"]
-[ext_resource type="PackedScene" path="res://assets/models/hullwatch/interior/hw_display.glb" id="50_f7r3k"]
-[ext_resource type="PackedScene" path="res://assets/models/hullwatch/cockpit/hw_switch_bank.glb" id="51_imb7m"]
-[ext_resource type="PackedScene" path="res://assets/models/hullwatch/cockpit/hw_gauge_cluster.glb" id="52_bd1ma"]
-[ext_resource type="PackedScene" path="res://assets/models/hullwatch/cockpit/hw_seven_segment.glb" id="53_eb0if"]
-[ext_resource type="PackedScene" path="res://assets/models/hullwatch/props/hw_mess_table.glb" id="54_6t2we"]
-[ext_resource type="PackedScene" path="res://assets/models/hullwatch/props/hw_filter_rack.glb" id="55_58hxo"]
-[ext_resource type="PackedScene" path="res://assets/models/hullwatch/props/hw_tool_cart.glb" id="56_b175g"]
-[ext_resource type="PackedScene" path="res://assets/models/hullwatch/props/hw_crate_stack.glb" id="57_ksqsq"]
-[ext_resource type="PackedScene" path="res://assets/models/hullwatch/props/hw_shelf_unit.glb" id="58_v34n4"]
-[ext_resource type="PackedScene" path="res://assets/models/hullwatch/props/hw_galley_unit.glb" id="59_06wgt"]
-[ext_resource type="Script" path="res://src/interactables/door.gd" id="60_mhr57"]
-[ext_resource type="Script" path="res://src/interactables/door_frame.gd" id="61_bx2mw"]
-[ext_resource type="Script" path="res://src/world/compartment_zone.gd" id="62_laytd"]
-[ext_resource type="Script" path="res://src/world/compartment_link.gd" id="63_usuyl"]
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_kejwi"]
-size = Vector3(0.5, 1.2, 1)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_7g4mw"]
-size = Vector3(0.5, 1.2, 0.8)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_el5kb"]
-size = Vector3(0.15, 1, 0.7)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_45iig"]
-size = Vector3(0.31645, 1.0025, 0.69920397)
+[ext_resource type="Script" path="res://src/interactables/scrubber_unit.gd" id="1_1l27l"]
+[ext_resource type="PackedScene" path="res://assets/models/hullwatch/machinery/hw_scrubber_unit.glb" id="2_ye103"]
+[ext_resource type="Script" path="res://src/interactables/water_reclaimer.gd" id="3_j71kx"]
+[ext_resource type="PackedScene" path="res://assets/models/hullwatch/machinery/hw_water_reclaimer.glb" id="4_djiuy"]
+[ext_resource type="Script" path="res://src/interactables/breaker_panel.gd" id="5_frfji"]
+[ext_resource type="PackedScene" path="res://assets/models/hullwatch/machinery/hw_breaker_cabinet.glb" id="6_jwm3n"]
+[ext_resource type="Script" path="res://src/ui/status_panel.gd" id="7_g732p"]
+[ext_resource type="PackedScene" path="res://assets/models/hullwatch/cockpit/hw_crt_console_tall.glb" id="8_ns8pg"]
+[ext_resource type="Script" path="res://src/interactables/crt_screen.gd" id="9_vd0g3"]
+[ext_resource type="Material" path="res://src/data/materials/mat_phosphor_amber.tres" id="10_aqd4q"]
+[ext_resource type="Script" path="res://src/interactables/maintenance_board.gd" id="11_ry1gd"]
+[ext_resource type="PackedScene" path="res://assets/models/hullwatch/cockpit/hw_crt_console.glb" id="12_6q8r1"]
+[ext_resource type="Script" path="res://src/interactables/manual_binder.gd" id="13_qaogk"]
+[ext_resource type="Resource" path="res://src/data/manual/manual_book.tres" id="14_glxky"]
+[ext_resource type="PackedScene" path="res://assets/models/hullwatch/interior/hw_manual_stand.glb" id="15_kv3ui"]
+[ext_resource type="Script" path="res://src/interactables/log_terminal.gd" id="16_4cltb"]
+[ext_resource type="Resource" path="res://src/data/logs/log_01.tres" id="17_phy7b"]
+[ext_resource type="Material" path="res://src/data/materials/mat_phosphor_green.tres" id="18_vnr65"]
+[ext_resource type="Script" path="res://src/interactables/comms_terminal.gd" id="19_co4hq"]
+[ext_resource type="Resource" path="res://src/data/logs/log_02.tres" id="20_02pvy"]
+[ext_resource type="Script" path="res://src/interactables/nav_console.gd" id="21_ofujo"]
+[ext_resource type="Script" path="res://src/interactables/wall_computer.gd" id="22_plr0f"]
+[ext_resource type="PackedScene" path="res://assets/models/hullwatch/cockpit/hw_wall_computer.glb" id="23_wu7dw"]
+[ext_resource type="Script" path="res://src/interactables/bunk.gd" id="24_c6hib"]
+[ext_resource type="PackedScene" path="res://assets/models/hullwatch/interior/hw_bunk.glb" id="25_xoee5"]
+[ext_resource type="Script" path="res://src/interactables/hull_patch.gd" id="26_d2apg"]
+[ext_resource type="PackedScene" path="res://assets/models/hullwatch/interior/hw_hull_patch.glb" id="27_1qtv4"]
+[ext_resource type="Script" path="res://src/interactables/o2_candle.gd" id="28_7wcb8"]
+[ext_resource type="PackedScene" path="res://assets/models/hullwatch/interior/hw_o2_rack.glb" id="29_mr6g1"]
+[ext_resource type="Script" path="res://src/interactables/carriable.gd" id="30_uyrho"]
+[ext_resource type="PackedScene" path="res://assets/models/hullwatch/tools/hw_multimeter.glb" id="31_rv5bu"]
+[ext_resource type="PackedScene" path="res://assets/models/hullwatch/tools/hw_wrench.glb" id="32_jqscp"]
+[ext_resource type="PackedScene" path="res://assets/models/hullwatch/tools/hw_scanner.glb" id="33_teqmp"]
+[ext_resource type="Script" path="res://src/interactables/diagnostic_probe.gd" id="34_wv0xx"]
+[ext_resource type="PackedScene" path="res://assets/models/hullwatch/interior/hw_probe.glb" id="35_hybgy"]
+[ext_resource type="PackedScene" path="res://assets/models/hullwatch/tools/hw_sealant.glb" id="36_vogw0"]
+[ext_resource type="Script" path="res://src/interactables/approach_console.gd" id="37_g4u7x"]
+[ext_resource type="Script" path="res://src/interactables/fabricator_unit.gd" id="38_fkekk"]
+[ext_resource type="PackedScene" path="res://assets/models/hullwatch/machinery/hw_fabricator.glb" id="39_5qyyk"]
+[ext_resource type="Script" path="res://src/interactables/cargo_port.gd" id="40_soyol"]
+[ext_resource type="PackedScene" path="res://assets/models/hullwatch/interior/hw_cargo_port.glb" id="41_vthgh"]
+[ext_resource type="Script" path="res://src/interactables/cutter_tool.gd" id="42_5yyb3"]
+[ext_resource type="PackedScene" path="res://assets/models/hullwatch/tools/hw_cutter.glb" id="43_by3am"]
+[ext_resource type="Script" path="res://src/interactables/sample_canister.gd" id="44_0nq3h"]
+[ext_resource type="PackedScene" path="res://assets/models/hullwatch/tools/hw_canister.glb" id="45_8fswo"]
+[ext_resource type="Script" path="res://src/interactables/airlock_panel.gd" id="46_ui4no"]
+[ext_resource type="PackedScene" path="res://assets/models/hullwatch/interior/hw_airlock_panel.glb" id="47_lgrg1"]
+[ext_resource type="Script" path="res://src/interactables/suit_locker.gd" id="48_f7r3k"]
+[ext_resource type="PackedScene" path="res://assets/models/hullwatch/props/hw_locker.glb" id="49_imb7m"]
+[ext_resource type="PackedScene" path="res://assets/models/hullwatch/interior/hw_container.glb" id="50_bd1ma"]
+[ext_resource type="PackedScene" path="res://assets/models/hullwatch/interior/hw_computer.glb" id="51_eb0if"]
+[ext_resource type="PackedScene" path="res://assets/models/hullwatch/interior/hw_display.glb" id="52_6t2we"]
+[ext_resource type="PackedScene" path="res://assets/models/hullwatch/cockpit/hw_switch_bank.glb" id="53_58hxo"]
+[ext_resource type="PackedScene" path="res://assets/models/hullwatch/cockpit/hw_gauge_cluster.glb" id="54_b175g"]
+[ext_resource type="PackedScene" path="res://assets/models/hullwatch/cockpit/hw_seven_segment.glb" id="55_ksqsq"]
+[ext_resource type="PackedScene" path="res://assets/models/hullwatch/props/hw_mess_table.glb" id="56_v34n4"]
+[ext_resource type="PackedScene" path="res://assets/models/hullwatch/props/hw_filter_rack.glb" id="57_06wgt"]
+[ext_resource type="PackedScene" path="res://assets/models/hullwatch/props/hw_tool_cart.glb" id="58_mhr57"]
+[ext_resource type="PackedScene" path="res://assets/models/hullwatch/props/hw_crate_stack.glb" id="59_bx2mw"]
+[ext_resource type="PackedScene" path="res://assets/models/hullwatch/props/hw_shelf_unit.glb" id="60_laytd"]
+[ext_resource type="PackedScene" path="res://assets/models/hullwatch/props/hw_galley_unit.glb" id="61_usuyl"]
+[ext_resource type="Script" path="res://src/interactables/door.gd" id="62_kejwi"]
+[ext_resource type="Script" path="res://src/interactables/door_frame.gd" id="63_7g4mw"]
+[ext_resource type="Script" path="res://src/world/compartment_zone.gd" id="64_el5kb"]
+[ext_resource type="Script" path="res://src/world/compartment_link.gd" id="65_45iig"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_ardir"]
-size = Vector3(0.52000004, 0.5025, 0.65)
+size = Vector3(0.5, 1.2, 1)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_ww7vg"]
-size = Vector3(0.55, 1.16, 0.5)
+size = Vector3(0.5, 1.2, 0.8)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_4b61h"]
-size = Vector3(0.52000004, 0.5025, 0.65)
+size = Vector3(0.15, 1, 0.7)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_igjl2"]
-size = Vector3(0.52000004, 0.5025, 0.65)
+size = Vector3(0.31645, 1.0025, 0.69920397)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_cb5nk"]
 size = Vector3(0.52000004, 0.5025, 0.65)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_gwl68"]
-size = Vector3(0.52000004, 0.5025, 0.65)
+size = Vector3(0.55, 1.16, 0.5)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_mji0a"]
-size = Vector3(0.85, 0.7, 2)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_2ujn2"]
-size = Vector3(0.1, 0.6, 0.6)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_ihvqd"]
-size = Vector3(0.15, 0.3, 0.34)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_gpe1d"]
-size = Vector3(0.116, 0.17, 0.072)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_8hirc"]
-size = Vector3(0.032, 0.083, 0.275)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_fibos"]
-size = Vector3(0.07, 0.138, 0.212)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_1yc42"]
-size = Vector3(0.08, 0.29, 0.22)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_atd60"]
-size = Vector3(0.08, 0.29, 0.22)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_v00bc"]
-size = Vector3(0.08, 0.29, 0.22)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_dyrtk"]
-size = Vector3(0.08, 0.29, 0.22)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_j1sq7"]
-size = Vector3(0.08, 0.29, 0.22)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_1ehcs"]
-size = Vector3(0.088, 0.088, 0.331)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_n2gmn"]
-size = Vector3(0.088, 0.088, 0.331)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_6r703"]
-size = Vector3(0.088, 0.088, 0.331)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_27ohx"]
 size = Vector3(0.52000004, 0.5025, 0.65)
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_2ujn2"]
+size = Vector3(0.52000004, 0.5025, 0.65)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ihvqd"]
+size = Vector3(0.52000004, 0.5025, 0.65)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_gpe1d"]
+size = Vector3(0.52000004, 0.5025, 0.65)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_8hirc"]
+size = Vector3(0.16, 0.74, 0.64)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_fibos"]
+size = Vector3(0.85, 0.7, 2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_1yc42"]
+size = Vector3(0.1, 0.6, 0.6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_atd60"]
+size = Vector3(0.15, 0.3, 0.34)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_v00bc"]
+size = Vector3(0.116, 0.17, 0.072)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_dyrtk"]
+size = Vector3(0.032, 0.083, 0.275)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_j1sq7"]
+size = Vector3(0.07, 0.138, 0.212)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_1ehcs"]
+size = Vector3(0.08, 0.29, 0.22)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_n2gmn"]
+size = Vector3(0.08, 0.29, 0.22)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_6r703"]
+size = Vector3(0.08, 0.29, 0.22)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_27ohx"]
+size = Vector3(0.08, 0.29, 0.22)
+
 [sub_resource type="BoxShape3D" id="BoxShape3D_3oat7"]
-size = Vector3(0.6, 1.2, 1)
+size = Vector3(0.08, 0.29, 0.22)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_o3kp7"]
-size = Vector3(0.5, 0.89, 0.5)
+size = Vector3(0.088, 0.088, 0.331)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_sguak"]
-size = Vector3(0.062, 0.182, 0.265)
+size = Vector3(0.088, 0.088, 0.331)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_sht2k"]
-size = Vector3(0.152, 0.246, 0.154)
+size = Vector3(0.088, 0.088, 0.331)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_qyw1k"]
-size = Vector3(0.152, 0.246, 0.154)
+size = Vector3(0.52000004, 0.5025, 0.65)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_r7c56"]
-size = Vector3(0.152, 0.246, 0.154)
+size = Vector3(0.6, 1.2, 1)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_4m27q"]
-size = Vector3(0.12, 0.4, 0.5)
+size = Vector3(0.5, 0.89, 0.5)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_y2j1p"]
-size = Vector3(0.545, 1.9, 0.611)
+size = Vector3(0.062, 0.182, 0.265)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_68guj"]
-size = Vector3(0.35, 0.25, 0.09104119)
+size = Vector3(0.152, 0.246, 0.154)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_wvrig"]
-size = Vector3(0.45, 0.3, 0.128)
+size = Vector3(0.152, 0.246, 0.154)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_n30ts"]
-size = Vector3(0.25, 0.1, 0.06725)
+size = Vector3(0.152, 0.246, 0.154)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_ct5pi"]
-size = Vector3(0.65, 0.5025, 0.52)
+size = Vector3(0.12, 0.4, 0.5)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_0btcg"]
-size = Vector3(0.611, 1.9, 0.54499996)
+size = Vector3(0.545, 1.9, 0.611)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_ybqrl"]
-size = Vector3(1.06, 0.75, 0.66)
+size = Vector3(0.35, 0.25, 0.09104119)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_s0nk4"]
-size = Vector3(0.7, 0.90000004, 0.237)
+size = Vector3(0.45, 0.3, 0.128)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_jys4y"]
-size = Vector3(0.6654824, 0.8800922, 0.44)
+size = Vector3(0.25, 0.1, 0.06725)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_ymi4p"]
-size = Vector3(1, 1.4972702, 0.6)
+size = Vector3(0.611, 1.9, 0.54499996)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_61xmt"]
-size = Vector3(0.98, 1.8, 0.4)
+size = Vector3(1.06, 0.75, 0.66)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_q57wg"]
+size = Vector3(0.7, 0.90000004, 0.237)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_64gsi"]
+size = Vector3(0.6654824, 0.8800922, 0.44)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ofvy5"]
+size = Vector3(1, 1.4972702, 0.6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_jsx10"]
+size = Vector3(0.98, 1.8, 0.4)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_80kxu"]
 size = Vector3(1.2, 0.9, 0.6)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_i4ouu"]
@@ -322,18 +324,6 @@ _surfaces = [{
 blend_shape_mode = 0
 shadow_mesh = SubResource("ArrayMesh_iue7y")
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_64gsi"]
-size = Vector3(0.9, 1.85, 0.16)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_ofvy5"]
-size = Vector3(0.9, 1.85, 0.05)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_jsx10"]
-size = Vector3(0.9, 1.85, 0.16)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_80kxu"]
-size = Vector3(0.9, 1.85, 0.05)
-
 [sub_resource type="BoxShape3D" id="BoxShape3D_qb2wa"]
 size = Vector3(0.9, 1.85, 0.16)
 
@@ -368,6 +358,18 @@ size = Vector3(0.9, 1.85, 0.05)
 size = Vector3(0.9, 1.85, 0.16)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_btauy"]
+size = Vector3(0.9, 1.85, 0.05)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_r78k2"]
+size = Vector3(0.9, 1.85, 0.16)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_qaw1o"]
+size = Vector3(0.9, 1.85, 0.05)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_dd71l"]
+size = Vector3(0.9, 1.85, 0.16)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_nhj3l"]
 size = Vector3(0.9, 1.85, 0.05)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ds8p2"]
@@ -526,46 +528,46 @@ _surfaces = [{
 blend_shape_mode = 0
 shadow_mesh = SubResource("ArrayMesh_llcpm")
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_r78k2"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_uhyk1"]
 size = Vector3(0.16, 2.2, 1.2)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_qaw1o"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_oamet"]
 size = Vector3(0.05, 2.2, 1.2)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_dd71l"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_ns4io"]
 size = Vector3(0.9, 1.85, 0.16)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_nhj3l"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_15y5a"]
 size = Vector3(0.9, 1.85, 0.05)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_uhyk1"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_q5pdf"]
 size = Vector3(4.3, 2.6, 2.0000007)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_oamet"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_b5h16"]
 size = Vector3(4.3, 2.6, 2.600001)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_ns4io"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_fmpiq"]
 size = Vector3(4.9, 2.6, 2.6000001)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_15y5a"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_geqso"]
 size = Vector3(3.7, 2.6, 1.9999998)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_q5pdf"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_wy10c"]
 size = Vector3(4.1, 2.6, 2.4000003)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_b5h16"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_xxvwg"]
 size = Vector3(3.5, 2.6, 1.6000001)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_fmpiq"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_v5n0b"]
 size = Vector3(4.1, 2.6, 2.4)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_geqso"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_kohn5"]
 size = Vector3(3.5, 2.6, 1.5999999)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_wy10c"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_yso1c"]
 size = Vector3(5.1, 2.6, 2.6000001)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_xxvwg"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_e5jbg"]
 size = Vector3(5.1, 2.6, 2.6000001)
 
 [node name="WorldLayout" type="Node3D"]
@@ -574,522 +576,527 @@ size = Vector3(5.1, 2.6, 2.6000001)
 
 [node name="ScrubberUnit" type="StaticBody3D" parent="Props"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.666, 0.6, -11.257692)
-script = ExtResource("1_53dvq")
+script = ExtResource("1_1l27l")
 
 [node name="Shape" type="CollisionShape3D" parent="Props/ScrubberUnit"]
-shape = SubResource("BoxShape3D_kejwi")
+shape = SubResource("BoxShape3D_ardir")
 
-[node name="Model" type="Node3D" parent="Props/ScrubberUnit" instance=ExtResource("2_6wbkw")]
+[node name="Model" type="Node3D" parent="Props/ScrubberUnit" instance=ExtResource("2_ye103")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0, -0.6, 0)
 
 [node name="WaterReclaimer" type="StaticBody3D" parent="Props"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.62, 0.6, -5.8863635)
-script = ExtResource("3_1l27l")
+script = ExtResource("3_j71kx")
 
 [node name="Shape" type="CollisionShape3D" parent="Props/WaterReclaimer"]
-shape = SubResource("BoxShape3D_7g4mw")
+shape = SubResource("BoxShape3D_ww7vg")
 
-[node name="Model" type="Node3D" parent="Props/WaterReclaimer" instance=ExtResource("4_ye103")]
+[node name="Model" type="Node3D" parent="Props/WaterReclaimer" instance=ExtResource("4_djiuy")]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0, -0.6, 0)
 
 [node name="BreakerPanel" type="StaticBody3D" parent="Props"]
 transform = Transform3D(0.8660254, 0.5, 0, -0.5, 0.8660254, 0, 0, 0, 1, 0.90071917, 0.8, -3.5)
-script = ExtResource("5_j71kx")
+script = ExtResource("5_frfji")
 
 [node name="Shape" type="CollisionShape3D" parent="Props/BreakerPanel"]
-shape = SubResource("BoxShape3D_el5kb")
+shape = SubResource("BoxShape3D_4b61h")
 
-[node name="Model" type="Node3D" parent="Props/BreakerPanel" instance=ExtResource("6_djiuy")]
+[node name="Model" type="Node3D" parent="Props/BreakerPanel" instance=ExtResource("6_jwm3n")]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0.07499999, 0, 0)
 
 [node name="StatusPanel" type="StaticBody3D" parent="Props"]
 transform = Transform3D(0.8660254, -0.5, 0, 0.5, 0.8660254, 0, 0, 0, 1, -0.91376287, 0.8, -8)
-script = ExtResource("7_frfji")
+script = ExtResource("7_g732p")
 
 [node name="Shape" type="CollisionShape3D" parent="Props/StatusPanel"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.06822498, 0.0012500286, 0)
-shape = SubResource("BoxShape3D_45iig")
+shape = SubResource("BoxShape3D_igjl2")
 
 [node name="Crt" type="Node3D" parent="Props/StatusPanel"]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0.06, 0, -2.6226832e-09)
 
-[node name="Model" type="Node3D" parent="Props/StatusPanel/Crt" instance=ExtResource("8_jwm3n")]
+[node name="Model" type="Node3D" parent="Props/StatusPanel/Crt" instance=ExtResource("8_ns8pg")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
 
 [node name="ScreenTint" type="Node" parent="Props/StatusPanel/Crt"]
-script = ExtResource("9_g732p")
-phosphor_material = ExtResource("10_ns8pg")
+script = ExtResource("9_vd0g3")
+phosphor_material = ExtResource("10_aqd4q")
 
 [node name="MaintenanceBoard" type="StaticBody3D" parent="Props"]
 transform = Transform3D(0.8660254, -0.5, 0, 0.5, 0.8660254, 0, 0, 0, 1, -1.3787653, 0.8, -13)
-script = ExtResource("11_vd0g3")
+script = ExtResource("11_ry1gd")
 
 [node name="Shape" type="CollisionShape3D" parent="Props/MaintenanceBoard"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.17, -0.098749995, -2.9802322e-08)
-shape = SubResource("BoxShape3D_ardir")
+shape = SubResource("BoxShape3D_cb5nk")
 
 [node name="Crt" type="Node3D" parent="Props/MaintenanceBoard"]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0.06, 0, -2.6226832e-09)
 
-[node name="Model" type="Node3D" parent="Props/MaintenanceBoard/Crt" instance=ExtResource("12_aqd4q")]
+[node name="Model" type="Node3D" parent="Props/MaintenanceBoard/Crt" instance=ExtResource("12_6q8r1")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.35, 0)
 
 [node name="ScreenTint" type="Node" parent="Props/MaintenanceBoard/Crt"]
-script = ExtResource("9_g732p")
-phosphor_material = ExtResource("10_ns8pg")
+script = ExtResource("9_vd0g3")
+phosphor_material = ExtResource("10_aqd4q")
 
 [node name="ManualBinder" type="StaticBody3D" parent="Props"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.733, 0.58, -8.077778)
-script = ExtResource("13_ry1gd")
-book = ExtResource("14_6q8r1")
+script = ExtResource("13_qaogk")
+book = ExtResource("14_glxky")
 
 [node name="Shape" type="CollisionShape3D" parent="Props/ManualBinder"]
-shape = SubResource("BoxShape3D_ww7vg")
+shape = SubResource("BoxShape3D_gwl68")
 
-[node name="Model" type="Node3D" parent="Props/ManualBinder" instance=ExtResource("15_qaogk")]
+[node name="Model" type="Node3D" parent="Props/ManualBinder" instance=ExtResource("15_kv3ui")]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0, -0.58, 0)
 
 [node name="LogTerminal" type="StaticBody3D" parent="Props"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.45, 1.2, -17.6)
-script = ExtResource("16_glxky")
-log_entry = ExtResource("17_kv3ui")
+script = ExtResource("16_4cltb")
+log_entry = ExtResource("17_phy7b")
 
 [node name="Shape" type="CollisionShape3D" parent="Props/LogTerminal"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.16999999, 0.0012499988, -2.9802322e-08)
-shape = SubResource("BoxShape3D_4b61h")
+shape = SubResource("BoxShape3D_mji0a")
 
 [node name="Crt" type="Node3D" parent="Props/LogTerminal"]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -0.06, 0, -2.6226832e-09)
 
-[node name="Model" type="Node3D" parent="Props/LogTerminal/Crt" instance=ExtResource("12_aqd4q")]
+[node name="Model" type="Node3D" parent="Props/LogTerminal/Crt" instance=ExtResource("12_6q8r1")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
 
 [node name="ScreenTint" type="Node" parent="Props/LogTerminal/Crt"]
-script = ExtResource("9_g732p")
-phosphor_material = ExtResource("18_4cltb")
+script = ExtResource("9_vd0g3")
+phosphor_material = ExtResource("18_vnr65")
 
 [node name="CommsTerminal" type="StaticBody3D" parent="Props"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.45, 1.2, -16)
-script = ExtResource("19_phy7b")
+script = ExtResource("19_co4hq")
 
 [node name="Shape" type="CollisionShape3D" parent="Props/CommsTerminal"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.17, 0.0012499988, -2.9802322e-08)
-shape = SubResource("BoxShape3D_igjl2")
+shape = SubResource("BoxShape3D_2ujn2")
 
 [node name="Crt" type="Node3D" parent="Props/CommsTerminal"]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0.06, 0, -2.6226832e-09)
 
-[node name="Model" type="Node3D" parent="Props/CommsTerminal/Crt" instance=ExtResource("12_aqd4q")]
+[node name="Model" type="Node3D" parent="Props/CommsTerminal/Crt" instance=ExtResource("12_6q8r1")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
 
 [node name="ScreenTint" type="Node" parent="Props/CommsTerminal/Crt"]
-script = ExtResource("9_g732p")
-phosphor_material = ExtResource("18_4cltb")
+script = ExtResource("9_vd0g3")
+phosphor_material = ExtResource("18_vnr65")
 
 [node name="ArchiveTerminal" type="StaticBody3D" parent="Props"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.45, 1.2, -16.8)
-script = ExtResource("16_glxky")
-log_entry = ExtResource("20_vnr65")
+script = ExtResource("16_4cltb")
+log_entry = ExtResource("20_02pvy")
 
 [node name="Shape" type="CollisionShape3D" parent="Props/ArchiveTerminal"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.17, 0.0012499988, -2.9802322e-08)
-shape = SubResource("BoxShape3D_cb5nk")
+shape = SubResource("BoxShape3D_ihvqd")
 
 [node name="Crt" type="Node3D" parent="Props/ArchiveTerminal"]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0.06, 0, -2.6226832e-09)
 
-[node name="Model" type="Node3D" parent="Props/ArchiveTerminal/Crt" instance=ExtResource("12_aqd4q")]
+[node name="Model" type="Node3D" parent="Props/ArchiveTerminal/Crt" instance=ExtResource("12_6q8r1")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
 
 [node name="ScreenTint" type="Node" parent="Props/ArchiveTerminal/Crt"]
-script = ExtResource("9_g732p")
-phosphor_material = ExtResource("18_4cltb")
+script = ExtResource("9_vd0g3")
+phosphor_material = ExtResource("18_vnr65")
 
 [node name="NavConsole" type="StaticBody3D" parent="Props"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.45, 1.2, -16)
-script = ExtResource("21_co4hq")
+script = ExtResource("21_ofujo")
 
 [node name="Shape" type="CollisionShape3D" parent="Props/NavConsole"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.16999999, 0.0012499988, -2.9802322e-08)
-shape = SubResource("BoxShape3D_gwl68")
+shape = SubResource("BoxShape3D_gpe1d")
 
 [node name="Crt" type="Node3D" parent="Props/NavConsole"]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -0.06, 0, -2.6226832e-09)
 
-[node name="Model" type="Node3D" parent="Props/NavConsole/Crt" instance=ExtResource("12_aqd4q")]
+[node name="Model" type="Node3D" parent="Props/NavConsole/Crt" instance=ExtResource("12_6q8r1")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
 
 [node name="ScreenTint" type="Node" parent="Props/NavConsole/Crt"]
-script = ExtResource("9_g732p")
-phosphor_material = ExtResource("18_4cltb")
+script = ExtResource("9_vd0g3")
+phosphor_material = ExtResource("18_vnr65")
+
+[node name="WallComputer" type="StaticBody3D" parent="Props"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.4578106, 1.15, -17.75)
+script = ExtResource("22_plr0f")
+
+[node name="Shape" type="CollisionShape3D" parent="Props/WallComputer"]
+shape = SubResource("BoxShape3D_8hirc")
+
+[node name="Model" type="Node3D" parent="Props/WallComputer" instance=ExtResource("23_wu7dw")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -0.029999983, 0, 0)
+
+[node name="ScreenTint" type="Node" parent="Props/WallComputer"]
+script = ExtResource("9_vd0g3")
+phosphor_material = ExtResource("18_vnr65")
 
 [node name="Bunk" type="StaticBody3D" parent="Props"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.8, 0.35, -13.8)
-script = ExtResource("22_02pvy")
+script = ExtResource("24_c6hib")
 
 [node name="Shape" type="CollisionShape3D" parent="Props/Bunk"]
-shape = SubResource("BoxShape3D_mji0a")
+shape = SubResource("BoxShape3D_fibos")
 
-[node name="Model" type="Node3D" parent="Props/Bunk" instance=ExtResource("23_ofujo")]
+[node name="Model" type="Node3D" parent="Props/Bunk" instance=ExtResource("25_xoee5")]
 transform = Transform3D(0.85, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.35, 0)
 
 [node name="HullPatch" type="StaticBody3D" parent="Props"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.7450527, 1.2, 5.581613)
-script = ExtResource("24_plr0f")
+script = ExtResource("26_d2apg")
 
 [node name="Shape" type="CollisionShape3D" parent="Props/HullPatch"]
-shape = SubResource("BoxShape3D_2ujn2")
+shape = SubResource("BoxShape3D_1yc42")
 
-[node name="Model" type="Node3D" parent="Props/HullPatch" instance=ExtResource("25_wu7dw")]
+[node name="Model" type="Node3D" parent="Props/HullPatch" instance=ExtResource("27_1qtv4")]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0.046999987, 0, 0)
 
 [node name="O2CandleRack" type="StaticBody3D" parent="Props"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.1891578, 0.9, -11.165384)
-script = ExtResource("26_c6hib")
+script = ExtResource("28_7wcb8")
 
 [node name="Shape" type="CollisionShape3D" parent="Props/O2CandleRack"]
-shape = SubResource("BoxShape3D_ihvqd")
+shape = SubResource("BoxShape3D_atd60")
 
-[node name="Model" type="Node3D" parent="Props/O2CandleRack" instance=ExtResource("27_xoee5")]
+[node name="Model" type="Node3D" parent="Props/O2CandleRack" instance=ExtResource("29_mr6g1")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -0.0745, 0, 0)
 
 [node name="MultimeterTool" type="StaticBody3D" parent="Props"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.95, 0.085, -3.3)
-script = ExtResource("28_d2apg")
+script = ExtResource("30_uyrho")
 item_id = &"multimeter"
 item_name = "Multimeter"
 
 [node name="Shape" type="CollisionShape3D" parent="Props/MultimeterTool"]
-shape = SubResource("BoxShape3D_gpe1d")
+shape = SubResource("BoxShape3D_v00bc")
 
-[node name="Model" type="Node3D" parent="Props/MultimeterTool" instance=ExtResource("29_1qtv4")]
+[node name="Model" type="Node3D" parent="Props/MultimeterTool" instance=ExtResource("31_rv5bu")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0, -0.085, 0)
 
 [node name="WrenchTool" type="StaticBody3D" parent="Props"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.95, 0.042, -2.95)
-script = ExtResource("28_d2apg")
+script = ExtResource("30_uyrho")
 item_id = &"wrench"
 item_name = "Wrench"
 
 [node name="Shape" type="CollisionShape3D" parent="Props/WrenchTool"]
-shape = SubResource("BoxShape3D_8hirc")
+shape = SubResource("BoxShape3D_dyrtk")
 
-[node name="Model" type="Node3D" parent="Props/WrenchTool" instance=ExtResource("30_7wcb8")]
+[node name="Model" type="Node3D" parent="Props/WrenchTool" instance=ExtResource("32_jqscp")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0, -0.038499996, 0)
 
 [node name="ScannerTool" type="StaticBody3D" parent="Props"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.95, 0.069, -2.6)
-script = ExtResource("28_d2apg")
+script = ExtResource("30_uyrho")
 item_id = &"scanner"
 item_name = "Wear scanner"
 
 [node name="Shape" type="CollisionShape3D" parent="Props/ScannerTool"]
-shape = SubResource("BoxShape3D_fibos")
+shape = SubResource("BoxShape3D_j1sq7")
 
-[node name="Model" type="Node3D" parent="Props/ScannerTool" instance=ExtResource("31_mr6g1")]
+[node name="Model" type="Node3D" parent="Props/ScannerTool" instance=ExtResource("33_teqmp")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0, -0.069, 0)
 
 [node name="ProbePower" type="StaticBody3D" parent="Props"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.0722263, 0.35, -4.2)
-script = ExtResource("32_uyrho")
+script = ExtResource("34_wv0xx")
 
 [node name="Shape" type="CollisionShape3D" parent="Props/ProbePower"]
-shape = SubResource("BoxShape3D_1yc42")
+shape = SubResource("BoxShape3D_1ehcs")
 
-[node name="Model" type="Node3D" parent="Props/ProbePower" instance=ExtResource("33_rv5bu")]
+[node name="Model" type="Node3D" parent="Props/ProbePower" instance=ExtResource("35_hybgy")]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0.03999999, 0, 0)
 
 [node name="ProbeAtmosphere" type="StaticBody3D" parent="Props"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.97116315, 0.35, -11.257692)
-script = ExtResource("32_uyrho")
+script = ExtResource("34_wv0xx")
 system_group = &"atmosphere_system"
 
 [node name="Shape" type="CollisionShape3D" parent="Props/ProbeAtmosphere"]
-shape = SubResource("BoxShape3D_atd60")
+shape = SubResource("BoxShape3D_n2gmn")
 
-[node name="Model" type="Node3D" parent="Props/ProbeAtmosphere" instance=ExtResource("33_rv5bu")]
+[node name="Model" type="Node3D" parent="Props/ProbeAtmosphere" instance=ExtResource("35_hybgy")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -0.03999999, 0, 0)
 
 [node name="ProbeThermal" type="StaticBody3D" parent="Props"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.3248842, 0.35, 3.575)
-script = ExtResource("32_uyrho")
+script = ExtResource("34_wv0xx")
 system_group = &"thermal_system"
 
 [node name="Shape" type="CollisionShape3D" parent="Props/ProbeThermal"]
-shape = SubResource("BoxShape3D_v00bc")
+shape = SubResource("BoxShape3D_6r703")
 
-[node name="Model" type="Node3D" parent="Props/ProbeThermal" instance=ExtResource("33_rv5bu")]
+[node name="Model" type="Node3D" parent="Props/ProbeThermal" instance=ExtResource("35_hybgy")]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0.03999999, 0, 0)
 
 [node name="ProbeHull" type="StaticBody3D" parent="Props"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.3248842, 0.35, 5.525484)
-script = ExtResource("32_uyrho")
+script = ExtResource("34_wv0xx")
 system_group = &"hull_system"
 
 [node name="Shape" type="CollisionShape3D" parent="Props/ProbeHull"]
-shape = SubResource("BoxShape3D_dyrtk")
+shape = SubResource("BoxShape3D_27ohx")
 
-[node name="Model" type="Node3D" parent="Props/ProbeHull" instance=ExtResource("33_rv5bu")]
+[node name="Model" type="Node3D" parent="Props/ProbeHull" instance=ExtResource("35_hybgy")]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0.03999999, 0, 0)
 
 [node name="ProbeWater" type="StaticBody3D" parent="Props"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.9206316, 0.35, -5.75)
-script = ExtResource("32_uyrho")
+script = ExtResource("34_wv0xx")
 system_group = &"water_system"
 
 [node name="Shape" type="CollisionShape3D" parent="Props/ProbeWater"]
-shape = SubResource("BoxShape3D_j1sq7")
+shape = SubResource("BoxShape3D_3oat7")
 
-[node name="Model" type="Node3D" parent="Props/ProbeWater" instance=ExtResource("33_rv5bu")]
+[node name="Model" type="Node3D" parent="Props/ProbeWater" instance=ExtResource("35_hybgy")]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0.03999999, 0, 0)
 
 [node name="SealantCartridge1" type="StaticBody3D" parent="Props"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.91999996, 0.044, -2.2)
-script = ExtResource("28_d2apg")
+script = ExtResource("30_uyrho")
 
 [node name="Shape" type="CollisionShape3D" parent="Props/SealantCartridge1"]
-shape = SubResource("BoxShape3D_1ehcs")
+shape = SubResource("BoxShape3D_o3kp7")
 
-[node name="Model" type="Node3D" parent="Props/SealantCartridge1" instance=ExtResource("34_jqscp")]
+[node name="Model" type="Node3D" parent="Props/SealantCartridge1" instance=ExtResource("36_vogw0")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0, -0.042, 0)
 
 [node name="SealantCartridge2" type="StaticBody3D" parent="Props"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.91999996, 0.044, -4.1)
-script = ExtResource("28_d2apg")
+script = ExtResource("30_uyrho")
 
 [node name="Shape" type="CollisionShape3D" parent="Props/SealantCartridge2"]
-shape = SubResource("BoxShape3D_n2gmn")
+shape = SubResource("BoxShape3D_sguak")
 
-[node name="Model" type="Node3D" parent="Props/SealantCartridge2" instance=ExtResource("34_jqscp")]
+[node name="Model" type="Node3D" parent="Props/SealantCartridge2" instance=ExtResource("36_vogw0")]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0, -0.042, 0)
 
 [node name="SealantCartridge3" type="StaticBody3D" parent="Props"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.91999996, 0.044, -3.7)
-script = ExtResource("28_d2apg")
+script = ExtResource("30_uyrho")
 
 [node name="Shape" type="CollisionShape3D" parent="Props/SealantCartridge3"]
-shape = SubResource("BoxShape3D_6r703")
+shape = SubResource("BoxShape3D_sht2k")
 
-[node name="Model" type="Node3D" parent="Props/SealantCartridge3" instance=ExtResource("34_jqscp")]
+[node name="Model" type="Node3D" parent="Props/SealantCartridge3" instance=ExtResource("36_vogw0")]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0, -0.042, 0)
 
 [node name="ContactConsole" type="StaticBody3D" parent="Props"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.45, 1.2, -16.8)
-script = ExtResource("35_teqmp")
+script = ExtResource("37_g4u7x")
 
 [node name="Shape" type="CollisionShape3D" parent="Props/ContactConsole"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.16999999, 0.0012499988, -2.9802322e-08)
-shape = SubResource("BoxShape3D_27ohx")
+shape = SubResource("BoxShape3D_qyw1k")
 
 [node name="Crt" type="Node3D" parent="Props/ContactConsole"]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -0.06, 0, -2.6226832e-09)
 
-[node name="Model" type="Node3D" parent="Props/ContactConsole/Crt" instance=ExtResource("12_aqd4q")]
+[node name="Model" type="Node3D" parent="Props/ContactConsole/Crt" instance=ExtResource("12_6q8r1")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
 
 [node name="ScreenTint" type="Node" parent="Props/ContactConsole/Crt"]
-script = ExtResource("9_g732p")
-phosphor_material = ExtResource("18_4cltb")
+script = ExtResource("9_vd0g3")
+phosphor_material = ExtResource("18_vnr65")
 
 [node name="Fabricator" type="StaticBody3D" parent="Props"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.93799996, 0.6, 1.8209679)
-script = ExtResource("36_wv0xx")
+script = ExtResource("38_fkekk")
 
 [node name="Shape" type="CollisionShape3D" parent="Props/Fabricator"]
-shape = SubResource("BoxShape3D_3oat7")
+shape = SubResource("BoxShape3D_r7c56")
 
-[node name="Model" type="Node3D" parent="Props/Fabricator" instance=ExtResource("37_hybgy")]
+[node name="Model" type="Node3D" parent="Props/Fabricator" instance=ExtResource("39_5qyyk")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0, -0.6, 0)
 
 [node name="CargoPort" type="StaticBody3D" parent="Props"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.7, 0.445, -0.24999997)
-script = ExtResource("38_vogw0")
+script = ExtResource("40_soyol")
 
 [node name="Shape" type="CollisionShape3D" parent="Props/CargoPort"]
-shape = SubResource("BoxShape3D_o3kp7")
+shape = SubResource("BoxShape3D_4m27q")
 
-[node name="Model" type="Node3D" parent="Props/CargoPort" instance=ExtResource("39_g4u7x")]
+[node name="Model" type="Node3D" parent="Props/CargoPort" instance=ExtResource("41_vthgh")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0, -0.445, 0)
 
 [node name="CutterTool" type="StaticBody3D" parent="Props"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7, 0.091, -1.35)
-script = ExtResource("40_fkekk")
+script = ExtResource("42_5yyb3")
 item_id = &"cutter"
 item_name = "Hull cutter"
 
 [node name="Shape" type="CollisionShape3D" parent="Props/CutterTool"]
-shape = SubResource("BoxShape3D_sguak")
+shape = SubResource("BoxShape3D_y2j1p")
 
-[node name="Model" type="Node3D" parent="Props/CutterTool" instance=ExtResource("41_5qyyk")]
+[node name="Model" type="Node3D" parent="Props/CutterTool" instance=ExtResource("43_by3am")]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0, -0.091, 0)
 
 [node name="SampleCanister1" type="StaticBody3D" parent="Props"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.7, 0.123, -0.24999997)
-script = ExtResource("42_soyol")
+script = ExtResource("44_0nq3h")
 item_id = &"sample_canister"
 item_name = "Sample canister"
 
 [node name="Shape" type="CollisionShape3D" parent="Props/SampleCanister1"]
-shape = SubResource("BoxShape3D_sht2k")
+shape = SubResource("BoxShape3D_68guj")
 
-[node name="Model" type="Node3D" parent="Props/SampleCanister1" instance=ExtResource("43_vthgh")]
+[node name="Model" type="Node3D" parent="Props/SampleCanister1" instance=ExtResource("45_8fswo")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0, -0.123, 0)
 
 [node name="SampleCanister2" type="StaticBody3D" parent="Props"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7, 0.123, -1.1)
-script = ExtResource("42_soyol")
+script = ExtResource("44_0nq3h")
 item_id = &"sample_canister"
 item_name = "Sample canister"
 
 [node name="Shape" type="CollisionShape3D" parent="Props/SampleCanister2"]
-shape = SubResource("BoxShape3D_qyw1k")
+shape = SubResource("BoxShape3D_wvrig")
 
-[node name="Model" type="Node3D" parent="Props/SampleCanister2" instance=ExtResource("43_vthgh")]
+[node name="Model" type="Node3D" parent="Props/SampleCanister2" instance=ExtResource("45_8fswo")]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0, -0.123, 0)
 
 [node name="SampleCanister3" type="StaticBody3D" parent="Props"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7, 0.123, -0.85)
-script = ExtResource("42_soyol")
+script = ExtResource("44_0nq3h")
 item_id = &"sample_canister"
 item_name = "Sample canister"
 
 [node name="Shape" type="CollisionShape3D" parent="Props/SampleCanister3"]
-shape = SubResource("BoxShape3D_r7c56")
+shape = SubResource("BoxShape3D_n30ts")
 
-[node name="Model" type="Node3D" parent="Props/SampleCanister3" instance=ExtResource("43_vthgh")]
+[node name="Model" type="Node3D" parent="Props/SampleCanister3" instance=ExtResource("45_8fswo")]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0, -0.123, 0)
 
 [node name="AirlockPanel" type="StaticBody3D" parent="Props"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.3, 1.3, -1.05)
-script = ExtResource("44_5yyb3")
+script = ExtResource("46_ui4no")
 
 [node name="Shape" type="CollisionShape3D" parent="Props/AirlockPanel"]
-shape = SubResource("BoxShape3D_4m27q")
+shape = SubResource("BoxShape3D_ct5pi")
 
-[node name="Model" type="Node3D" parent="Props/AirlockPanel" instance=ExtResource("45_by3am")]
+[node name="Model" type="Node3D" parent="Props/AirlockPanel" instance=ExtResource("47_lgrg1")]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0.05949999, 0, 0)
 
 [node name="SuitLocker" type="StaticBody3D" parent="Props"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.68, 0.95, -0.35)
-script = ExtResource("46_0nq3h")
+script = ExtResource("48_f7r3k")
 
 [node name="Shape" type="CollisionShape3D" parent="Props/SuitLocker"]
-shape = SubResource("BoxShape3D_y2j1p")
+shape = SubResource("BoxShape3D_0btcg")
 
-[node name="Model" type="Node3D" parent="Props/SuitLocker" instance=ExtResource("47_8fswo")]
+[node name="Model" type="Node3D" parent="Props/SuitLocker" instance=ExtResource("49_imb7m")]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0, -0.95, 0)
 
-[node name="ContainerProp" type="Node3D" parent="Props" instance=ExtResource("48_ui4no")]
+[node name="ContainerProp" type="Node3D" parent="Props" instance=ExtResource("50_bd1ma")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.7205, 0, -2.9222221)
 
-[node name="ComputerProp" type="Node3D" parent="Props" instance=ExtResource("49_lgrg1")]
+[node name="ComputerProp" type="Node3D" parent="Props" instance=ExtResource("51_eb0if")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7867895, 0.75, -8.633333)
 
-[node name="DisplayProp" type="Node3D" parent="Props" instance=ExtResource("50_f7r3k")]
+[node name="DisplayProp" type="Node3D" parent="Props" instance=ExtResource("52_6t2we")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.580821, 1.6, -19.914675)
 
 [node name="SwitchBank" type="StaticBody3D" parent="Props"]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -1.7765263, 1.6, -18.325)
 
-[node name="Model" type="Node3D" parent="Props/SwitchBank" instance=ExtResource("51_imb7m")]
+[node name="Model" type="Node3D" parent="Props/SwitchBank" instance=ExtResource("53_58hxo")]
 
 [node name="Shape" type="CollisionShape3D" parent="Props/SwitchBank"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.045520596)
-shape = SubResource("BoxShape3D_68guj")
+shape = SubResource("BoxShape3D_ybqrl")
 
 [node name="GaugeCluster" type="StaticBody3D" parent="Props"]
-transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 1.8697895, 1.3, 1.5)
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 1.5841053, 1.3, -19.058695)
 
-[node name="Model" type="Node3D" parent="Props/GaugeCluster" instance=ExtResource("52_bd1ma")]
+[node name="Model" type="Node3D" parent="Props/GaugeCluster" instance=ExtResource("54_b175g")]
 
 [node name="Shape" type="CollisionShape3D" parent="Props/GaugeCluster"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.064)
-shape = SubResource("BoxShape3D_wvrig")
+shape = SubResource("BoxShape3D_s0nk4")
 
 [node name="SevenSegment" type="StaticBody3D" parent="Props"]
-transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 1.6952106, 1.5, -8.3)
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 1.7732632, 1.5, -18.651087)
 
-[node name="Model" type="Node3D" parent="Props/SevenSegment" instance=ExtResource("53_eb0if")]
+[node name="Model" type="Node3D" parent="Props/SevenSegment" instance=ExtResource("55_ksqsq")]
 
 [node name="Shape" type="CollisionShape3D" parent="Props/SevenSegment"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.033625)
-shape = SubResource("BoxShape3D_n30ts")
-
-[node name="DeskConsole" type="StaticBody3D" parent="Props"]
-transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -0.804, 0, -17.91739)
-
-[node name="Model" type="Node3D" parent="Props/DeskConsole" instance=ExtResource("12_aqd4q")]
-
-[node name="Shape" type="CollisionShape3D" parent="Props/DeskConsole"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25125, 0.109999985)
-shape = SubResource("BoxShape3D_ct5pi")
+shape = SubResource("BoxShape3D_jys4y")
 
 [node name="CrewLocker" type="StaticBody3D" parent="Props"]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0.962, 0, -13.5)
 
-[node name="Model" type="Node3D" parent="Props/CrewLocker" instance=ExtResource("47_8fswo")]
+[node name="Model" type="Node3D" parent="Props/CrewLocker" instance=ExtResource("49_imb7m")]
 
 [node name="Shape" type="CollisionShape3D" parent="Props/CrewLocker"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.95, 0.022499979)
-shape = SubResource("BoxShape3D_0btcg")
+shape = SubResource("BoxShape3D_ymi4p")
 
 [node name="MessTable" type="StaticBody3D" parent="Props"]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -0.71, 0, -7.8)
 
-[node name="Model" type="Node3D" parent="Props/MessTable" instance=ExtResource("54_6t2we")]
+[node name="Model" type="Node3D" parent="Props/MessTable" instance=ExtResource("56_v34n4")]
 
 [node name="Shape" type="CollisionShape3D" parent="Props/MessTable"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.375, 0)
-shape = SubResource("BoxShape3D_ybqrl")
+shape = SubResource("BoxShape3D_61xmt")
 
 [node name="FilterRack" type="StaticBody3D" parent="Props"]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -1.331, 1.3, -10.3)
 
-[node name="Model" type="Node3D" parent="Props/FilterRack" instance=ExtResource("55_58hxo")]
+[node name="Model" type="Node3D" parent="Props/FilterRack" instance=ExtResource("57_06wgt")]
 
 [node name="Shape" type="CollisionShape3D" parent="Props/FilterRack"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.1185)
-shape = SubResource("BoxShape3D_s0nk4")
+shape = SubResource("BoxShape3D_q57wg")
 
 [node name="ToolCart" type="StaticBody3D" parent="Props"]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 1.008, 0, 1.6)
 
-[node name="Model" type="Node3D" parent="Props/ToolCart" instance=ExtResource("56_b175g")]
+[node name="Model" type="Node3D" parent="Props/ToolCart" instance=ExtResource("58_mhr57")]
 
 [node name="Shape" type="CollisionShape3D" parent="Props/ToolCart"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0072588027, 0.44043627, 0)
-shape = SubResource("BoxShape3D_jys4y")
+shape = SubResource("BoxShape3D_64gsi")
 
 [node name="CrateStack" type="StaticBody3D" parent="Props"]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0.728, 0, -2.6)
 
-[node name="Model" type="Node3D" parent="Props/CrateStack" instance=ExtResource("57_ksqsq")]
+[node name="Model" type="Node3D" parent="Props/CrateStack" instance=ExtResource("59_bx2mw")]
 
 [node name="Shape" type="CollisionShape3D" parent="Props/CrateStack"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7486351, 0)
-shape = SubResource("BoxShape3D_ymi4p")
+shape = SubResource("BoxShape3D_ofvy5")
 
 [node name="ShelfUnit" type="StaticBody3D" parent="Props"]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -1.028, 0.95, -4)
 
-[node name="Model" type="Node3D" parent="Props/ShelfUnit" instance=ExtResource("58_v34n4")]
+[node name="Model" type="Node3D" parent="Props/ShelfUnit" instance=ExtResource("60_laytd")]
 
 [node name="Shape" type="CollisionShape3D" parent="Props/ShelfUnit"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.2)
-shape = SubResource("BoxShape3D_61xmt")
+shape = SubResource("BoxShape3D_jsx10")
 
 [node name="GalleyUnit" type="StaticBody3D" parent="Props"]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0.72, 0, -9)
 
-[node name="Model" type="Node3D" parent="Props/GalleyUnit" instance=ExtResource("59_06wgt")]
+[node name="Model" type="Node3D" parent="Props/GalleyUnit" instance=ExtResource("61_usuyl")]
 
 [node name="Shape" type="CollisionShape3D" parent="Props/GalleyUnit"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
-shape = SubResource("BoxShape3D_q57wg")
+shape = SubResource("BoxShape3D_80kxu")
 
 [node name="DoorJoint_cupola_cockpit" type="StaticBody3D" parent="Props"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.925, -18.625)
-script = ExtResource("60_mhr57")
+script = ExtResource("62_kejwi")
 compartment_a = &"cockpit"
 compartment_b = &"cockpit"
 starts_open = true
@@ -1102,19 +1109,19 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1.28, 0, -0.925, -0.028800001)
 mesh = SubResource("ArrayMesh_e28by")
 
 [node name="SlabShape" type="CollisionShape3D" parent="Props/DoorJoint_cupola_cockpit"]
-shape = SubResource("BoxShape3D_64gsi")
+shape = SubResource("BoxShape3D_qb2wa")
 
 [node name="Frame" type="StaticBody3D" parent="Props/DoorJoint_cupola_cockpit"]
 collision_layer = 2
 collision_mask = 0
-script = ExtResource("61_bx2mw")
+script = ExtResource("63_7g4mw")
 
 [node name="FrameShape" type="CollisionShape3D" parent="Props/DoorJoint_cupola_cockpit/Frame"]
-shape = SubResource("BoxShape3D_ofvy5")
+shape = SubResource("BoxShape3D_rrhby")
 
 [node name="DoorJoint_cockpit_quarters" type="StaticBody3D" parent="Props"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.925, -15.475)
-script = ExtResource("60_mhr57")
+script = ExtResource("62_kejwi")
 compartment_a = &"cockpit"
 compartment_b = &"quarters"
 starts_open = true
@@ -1127,19 +1134,19 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1.28, 0, -0.925, -0.028800001)
 mesh = SubResource("ArrayMesh_e28by")
 
 [node name="SlabShape" type="CollisionShape3D" parent="Props/DoorJoint_cockpit_quarters"]
-shape = SubResource("BoxShape3D_jsx10")
+shape = SubResource("BoxShape3D_gv5ms")
 
 [node name="Frame" type="StaticBody3D" parent="Props/DoorJoint_cockpit_quarters"]
 collision_layer = 2
 collision_mask = 0
-script = ExtResource("61_bx2mw")
+script = ExtResource("63_7g4mw")
 
 [node name="FrameShape" type="CollisionShape3D" parent="Props/DoorJoint_cockpit_quarters/Frame"]
-shape = SubResource("BoxShape3D_80kxu")
+shape = SubResource("BoxShape3D_15soj")
 
 [node name="DoorJoint_quarters_life_support" type="StaticBody3D" parent="Props"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.925, -12.325)
-script = ExtResource("60_mhr57")
+script = ExtResource("62_kejwi")
 compartment_a = &"quarters"
 compartment_b = &"main"
 starts_open = true
@@ -1152,19 +1159,19 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1.28, 0, -0.925, -0.028800001)
 mesh = SubResource("ArrayMesh_e28by")
 
 [node name="SlabShape" type="CollisionShape3D" parent="Props/DoorJoint_quarters_life_support"]
-shape = SubResource("BoxShape3D_qb2wa")
+shape = SubResource("BoxShape3D_suyjy")
 
 [node name="Frame" type="StaticBody3D" parent="Props/DoorJoint_quarters_life_support"]
 collision_layer = 2
 collision_mask = 0
-script = ExtResource("61_bx2mw")
+script = ExtResource("63_7g4mw")
 
 [node name="FrameShape" type="CollisionShape3D" parent="Props/DoorJoint_quarters_life_support/Frame"]
-shape = SubResource("BoxShape3D_rrhby")
+shape = SubResource("BoxShape3D_186tj")
 
 [node name="DoorJoint_life_support_galley" type="StaticBody3D" parent="Props"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.925, -9.775)
-script = ExtResource("60_mhr57")
+script = ExtResource("62_kejwi")
 compartment_a = &"main"
 compartment_b = &"galley"
 starts_open = true
@@ -1177,19 +1184,19 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1.28, 0, -0.925, -0.028800001)
 mesh = SubResource("ArrayMesh_e28by")
 
 [node name="SlabShape" type="CollisionShape3D" parent="Props/DoorJoint_life_support_galley"]
-shape = SubResource("BoxShape3D_gv5ms")
+shape = SubResource("BoxShape3D_vur7o")
 
 [node name="Frame" type="StaticBody3D" parent="Props/DoorJoint_life_support_galley"]
 collision_layer = 2
 collision_mask = 0
-script = ExtResource("61_bx2mw")
+script = ExtResource("63_7g4mw")
 
 [node name="FrameShape" type="CollisionShape3D" parent="Props/DoorJoint_life_support_galley/Frame"]
-shape = SubResource("BoxShape3D_15soj")
+shape = SubResource("BoxShape3D_em5mv")
 
 [node name="DoorJoint_galley_water_closet" type="StaticBody3D" parent="Props"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.925, -6.825)
-script = ExtResource("60_mhr57")
+script = ExtResource("62_kejwi")
 compartment_a = &"galley"
 compartment_b = &"water_closet"
 starts_open = true
@@ -1202,19 +1209,19 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1.28, 0, -0.925, -0.028800001)
 mesh = SubResource("ArrayMesh_e28by")
 
 [node name="SlabShape" type="CollisionShape3D" parent="Props/DoorJoint_galley_water_closet"]
-shape = SubResource("BoxShape3D_suyjy")
+shape = SubResource("BoxShape3D_h0vif")
 
 [node name="Frame" type="StaticBody3D" parent="Props/DoorJoint_galley_water_closet"]
 collision_layer = 2
 collision_mask = 0
-script = ExtResource("61_bx2mw")
+script = ExtResource("63_7g4mw")
 
 [node name="FrameShape" type="CollisionShape3D" parent="Props/DoorJoint_galley_water_closet/Frame"]
-shape = SubResource("BoxShape3D_186tj")
+shape = SubResource("BoxShape3D_jvgec")
 
 [node name="DoorJoint_water_closet_storage" type="StaticBody3D" parent="Props"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.925, -4.675)
-script = ExtResource("60_mhr57")
+script = ExtResource("62_kejwi")
 compartment_a = &"water_closet"
 compartment_b = &"storage"
 starts_open = true
@@ -1227,19 +1234,19 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1.28, 0, -0.925, -0.028800001)
 mesh = SubResource("ArrayMesh_e28by")
 
 [node name="SlabShape" type="CollisionShape3D" parent="Props/DoorJoint_water_closet_storage"]
-shape = SubResource("BoxShape3D_vur7o")
+shape = SubResource("BoxShape3D_qglbc")
 
 [node name="Frame" type="StaticBody3D" parent="Props/DoorJoint_water_closet_storage"]
 collision_layer = 2
 collision_mask = 0
-script = ExtResource("61_bx2mw")
+script = ExtResource("63_7g4mw")
 
 [node name="FrameShape" type="CollisionShape3D" parent="Props/DoorJoint_water_closet_storage/Frame"]
-shape = SubResource("BoxShape3D_em5mv")
+shape = SubResource("BoxShape3D_btauy")
 
 [node name="DoorJoint_airlock_engine_bay_a" type="StaticBody3D" parent="Props"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.925, 0.425)
-script = ExtResource("60_mhr57")
+script = ExtResource("62_kejwi")
 compartment_a = &"airlock"
 compartment_b = &"engine_bay"
 starts_open = true
@@ -1252,19 +1259,19 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1.28, 0, -0.925, -0.028800001)
 mesh = SubResource("ArrayMesh_e28by")
 
 [node name="SlabShape" type="CollisionShape3D" parent="Props/DoorJoint_airlock_engine_bay_a"]
-shape = SubResource("BoxShape3D_h0vif")
+shape = SubResource("BoxShape3D_r78k2")
 
 [node name="Frame" type="StaticBody3D" parent="Props/DoorJoint_airlock_engine_bay_a"]
 collision_layer = 2
 collision_mask = 0
-script = ExtResource("61_bx2mw")
+script = ExtResource("63_7g4mw")
 
 [node name="FrameShape" type="CollisionShape3D" parent="Props/DoorJoint_airlock_engine_bay_a/Frame"]
-shape = SubResource("BoxShape3D_jvgec")
+shape = SubResource("BoxShape3D_qaw1o")
 
 [node name="DoorJoint_engine_bay_a_engine_bay_b" type="StaticBody3D" parent="Props"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.925, 3.575)
-script = ExtResource("60_mhr57")
+script = ExtResource("62_kejwi")
 compartment_a = &"engine_bay"
 compartment_b = &"engine_bay"
 starts_open = true
@@ -1277,19 +1284,19 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1.28, 0, -0.925, -0.028800001)
 mesh = SubResource("ArrayMesh_e28by")
 
 [node name="SlabShape" type="CollisionShape3D" parent="Props/DoorJoint_engine_bay_a_engine_bay_b"]
-shape = SubResource("BoxShape3D_qglbc")
+shape = SubResource("BoxShape3D_dd71l")
 
 [node name="Frame" type="StaticBody3D" parent="Props/DoorJoint_engine_bay_a_engine_bay_b"]
 collision_layer = 2
 collision_mask = 0
-script = ExtResource("61_bx2mw")
+script = ExtResource("63_7g4mw")
 
 [node name="FrameShape" type="CollisionShape3D" parent="Props/DoorJoint_engine_bay_a_engine_bay_b/Frame"]
-shape = SubResource("BoxShape3D_btauy")
+shape = SubResource("BoxShape3D_nhj3l")
 
 [node name="DoorAirlockOuter" type="StaticBody3D" parent="Props"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.08, 1.1, -0.65)
-script = ExtResource("60_mhr57")
+script = ExtResource("62_kejwi")
 compartment_a = &"airlock"
 airlock_id = &"airlock_main"
 airlock_side = &"outer"
@@ -1301,19 +1308,19 @@ transform = Transform3D(-5.2983502e-08, 0, 0.7272727, 0, 1.108871, 0, -1.2121212
 mesh = SubResource("ArrayMesh_s5dqh")
 
 [node name="SlabShape" type="CollisionShape3D" parent="Props/DoorAirlockOuter"]
-shape = SubResource("BoxShape3D_r78k2")
+shape = SubResource("BoxShape3D_uhyk1")
 
 [node name="Frame" type="StaticBody3D" parent="Props/DoorAirlockOuter"]
 collision_layer = 2
 collision_mask = 0
-script = ExtResource("61_bx2mw")
+script = ExtResource("63_7g4mw")
 
 [node name="FrameShape" type="CollisionShape3D" parent="Props/DoorAirlockOuter/Frame"]
-shape = SubResource("BoxShape3D_qaw1o")
+shape = SubResource("BoxShape3D_oamet")
 
 [node name="DoorAirlockInner" type="StaticBody3D" parent="Props"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.925, -1.7249999)
-script = ExtResource("60_mhr57")
+script = ExtResource("62_kejwi")
 compartment_a = &"storage"
 compartment_b = &"airlock"
 airlock_id = &"airlock_main"
@@ -1326,140 +1333,140 @@ transform = Transform3D(0.9090909, 0, 0, 0, 0.9324597, 0, 0, 0, 0.7272727, 0.002
 mesh = SubResource("ArrayMesh_s5dqh")
 
 [node name="SlabShape" type="CollisionShape3D" parent="Props/DoorAirlockInner"]
-shape = SubResource("BoxShape3D_dd71l")
+shape = SubResource("BoxShape3D_ns4io")
 
 [node name="Frame" type="StaticBody3D" parent="Props/DoorAirlockInner"]
 collision_layer = 2
 collision_mask = 0
-script = ExtResource("61_bx2mw")
+script = ExtResource("63_7g4mw")
 
 [node name="FrameShape" type="CollisionShape3D" parent="Props/DoorAirlockInner/Frame"]
-shape = SubResource("BoxShape3D_nhj3l")
+shape = SubResource("BoxShape3D_15y5a")
 
 [node name="Zones" type="Node3D" parent="."]
 
 [node name="ZoneSection_cupola" type="Area3D" parent="Zones"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3, -19.9)
-script = ExtResource("62_laytd")
+script = ExtResource("64_el5kb")
 compartment_id = &"cockpit"
 
 [node name="Shape" type="CollisionShape3D" parent="Zones/ZoneSection_cupola"]
-shape = SubResource("BoxShape3D_uhyk1")
+shape = SubResource("BoxShape3D_q5pdf")
 
 [node name="ZoneSection_cockpit" type="Area3D" parent="Zones"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3, -17.05)
-script = ExtResource("62_laytd")
+script = ExtResource("64_el5kb")
 compartment_id = &"cockpit"
 
 [node name="Shape" type="CollisionShape3D" parent="Zones/ZoneSection_cockpit"]
-shape = SubResource("BoxShape3D_oamet")
+shape = SubResource("BoxShape3D_b5h16")
 
 [node name="ZoneSection_quarters" type="Area3D" parent="Zones"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3, -13.9)
-script = ExtResource("62_laytd")
+script = ExtResource("64_el5kb")
 compartment_id = &"quarters"
 
 [node name="Shape" type="CollisionShape3D" parent="Zones/ZoneSection_quarters"]
-shape = SubResource("BoxShape3D_ns4io")
+shape = SubResource("BoxShape3D_fmpiq")
 
 [node name="ZoneSection_life_support" type="Area3D" parent="Zones"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3, -11.049999)
-script = ExtResource("62_laytd")
+script = ExtResource("64_el5kb")
 
 [node name="Shape" type="CollisionShape3D" parent="Zones/ZoneSection_life_support"]
-shape = SubResource("BoxShape3D_15y5a")
+shape = SubResource("BoxShape3D_geqso")
 
 [node name="ZoneSection_galley" type="Area3D" parent="Zones"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3, -8.3)
-script = ExtResource("62_laytd")
+script = ExtResource("64_el5kb")
 compartment_id = &"galley"
 
 [node name="Shape" type="CollisionShape3D" parent="Zones/ZoneSection_galley"]
-shape = SubResource("BoxShape3D_q5pdf")
+shape = SubResource("BoxShape3D_wy10c")
 
 [node name="ZoneSection_water_closet" type="Area3D" parent="Zones"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3, -5.75)
-script = ExtResource("62_laytd")
+script = ExtResource("64_el5kb")
 compartment_id = &"water_closet"
 
 [node name="Shape" type="CollisionShape3D" parent="Zones/ZoneSection_water_closet"]
-shape = SubResource("BoxShape3D_b5h16")
+shape = SubResource("BoxShape3D_xxvwg")
 
 [node name="ZoneSection_storage" type="Area3D" parent="Zones"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3, -3.2)
-script = ExtResource("62_laytd")
+script = ExtResource("64_el5kb")
 compartment_id = &"storage"
 
 [node name="Shape" type="CollisionShape3D" parent="Zones/ZoneSection_storage"]
-shape = SubResource("BoxShape3D_fmpiq")
+shape = SubResource("BoxShape3D_v5n0b")
 
 [node name="ZoneSection_airlock" type="Area3D" parent="Zones"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3, -0.65)
-script = ExtResource("62_laytd")
+script = ExtResource("64_el5kb")
 compartment_id = &"airlock"
 
 [node name="Shape" type="CollisionShape3D" parent="Zones/ZoneSection_airlock"]
-shape = SubResource("BoxShape3D_geqso")
+shape = SubResource("BoxShape3D_kohn5")
 
 [node name="ZoneSection_engine_bay_a" type="Area3D" parent="Zones"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3, 2)
-script = ExtResource("62_laytd")
+script = ExtResource("64_el5kb")
 compartment_id = &"engine_bay"
 
 [node name="Shape" type="CollisionShape3D" parent="Zones/ZoneSection_engine_bay_a"]
-shape = SubResource("BoxShape3D_wy10c")
+shape = SubResource("BoxShape3D_yso1c")
 
 [node name="ZoneSection_engine_bay_b" type="Area3D" parent="Zones"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3, 5.15)
-script = ExtResource("62_laytd")
+script = ExtResource("64_el5kb")
 compartment_id = &"engine_bay"
 
 [node name="Shape" type="CollisionShape3D" parent="Zones/ZoneSection_engine_bay_b"]
-shape = SubResource("BoxShape3D_xxvwg")
+shape = SubResource("BoxShape3D_e5jbg")
 
 [node name="Links" type="Node3D" parent="."]
 
 [node name="LinkJoint_cupola_cockpit" type="Node" parent="Links"]
-script = ExtResource("63_usuyl")
+script = ExtResource("65_45iig")
 compartment_a = &"cockpit"
 compartment_b = &"cockpit"
 
 [node name="LinkJoint_cockpit_quarters" type="Node" parent="Links"]
-script = ExtResource("63_usuyl")
+script = ExtResource("65_45iig")
 compartment_a = &"cockpit"
 compartment_b = &"quarters"
 
 [node name="LinkJoint_quarters_life_support" type="Node" parent="Links"]
-script = ExtResource("63_usuyl")
+script = ExtResource("65_45iig")
 compartment_a = &"quarters"
 compartment_b = &"main"
 
 [node name="LinkJoint_life_support_galley" type="Node" parent="Links"]
-script = ExtResource("63_usuyl")
+script = ExtResource("65_45iig")
 compartment_a = &"main"
 compartment_b = &"galley"
 
 [node name="LinkJoint_galley_water_closet" type="Node" parent="Links"]
-script = ExtResource("63_usuyl")
+script = ExtResource("65_45iig")
 compartment_a = &"galley"
 compartment_b = &"water_closet"
 
 [node name="LinkJoint_water_closet_storage" type="Node" parent="Links"]
-script = ExtResource("63_usuyl")
+script = ExtResource("65_45iig")
 compartment_a = &"water_closet"
 compartment_b = &"storage"
 
 [node name="LinkJoint_storage_airlock" type="Node" parent="Links"]
-script = ExtResource("63_usuyl")
+script = ExtResource("65_45iig")
 compartment_a = &"storage"
 compartment_b = &"airlock"
 
 [node name="LinkJoint_airlock_engine_bay_a" type="Node" parent="Links"]
-script = ExtResource("63_usuyl")
+script = ExtResource("65_45iig")
 compartment_a = &"airlock"
 compartment_b = &"engine_bay"
 
 [node name="LinkJoint_engine_bay_a_engine_bay_b" type="Node" parent="Links"]
-script = ExtResource("63_usuyl")
+script = ExtResource("65_45iig")
 compartment_a = &"engine_bay"
 compartment_b = &"engine_bay"

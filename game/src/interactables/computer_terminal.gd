@@ -312,7 +312,7 @@ func _ensure_ui() -> void:
 	_menu.option_highlighted.connect(_on_highlighted)
 	var panel := PanelContainer.new()
 	panel.name = "Screen"
-	panel.custom_minimum_size = Vector2(460.0, 0.0)
+	panel.custom_minimum_size = Vector2(460.0, 440.0)
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.02, 0.05, 0.03, 0.72)
 	style.border_color = Color(0.2, 0.5, 0.35, 0.9)
@@ -320,11 +320,18 @@ func _ensure_ui() -> void:
 	style.set_content_margin_all(18.0)
 	panel.add_theme_stylebox_override("panel", style)
 	row.add_child(panel)
+	var scroll := ScrollContainer.new()
+	scroll.name = "ReadoutScroll"
+	scroll.custom_minimum_size = Vector2(420.0, 400.0)
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	panel.add_child(scroll)
 	_content = Label.new()
 	_content.name = "ComputerReadout"
+	_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_content.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_content.add_theme_font_size_override("font_size", UiScale.size(self, base_font_size))
 	CrtPanel.style_label(_content, phosphor)
-	panel.add_child(_content)
+	scroll.add_child(_content)
 	CrtPanel.add_overlay(panel)
 	_root = row
 	_root.visible = false

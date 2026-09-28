@@ -27,6 +27,7 @@ func _run() -> void:
 	root.add_child(_sim_clock)
 
 	_test_capture()
+	_test_maintenance_events()
 	_test_read_marks()
 	_test_day_rollover()
 	_test_save_load()
@@ -72,6 +73,20 @@ func _test_read_marks() -> void:
 	computer.mark_all_read()
 	_check(computer.get_unread_count() == 0, "mark_all_read clears the board")
 	_check(computer.get_entry(newest_id)["text"] == "HULL PATCHED: STORAGE", "entry lookup returns the record")
+	computer.free()
+
+
+func _test_maintenance_events() -> void:
+	var computer := ComputerSystem.new()
+	root.add_child(computer)
+	_event_bus.call("emit_event", &"filter_installed", {"compartment_id": &"main", "part_id": &"filter_co2"})
+	_event_bus.call("emit_event", &"reclaimer_serviced", {"part_id": &"water_cartridge"})
+	_event_bus.call("emit_event", &"water_cartridge_installed", {"contamination": 0.12})
+	var entries: Array[Dictionary] = computer.get_entries()
+	_check(entries.size() == 3, "completed maintenance events are retained in ship history")
+	_check(String(entries[0]["text"]) == "WATER CARTRIDGE INSTALLED: CONTAMINATION 12%", "water cartridge history includes remaining contamination")
+	_check(String(entries[1]["text"]) == "WATER RECLAIMER SERVICED: WATER_CARTRIDGE", "reclaimer history names the serviced part")
+	_check(String(entries[2]["text"]) == "FILTER INSTALLED: FILTER_CO2 / MAIN", "scrubber history names filter and compartment")
 	computer.free()
 
 

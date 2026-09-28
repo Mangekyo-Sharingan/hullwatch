@@ -62,6 +62,8 @@ func _test_log_station() -> void:
 
 	var content: Label = _find_label(terminal)
 	_check(content != null and content.text == "\n".join(terminal.build_readout()), "screen shows the live readout")
+	_check(content != null and content.autowrap_mode == TextServer.AUTOWRAP_WORD_SMART, "screen wraps long computer lines")
+	_check(content != null and content.get_parent() is ScrollContainer, "long readouts stay inside a scrollable screen")
 	var overlay: ColorRect = _find_overlay(terminal)
 	_check(overlay != null and overlay.material is ShaderMaterial, "screen carries the CRT overlay")
 

@@ -24,6 +24,7 @@ func _run() -> void:
 	_test_fresh_v3_shape()
 	_test_v3_round_trip()
 	_test_missing_meta_tolerance()
+	_test_missing_computer_history()
 	_test_version_refusal()
 
 	_finish()
@@ -105,6 +106,19 @@ func _test_missing_meta_tolerance() -> void:
 	_check(bool(save_manager.call("load_from_dict", data)), "v2 dict without meta loads")
 	_check(int(data.get("save_version", 0)) == 3, "v2 dict without meta migrates to version 3")
 	_check(absf(float(_sim_clock().call("get_total_hours")) - 1.0) < 0.001, "v2 dict without meta restores the clock")
+
+
+func _test_missing_computer_history() -> void:
+	var save_manager: Node = _find_root_child(&"SaveManager")
+	if save_manager == null:
+		return
+	var computer := ComputerSystem.new()
+	root.add_child(computer)
+	computer.record("STALE HISTORY")
+	var legacy: Dictionary = {"save_version": 3, "systems": {}, "interactables": {}}
+	_check(bool(save_manager.call("load_from_dict", legacy)), "legacy save without a computer log loads")
+	_check(computer.get_entries().is_empty(), "legacy load clears history absent from that save")
+	computer.free()
 
 
 func _test_version_refusal() -> void:

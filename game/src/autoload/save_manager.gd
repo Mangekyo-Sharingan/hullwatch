@@ -70,6 +70,8 @@ func load_from_dict(data: Dictionary) -> bool:
 			continue
 		var key: String = _system_key(system, group_name)
 		if not systems.has(key):
+			if group_name == &"computer_system":
+				system.call("load_state", {})
 			continue
 		system.call("load_state", systems[key])
 	var interactables: Dictionary = data.get("interactables", {})

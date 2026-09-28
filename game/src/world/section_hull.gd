@@ -117,8 +117,8 @@ const PROW_DEPTH: float = 0.45
 
 ## The cockpit viewport on the cupola's forward face: smaller than the flat windshield,
 ## because the tunnel's bow is a section face rather than a four-metre wall.
-const TUBE_WINDOW_MIN: Vector2 = Vector2(-1.05, 1.30)
-const TUBE_WINDOW_MAX: Vector2 = Vector2(1.05, 2.15)
+const TUBE_WINDOW_MIN: Vector2 = Vector2(-1.20, 1.25)
+const TUBE_WINDOW_MAX: Vector2 = Vector2(1.20, 2.25)
 
 static func tube_section(radius: float, ceiling_lift: float = 0.0) -> PackedVector2Array:
 	return PackedVector2Array([

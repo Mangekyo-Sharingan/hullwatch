@@ -18,7 +18,7 @@ const CARRIED_PROPS: Array[String] = [
 	"ProbeWater", "SealantCartridge1", "SealantCartridge2", "SealantCartridge3",
 	"Fabricator", "CutterTool", "SampleCanister2", "SampleCanister3", "AirlockPanel",
 	"SuitLocker", "ContainerProp", "ComputerProp", "DisplayProp",
-	"SwitchBank", "GaugeCluster", "SevenSegment", "DeskConsole",
+	"SwitchBank", "GaugeCluster", "SevenSegment", "WallComputer",
 	"CrewLocker", "MessTable", "FilterRack", "ToolCart",
 	"CrateStack", "ShelfUnit", "GalleyUnit",
 ]
@@ -82,6 +82,7 @@ func _run() -> void:
 	_check(_props.get_child_count() == expected_total, "Props holds all %d named nodes (%d)" % [expected_total, _props.get_child_count()])
 
 	_test_props_carry()
+	_test_cockpit_instruments()
 	_test_doors()
 	_test_zones()
 	_test_links()
@@ -125,6 +126,14 @@ func _test_props_carry() -> void:
 		var airlock: int = TubeLayout.index_of("airlock")
 		var face: float = float(TubeLayout.sections()[airlock]["radius"]) + SectionHull.TUBE_BAND
 		_check(prop.position.x < -face, "platform prop stands off the airlock's drum face: " + prop_name)
+
+
+func _test_cockpit_instruments() -> void:
+	var cupola: Vector2 = TubeLayout.span(TubeLayout.index_of("cupola"))
+	var cockpit: Vector2 = TubeLayout.span(TubeLayout.index_of("cockpit"))
+	for prop_name: String in ["GaugeCluster", "SevenSegment"]:
+		var prop: Node3D = _props.get_node_or_null(NodePath(prop_name)) as Node3D
+		_check(prop != null and prop.position.z >= cupola.x and prop.position.z <= cockpit.y, "%s belongs to the cockpit" % prop_name)
 
 
 ## One door per hatched joint - open with the slab stowed, except the storage/airlock joint

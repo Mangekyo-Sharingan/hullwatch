@@ -31,7 +31,7 @@ func _run() -> void:
 	if _tube_preview():
 		if player.has_method("release_tether"):
 			player.call("release_tether")
-		await _capture(player, Vector3(0.0, 0.1, -17.0), 0.0, "shot_tube_cockpit.png")
+		await _capture(player, Vector3(0.0, 0.1, -19.6), 0.0, "shot_tube_cockpit.png")
 		await _capture(player, Vector3(0.0, 0.1, -4.5), PI, "shot_tube_storage.png")
 		await _capture(player, Vector3(0.0, 0.1, -13.9), 0.0, "shot_tube_quarters.png")
 		await _capture(player, Vector3(-0.8, 0.1, -13.9), -PI * 0.5, "shot_tube_quarters_locker.png")
@@ -40,7 +40,15 @@ func _run() -> void:
 		await _capture(player, Vector3(0.6, 1.3, -10.3), PI * 0.5, "shot_tube_filter_rack.png")
 		await _capture(player, Vector3(1.0, 0.1, 2.0), PI * 0.5, "shot_tube_engine_bay.png")
 		await _capture(player, Vector3(-1.0, 0.1, 2.0), -PI * 0.5, "shot_tube_tool_cart.png")
-		await _capture(player, Vector3(0.1, 1.1, -20.1), -PI * 0.5, "shot_tube_terminal.png")
+		var wall_computer: WallComputer = _main.get_node_or_null("WorldLayout/Props/WallComputer") as WallComputer
+		if wall_computer != null:
+			await _capture(player, Vector3(-0.15, 1.15, -17.75), PI * 0.5, "shot_tube_wall_computer.png")
+			wall_computer.interact(player)
+			var animator: AnimationPlayer = wall_computer.find_child("AnimationPlayer", true, false) as AnimationPlayer
+			if animator != null:
+				await create_timer(animator.current_animation_length + 0.1).timeout
+			await _capture(player, Vector3(-0.15, 1.15, -17.75), PI * 0.5, "shot_tube_wall_computer_open.png")
+			wall_computer.close()
 		await _capture(player, Vector3(0.0, 0.1, -4.0), PI, "shot_tube_chain.png")
 		await _capture(player, Vector3(0.0, 0.1, -0.65), PI * 0.5, "shot_tube_airlock.png")
 		await _capture(player, Vector3(0.0, 0.1, -0.65), 0.0, "shot_tube_airlock_inner.png")
@@ -254,12 +262,8 @@ func _tube_preview() -> bool:
 	return is_tube
 
 
-## The exterior has no lighting yet (M12); carry a work light so exterior captures read.
+## Interior lamps follow the lighting breaker; carry a work light only for exterior captures.
 func _needs_work_light(position: Vector3) -> bool:
-	if _tube_preview():
-		# The tube preview has no interior lighting yet (the cabin lights still sit at the flat
-		# layout positions), so every preview shot carries the work light.
-		return true
 	return position.y > 3.4 or absf(position.x) > 7.0 or position.z < -19.5 or position.z > 8.5 or position.x < -8.5
 
 
