@@ -33,7 +33,7 @@ def make_material(name: str, base: tuple, metallic: float, roughness: float) -> 
     return material
 
 
-def box(parent: bpy.types.Object, name: str, size: tuple, location: tuple, material: bpy.types.Material) -> bpy.types.Object:
+def box(parent: bpy.types.Object, name: str, size: tuple, location: tuple, material: bpy.types.Material, gradient: bool = False) -> bpy.types.Object:
     mesh = bpy.data.meshes.new(name)
     bm = bmesh.new()
     bmesh.ops.create_cube(bm, size=1.0)
@@ -45,6 +45,20 @@ def box(parent: bpy.types.Object, name: str, size: tuple, location: tuple, mater
     obj.location = Vector(location)
     obj.parent = parent
     obj.data.materials.append(material)
+    if gradient:
+        colors = mesh.color_attributes.new(name="Color", type="FLOAT_COLOR", domain="CORNER")
+        for polygon in mesh.polygons:
+            for loop_index in polygon.loop_indices:
+                point = mesh.vertices[mesh.loops[loop_index].vertex_index].co
+                height = (point.z / size[2]) + 0.5
+                shade = 0.80 + 0.18 * height + max(polygon.normal.z, 0.0) * 0.06
+                warm = height * 0.035
+                colors.data[loop_index].color = (
+                    0.72 * (shade + warm),
+                    0.68 * shade,
+                    0.58 * (shade - warm),
+                    1.0,
+                )
     return obj
 
 
@@ -53,6 +67,11 @@ def main() -> None:
     scene = bpy.context.scene
 
     case = make_material("hw_beige", (0.72, 0.68, 0.58, 1.0), 0.0, 0.65)
+    case_nodes = case.node_tree.nodes
+    case_bsdf = case_nodes.get("Principled BSDF")
+    color_attribute = case_nodes.new("ShaderNodeVertexColor")
+    color_attribute.layer_name = "Color"
+    case.node_tree.links.new(color_attribute.outputs["Color"], case_bsdf.inputs["Base Color"])
     dark = make_material("hw_dark", (0.07, 0.07, 0.08, 1.0), 0.1, 0.5)
     metal = make_material("hw_metal", (0.33, 0.35, 0.39, 1.0), 0.7, 0.35)
     hazard = make_material("hw_hazard_amber", (0.62, 0.36, 0.05, 1.0), 0.0, 0.55)
@@ -62,10 +81,10 @@ def main() -> None:
     scene.collection.objects.link(root)
 
     box(root, "frame", (0.64, 0.05, 0.74), (0.0, 0.025, 0.0), dark)
-    box(root, "slot_bottom", (0.64, 0.11, 0.05), (0.0, -0.055, -0.345), case)
-    box(root, "slot_top", (0.64, 0.11, 0.05), (0.0, -0.055, 0.345), case)
-    box(root, "slot_left", (0.05, 0.11, 0.74), (-0.295, -0.055, 0.0), case)
-    box(root, "slot_right", (0.05, 0.11, 0.74), (0.295, -0.055, 0.0), case)
+    box(root, "slot_bottom", (0.64, 0.11, 0.05), (0.0, -0.055, -0.345), case, gradient=True)
+    box(root, "slot_top", (0.64, 0.11, 0.05), (0.0, -0.055, 0.345), case, gradient=True)
+    box(root, "slot_left", (0.05, 0.11, 0.74), (-0.295, -0.055, 0.0), case, gradient=True)
+    box(root, "slot_right", (0.05, 0.11, 0.74), (0.295, -0.055, 0.0), case, gradient=True)
     box(root, "rail_left", (0.02, 0.02, 0.62), (-0.262, -0.080, 0.0), metal)
     box(root, "rail_right", (0.02, 0.02, 0.62), (0.262, -0.080, 0.0), metal)
     box(root, "label_plate", (0.20, 0.02, 0.05), (0.16, -0.012, 0.295), hazard)
@@ -76,7 +95,7 @@ def main() -> None:
     module.parent = root
     module.location = (0.0, -0.06, 0.31)
     module.rotation_mode = "XYZ"
-    box(module, "module_back", (0.56, 0.07, 0.63), (0.0, 0.035, -0.315), case)
+    box(module, "module_back", (0.56, 0.07, 0.63), (0.0, 0.035, -0.315), case, gradient=True)
     box(module, "bezel", (0.52, 0.02, 0.50), (0.0, -0.01, -0.31), dark)
     box(module, "Screen", (0.46, 0.012, 0.40), (0.0, -0.024, -0.31), screen)
     box(module, "handle", (0.20, 0.06, 0.035), (0.0, -0.02, -0.585), metal)

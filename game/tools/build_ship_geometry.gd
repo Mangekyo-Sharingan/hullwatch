@@ -692,28 +692,33 @@ func _add_tunnel_deck(surface: Dictionary, ring: PackedVector2Array, z0: float, 
 ## A cross-section face at constant z, closed except for a rectangular opening (the hatch in a
 ## bulkhead, the viewport in the cupola), with the opening's bore lining the wall's depth.
 func _add_tube_face(surface: Dictionary, ring: PackedVector2Array, z: float, hole_min: Vector2, hole_max: Vector2, facing: Vector3, collision: Array[Vector3], z_bore: float) -> void:
-	var deck: float = ring[1].x
-	var wall_y: float = ring[2].y
-	var wall: float = ring[2].x
-	var ceiling: float = ring[3].x
-	var ceiling_y: float = ring[3].y
+	var bottom_y: float = ring[0].y
+	var ceiling_y: float = bottom_y
+	for point: Vector2 in ring:
+		ceiling_y = maxf(ceiling_y, point.y)
 	if hole_max.x - hole_min.x <= EPSILON or hole_max.y - hole_min.y <= EPSILON:
-		_add_quad(surface, _xy(Vector2(-deck, 0.0), z), _xy(Vector2(deck, 0.0), z), _xy(Vector2(wall, wall_y), z), _xy(Vector2(-wall, wall_y), z), facing, collision)
-		_add_quad(surface, _xy(Vector2(-wall, wall_y), z), _xy(Vector2(wall, wall_y), z), _xy(Vector2(ceiling, ceiling_y), z), _xy(Vector2(-ceiling, ceiling_y), z), facing, collision)
+		for index: int in range(1, ring.size() - 1):
+			_add_tri(surface, _xy(ring[0], z), _xy(ring[index], z), _xy(ring[index + 1], z), facing, collision)
 		return
-	var lo: float = clampf(hole_min.y, 0.0, ceiling_y)
-	var hi: float = clampf(hole_max.y, 0.0, ceiling_y)
-	var w_lo: float = _ring_x_at(ring, lo)
-	var w_hi: float = _ring_x_at(ring, hi)
-	var hx0: float = clampf(hole_min.x, -w_lo, w_lo)
-	var hx1: float = clampf(hole_max.x, -w_lo, w_lo)
+	var lo: float = clampf(hole_min.y, bottom_y, ceiling_y)
+	var hi: float = clampf(hole_max.y, bottom_y, ceiling_y)
 	var levels: Array[float] = [lo]
 	for point: Vector2 in ring:
 		if point.y > lo + EPSILON and point.y < hi - EPSILON:
 			levels.append(point.y)
 	levels.append(hi)
-	_add_quad(surface, _xy(Vector2(-deck, 0.0), z), _xy(Vector2(deck, 0.0), z), _xy(Vector2(w_lo, lo), z), _xy(Vector2(-w_lo, lo), z), facing, collision)
-	_add_quad(surface, _xy(Vector2(-w_hi, hi), z), _xy(Vector2(w_hi, hi), z), _xy(Vector2(ceiling, ceiling_y), z), _xy(Vector2(-ceiling, ceiling_y), z), facing, collision)
+	levels.sort()
+	var narrowest: float = INF
+	for level: float in levels:
+		narrowest = minf(narrowest, _ring_x_at(ring, level))
+	var hx0: float = clampf(hole_min.x, -narrowest, narrowest)
+	var hx1: float = clampf(hole_max.x, -narrowest, narrowest)
+	var bottom_half: float = _ring_x_at(ring, bottom_y)
+	var w_lo: float = _ring_x_at(ring, lo)
+	var w_hi: float = _ring_x_at(ring, hi)
+	var ceiling_half: float = _ring_x_at(ring, ceiling_y)
+	_add_quad(surface, _xy(Vector2(-bottom_half, bottom_y), z), _xy(Vector2(bottom_half, bottom_y), z), _xy(Vector2(w_lo, lo), z), _xy(Vector2(-w_lo, lo), z), facing, collision)
+	_add_quad(surface, _xy(Vector2(-w_hi, hi), z), _xy(Vector2(w_hi, hi), z), _xy(Vector2(ceiling_half, ceiling_y), z), _xy(Vector2(-ceiling_half, ceiling_y), z), facing, collision)
 	for i: int in levels.size() - 1:
 		var y_a: float = levels[i]
 		var y_b: float = levels[i + 1]
@@ -732,9 +737,17 @@ func _add_tube_face(surface: Dictionary, ring: PackedVector2Array, z: float, hol
 ## The cross-section's own wall half-width at height y, interpolated along the ring's canted
 ## facet - the face helpers must follow whatever ring they are handed.
 func _ring_x_at(ring: PackedVector2Array, y: float) -> float:
-	if y <= ring[2].y:
-		return lerpf(ring[1].x, ring[2].x, clampf(y / maxf(ring[2].y, EPSILON), 0.0, 1.0))
-	return lerpf(ring[2].x, ring[3].x, clampf((y - ring[2].y) / maxf(ring[3].y - ring[2].y, EPSILON), 0.0, 1.0))
+	var half_width: float = 0.0
+	for index: int in ring.size():
+		var a: Vector2 = ring[index]
+		var b: Vector2 = ring[(index + 1) % ring.size()]
+		if y < minf(a.y, b.y) - EPSILON or y > maxf(a.y, b.y) + EPSILON:
+			continue
+		if absf(b.y - a.y) <= EPSILON:
+			half_width = maxf(half_width, maxf(absf(a.x), absf(b.x)))
+		else:
+			half_width = maxf(half_width, absf(lerpf(a.x, b.x, (y - a.y) / (b.y - a.y))))
+	return half_width
 
 
 ## The annulus between two cross-sections at a joint, so a smaller neck never leaves the
@@ -1217,11 +1230,12 @@ func _build_tube_hull(hull: StaticBody3D, shell: Dictionary, decks: Dictionary, 
 				z1 -= SectionHull.TUBE_STEP * 0.5
 		var gaps: Array = []
 		if TubeLayout.port_of(index) != &"":
-			gaps.append({"edge": _tube_port_edge(index), "from": center_z - TUBE_DOCK_DOOR_HALF, "to": center_z + TUBE_DOCK_DOOR_HALF, "top": 2.1})
+			gaps.append({"edge": _tube_drum_port_edge(index), "from": center_z - TUBE_DOCK_DOOR_HALF, "to": center_z + TUBE_DOCK_DOOR_HALF, "top": 2.1})
 		if bool(TubeLayout.sections()[index].get("outer_hatch", false)):
-			gaps.append({"edge": SectionHull.TUBE_EDGE_PORT, "from": center_z - 0.5, "to": center_z + 0.5, "top": 2.0})
-		_add_tunnel_band(shell, SectionHull.tube_drum_section(radius), z0, z1, gaps, collision, false)
-		_add_tunnel_band(shell, SectionHull.tube_drum_section(radius), z0, z1, gaps, collision, true)
+			gaps.append({"edge": SectionHull.TUBE_DRUM_EDGE_PORT, "from": center_z - 0.5, "to": center_z + 0.5, "top": 2.0})
+		var drum_ring: PackedVector2Array = SectionHull.tube_drum_section(radius)
+		_add_tunnel_band(shell, drum_ring, z0, z1, gaps, collision, false)
+		_add_tunnel_band(shell, drum_ring, z0, z1, gaps, collision, true)
 	if drums.is_empty():
 		return
 	var first: Dictionary = drums[0]
@@ -1234,20 +1248,22 @@ func _build_tube_hull(hull: StaticBody3D, shell: Dictionary, decks: Dictionary, 
 			continue
 		var z0: float = TubeLayout.span(index).y
 		var z1: float = TubeLayout.span(index + 1).x
-		_add_tunnel_band(shell, SectionHull.tube_drum_section(_tube_neck_radius(index)), z0, z1, [], collision, false)
-		_add_tunnel_band(shell, SectionHull.tube_drum_section(_tube_neck_radius(index)), z0, z1, [], collision, true)
+		var neck_ring: PackedVector2Array = SectionHull.tube_drum_section(_tube_neck_radius(index))
+		_add_tunnel_band(shell, neck_ring, z0, z1, [], collision, false)
+		_add_tunnel_band(shell, neck_ring, z0, z1, [], collision, true)
 		if _tube_neck_radius(index) < float(drums[index]["radius"]) - EPSILON:
-			_add_washer(shell, SectionHull.tube_drum_section(float(drums[index]["radius"])), SectionHull.tube_drum_section(_tube_neck_radius(index)), z0, Vector3(0.0, 0.0, 1.0), collision)
+			_add_washer(shell, SectionHull.tube_drum_section(float(drums[index]["radius"])), neck_ring, z0, Vector3(0.0, 0.0, 1.0), collision)
 		if _tube_neck_radius(index) < float(drums[index + 1]["radius"]) - EPSILON:
-			_add_washer(shell, SectionHull.tube_drum_section(float(drums[index + 1]["radius"])), SectionHull.tube_drum_section(_tube_neck_radius(index)), z1, Vector3(0.0, 0.0, -1.0), collision)
+			_add_washer(shell, SectionHull.tube_drum_section(float(drums[index + 1]["radius"])), neck_ring, z1, Vector3(0.0, 0.0, -1.0), collision)
 	for joint: Dictionary in joints:
 		var joint_z: float = float(joint["z"])
 		var collar_radius: float = maxf(float(joint["radius_a"]), float(joint["radius_b"]))
 		var half_step: float = SectionHull.TUBE_STEP * 0.5
-		_add_tunnel_band(shell, SectionHull.tube_collar_section(collar_radius), joint_z - half_step, joint_z + half_step, [], collision, false)
-		_add_tunnel_band(shell, SectionHull.tube_collar_section(collar_radius), joint_z - half_step, joint_z + half_step, [], collision, true)
-		_add_washer(shell, SectionHull.tube_collar_section(collar_radius), SectionHull.tube_drum_section(float(joint["radius_a"])), joint_z - half_step, Vector3(0.0, 0.0, -1.0), collision)
-		_add_washer(shell, SectionHull.tube_collar_section(collar_radius), SectionHull.tube_drum_section(float(joint["radius_b"])), joint_z + half_step, Vector3(0.0, 0.0, 1.0), collision)
+		var collar_ring: PackedVector2Array = SectionHull.tube_collar_section(collar_radius)
+		_add_tunnel_band(shell, collar_ring, joint_z - half_step, joint_z + half_step, [], collision, false)
+		_add_tunnel_band(shell, collar_ring, joint_z - half_step, joint_z + half_step, [], collision, true)
+		_add_washer(shell, collar_ring, SectionHull.tube_drum_section(float(joint["radius_a"])), joint_z - half_step, Vector3(0.0, 0.0, -1.0), collision)
+		_add_washer(shell, collar_ring, SectionHull.tube_drum_section(float(joint["radius_b"])), joint_z + half_step, Vector3(0.0, 0.0, 1.0), collision)
 	_add_tank_cluster(shell, decks, collision)
 	_add_tube_arrays(hull)
 	_build_tube_fittings(hull, decks, collision)
@@ -1522,8 +1538,8 @@ func _add_tube_eva_deck(hull: StaticBody3D, decks: Dictionary, collision: Array[
 ## A fitting point just proud of a section drum's wall at height y: the wall line the section
 ## table promises, so tether hardware bolts to the curved shell instead of hanging in space.
 func _tube_wall_mount(index: int, side: float, z: float, y: float) -> Vector3:
-	var radius: float = float(TubeLayout.sections()[index]["radius"]) + SectionHull.TUBE_BAND
-	return Vector3(side * (SectionHull.tube_half_width(radius, y) + 0.04), y, z)
+	var radius: float = float(TubeLayout.sections()[index]["radius"])
+	return Vector3(side * (SectionHull.tube_drum_half_width(radius, y) + 0.04), y, z)
 
 
 ## The EVA truss walkway (M13.3): from the platform's forward edge toward the life support
@@ -1589,6 +1605,10 @@ func _tube_port_edge(index: int) -> int:
 		if String(dock["id"]) == id:
 			return SectionHull.TUBE_EDGE_STARBOARD if float(dock["outward"]) > 0.0 else SectionHull.TUBE_EDGE_PORT
 	return SectionHull.TUBE_EDGE_STARBOARD
+
+
+func _tube_drum_port_edge(index: int) -> int:
+	return SectionHull.TUBE_DRUM_EDGE_STARBOARD if _tube_port_edge(index) == SectionHull.TUBE_EDGE_STARBOARD else SectionHull.TUBE_DRUM_EDGE_PORT
 
 
 ## Doorway openings in the shell's west/east facets: the airlock's outer door plus every
@@ -1865,9 +1885,9 @@ func _add_tube_arrays(hull: StaticBody3D) -> void:
 	if drums.is_empty():
 		return
 	var tank: Dictionary = drums[drums.size() - 1]
-	var radius: float = float(tank["radius"]) + SectionHull.TUBE_BAND
+	var radius: float = float(tank["radius"])
 	var center_z: float = (float(tank["z0"]) + float(tank["z1"])) * 0.5
-	var shoulder: float = SectionHull.tube_half_width(radius, SectionHull.ARRAY_BOOM_Y)
+	var shoulder: float = SectionHull.tube_drum_half_width(radius, SectionHull.ARRAY_BOOM_Y)
 	for side: float in [-1.0, 1.0]:
 		var yaw: float = 0.0 if side > 0.0 else 180.0
 		_add_hull_model(

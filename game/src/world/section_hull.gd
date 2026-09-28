@@ -13,9 +13,9 @@ const EPSILON: float = 0.000001
 ## the XY plane (x = east, y = up); every section shares the outline while the interior
 ## stays flat (the 14 m beam), so the stack reads as a wide multi-section hull.
 const SECTIONS: Array[Dictionary] = [
-	{"name": "BowWindow", "z0": -19.45, "z1": -19.0, "min": Vector2(-8.5, -0.75), "max": Vector2(6.6, 3.6), "cut": 0.55},
-	{"name": "Body", "z0": -19.0, "z1": 8.0, "min": Vector2(-8.5, -0.75), "max": Vector2(6.6, 3.6), "cut": 0.55},
-	{"name": "SternBand", "z0": 8.0, "z1": 8.45, "min": Vector2(-8.5, -0.75), "max": Vector2(6.6, 3.6), "cut": 0.55},
+	{"name": "BowWindow", "z0": -19.45, "z1": -19.0, "min": Vector2(-8.6, -0.75), "max": Vector2(6.7, 3.6), "cut": 0.9},
+	{"name": "Body", "z0": -19.0, "z1": 8.0, "min": Vector2(-8.6, -0.75), "max": Vector2(6.7, 3.6), "cut": 0.9},
+	{"name": "SternBand", "z0": 8.0, "z1": 8.45, "min": Vector2(-8.6, -0.75), "max": Vector2(6.7, 3.6), "cut": 0.9},
 ]
 
 ## The faceted prow over the cockpit window: taper rings bow-ward, ending in a framed
@@ -23,7 +23,7 @@ const SECTIONS: Array[Dictionary] = [
 ## The first ring's bottom sits at the catwalk deck plane (-0.02); the nose carries the
 ## forward viewport.
 const PROW_RINGS: Array[Dictionary] = [
-	{"z": -19.45, "min": Vector2(-8.5, -0.02), "max": Vector2(6.6, 3.6), "cut": 0.55},
+	{"z": -19.45, "min": Vector2(-8.6, -0.02), "max": Vector2(6.7, 3.6), "cut": 0.9},
 	{"z": -20.3, "min": Vector2(-5.6, 0.15), "max": Vector2(3.7, 3.0), "cut": 1.0},
 	{
 		"z": -21.3,
@@ -99,6 +99,7 @@ const TUBE_WALL_HALF: float = 0.88
 const TUBE_CEIL_HALF: float = 0.60
 const TUBE_WALL_TOP: float = 1.9
 const TUBE_CEILING: float = 2.5
+const TUBE_DRUM_SHOULDER_Y: float = 2.2
 
 ## How much taller the hull drums' ceilings sit above the interior's, how much the flange
 ## collars clear the drums, and how far the drums' bellies hang below the interior deck, so
@@ -110,6 +111,8 @@ const TUBE_DRUM_DECK_DROP: float = 0.12
 ## The cross-section's facet indices the dock ports and the airlock hatch open through.
 const TUBE_EDGE_STARBOARD: int = 1
 const TUBE_EDGE_PORT: int = 5
+const TUBE_DRUM_EDGE_STARBOARD: int = 2
+const TUBE_DRUM_EDGE_PORT: int = 6
 
 ## How far the hull's bow face sits forward of the interior's cupola face, the cowl depth
 ## the viewport looks through.
@@ -131,19 +134,45 @@ static func tube_section(radius: float, ceiling_lift: float = 0.0) -> PackedVect
 	])
 
 
-## The hull drum around a section: the same cross-section, band wider, lifted clear of the
-## interior's ceiling plane and dropped clear of its deck plane.
+## The outer drum gives the six-sided interior a broader eight-sided shell, with bevels at
+## the keel and shoulders. Its door facets stay vertical; the roof shoulder angles inward.
 static func tube_drum_section(radius: float) -> PackedVector2Array:
-	var ring: PackedVector2Array = tube_section(radius + TUBE_BAND, TUBE_CEILING_LIFT)
-	ring[0] = Vector2(ring[0].x, -TUBE_DRUM_DECK_DROP)
-	ring[1] = Vector2(ring[1].x, -TUBE_DRUM_DECK_DROP)
-	return ring
+	var outer_radius: float = radius + TUBE_BAND
+	var deck_y: float = -TUBE_DRUM_DECK_DROP
+	var roof_y: float = TUBE_CEILING + TUBE_CEILING_LIFT
+	var deck_half: float = outer_radius * TUBE_DECK_HALF
+	var wall_half: float = outer_radius * TUBE_WALL_HALF
+	var ceiling_half: float = outer_radius * TUBE_CEIL_HALF
+	return PackedVector2Array([
+		Vector2(-deck_half, deck_y),
+		Vector2(deck_half, deck_y),
+		Vector2(wall_half, 0.0),
+		Vector2(wall_half, TUBE_DRUM_SHOULDER_Y),
+		Vector2(ceiling_half, roof_y),
+		Vector2(-ceiling_half, roof_y),
+		Vector2(-wall_half, TUBE_DRUM_SHOULDER_Y),
+		Vector2(-wall_half, 0.0),
+	])
 
 
 ## The collar ring around a joint: the drum ring plus the flange width, lifted again so its
 ## ceiling plane clears the drum's.
 static func tube_collar_section(radius: float) -> PackedVector2Array:
-	return tube_section(radius + TUBE_BAND + TUBE_FLANGE_WIDTH, TUBE_COLLAR_LIFT)
+	var collar_radius: float = radius + TUBE_BAND + TUBE_FLANGE_WIDTH
+	var deck_half: float = collar_radius * TUBE_DECK_HALF
+	var wall_half: float = collar_radius * TUBE_WALL_HALF
+	var ceiling_half: float = collar_radius * TUBE_CEIL_HALF
+	var roof_y: float = TUBE_CEILING + TUBE_COLLAR_LIFT
+	return PackedVector2Array([
+		Vector2(-deck_half, -TUBE_DRUM_DECK_DROP),
+		Vector2(deck_half, -TUBE_DRUM_DECK_DROP),
+		Vector2(wall_half, 0.0),
+		Vector2(wall_half, TUBE_DRUM_SHOULDER_Y),
+		Vector2(ceiling_half, roof_y),
+		Vector2(-ceiling_half, roof_y),
+		Vector2(-wall_half, TUBE_DRUM_SHOULDER_Y),
+		Vector2(-wall_half, 0.0),
+	])
 
 
 ## The section's half-width at height y, following the deck, the wall line and the cove.
@@ -157,6 +186,19 @@ static func tube_half_width(radius: float, y: float) -> float:
 	if y <= TUBE_WALL_TOP:
 		return lerpf(deck, wall, y / TUBE_WALL_TOP)
 	return lerpf(wall, ceiling, clampf((y - TUBE_WALL_TOP) / (TUBE_CEILING - TUBE_WALL_TOP), 0.0, 1.0))
+
+
+## The outer drum's half-width: the vertical dock face below a chamfered roof shoulder.
+static func tube_drum_half_width(section_radius: float, y: float) -> float:
+	var outer_radius: float = section_radius + TUBE_BAND
+	var deck: float = outer_radius * TUBE_DECK_HALF
+	var wall: float = outer_radius * TUBE_WALL_HALF
+	var ceiling: float = outer_radius * TUBE_CEIL_HALF
+	if y <= 0.0:
+		return lerpf(deck, wall, clampf((y + TUBE_DRUM_DECK_DROP) / TUBE_DRUM_DECK_DROP, 0.0, 1.0))
+	if y <= TUBE_DRUM_SHOULDER_Y:
+		return wall
+	return lerpf(wall, ceiling, clampf((y - TUBE_DRUM_SHOULDER_Y) / (TUBE_CEILING + TUBE_CEILING_LIFT - TUBE_DRUM_SHOULDER_Y), 0.0, 1.0))
 
 ## Tube-mode shell (M13.2): the hull that wraps the tube interior is one constant-radius drum
 ## per TubeLayout section, since the section polygons already carry the shape. Drums meet at

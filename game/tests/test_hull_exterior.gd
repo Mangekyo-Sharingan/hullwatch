@@ -29,6 +29,7 @@ func _run() -> void:
 	_test_hull_node()
 
 	_test_drums()
+	_test_octagonal_cross_section()
 	_test_joint_collars()
 	_test_bow_and_stern()
 	_test_solar_arrays()
@@ -134,7 +135,7 @@ func _tube_port_is_west(index: int) -> bool:
 func _test_no_outboard_geometry() -> void:
 	var reach: float = 0.0
 	for drum: Dictionary in SectionHull.tube_drums():
-		reach = maxf(reach, SectionHull.tube_half_width(float(drum["radius"]) + SectionHull.TUBE_BAND, SectionHull.TUBE_WALL_TOP))
+		reach = maxf(reach, SectionHull.tube_drum_half_width(float(drum["radius"]), SectionHull.TUBE_WALL_TOP))
 	var limit: float = reach + 2.0
 	var platform: Array[String] = ["TubeRailing0", "TubeRailing1", "TubeRailing2", "TetherAnchor0", "TetherAnchor1", "TetherZone"]
 	var strays: PackedStringArray = PackedStringArray()
@@ -184,8 +185,21 @@ func _test_joint_collars() -> void:
 		var z: float = float(joint["z"])
 		var radius: float = maxf(float(joint["radius_a"]), float(joint["radius_b"]))
 		var out: Dictionary = _ray_result(Vector3(radius + 2.0, 1.2, z), Vector3(0.0, 1.2, z))
-		var drum_wall: float = SectionHull.tube_half_width(radius, 1.2)
+		var drum_wall: float = SectionHull.tube_drum_half_width(radius, 1.2)
 		_check(not out.is_empty() and float((out["position"] as Vector3).x) > drum_wall + 0.05, "flange collar girdles the joint at z=%.2f" % z)
+
+
+func _test_octagonal_cross_section() -> void:
+	var index: int = TubeLayout.index_of("storage")
+	var radius: float = float(TubeLayout.sections()[index]["radius"])
+	var span: Vector2 = TubeLayout.span(index)
+	var z: float = (span.x + span.y) * 0.5
+	for y: float in [2.15, 2.5]:
+		var expected: float = SectionHull.tube_drum_half_width(radius, y)
+		for side: float in [-1.0, 1.0]:
+			var out: Dictionary = _ray_result(Vector3(side * (radius + SectionHull.TUBE_BAND + 2.0), y, z), Vector3(0.0, y, z))
+			var hit_x: float = absf(float((out["position"] as Vector3).x)) if not out.is_empty() else -1.0
+			_check(not out.is_empty() and absf(hit_x - expected) < 0.03, "octagonal drum facet reaches its profile at y=%.2f, side=%.0f" % [y, side])
 
 
 func _test_bow_and_stern() -> void:
@@ -297,8 +311,8 @@ func _test_solar_arrays() -> void:
 	if drums.is_empty():
 		_check(false, "the chain has a tank drum for the arrays")
 		return
-	var radius: float = float(drums[drums.size() - 1]["radius"]) + SectionHull.TUBE_BAND
-	var shoulder: float = SectionHull.tube_half_width(radius, SectionHull.ARRAY_BOOM_Y)
+	var radius: float = float(drums[drums.size() - 1]["radius"])
+	var shoulder: float = SectionHull.tube_drum_half_width(radius, SectionHull.ARRAY_BOOM_Y)
 	for side: float in [-1.0, 1.0]:
 		var node: Node3D = _geometry.get_node_or_null(NodePath("HullExterior/SolarArray%.0f" % side)) as Node3D
 		if node == null:
