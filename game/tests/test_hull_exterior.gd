@@ -215,6 +215,15 @@ func _test_bow_and_stern() -> void:
 	)
 	var bow_side_x: float = absf(float((bow_side["position"] as Vector3).x)) if not bow_side.is_empty() else -1.0
 	_check(not bow_side.is_empty() and absf(bow_side_x - SectionHull.tube_drum_half_width(radius, 1.2)) < 0.03, "the shell closes the full cowl depth around the viewport")
+	for point: Vector2 in [
+		Vector2(-1.7, 0.1), Vector2(1.7, 0.1), Vector2(-2.0, 0.28), Vector2(2.0, 0.28),
+		Vector2(-2.0, 2.35), Vector2(2.0, 2.35), Vector2(-1.55, 2.65), Vector2(1.55, 2.65),
+	]:
+		var face_hit: Dictionary = _ray_result(
+			Vector3(point.x, point.y, bow - 1.0), Vector3(point.x, point.y, bow + 0.3)
+		)
+		var hit_z: float = float((face_hit["position"] as Vector3).z) if not face_hit.is_empty() else INF
+		_check(not face_hit.is_empty() and absf(hit_z - bow) < 0.03, "the bow cowl closes its side bevel at %s" % point)
 	var pane: MeshInstance3D = _geometry.get_node_or_null(^"Section_cupola/DressingWindowPane") as MeshInstance3D
 	var seal: CollisionShape3D = _geometry.get_node_or_null(^"Section_cupola/DressingWindowPaneSeal") as CollisionShape3D
 	var window_x: float = (SectionHull.TUBE_WINDOW_MIN.x + SectionHull.TUBE_WINDOW_MAX.x) * 0.5

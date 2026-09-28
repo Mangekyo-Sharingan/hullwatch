@@ -697,30 +697,34 @@ func _add_tube_face(surface: Dictionary, ring: PackedVector2Array, z: float, hol
 		return
 	var lo: float = clampf(hole_min.y, bottom_y, ceiling_y)
 	var hi: float = clampf(hole_max.y, bottom_y, ceiling_y)
-	var levels: Array[float] = [lo]
+	var levels: Array[float] = [bottom_y, lo, hi, ceiling_y]
 	for point: Vector2 in ring:
-		if point.y > lo + EPSILON and point.y < hi - EPSILON:
+		if point.y > bottom_y + EPSILON and point.y < ceiling_y - EPSILON:
 			levels.append(point.y)
-	levels.append(hi)
 	levels.sort()
-	var narrowest: float = INF
+	var unique_levels: Array[float] = []
 	for level: float in levels:
-		narrowest = minf(narrowest, _ring_x_at(ring, level))
+		if unique_levels.is_empty() or level - unique_levels[-1] > EPSILON:
+			unique_levels.append(level)
+	var narrowest: float = INF
+	for level: float in unique_levels:
+		if level >= lo - EPSILON and level <= hi + EPSILON:
+			narrowest = minf(narrowest, _ring_x_at(ring, level))
 	var hx0: float = clampf(hole_min.x, -narrowest, narrowest)
 	var hx1: float = clampf(hole_max.x, -narrowest, narrowest)
-	var bottom_half: float = _ring_x_at(ring, bottom_y)
-	var w_lo: float = _ring_x_at(ring, lo)
-	var w_hi: float = _ring_x_at(ring, hi)
-	var ceiling_half: float = _ring_x_at(ring, ceiling_y)
-	_add_quad(surface, _xy(Vector2(-bottom_half, bottom_y), z), _xy(Vector2(bottom_half, bottom_y), z), _xy(Vector2(w_lo, lo), z), _xy(Vector2(-w_lo, lo), z), facing, collision)
-	_add_quad(surface, _xy(Vector2(-w_hi, hi), z), _xy(Vector2(w_hi, hi), z), _xy(Vector2(ceiling_half, ceiling_y), z), _xy(Vector2(-ceiling_half, ceiling_y), z), facing, collision)
-	for i: int in levels.size() - 1:
-		var y_a: float = levels[i]
-		var y_b: float = levels[i + 1]
+	for i: int in unique_levels.size() - 1:
+		var y_a: float = unique_levels[i]
+		var y_b: float = unique_levels[i + 1]
+		if y_b - y_a <= EPSILON:
+			continue
 		var w_a: float = _ring_x_at(ring, y_a)
 		var w_b: float = _ring_x_at(ring, y_b)
-		_add_quad(surface, _xy(Vector2(-w_a, y_a), z), _xy(Vector2(hx0, y_a), z), _xy(Vector2(hx0, y_b), z), _xy(Vector2(-w_b, y_b), z), facing, collision)
-		_add_quad(surface, _xy(Vector2(hx1, y_a), z), _xy(Vector2(w_a, y_a), z), _xy(Vector2(w_b, y_b), z), _xy(Vector2(hx1, y_b), z), facing, collision)
+		var through_hole: bool = hi - lo > EPSILON and hx1 - hx0 > EPSILON and y_a >= lo - EPSILON and y_b <= hi + EPSILON
+		if through_hole:
+			_add_quad(surface, _xy(Vector2(-w_a, y_a), z), _xy(Vector2(hx0, y_a), z), _xy(Vector2(hx0, y_b), z), _xy(Vector2(-w_b, y_b), z), facing, collision)
+			_add_quad(surface, _xy(Vector2(hx1, y_a), z), _xy(Vector2(w_a, y_a), z), _xy(Vector2(w_b, y_b), z), _xy(Vector2(hx1, y_b), z), facing, collision)
+		else:
+			_add_quad(surface, _xy(Vector2(-w_a, y_a), z), _xy(Vector2(w_a, y_a), z), _xy(Vector2(w_b, y_b), z), _xy(Vector2(-w_b, y_b), z), facing, collision)
 	if absf(z_bore - z) <= EPSILON:
 		return
 	_add_quad(surface, _xy(hole_min, z), _xy(Vector2(hole_max.x, hole_min.y), z), _xy(Vector2(hole_max.x, hole_min.y), z_bore), _xy(hole_min, z_bore), Vector3.UP, collision)
