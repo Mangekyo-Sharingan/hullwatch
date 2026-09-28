@@ -1,10 +1,10 @@
 ## Magnetic-boot hybrid first-person controller: gravity walking while boots are engaged, zero-g drift otherwise.
 extends CharacterBody3D
 
-const STAND_HEIGHT: float = 1.8
-const CROUCH_HEIGHT: float = 1.2
-const STAND_HEAD_Y: float = 1.6
-const CROUCH_HEAD_Y: float = 1.0
+const STAND_HEIGHT: float = 1.75
+const CROUCH_HEIGHT: float = 1.15
+const STAND_HEAD_Y: float = 1.55
+const CROUCH_HEAD_Y: float = 0.95
 const BOOTS_LOST_GRACE: float = 0.15
 const NORMAL_EPSILON: float = 0.000001
 const BASE_MOUSE_SENSITIVITY: float = 0.002
@@ -52,6 +52,7 @@ func _ready() -> void:
 		_collision_shape.shape = capsule.duplicate()
 	up_direction = Vector3.UP
 	motion_mode = CharacterBody3D.MOTION_MODE_GROUNDED
+	floor_snap_length = 0.1
 	add_to_group(&"player")
 	_apply_settings()
 	if DisplayServer.get_name() != "headless":
@@ -145,6 +146,11 @@ func equip_suit_cutter() -> bool:
 
 func has_suit_cutter() -> bool:
 	return _suit_cutter
+
+
+## The node held items and suit-clipped gear ride: the eye camera.
+func get_hold_anchor() -> Node3D:
+	return _camera
 
 
 func take_carriable(item: Node) -> bool:
@@ -309,7 +315,7 @@ func _apply_tether() -> void:
 	if distance <= limit:
 		return
 	var direction_out: Vector3 = to_anchor / distance
-	global_position = _tether_anchor.global_position - direction_out * limit
+	move_and_collide(direction_out * (distance - limit))
 	var outward_speed: float = velocity.dot(-direction_out)
 	if outward_speed > 0.0:
 		velocity += direction_out * outward_speed
@@ -369,7 +375,7 @@ func _process_engaged(delta: float) -> void:
 
 func _process_free(delta: float) -> void:
 	velocity *= maxf(0.0, 1.0 - free_damping * delta)
-	var wish_direction: Vector3 = _wish_direction(Vector3.UP)
+	var wish_direction: Vector3 = _free_wish_direction()
 	if wish_direction != Vector3.ZERO:
 		velocity += wish_direction * thruster_accel * delta
 
@@ -403,6 +409,16 @@ func _wish_direction(plane_normal: Vector3) -> Vector3:
 	return wish.normalized()
 
 
+func _free_wish_direction() -> Vector3:
+	var input_vector: Vector2 = Input.get_vector(&"move_left", &"move_right", &"move_forward", &"move_back")
+	if input_vector == Vector2.ZERO:
+		return Vector3.ZERO
+	var wish: Vector3 = _camera.global_transform.basis.x * input_vector.x - _camera.global_transform.basis.z * input_vector.y
+	if wish.length_squared() <= NORMAL_EPSILON:
+		return Vector3.ZERO
+	return wish.normalized()
+
+
 func _find_anchor_normal() -> Vector3:
 	if is_on_floor():
 		return get_floor_normal()
@@ -414,6 +430,7 @@ func _find_anchor_normal() -> Vector3:
 	var query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(
 		global_position, global_position - global_transform.basis.y * boots_range
 	)
+	query.collision_mask = collision_mask
 	query.exclude = [get_rid()]
 	var result: Dictionary = space_state.intersect_ray(query)
 	if result.is_empty():

@@ -50,8 +50,10 @@ Previews: `docs/design/asset_*.png`. Style rules in `docs/ASSET_SOURCES.md` / sp
 | Pressure hatch | Airlock outer hatch leaf (fitted through `DOOR_STYLES["hullwatch"]`) | `game/assets/models/hullwatch/machinery/` |
 | Interior dressing kit | Crew locker, mess table, filter rack, tool cart | `game/assets/models/hullwatch/props/` |
 | Storage & galley kit | Crate stack, shelf unit, galley counter, pod service panel | `game/assets/models/hullwatch/props/` |
-| Exterior fittings kit | Antenna dish, thruster cluster, hull vent, floodlight, handrail | `game/assets/models/hullwatch/exterior/` |
+| Exterior fittings kit | Antenna dish, thruster cluster, hull vent, floodlight, handrail, solar array (boom, conduit, mount shoe and framed cell panel) | `game/assets/models/hullwatch/exterior/` |
 | Lighting kit | Ceiling lamp (one per cabin light), wall conduit run | `game/assets/models/hullwatch/exterior/` |
+| Hand tool kit | Multimeter, wrench, wear scanner, sealant cartridge, hull cutter, sample canister — each with a node-animated "use" action (dial sweep, emitter pulse, plunger push, cap twist) | `game/assets/models/hullwatch/tools/` |
+| Interior kit | Bunk, manual lectern, hull patch plate, O2 candle rack, diagnostic probe, cargo port, airlock panel, interior sliding door leaf, storage container, computer terminal, wall display | `game/assets/models/hullwatch/interior/` |
 
 ## Notes
 

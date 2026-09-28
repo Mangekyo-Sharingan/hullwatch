@@ -12,14 +12,16 @@ extends Interactable
 
 var _open: bool = false
 var _ready_open: bool = false
-var _slab: MeshInstance3D
+## The slab is a container: a single MeshInstance3D leaf on legacy doors, the fitted
+## authored leaf on generated ones. Either way it moves and hides as one node.
+var _slab: Node3D
 var _slab_shape: CollisionShape3D
 var _slab_base_position: Vector3 = Vector3.ZERO
 var _slab_shape_base_position: Vector3 = Vector3.ZERO
 
 
 func _ready() -> void:
-	_slab = get_node_or_null(^"Slab") as MeshInstance3D
+	_slab = get_node_or_null(^"Slab") as Node3D
 	_slab_shape = get_node_or_null(^"SlabShape") as CollisionShape3D
 	if _slab != null:
 		_slab_base_position = _slab.position

@@ -31,6 +31,7 @@ func _run() -> void:
 	_test_drums()
 	_test_joint_collars()
 	_test_bow_and_stern()
+	_test_solar_arrays()
 	_test_airlock_opens_onto_the_platform()
 	_test_platform_railing()
 	_test_walkway()
@@ -38,6 +39,8 @@ func _run() -> void:
 	_test_no_outboard_geometry()
 	_test_hardpoints()
 
+	if _layout != null:
+		_layout.free()
 	_geometry.free()
 	_finish()
 
@@ -85,8 +88,8 @@ func _test_rooms_are_closed() -> void:
 ## to look out, and the airlock door comes from world_layout, which this test stands up too.
 func _test_no_sightlines_out() -> void:
 	var layout_packed: PackedScene = load("res://scenes/world_layout.tscn") as PackedScene
-	var layout: Node3D = layout_packed.instantiate() as Node3D
-	root.add_child(layout)
+	_layout = layout_packed.instantiate() as Node3D
+	root.add_child(_layout)
 	await physics_frame
 	await physics_frame
 	var dirs: Array[Vector3] = []
@@ -112,7 +115,9 @@ func _test_no_sightlines_out() -> void:
 					escapes.append("%s from x=%.1f to (%.2f,%.2f,%.2f)" % [String(section["name"]), x, dir.x, dir.y, dir.z])
 					break
 	_check(escapes.is_empty(), "no sightline escapes a room (%s)" % ("sealed" if escapes.is_empty() else ", ".join(escapes)))
-	layout.free()
+	if _layout != null:
+		_layout.free()
+		_layout = null
 
 
 ## Whether a section's dock opens to port (west) rather than starboard.
@@ -136,7 +141,7 @@ func _test_no_outboard_geometry() -> void:
 	for node: Node in _geometry.find_children("*", "Node3D", true, false):
 		if String(node.name) in platform:
 			continue
-		var x: float = absf((node as Node3D).global_position.x)
+		var x: float = absf((node as Node3D).position.x)
 		if x > limit:
 			strays.append("%s at x=%.2f" % [String(node.name), x])
 	_check(strays.is_empty(), "no fitting floats off the hull (%s)" % ("all aboard" if strays.is_empty() else ", ".join(strays)))
@@ -193,7 +198,7 @@ func _test_bow_and_stern() -> void:
 	var last: Dictionary = SectionHull.tube_drums()[TubeLayout.sections().size() - 1]
 	var cap: Dictionary = _ray_result(Vector3(0.0, 1.2, float(last["z1"]) + 1.0), Vector3(0.0, 1.2, float(last["z1"]) - 1.0))
 	_check(not cap.is_empty() and absf(float((cap["position"] as Vector3).z) - float(last["z1"])) < 0.05, "the stern cap closes the last drum")
-	_check(_geometry.get_node_or_null(^"HullExterior/ArrayPanel1") != null, "the solar arrays keep their aft mount")
+	_check(_geometry.get_node_or_null(^"HullExterior/ArrayPanel1") == null, "the procedural array boxes are gone")
 
 
 func _test_airlock_opens_onto_the_platform() -> void:
@@ -284,6 +289,32 @@ func _test_hardpoints() -> void:
 	_check(count == 4, "four hardpoint markers exist")
 
 
+## M13.3: each array is the authored Blender model (mount shoe, pylon, boom, conduit and a
+## framed cell panel), seated on the tank drum's shoulder and mirrored to port - not the
+## procedural boxes that used to hang here.
+func _test_solar_arrays() -> void:
+	var drums: Array[Dictionary] = SectionHull.tube_drums()
+	if drums.is_empty():
+		_check(false, "the chain has a tank drum for the arrays")
+		return
+	var radius: float = float(drums[drums.size() - 1]["radius"]) + SectionHull.TUBE_BAND
+	var shoulder: float = SectionHull.tube_half_width(radius, SectionHull.ARRAY_BOOM_Y)
+	for side: float in [-1.0, 1.0]:
+		var node: Node3D = _geometry.get_node_or_null(NodePath("HullExterior/SolarArray%.0f" % side)) as Node3D
+		if node == null:
+			_check(false, "solar array mounts on the tank shoulder: %.0f" % side)
+			continue
+		var parts: Array[Node] = node.find_children("*", "MeshInstance3D", true, false)
+		var authored: bool = false
+		for part: Node in parts:
+			if not ((part as MeshInstance3D).mesh is BoxMesh):
+				authored = true
+				break
+		_check(parts.size() >= 30 and authored, "solar array is the authored model: %.0f (%d parts)" % [side, parts.size()])
+		_check(absf(absf(node.position.x) - shoulder) <= 0.01, "solar array seats at the shoulder: %.0f" % side)
+		_check(absf(node.position.y - SectionHull.ARRAY_BOOM_Y) <= 0.01, "solar array sits at boom height: %.0f" % side)
+
+
 func _ray_hits(from: Vector3, to: Vector3) -> bool:
 	return not _ray_result(from, to).is_empty()
 
@@ -314,3 +345,4 @@ func _check(condition: bool, label: String) -> void:
 
 var _failures: int = 0
 var _geometry: Node3D
+var _layout: Node3D

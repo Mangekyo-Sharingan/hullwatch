@@ -38,6 +38,7 @@ func _handle_interact(_player: Node) -> void:
 		_ui.visible = _open
 	if _open:
 		_refresh()
+		_emit_sim_event(&"status_panel_opened", {"compartment_id": compartment_id})
 
 
 func is_open() -> bool:

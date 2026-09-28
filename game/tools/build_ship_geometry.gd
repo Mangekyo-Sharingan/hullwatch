@@ -12,6 +12,9 @@ const MATERIAL_XENON: String = "res://src/data/materials/mat_xenon_metal.tres"
 const MATERIAL_STRIP: String = "res://src/data/materials/mat_light_strip.tres"
 const MATERIAL_CONDUIT: String = "res://src/data/materials/mat_machined_metal.tres"
 const MATERIAL_WINDOW: String = "res://src/data/materials/mat_space_window.tres"
+## The authored solar array (Blender exterior kit): mount shoe, pylon, boom and panel in one
+## model, authored on the generator's shoulder mount point with the boom outboard (+X).
+const MODEL_SOLAR_ARRAY: String = "res://assets/models/hullwatch/exterior/hw_solar_array.glb"
 const SCRIPT_TETHER_ANCHOR: String = "res://src/world/tether_anchor.gd"
 const SCRIPT_TETHER_ZONE: String = "res://src/world/tether_zone.gd"
 const SCRIPT_ZONE: String = "res://src/world/compartment_zone.gd"
@@ -334,8 +337,8 @@ func _build_tube_cockpit_dash() -> void:
 	for side: int in [-1, 1]:
 		_add_dash_panel(cupola, "DashSide%d" % side, Vector3(half * float(side), 0.9, face_z + 0.9), Vector3(0.46, 0.18, 1.0), Vector3(0, 0, tilt * float(side)))
 		_add_dressing("Section_cupola", "DashScreenSide%d" % side, Vector3(half * float(side) - 0.12 * float(side), 0.99, face_z + 0.9), Vector3(0.2, 0.02, 0.42), MATERIAL_STRIP)
-	_add_dash_panel(cupola, "DashPedestal", Vector3(0.0, 0.44, face_z + 1.3), Vector3(0.7, 0.88, 0.46), Vector3.ZERO)
-	_add_dressing("Section_cupola", "DashPedestalScreen", Vector3(0.0, 0.9, face_z + 1.55), Vector3(0.36, 0.02, 0.22), MATERIAL_STRIP)
+	_add_dash_panel(cupola, "DashPedestal", Vector3(0.0, 0.44, face_z + 0.20), Vector3(0.7, 0.88, 0.46), Vector3.ZERO)
+	_add_dressing("Section_cupola", "DashPedestalScreen", Vector3(0.0, 0.9, face_z + 0.40), Vector3(0.36, 0.02, 0.22), MATERIAL_STRIP)
 
 
 ## The generated dock pod: a placeable module room in the same faceted language, origin at
@@ -1850,8 +1853,10 @@ func _add_arrays(hull: StaticBody3D) -> void:
 		hull.add_child(panel)
 
 
-## The tube stern's arrays: a boom and a panel off each shoulder of the tank drum. The flat
-## table's coordinates do not exist in tube mode, where they left panels floating in space.
+## The tube stern's arrays: the authored Blender array (mount shoe, pylon, boom with its
+## conduit run and the solar panel) bolted to the tank drum's shoulder, mirrored to port
+## with a half turn. The flat table's coordinates do not exist in tube mode, where they left
+## panels floating in space.
 func _add_tube_arrays(hull: StaticBody3D) -> void:
 	var drums: Array[Dictionary] = SectionHull.tube_drums()
 	if drums.is_empty():
@@ -1859,28 +1864,16 @@ func _add_tube_arrays(hull: StaticBody3D) -> void:
 	var tank: Dictionary = drums[drums.size() - 1]
 	var radius: float = float(tank["radius"]) + SectionHull.TUBE_BAND
 	var center_z: float = (float(tank["z0"]) + float(tank["z1"])) * 0.5
-	var panel_material: StandardMaterial3D = StandardMaterial3D.new()
-	panel_material.albedo_color = Color(0.05, 0.07, 0.18)
-	panel_material.metallic = 0.25
-	panel_material.roughness = 0.35
+	var shoulder: float = SectionHull.tube_half_width(radius, SectionHull.ARRAY_BOOM_Y)
 	for side: float in [-1.0, 1.0]:
-		var shoulder: float = SectionHull.tube_half_width(radius, SectionHull.ARRAY_BOOM_Y)
-		var boom: MeshInstance3D = MeshInstance3D.new()
-		boom.name = "ArrayBoom%.0f" % side
-		var boom_mesh: BoxMesh = BoxMesh.new()
-		boom_mesh.size = Vector3(1.6, 0.24, 0.24)
-		boom.mesh = boom_mesh
-		boom.material_override = _materials[MATERIAL_CONDUIT] as Material
-		boom.position = Vector3(side * (shoulder + 0.75), SectionHull.ARRAY_BOOM_Y, center_z)
-		hull.add_child(boom)
-		var panel: MeshInstance3D = MeshInstance3D.new()
-		panel.name = "ArrayPanel%.0f" % side
-		var panel_mesh: BoxMesh = BoxMesh.new()
-		panel_mesh.size = Vector3(0.08, 1.2, 2.4)
-		panel.mesh = panel_mesh
-		panel.material_override = panel_material
-		panel.position = Vector3(side * (shoulder + 1.6), SectionHull.ARRAY_BOOM_Y, center_z)
-		hull.add_child(panel)
+		var yaw: float = 0.0 if side > 0.0 else 180.0
+		_add_hull_model(
+			hull,
+			MODEL_SOLAR_ARRAY,
+			"SolarArray%.0f" % side,
+			Vector3(side * shoulder, SectionHull.ARRAY_BOOM_Y, center_z),
+			Vector3(0.0, yaw, 0.0)
+		)
 
 
 ## Prism between a plan polygon and its outward offset: caps go to `caps`, sides to `sides`.

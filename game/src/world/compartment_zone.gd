@@ -26,6 +26,7 @@ func push_occupancy() -> void:
 func _on_body_entered(body: Node3D) -> void:
 	if body.is_in_group(&"player"):
 		_set_occupants(get_occupants())
+		_emit_sim_event(&"compartment_entered", {"compartment_id": compartment_id})
 
 
 func _on_body_exited(body: Node3D) -> void:
@@ -37,3 +38,9 @@ func _set_occupants(count: int) -> void:
 	var atmosphere: Node = get_tree().get_first_node_in_group(&"atmosphere_system")
 	if atmosphere != null:
 		atmosphere.call("set_occupants", compartment_id, count)
+
+
+func _emit_sim_event(event_name: StringName, payload: Dictionary = {}) -> void:
+	var event_bus: Node = get_node_or_null(^"/root/EventBus")
+	if event_bus != null:
+		event_bus.call("emit_event", event_name, payload)

@@ -29,17 +29,28 @@ const MANUAL_BOOK: String = "res://src/data/manual/manual_book.tres"
 const LOG_ENTRY: String = "res://src/data/logs/log_01.tres"
 const LOG_ENTRY_2: String = "res://src/data/logs/log_02.tres"
 
-const KIT_CONTAINER: String = "res://assets/models/kenney_space_station_kit/Models/GLB format/container.glb"
-const KIT_COMPUTER: String = "res://assets/models/kenney_space_station_kit/Models/GLB format/computer-system.glb"
-const KIT_DISPLAY: String = "res://assets/models/kenney_space_station_kit/Models/GLB format/display-wall.glb"
-## Door leaves come from CC0 prefabs (credits in `docs/ASSET_CREDITS.md`): the leaf mesh is
-## yawed a quarter turn and fitted to every doorway, with the repo panel material over its
-## imported one. Each style lists the leaf node and its mesh bounds; both source leaves sit
-## on y = 0 (bottom edge) and the fit re-centres them on the doorway box. The active style is
-## `DOOR_STYLE`, overridable per run with `--door-style=<name>` so the capture tool can shoot
-## each candidate for review. A missing prefab falls back to the old box slab.
+## Authored interior decorations (original Blender work, `art/blender/interior_kit.blend`):
+## the storage container, the computer terminal and the wall display board that stand in
+## for the old third-party kit props. Visual only, no collision added by this generator.
+const KIT_CONTAINER: String = "res://assets/models/hullwatch/interior/hw_container.glb"
+const KIT_COMPUTER: String = "res://assets/models/hullwatch/interior/hw_computer.glb"
+const KIT_DISPLAY: String = "res://assets/models/hullwatch/interior/hw_display.glb"
+## Door leaves: the default is the authored interior slider (original Blender work,
+## `art/blender/interior_kit.blend`) - a single joined mesh, so its own palette materials
+## stay. The CC0 prefabs (credits in `docs/ASSET_CREDITS.md`) remain as `--door-style=`
+## overrides for previews: the leaf mesh is yawed a quarter turn and fitted to every
+## doorway, with the repo panel material over its imported one. Each style lists the leaf
+## node and its mesh bounds; source leaves sit on y = 0 (bottom edge) and the fit
+## re-centres them on the doorway box. A missing prefab falls back to the old box slab.
 const DOOR_STYLES: Dictionary = {
-	"kenney": {
+	"hullwatch_interior": {
+		"scene": "res://assets/models/hullwatch/interior/hw_door_interior.glb",
+		"node": &"hw_door_interior",
+		"min": Vector3(-0.45, 0.0, -0.04),
+		"max": Vector3(0.45, 1.85, 0.085),
+		"yaw": 90.0,
+		"keep_material": true,
+	},	"kenney": {
 		"scene": "res://assets/models/kenney_modular_space_kit/Models/GLB format/gate-door.glb",
 		"node": &"door",
 		"min": Vector3(-1.2, 0.0, -0.35),
@@ -65,7 +76,7 @@ const DOOR_STYLES: Dictionary = {
 		"keep_material": true,
 	},
 }
-const DOOR_STYLE: String = "kenney"
+const DOOR_STYLE: String = "hullwatch_interior"
 
 const SCRIPT_ZONE: String = "res://src/world/compartment_zone.gd"
 const SCRIPT_LINK: String = "res://src/world/compartment_link.gd"
@@ -144,8 +155,9 @@ const PROPS: Array[Dictionary] = [
 	{
 		"name": "ManualBinder",
 		"script": "res://src/interactables/manual_binder.gd",
-		"position": Vector3(5.53, 0.9, -5.0),
-		"size": Vector3(0.45, 0.32, 0.3),
+		"position": Vector3(5.53, 0.58, -5.0),
+		"size": Vector3(0.55, 1.16, 0.5),
+		"model": "res://assets/models/hullwatch/interior/hw_manual_stand.glb",
 		"material": MATERIAL_WALL_PAINTED,
 		"exports": {},
 		"resources": {"book": MANUAL_BOOK},
@@ -154,6 +166,7 @@ const PROPS: Array[Dictionary] = [
 		"name": "LogTerminal",
 		"script": "res://src/interactables/log_terminal.gd",
 		"position": Vector3(2.0, 1.2, -18.7),
+		"tube_position": Vector3(1.45, 1.2, -17.6),
 		"size": Vector3(0.15, 0.5, 0.6),
 		"material": MATERIAL_SCREEN_GLOW,
 		"exports": {},
@@ -164,6 +177,7 @@ const PROPS: Array[Dictionary] = [
 		"name": "CommsTerminal",
 		"script": "res://src/interactables/comms_terminal.gd",
 		"position": Vector3(3.0, 1.2, -18.7),
+		"tube_position": Vector3(-1.45, 1.2, -16.0),
 		"size": Vector3(0.15, 0.5, 0.6),
 		"material": MATERIAL_SCREEN_GLOW,
 		"exports": {},
@@ -173,6 +187,7 @@ const PROPS: Array[Dictionary] = [
 		"name": "ArchiveTerminal",
 		"script": "res://src/interactables/log_terminal.gd",
 		"position": Vector3(-2.0, 1.2, -18.7),
+		"tube_position": Vector3(-1.45, 1.2, -16.8),
 		"size": Vector3(0.15, 0.5, 0.6),
 		"material": MATERIAL_SCREEN_GLOW,
 		"exports": {},
@@ -183,6 +198,7 @@ const PROPS: Array[Dictionary] = [
 		"name": "NavConsole",
 		"script": "res://src/interactables/nav_console.gd",
 		"position": Vector3(0.0, 1.2, -18.7),
+		"tube_position": Vector3(1.45, 1.2, -16.0),
 		"size": Vector3(0.15, 0.5, 0.6),
 		"material": MATERIAL_SCREEN_GLOW,
 		"exports": {"waypoint_id": &"relay_cache"},
@@ -191,8 +207,12 @@ const PROPS: Array[Dictionary] = [
 	{
 		"name": "Bunk",
 		"script": "res://src/interactables/bunk.gd",
-		"position": Vector3(-4.6, 0.25, -11.5),
-		"size": Vector3(1.0, 0.5, 2.0),
+		"position": Vector3(-4.6, 0.35, -11.5),
+		"tube_position": Vector3(-0.80, 0.35, -13.8),
+		"model_yaw": 0.0,
+		"model_scale": Vector3(0.85, 1.0, 1.0),
+		"size": Vector3(0.85, 0.7, 2.0),
+		"model": "res://assets/models/hullwatch/interior/hw_bunk.glb",
 		"material": MATERIAL_FLOOR_GRATE,
 		"exports": {"sleep_hours": 8.0},
 	},
@@ -200,7 +220,9 @@ const PROPS: Array[Dictionary] = [
 		"name": "HullPatch",
 		"script": "res://src/interactables/hull_patch.gd",
 		"position": Vector3(2.8, 1.2, 7.56),
-		"size": Vector3(0.6, 0.6, 0.12),
+		"size": Vector3(0.1, 0.6, 0.6),
+		"model": "res://assets/models/hullwatch/interior/hw_hull_patch.glb",
+		"model_mount": "wall",
 		"material": MATERIAL_METAL_RUSTED,
 		"exports": {"compartment_id": &"main"},
 	},
@@ -208,31 +230,39 @@ const PROPS: Array[Dictionary] = [
 		"name": "O2CandleRack",
 		"script": "res://src/interactables/o2_candle.gd",
 		"position": Vector3(-2.5, 0.9, -6.8),
-		"size": Vector3(0.3, 0.2, 0.3),
+		"size": Vector3(0.15, 0.3, 0.34),
+		"model": "res://assets/models/hullwatch/interior/hw_o2_rack.glb",
+		"model_mount": "wall",
 		"material": MATERIAL_METAL_RUSTED,
 		"exports": {"compartment_id": &"main"},
 	},
 	{
 		"name": "MultimeterTool",
 		"script": "res://src/interactables/carriable.gd",
-		"position": Vector3(-3.9, 0.16, -2.4),
-		"size": Vector3(0.22, 0.14, 0.3),
+		"position": Vector3(-3.9, 0.085, -2.4),
+		"tube_position": Vector3(-0.95, 0.085, -3.3),
+		"size": Vector3(0.116, 0.17, 0.072),
+		"model": "res://assets/models/hullwatch/tools/hw_multimeter.glb",
 		"material": MATERIAL_PANEL_SCRATCHED,
 		"exports": {"item_id": &"multimeter", "item_name": "Multimeter"},
 	},
 	{
 		"name": "WrenchTool",
 		"script": "res://src/interactables/carriable.gd",
-		"position": Vector3(-3.5, 0.16, -2.4),
-		"size": Vector3(0.4, 0.08, 0.1),
+		"position": Vector3(-3.5, 0.042, -2.4),
+		"tube_position": Vector3(-0.95, 0.042, -2.95),
+		"size": Vector3(0.032, 0.083, 0.275),
+		"model": "res://assets/models/hullwatch/tools/hw_wrench.glb",
 		"material": MATERIAL_METAL_RUSTED,
 		"exports": {"item_id": &"wrench", "item_name": "Wrench"},
 	},
 	{
 		"name": "ScannerTool",
 		"script": "res://src/interactables/carriable.gd",
-		"position": Vector3(-3.1, 0.16, -2.4),
-		"size": Vector3(0.26, 0.18, 0.22),
+		"position": Vector3(-3.1, 0.069, -2.4),
+		"tube_position": Vector3(-0.95, 0.069, -2.6),
+		"size": Vector3(0.07, 0.138, 0.212),
+		"model": "res://assets/models/hullwatch/tools/hw_scanner.glb",
 		"material": MATERIAL_PANEL_SCRATCHED,
 		"exports": {"item_id": &"scanner", "item_name": "Wear scanner"},
 	},
@@ -240,7 +270,9 @@ const PROPS: Array[Dictionary] = [
 		"name": "ProbePower",
 		"script": "res://src/interactables/diagnostic_probe.gd",
 		"position": Vector3(0.9, 0.35, -4.2),
-		"size": Vector3(0.2, 0.2, 0.2),
+		"size": Vector3(0.08, 0.29, 0.22),
+		"model": "res://assets/models/hullwatch/interior/hw_probe.glb",
+		"model_mount": "wall",
 		"material": MATERIAL_SCREEN_GLOW,
 		"exports": {"system_group": &"power_system"},
 	},
@@ -248,7 +280,9 @@ const PROPS: Array[Dictionary] = [
 		"name": "ProbeAtmosphere",
 		"script": "res://src/interactables/diagnostic_probe.gd",
 		"position": Vector3(-3.8, 0.35, -7.2),
-		"size": Vector3(0.2, 0.2, 0.2),
+		"size": Vector3(0.08, 0.29, 0.22),
+		"model": "res://assets/models/hullwatch/interior/hw_probe.glb",
+		"model_mount": "wall",
 		"material": MATERIAL_SCREEN_GLOW,
 		"exports": {"system_group": &"atmosphere_system"},
 	},
@@ -256,7 +290,9 @@ const PROPS: Array[Dictionary] = [
 		"name": "ProbeThermal",
 		"script": "res://src/interactables/diagnostic_probe.gd",
 		"position": Vector3(3.28, 0.35, 4.7),
-		"size": Vector3(0.2, 0.2, 0.2),
+		"size": Vector3(0.08, 0.29, 0.22),
+		"model": "res://assets/models/hullwatch/interior/hw_probe.glb",
+		"model_mount": "wall",
 		"material": MATERIAL_SCREEN_GLOW,
 		"exports": {"system_group": &"thermal_system"},
 	},
@@ -264,7 +300,9 @@ const PROPS: Array[Dictionary] = [
 		"name": "ProbeHull",
 		"script": "res://src/interactables/diagnostic_probe.gd",
 		"position": Vector3(1.6, 0.35, 7.48),
-		"size": Vector3(0.2, 0.2, 0.2),
+		"size": Vector3(0.08, 0.29, 0.22),
+		"model": "res://assets/models/hullwatch/interior/hw_probe.glb",
+		"model_mount": "wall",
 		"material": MATERIAL_SCREEN_GLOW,
 		"exports": {"system_group": &"hull_system"},
 	},
@@ -272,31 +310,39 @@ const PROPS: Array[Dictionary] = [
 		"name": "ProbeWater",
 		"script": "res://src/interactables/diagnostic_probe.gd",
 		"position": Vector3(4.31, 0.35, -1.9),
-		"size": Vector3(0.2, 0.2, 0.2),
+		"size": Vector3(0.08, 0.29, 0.22),
+		"model": "res://assets/models/hullwatch/interior/hw_probe.glb",
+		"model_mount": "wall",
 		"material": MATERIAL_SCREEN_GLOW,
 		"exports": {"system_group": &"water_system"},
 	},
 	{
 		"name": "SealantCartridge1",
 		"script": "res://src/interactables/carriable.gd",
-		"position": Vector3(-3.9, 0.16, -1.8),
-		"size": Vector3(0.18, 0.32, 0.18),
+		"position": Vector3(-3.9, 0.044, -1.8),
+		"tube_position": Vector3(-0.95, 0.044, -2.2),
+		"size": Vector3(0.088, 0.088, 0.331),
+		"model": "res://assets/models/hullwatch/tools/hw_sealant.glb",
 		"material": MATERIAL_METAL_RUSTED,
 		"exports": {"item_id": &"sealant", "item_name": "Sealant cartridge"},
 	},
 	{
 		"name": "SealantCartridge2",
 		"script": "res://src/interactables/carriable.gd",
-		"position": Vector3(-3.55, 0.16, -1.8),
-		"size": Vector3(0.18, 0.32, 0.18),
+		"position": Vector3(-3.55, 0.044, -1.8),
+		"tube_position": Vector3(0.95, 0.044, -4.1),
+		"size": Vector3(0.088, 0.088, 0.331),
+		"model": "res://assets/models/hullwatch/tools/hw_sealant.glb",
 		"material": MATERIAL_METAL_RUSTED,
 		"exports": {"item_id": &"sealant", "item_name": "Sealant cartridge"},
 	},
 	{
 		"name": "SealantCartridge3",
 		"script": "res://src/interactables/carriable.gd",
-		"position": Vector3(-3.2, 0.16, -1.8),
-		"size": Vector3(0.18, 0.32, 0.18),
+		"position": Vector3(-3.2, 0.044, -1.8),
+		"tube_position": Vector3(0.95, 0.044, -3.7),
+		"size": Vector3(0.088, 0.088, 0.331),
+		"model": "res://assets/models/hullwatch/tools/hw_sealant.glb",
 		"material": MATERIAL_METAL_RUSTED,
 		"exports": {"item_id": &"sealant", "item_name": "Sealant cartridge"},
 	},
@@ -304,6 +350,7 @@ const PROPS: Array[Dictionary] = [
 		"name": "ContactConsole",
 		"script": "res://src/interactables/approach_console.gd",
 		"position": Vector3(1.0, 1.2, -18.7),
+		"tube_position": Vector3(1.45, 1.2, -16.8),
 		"size": Vector3(0.15, 0.5, 0.6),
 		"material": MATERIAL_SCREEN_GLOW,
 		"exports": {},
@@ -322,16 +369,19 @@ const PROPS: Array[Dictionary] = [
 		"name": "CargoPort",
 		"tube_platform": true,
 		"script": "res://src/interactables/cargo_port.gd",
-		"position": Vector3(-8.63, 1.0, -2.2),
-		"size": Vector3(0.25, 0.5, 0.5),
+		"position": Vector3(-8.63, 0.445, -2.2),
+		"size": Vector3(0.5, 0.89, 0.5),
+		"model": "res://assets/models/hullwatch/interior/hw_cargo_port.glb",
 		"material": MATERIAL_MACHINE_TEAL,
 		"exports": {},
 	},
 	{
 		"name": "CutterTool",
 		"script": "res://src/interactables/cutter_tool.gd",
-		"position": Vector3(-6.5, 0.16, -1.9),
-		"size": Vector3(0.34, 0.1, 0.12),
+		"position": Vector3(-6.5, 0.091, -1.9),
+		"tube_position": Vector3(0.70, 0.091, -1.35),
+		"size": Vector3(0.062, 0.182, 0.265),
+		"model": "res://assets/models/hullwatch/tools/hw_cutter.glb",
 		"material": MATERIAL_METAL_RUSTED,
 		"exports": {"item_id": &"cutter", "item_name": "Hull cutter"},
 	},
@@ -339,24 +389,29 @@ const PROPS: Array[Dictionary] = [
 		"name": "SampleCanister1",
 		"tube_platform": true,
 		"script": "res://src/interactables/sample_canister.gd",
-		"position": Vector3(-6.7, 0.16, -1.9),
-		"size": Vector3(0.2, 0.26, 0.2),
+		"position": Vector3(-6.7, 0.123, -1.9),
+		"size": Vector3(0.152, 0.246, 0.154),
+		"model": "res://assets/models/hullwatch/tools/hw_canister.glb",
 		"material": MATERIAL_PANEL_SCRATCHED,
 		"exports": {"item_id": &"sample_canister", "item_name": "Sample canister"},
 	},
 	{
 		"name": "SampleCanister2",
 		"script": "res://src/interactables/sample_canister.gd",
-		"position": Vector3(-6.4, 0.16, -1.9),
-		"size": Vector3(0.2, 0.26, 0.2),
+		"position": Vector3(-6.4, 0.123, -1.9),
+		"tube_position": Vector3(0.70, 0.123, -1.10),
+		"size": Vector3(0.152, 0.246, 0.154),
+		"model": "res://assets/models/hullwatch/tools/hw_canister.glb",
 		"material": MATERIAL_PANEL_SCRATCHED,
 		"exports": {"item_id": &"sample_canister", "item_name": "Sample canister"},
 	},
 	{
 		"name": "SampleCanister3",
 		"script": "res://src/interactables/sample_canister.gd",
-		"position": Vector3(-6.1, 0.16, -1.9),
-		"size": Vector3(0.2, 0.26, 0.2),
+		"position": Vector3(-6.1, 0.123, -1.9),
+		"tube_position": Vector3(0.70, 0.123, -0.85),
+		"size": Vector3(0.152, 0.246, 0.154),
+		"model": "res://assets/models/hullwatch/tools/hw_canister.glb",
 		"material": MATERIAL_PANEL_SCRATCHED,
 		"exports": {"item_id": &"sample_canister", "item_name": "Sample canister"},
 	},
@@ -364,15 +419,20 @@ const PROPS: Array[Dictionary] = [
 		"name": "AirlockPanel",
 		"script": "res://src/interactables/airlock_panel.gd",
 		"position": Vector3(-6.03, 1.3, -0.35),
+		"tube_position": Vector3(1.30, 1.3, -1.05),
 		"size": Vector3(0.12, 0.4, 0.5),
+		"model": "res://assets/models/hullwatch/interior/hw_airlock_panel.glb",
+		"model_mount": "wall",
 		"material": MATERIAL_SCREEN_GLOW,
 		"exports": {},
 	},
 	{
 		"name": "SuitLocker",
 		"script": "res://src/interactables/suit_locker.gd",
-		"position": Vector3(-6.3, 1.0, -0.445),
-		"size": Vector3(0.6, 1.5, 0.25),
+		"position": Vector3(-6.3, 0.95, -0.445),
+		"tube_position": Vector3(0.68, 0.95, -0.35),
+		"size": Vector3(0.545, 1.9, 0.611),
+		"model": "res://assets/models/hullwatch/props/hw_locker.glb",
 		"material": MATERIAL_PANEL_SCRATCHED,
 		"exports": {},
 	},
@@ -456,12 +516,12 @@ const MODEL_PROPS: Array[Dictionary] = [
 	# The dressing kit's pieces sit at hand-picked tube spots: the carry compresses a short
 	# section's props into its middle, where the room's own gear already stands.
 	{"name": "CrewLocker", "model": "res://assets/models/hullwatch/props/hw_locker.glb", "position": Vector3(-3.0, 0.0, -10.5), "tube_position": Vector3(0.962, 0.0, -13.5), "rotation": Vector3(0, -90, 0), "size": Vector3(0.5, 1.9, 0.6)},
-	{"name": "MessTable", "model": "res://assets/models/hullwatch/props/hw_mess_table.glb", "position": Vector3(3.0, 0.0, -5.5), "tube_position": Vector3(-0.678, 0.0, -8.3), "rotation": Vector3(0, 90, 0), "size": Vector3(0.7, 0.75, 1.1)},
+	{"name": "MessTable", "model": "res://assets/models/hullwatch/props/hw_mess_table.glb", "position": Vector3(3.0, 0.0, -5.5), "tube_position": Vector3(-0.71, 0.0, -7.8), "rotation": Vector3(0, 90, 0), "size": Vector3(0.7, 0.75, 1.1)},
 	{"name": "FilterRack", "model": "res://assets/models/hullwatch/props/hw_filter_rack.glb", "position": Vector3(-2.5, 1.3, -6.5), "tube_position": Vector3(-1.331, 1.3, -10.3), "rotation": Vector3(0, 90, 0), "size": Vector3(0.3, 0.9, 0.7)},
 	{"name": "ToolCart", "model": "res://assets/models/hullwatch/props/hw_tool_cart.glb", "position": Vector3(2.0, 0.0, 2.0), "tube_position": Vector3(1.008, 0.0, 1.6), "rotation": Vector3(0, -90, 0), "size": Vector3(0.5, 0.9, 0.7)},
 	{"name": "CrateStack", "model": "res://assets/models/hullwatch/props/hw_crate_stack.glb", "position": Vector3(-4.0, 0.0, -1.0), "tube_position": Vector3(0.728, 0.0, -2.6), "rotation": Vector3(0, -90, 0), "size": Vector3(0.6, 1.5, 1.0)},
 	{"name": "ShelfUnit", "model": "res://assets/models/hullwatch/props/hw_shelf_unit.glb", "position": Vector3(-4.5, 0.95, -0.5), "tube_position": Vector3(-1.028, 0.95, -4.0), "rotation": Vector3(0, 90, 0), "size": Vector3(0.4, 1.8, 1.0)},
-	{"name": "GalleyUnit", "model": "res://assets/models/hullwatch/props/hw_galley_unit.glb", "position": Vector3(4.0, 0.0, -5.0), "tube_position": Vector3(0.678, 0.0, -9.0), "rotation": Vector3(0, -90, 0), "size": Vector3(0.6, 0.9, 1.2)},
+	{"name": "GalleyUnit", "model": "res://assets/models/hullwatch/props/hw_galley_unit.glb", "position": Vector3(4.0, 0.0, -5.0), "tube_position": Vector3(0.72, 0.0, -9.0), "rotation": Vector3(0, -90, 0), "size": Vector3(0.6, 0.9, 1.2)},
 ]
 
 ## Atmosphere occupancy zones: Area3D + script + one BoxShape3D child named Shape.
@@ -690,8 +750,8 @@ func _build_airlock_hatch() -> void:
 	var center_z: float = (bounds.x + bounds.y) * 0.5
 	_build_door({
 		"name": "DoorAirlockOuter",
-		"position": Vector3(-(radius + 0.08), 1.0, center_z),
-		"size": Vector3(0.16, 2.0, 1.0),
+		"position": Vector3(-(radius + 0.08), 1.1, center_z),
+		"size": Vector3(0.16, 2.2, 1.2),
 		"door_style": "hullwatch",
 		"exports": {"compartment_a": &"airlock", "compartment_b": &"", "airlock_id": &"airlock_main", "airlock_side": &"outer"},
 	})
@@ -852,7 +912,12 @@ func _attach_model(prop: StaticBody3D, spec: Dictionary) -> void:
 	var model: Node3D = scene.instantiate() as Node3D
 	model.name = "Model"
 	var side: float = -1.0 if prop.position.x < 0.0 else 1.0
-	model.rotation_degrees.y = -90.0 * side
+	if spec.has("model_yaw"):
+		model.rotation_degrees.y = float(spec["model_yaw"])
+	else:
+		model.rotation_degrees.y = -90.0 * side
+	if spec.has("model_scale"):
+		model.scale = spec["model_scale"]
 	prop.add_child(model)
 	var size: Vector3 = spec["size"]
 	var box: AABB = _local_bounds(prop)

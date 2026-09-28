@@ -1,85 +1,98 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://b65rt85obh4l6"]
 
 [ext_resource type="PackedScene" path="res://scenes/player.tscn" id="1_player"]
-[ext_resource type="Script" path="res://src/systems/power.gd" id="2_power"]
-[ext_resource type="Script" path="res://src/player/player.gd" id="3_5q0nq"]
-[ext_resource type="Script" path="res://src/systems/atmosphere.gd" id="3_atmosphere"]
+[ext_resource type="Script" uid="uid://cxrtet81cod30" path="res://src/systems/power.gd" id="2_power"]
+[ext_resource type="Script" uid="uid://vb6b3pvw33qr" path="res://src/systems/atmosphere.gd" id="3_atmosphere"]
 [ext_resource type="Resource" path="res://src/data/power/circuit_life_support.tres" id="4_circuit_life_support"]
 [ext_resource type="Resource" path="res://src/data/power/circuit_scrubber.tres" id="5_circuit_scrubber"]
-[ext_resource type="Script" path="res://src/components/power_circuit.gd" id="5_dgi5k"]
+[ext_resource type="Script" uid="uid://lqj23qugwwwv" path="res://src/components/power_circuit.gd" id="5_dgi5k"]
 [ext_resource type="Resource" path="res://src/data/power/circuit_lighting.tres" id="6_circuit_lighting"]
 [ext_resource type="Resource" path="res://src/data/atmosphere/compartment_main.tres" id="7_compartment_main"]
 [ext_resource type="Resource" path="res://src/data/atmosphere/compartment_storage.tres" id="8_compartment_storage"]
-[ext_resource type="Script" path="res://src/components/wear_component.gd" id="9_j8jky"]
-[ext_resource type="Script" path="res://src/systems/stores.gd" id="9_stores"]
-[ext_resource type="Script" path="res://src/components/compartment_config.gd" id="13_kmb1v"]
-[ext_resource type="Script" path="res://src/ui/hud.gd" id="14_hud"]
-[ext_resource type="Script" path="res://src/ui/sleep_transition.gd" id="15_sleep_transition"]
-[ext_resource type="Script" path="res://src/systems/thermal.gd" id="16_thermal"]
-[ext_resource type="Resource" path="res://src/data/wear/rtg_main.tres" id="18_rtg_main"]
-[ext_resource type="Resource" path="res://src/data/wear/battery_main.tres" id="19_battery_main"]
-[ext_resource type="Resource" path="res://src/data/wear/scrubber_blower_main.tres" id="20_scrubber_blower"]
-[ext_resource type="Script" path="res://src/systems/hull.gd" id="21_hull"]
-[ext_resource type="Script" path="res://src/systems/vitals.gd" id="22_vitals"]
-[ext_resource type="Script" path="res://src/ui/indicators.gd" id="27_indicators"]
-[ext_resource type="Script" path="res://src/ui/loss_overlay.gd" id="28_loss_overlay"]
+[ext_resource type="Script" uid="uid://ng7r2qk1dktu" path="res://src/components/wear_component.gd" id="9_j8jky"]
+[ext_resource type="Script" uid="uid://b425rf5veu0r6" path="res://src/systems/stores.gd" id="9_stores"]
+[ext_resource type="Script" uid="uid://ctwoksjrt7pax" path="res://src/components/compartment_config.gd" id="13_kmb1v"]
+[ext_resource type="Script" uid="uid://bcyvvutj1j8go" path="res://src/ui/hud.gd" id="14_hud"]
+[ext_resource type="Script" uid="uid://j3mfdy36vqg5" path="res://src/ui/sleep_transition.gd" id="15_sleep_transition"]
+[ext_resource type="Script" uid="uid://b4vmpma7q5wy3" path="res://src/systems/thermal.gd" id="16_thermal"]
+[ext_resource type="Resource" uid="uid://dlvlx7ljps4dv" path="res://src/data/wear/rtg_main.tres" id="18_rtg_main"]
+[ext_resource type="Resource" uid="uid://bs2njn1xjhugn" path="res://src/data/wear/battery_main.tres" id="19_battery_main"]
+[ext_resource type="Resource" uid="uid://d0fjylmcowyk8" path="res://src/data/wear/scrubber_blower_main.tres" id="20_scrubber_blower"]
+[ext_resource type="Script" uid="uid://cutkacettsvf5" path="res://src/systems/hull.gd" id="21_hull"]
+[ext_resource type="Script" uid="uid://bsokci06hnd0q" path="res://src/systems/vitals.gd" id="22_vitals"]
+[ext_resource type="Script" uid="uid://d1m0xbki6sxga" path="res://src/ui/indicators.gd" id="27_indicators"]
+[ext_resource type="Script" uid="uid://coqby12gpdemp" path="res://src/ui/loss_overlay.gd" id="28_loss_overlay"]
 [ext_resource type="PackedScene" path="res://scenes/world_layout.tscn" id="34_dgi5k"]
-[ext_resource type="Resource" path="res://src/data/wear/heater_main.tres" id="40_heater_main"]
-[ext_resource type="Resource" path="res://src/data/wear/hull_plating_main.tres" id="41_hull_plating"]
+[ext_resource type="Resource" uid="uid://4ybvfxp2id4d" path="res://src/data/wear/heater_main.tres" id="40_heater_main"]
+[ext_resource type="Resource" uid="uid://f5kstsxqnp1y" path="res://src/data/wear/hull_plating_main.tres" id="41_hull_plating"]
 [ext_resource type="PackedScene" path="res://scenes/ship_geometry.tscn" id="42_ship_geometry"]
-[ext_resource type="Script" path="res://src/systems/water.gd" id="45_water"]
-[ext_resource type="Script" path="res://src/ui/leg_complete_overlay.gd" id="48_leg_overlay"]
+[ext_resource type="Script" uid="uid://3sy5m5c5yxe7" path="res://src/systems/water.gd" id="45_water"]
+[ext_resource type="Script" uid="uid://dr766xwjuaha8" path="res://src/ui/leg_complete_overlay.gd" id="48_leg_overlay"]
 [ext_resource type="Resource" path="res://src/data/atmosphere/compartment_cockpit.tres" id="49_compartment_cockpit"]
 [ext_resource type="Resource" path="res://src/data/atmosphere/compartment_corridor.tres" id="50_compartment_corridor"]
 [ext_resource type="Resource" path="res://src/data/atmosphere/compartment_engine_bay.tres" id="51_compartment_engine_bay"]
 [ext_resource type="Resource" path="res://src/data/atmosphere/compartment_water_closet.tres" id="52_compartment_water_closet"]
+[ext_resource type="Script" uid="uid://b8hke5ndh3r06" path="res://src/ui/settings_menu.gd" id="53_settings_menu"]
 [ext_resource type="Resource" path="res://src/data/atmosphere/compartment_quarters.tres" id="55_compartment_quarters"]
 [ext_resource type="Resource" path="res://src/data/atmosphere/compartment_galley.tres" id="56_compartment_galley"]
-[ext_resource type="Script" path="res://src/world/analogue_filter.gd" id="57_analogue_filter"]
-[ext_resource type="Resource" path="res://src/data/wear/lighting_ballast.tres" id="58_lighting_ballast"]
-[ext_resource type="Resource" path="res://src/data/wear/water_pump_main.tres" id="59_water_pump"]
-[ext_resource type="Script" path="res://src/systems/comms.gd" id="60_comms"]
-[ext_resource type="Script" path="res://src/components/comms_message.gd" id="61_comms_message"]
+[ext_resource type="Script" uid="uid://cdhsyp8louqru" path="res://src/world/analogue_filter.gd" id="57_analogue_filter"]
+[ext_resource type="Resource" uid="uid://81scu1r28i18" path="res://src/data/wear/lighting_ballast.tres" id="58_lighting_ballast"]
+[ext_resource type="Resource" uid="uid://tlrhnn8ko3d8" path="res://src/data/wear/water_pump_main.tres" id="59_water_pump"]
+[ext_resource type="Script" uid="uid://dmofdehn3rqne" path="res://src/systems/comms.gd" id="60_comms"]
+[ext_resource type="Script" uid="uid://dv2cy22vhv3xb" path="res://src/components/comms_message.gd" id="61_comms_message"]
 [ext_resource type="Resource" path="res://src/data/comms/msg_control_ack.tres" id="62_msg_ack"]
 [ext_resource type="Resource" path="res://src/data/comms/msg_control_manifest.tres" id="63_msg_manifest"]
 [ext_resource type="Resource" path="res://src/data/comms/msg_control_ping.tres" id="64_msg_ping"]
 [ext_resource type="Resource" path="res://src/data/comms/out_status_report.tres" id="65_out_status"]
 [ext_resource type="Resource" path="res://src/data/comms/out_rotation_query.tres" id="66_out_rotation"]
 [ext_resource type="Resource" path="res://src/data/comms/msg_reply_rotation.tres" id="67_msg_reply"]
-[ext_resource type="Script" path="res://src/ui/settings_menu.gd" id="53_settings_menu"]
 [ext_resource type="Resource" path="res://src/data/power/circuit_airlock.tres" id="68_circuit_airlock"]
 [ext_resource type="Resource" path="res://src/data/atmosphere/compartment_airlock.tres" id="69_compartment_airlock"]
-[ext_resource type="Script" path="res://src/systems/airlock.gd" id="70_airlock"]
-[ext_resource type="Shader" path="res://src/shaders/space_sky.gdshader" id="71_space_sky"]
-[ext_resource type="Script" path="res://src/systems/sector.gd" id="72_sector"]
-[ext_resource type="Script" path="res://src/world/field_streamer.gd" id="73_streamer"]
-[ext_resource type="Script" path="res://src/systems/cargo.gd" id="74_cargo"]
+[ext_resource type="Script" uid="uid://13430m83hv41" path="res://src/systems/airlock.gd" id="70_airlock"]
+[ext_resource type="Shader" uid="uid://orlto1bjj3as" path="res://src/shaders/space_sky.gdshader" id="71_space_sky"]
+[ext_resource type="Script" uid="uid://d2i7e3bg0xq61" path="res://src/systems/sector.gd" id="72_sector"]
+[ext_resource type="Script" uid="uid://bnrljl045nw3g" path="res://src/world/field_streamer.gd" id="73_streamer"]
+[ext_resource type="Script" uid="uid://cqmqt7yevwrk" path="res://src/systems/cargo.gd" id="74_cargo"]
 [ext_resource type="Resource" path="res://src/data/power/circuit_fabricator.tres" id="75_circuit_fabricator"]
-[ext_resource type="Script" path="res://src/systems/fabricator.gd" id="76_fabricator"]
+[ext_resource type="Script" uid="uid://cj8vthskjdr2k" path="res://src/systems/fabricator.gd" id="76_fabricator"]
 [ext_resource type="Resource" path="res://src/data/fabrication/recipe_water_filter.tres" id="77_recipe_water"]
 [ext_resource type="Resource" path="res://src/data/fabrication/recipe_o2_candle.tres" id="78_recipe_candle"]
 [ext_resource type="Resource" path="res://src/data/fabrication/recipe_co2_filter.tres" id="79_recipe_co2"]
 [ext_resource type="Resource" path="res://src/data/fabrication/recipe_gasket.tres" id="80_recipe_gasket"]
-[ext_resource type="Script" path="res://src/components/fabricator_recipe.gd" id="81_recipe_script"]
-[ext_resource type="Script" path="res://src/systems/modules.gd" id="82_modules"]
-[ext_resource type="Script" path="res://src/components/ship_module.gd" id="83_ship_module"]
-[ext_resource type="Resource" path="res://src/data/modules/module_utility_pod.tres" id="84_module_utility"]
-[ext_resource type="Resource" path="res://src/data/modules/module_storage_pod.tres" id="85_module_storage"]
-[ext_resource type="Resource" path="res://src/data/modules/module_greenhouse.tres" id="86_module_greenhouse"]
-[ext_resource type="Resource" path="res://src/data/modules/module_workshop.tres" id="87_module_workshop"]
-[ext_resource type="Resource" path="res://src/data/modules/module_expanded_storage.tres" id="88_module_expanded_storage"]
-[ext_resource type="Resource" path="res://src/data/modules/module_aux_battery.tres" id="89_module_aux_battery"]
-[ext_resource type="Resource" path="res://src/data/modules/module_med_bay.tres" id="90_module_med_bay"]
-[ext_resource type="Script" path="res://src/components/ship_machine.gd" id="91_machine_script"]
+[ext_resource type="Script" uid="uid://f5rta2evcc0v" path="res://src/components/fabricator_recipe.gd" id="81_recipe_script"]
+[ext_resource type="Script" uid="uid://bqu1ucbfywcka" path="res://src/systems/modules.gd" id="82_modules"]
+[ext_resource type="Script" uid="uid://cceussh0v23rf" path="res://src/components/ship_module.gd" id="83_ship_module"]
+[ext_resource type="Resource" uid="uid://bmrorfnwwm1wo" path="res://src/data/modules/module_utility_pod.tres" id="84_module_utility"]
+[ext_resource type="Resource" uid="uid://clfajmhi4jy4s" path="res://src/data/modules/module_storage_pod.tres" id="85_module_storage"]
+[ext_resource type="Resource" uid="uid://b1fh23og6i3c6" path="res://src/data/modules/module_greenhouse.tres" id="86_module_greenhouse"]
+[ext_resource type="Resource" uid="uid://beqom1t3f50qw" path="res://src/data/modules/module_workshop.tres" id="87_module_workshop"]
+[ext_resource type="Resource" uid="uid://do0gl1cyif0br" path="res://src/data/modules/module_expanded_storage.tres" id="88_module_expanded_storage"]
+[ext_resource type="Resource" uid="uid://cqryrykj18ii8" path="res://src/data/modules/module_aux_battery.tres" id="89_module_aux_battery"]
+[ext_resource type="Resource" uid="uid://cpp7l700jky7w" path="res://src/data/modules/module_med_bay.tres" id="90_module_med_bay"]
+[ext_resource type="Script" uid="uid://cxhgv1s4meq0k" path="res://src/components/ship_machine.gd" id="91_machine_script"]
 [ext_resource type="Resource" path="res://src/data/machines/machine_grow_rack.tres" id="92_machine_grow_rack"]
 [ext_resource type="Resource" path="res://src/data/machines/machine_work_bench.tres" id="93_machine_work_bench"]
 [ext_resource type="Resource" path="res://src/data/machines/machine_cargo_rack.tres" id="94_machine_cargo_rack"]
 [ext_resource type="Resource" path="res://src/data/machines/machine_battery_cabinet.tres" id="95_machine_battery_cabinet"]
 [ext_resource type="Resource" path="res://src/data/machines/machine_med_bed.tres" id="96_machine_med_bed"]
 [ext_resource type="Resource" path="res://src/data/machines/machine_scrubber_spare.tres" id="97_machine_scrubber_spare"]
+[ext_resource type="Script" uid="uid://catrwpbk3xnvw" path="res://src/systems/voice_guide.gd" id="98_voice_guide"]
+[ext_resource type="Script" uid="uid://0t82o4vlx6f3" path="res://src/ui/guide_overlay.gd" id="99_guide_overlay"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_sky"]
 shader = ExtResource("71_space_sky")
+shader_parameter/top_color = Color(0.004, 0.006, 0.012, 1)
+shader_parameter/horizon_color = Color(0.012, 0.016, 0.024, 1)
+shader_parameter/star_threshold = 0.9975
+shader_parameter/star_brightness = 1.6
+shader_parameter/star_tint = Color(0.8, 0.86, 1, 1)
+shader_parameter/sun_direction = Vector3(0.2, 0.5, -0.84)
+shader_parameter/sun_color = Color(1, 0.9, 0.75, 1)
+shader_parameter/sun_size = 0.012
+shader_parameter/planet_direction = Vector3(-0.55, 0.28, 0.62)
+shader_parameter/planet_color = Color(0.3, 0.38, 0.55, 1)
+shader_parameter/planet_band_color = Color(0.52, 0.58, 0.72, 1)
+shader_parameter/planet_size = 0.055
 
 [sub_resource type="Sky" id="Sky_space"]
 sky_material = SubResource("ShaderMaterial_sky")
@@ -92,116 +105,107 @@ ambient_light_color = Color(0.055, 0.06, 0.07, 1)
 ambient_light_energy = 0.16
 tonemap_mode = 2
 
-[node name="Main" type="Node3D"]
+[node name="Main" type="Node3D" unique_id=1518276301]
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=409178157]
 environment = SubResource("Environment_1")
 
-[node name="FillLight" type="DirectionalLight3D" parent="."]
+[node name="FillLight" type="DirectionalLight3D" parent="." unique_id=1117170076]
 transform = Transform3D(0.866, 0, -0.5, -0.3536, 0.7071, -0.6124, 0.3536, 0.7071, 0.6124, 0, 4, 0)
 light_color = Color(0.55, 0.62, 0.78, 1)
 light_energy = 0.1
 
-[node name="StarLight" type="DirectionalLight3D" parent="."]
-rotation_degrees = Vector3(-38, 168, 0)
+[node name="StarLight" type="DirectionalLight3D" parent="." unique_id=1965508228]
+transform = Transform3D(-0.9781476, -0.12800318, 0.16383658, 0, 0.7880108, 0.6156615, -0.20791161, 0.60220784, -0.7707909, 0, 0, 0)
 light_color = Color(1, 0.92, 0.8, 1)
 light_energy = 0.45
 light_specular = 0.4
 
-[node name="CabinLight" type="OmniLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.8, -4.0)
+[node name="CabinLight" type="OmniLight3D" parent="." unique_id=1618591116]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.8, -4)
 light_color = Color(1, 0.85, 0.65, 1)
 light_energy = 1.2
 shadow_enabled = true
 omni_range = 12.0
 
-[node name="SpineLightA" type="OmniLight3D" parent="."]
+[node name="SpineLightA" type="OmniLight3D" parent="." unique_id=1548618363]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.7, -9.5)
 light_color = Color(1, 0.82, 0.6, 1)
-light_energy = 1.0
 omni_range = 6.0
 
-[node name="SpineLightB" type="OmniLight3D" parent="."]
+[node name="SpineLightB" type="OmniLight3D" parent="." unique_id=293793803]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.7, -1.5)
 light_color = Color(1, 0.82, 0.6, 1)
-light_energy = 1.0
 omni_range = 6.0
 
-[node name="CockpitLight" type="OmniLight3D" parent="."]
+[node name="CockpitLight" type="OmniLight3D" parent="." unique_id=246190580]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.8, -16.5)
 light_color = Color(0.85, 0.92, 1, 1)
-light_energy = 1.0
 omni_range = 8.0
 
-[node name="LifeSupportLight" type="OmniLight3D" parent="."]
+[node name="LifeSupportLight" type="OmniLight3D" parent="." unique_id=197862919]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.65, 2.7, -6.3)
 light_color = Color(1, 0.85, 0.65, 1)
-light_energy = 1.0
 omni_range = 6.0
 
-[node name="GalleyLight" type="OmniLight3D" parent="."]
+[node name="GalleyLight" type="OmniLight3D" parent="." unique_id=771452317]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.9, 2.7, -5.8)
 light_color = Color(1, 0.85, 0.65, 1)
-light_energy = 1.0
 omni_range = 6.0
 
-[node name="WaterClosetLight" type="OmniLight3D" parent="."]
+[node name="WaterClosetLight" type="OmniLight3D" parent="." unique_id=1409811790]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.2, 2.7, -1.9)
 light_color = Color(0.9, 0.95, 1, 1)
 light_energy = 0.8
-omni_range = 5.0
 
-[node name="StorageLight" type="OmniLight3D" parent="."]
+[node name="StorageLight" type="OmniLight3D" parent="." unique_id=1235868277]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.75, 2.7, -1.2)
 light_color = Color(1, 0.8, 0.6, 1)
 light_energy = 0.8
-omni_range = 5.0
 
-[node name="AirlockLight" type="OmniLight3D" parent="."]
+[node name="AirlockLight" type="OmniLight3D" parent="." unique_id=870194938]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.8, 2.7, -1.2)
 light_color = Color(0.8, 0.9, 1, 1)
 light_energy = 0.9
-omni_range = 5.0
 
-[node name="ScrubberTaskLight" type="OmniLight3D" parent="."]
+[node name="ScrubberTaskLight" type="OmniLight3D" parent="." unique_id=1302812045]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.6, 2.2, -6.4)
 light_color = Color(1, 0.85, 0.6, 1)
 light_energy = 0.6
 omni_range = 3.5
 
-[node name="ReclaimerTaskLight" type="OmniLight3D" parent="."]
+[node name="ReclaimerTaskLight" type="OmniLight3D" parent="." unique_id=451676131]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.2, 2.2, -1.9)
 light_color = Color(1, 0.9, 0.7, 1)
 light_energy = 0.5
 omni_range = 3.0
 
-[node name="ConsoleTaskLight" type="OmniLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0, 2.2, -17.8)
+[node name="ConsoleTaskLight" type="OmniLight3D" parent="." unique_id=1703680257]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.2, -17.8)
 light_color = Color(0.8, 0.9, 1, 1)
 light_energy = 0.5
 omni_range = 3.0
 
-[node name="QuartersLight" type="OmniLight3D" parent="."]
+[node name="QuartersLight" type="OmniLight3D" parent="." unique_id=659718217]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.15, 2.8, -10.4)
 light_color = Color(1, 0.8, 0.6, 1)
 light_energy = 1.1
 omni_range = 7.0
 
-[node name="EngineLight" type="OmniLight3D" parent="."]
+[node name="EngineLight" type="OmniLight3D" parent="." unique_id=1986185717]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.8, 4.7)
 light_color = Color(0.8, 0.9, 1, 1)
 light_energy = 1.2
 omni_range = 9.0
 
-[node name="ShipGeometry" type="Node3D" parent="." instance=ExtResource("42_ship_geometry")]
+[node name="ShipGeometry" parent="." unique_id=1817031159 instance=ExtResource("42_ship_geometry")]
 
-[node name="Player" type="CharacterBody3D" parent="." instance=ExtResource("1_player")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0, 0.1, -3.2)
-script = ExtResource("3_5q0nq")
+[node name="Player" parent="." unique_id=972187290 instance=ExtResource("1_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, -3.2)
 
-[node name="Systems" type="Node" parent="."]
+[node name="Systems" type="Node" parent="." unique_id=590996970]
 
-[node name="PowerSystem" type="Node" parent="Systems"]
+[node name="PowerSystem" type="Node" parent="Systems" unique_id=699695144]
 script = ExtResource("2_power")
 generators = {
 &"rtg_main": 500.0
@@ -209,12 +213,12 @@ generators = {
 circuit_defs = Array[ExtResource("5_dgi5k")]([ExtResource("4_circuit_life_support"), ExtResource("5_circuit_scrubber"), ExtResource("6_circuit_lighting"), ExtResource("68_circuit_airlock"), ExtResource("75_circuit_fabricator")])
 wear_components = Array[ExtResource("9_j8jky")]([ExtResource("18_rtg_main"), ExtResource("19_battery_main"), ExtResource("58_lighting_ballast")])
 
-[node name="AtmosphereSystem" type="Node" parent="Systems"]
+[node name="AtmosphereSystem" type="Node" parent="Systems" unique_id=166534954]
 script = ExtResource("3_atmosphere")
 compartment_defs = Array[ExtResource("13_kmb1v")]([ExtResource("7_compartment_main"), ExtResource("8_compartment_storage"), ExtResource("49_compartment_cockpit"), ExtResource("50_compartment_corridor"), ExtResource("51_compartment_engine_bay"), ExtResource("52_compartment_water_closet"), ExtResource("55_compartment_quarters"), ExtResource("56_compartment_galley"), ExtResource("69_compartment_airlock")])
 wear_components = Array[ExtResource("9_j8jky")]([ExtResource("20_scrubber_blower")])
 
-[node name="Stores" type="Node" parent="Systems"]
+[node name="Stores" type="Node" parent="Systems" unique_id=833237168]
 script = ExtResource("9_stores")
 initial_inventory = {
 &"filter_co2": 2,
@@ -222,71 +226,75 @@ initial_inventory = {
 &"gasket": 1
 }
 
-[node name="ThermalSystem" type="Node" parent="Systems"]
+[node name="ThermalSystem" type="Node" parent="Systems" unique_id=205141625]
 script = ExtResource("16_thermal")
 compartment_defs = Array[ExtResource("13_kmb1v")]([ExtResource("7_compartment_main"), ExtResource("8_compartment_storage"), ExtResource("49_compartment_cockpit"), ExtResource("50_compartment_corridor"), ExtResource("51_compartment_engine_bay"), ExtResource("52_compartment_water_closet"), ExtResource("55_compartment_quarters"), ExtResource("56_compartment_galley"), ExtResource("69_compartment_airlock")])
 wear_components = Array[ExtResource("9_j8jky")]([ExtResource("40_heater_main")])
 
-[node name="HullSystem" type="Node" parent="Systems"]
+[node name="HullSystem" type="Node" parent="Systems" unique_id=821163831]
 script = ExtResource("21_hull")
 compartment_defs = Array[ExtResource("13_kmb1v")]([ExtResource("7_compartment_main"), ExtResource("8_compartment_storage"), ExtResource("49_compartment_cockpit"), ExtResource("50_compartment_corridor"), ExtResource("51_compartment_engine_bay"), ExtResource("52_compartment_water_closet"), ExtResource("55_compartment_quarters"), ExtResource("56_compartment_galley"), ExtResource("69_compartment_airlock")])
 wear_components = Array[ExtResource("9_j8jky")]([ExtResource("41_hull_plating")])
 
-[node name="VitalsSystem" type="Node" parent="Systems"]
+[node name="VitalsSystem" type="Node" parent="Systems" unique_id=1058083383]
 script = ExtResource("22_vitals")
 
-[node name="WaterSystem" type="Node" parent="Systems"]
+[node name="WaterSystem" type="Node" parent="Systems" unique_id=2019359395]
 script = ExtResource("45_water")
 wear_components = Array[ExtResource("9_j8jky")]([ExtResource("59_water_pump")])
 
-[node name="CommsSystem" type="Node" parent="Systems"]
+[node name="CommsSystem" type="Node" parent="Systems" unique_id=1096520742]
 script = ExtResource("60_comms")
 messages = Array[ExtResource("61_comms_message")]([ExtResource("62_msg_ack"), ExtResource("63_msg_manifest"), ExtResource("64_msg_ping"), ExtResource("65_out_status"), ExtResource("66_out_rotation"), ExtResource("67_msg_reply")])
 
-[node name="AirlockSystem" type="Node" parent="Systems"]
+[node name="AirlockSystem" type="Node" parent="Systems" unique_id=1257895679]
 script = ExtResource("70_airlock")
 
-[node name="SectorSystem" type="Node" parent="Systems"]
+[node name="SectorSystem" type="Node" parent="Systems" unique_id=62577210]
 script = ExtResource("72_sector")
 
-[node name="CargoSystem" type="Node" parent="Systems"]
+[node name="CargoSystem" type="Node" parent="Systems" unique_id=1845889633]
 script = ExtResource("74_cargo")
 
-[node name="FabricatorSystem" type="Node" parent="Systems"]
+[node name="FabricatorSystem" type="Node" parent="Systems" unique_id=1195682759]
 script = ExtResource("76_fabricator")
 recipes = Array[ExtResource("81_recipe_script")]([ExtResource("77_recipe_water"), ExtResource("78_recipe_candle"), ExtResource("79_recipe_co2"), ExtResource("80_recipe_gasket")])
 
-[node name="ModuleSystem" type="Node" parent="Systems"]
+[node name="ModuleSystem" type="Node" parent="Systems" unique_id=1961520852]
 script = ExtResource("82_modules")
 catalog = Array[ExtResource("83_ship_module")]([ExtResource("84_module_utility"), ExtResource("85_module_storage"), ExtResource("86_module_greenhouse"), ExtResource("87_module_workshop"), ExtResource("88_module_expanded_storage"), ExtResource("89_module_aux_battery"), ExtResource("90_module_med_bay")])
 machine_catalog = Array[ExtResource("91_machine_script")]([ExtResource("92_machine_grow_rack"), ExtResource("93_machine_work_bench"), ExtResource("94_machine_cargo_rack"), ExtResource("95_machine_battery_cabinet"), ExtResource("96_machine_med_bed"), ExtResource("97_machine_scrubber_spare")])
 
+[node name="VoiceGuideSystem" type="Node" parent="Systems" unique_id=209841285]
+script = ExtResource("98_voice_guide")
 
-[node name="UI" type="Node" parent="."]
+[node name="UI" type="Node" parent="." unique_id=972355434]
 
-[node name="AnalogueFilter" type="CanvasLayer" parent="UI"]
+[node name="AnalogueFilter" type="CanvasLayer" parent="UI" unique_id=462496765]
 script = ExtResource("57_analogue_filter")
 
-[node name="HUD" type="CanvasLayer" parent="UI"]
+[node name="HUD" type="CanvasLayer" parent="UI" unique_id=1671523522]
 script = ExtResource("14_hud")
 
-[node name="SleepTransition" type="CanvasLayer" parent="UI"]
+[node name="GuideOverlay" type="CanvasLayer" parent="UI" unique_id=149826189]
+script = ExtResource("99_guide_overlay")
+
+[node name="SleepTransition" type="CanvasLayer" parent="UI" unique_id=2110118600]
 script = ExtResource("15_sleep_transition")
 
-[node name="Indicators" type="CanvasLayer" parent="UI"]
+[node name="Indicators" type="CanvasLayer" parent="UI" unique_id=1144805433]
 script = ExtResource("27_indicators")
 
-[node name="LossOverlay" type="CanvasLayer" parent="UI"]
+[node name="LossOverlay" type="CanvasLayer" parent="UI" unique_id=1248718484]
 script = ExtResource("28_loss_overlay")
 
-[node name="LegCompleteOverlay" type="CanvasLayer" parent="UI"]
+[node name="LegCompleteOverlay" type="CanvasLayer" parent="UI" unique_id=579742285]
 script = ExtResource("48_leg_overlay")
 
-[node name="SettingsMenu" type="CanvasLayer" parent="UI"]
+[node name="SettingsMenu" type="CanvasLayer" parent="UI" unique_id=1622688253]
 script = ExtResource("53_settings_menu")
 
-[node name="WorldLayout" type="Node3D" parent="." instance=ExtResource("34_dgi5k")]
+[node name="WorldLayout" parent="." unique_id=60594604 instance=ExtResource("34_dgi5k")]
 
-[node name="FieldStreamer" type="Node3D" parent="."]
+[node name="FieldStreamer" type="Node3D" parent="." unique_id=1987159494]
 script = ExtResource("73_streamer")
-

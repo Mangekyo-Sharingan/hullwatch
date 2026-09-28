@@ -13,6 +13,7 @@ func _run() -> void:
 	await process_frame
 	await _test_door_toggle()
 	await _test_door_save_load()
+	await _test_generated_slab()
 	_finish()
 
 
@@ -76,6 +77,34 @@ func _test_door_save_load() -> void:
 	_check(door.is_open(), "load: open state restored from JSON")
 	_check(not _isolated(atmosphere, &"main") and not _isolated(atmosphere, &"corridor"), "load: open door re-syncs isolation")
 
+	_despawn_all()
+
+
+## Generated doors carry the leaf in a Slab container, not as the Slab itself: an open
+## joint door must still move and stow the whole container.
+func _test_generated_slab() -> void:
+	_make_atmosphere()
+	var door: Door = Door.new()
+	door.starts_open = true
+	door.hide_when_open = true
+	var slab := Node3D.new()
+	slab.name = &"Slab"
+	var leaf := MeshInstance3D.new()
+	leaf.name = &"Leaf"
+	leaf.mesh = BoxMesh.new()
+	slab.add_child(leaf)
+	door.add_child(slab)
+	var slab_shape := CollisionShape3D.new()
+	slab_shape.name = &"SlabShape"
+	slab_shape.shape = BoxShape3D.new()
+	door.add_child(slab_shape)
+	_spawn(door)
+	await physics_frame
+	_check(door.is_open(), "generated door ships open")
+	_check(not slab.visible, "open generated slab is stowed")
+	door.interact(null)
+	_check(slab.visible, "closed generated slab shows again")
+	_check(slab.position.is_equal_approx(Vector3.ZERO), "closed generated slab sits in its doorway")
 	_despawn_all()
 
 

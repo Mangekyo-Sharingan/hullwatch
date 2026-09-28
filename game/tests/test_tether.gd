@@ -34,6 +34,19 @@ func _run() -> void:
 	await physics_frame
 	var distance: float = float(_player.call("get_tether_distance"))
 	_check(distance <= 4.05, "taut tether clamps the distance (got %.2f m)" % distance)
+	var barrier: StaticBody3D = StaticBody3D.new()
+	var barrier_shape: CollisionShape3D = CollisionShape3D.new()
+	var barrier_box: BoxShape3D = BoxShape3D.new()
+	barrier_box.size = Vector3(0.2, 2.0, 2.0)
+	barrier_shape.shape = barrier_box
+	barrier.add_child(barrier_shape)
+	barrier.position = Vector3(6.0, 1.0, 0.0)
+	root.add_child(barrier)
+	_player.global_position = Vector3(10.0, 0.0, 0.0)
+	await physics_frame
+	await physics_frame
+	_check(_player.global_position.x > 6.0, "taut tether stops at intervening collision instead of clipping through it")
+	barrier.free()
 
 	_player.call("release_tether")
 	_check(not bool(_player.call("is_tethered")), "release detaches the line")

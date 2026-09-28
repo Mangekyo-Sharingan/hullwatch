@@ -7,9 +7,9 @@ script = ExtResource("1_msg")
 id = &"msg_control_ack"
 sender = "MISSION CONTROL"
 date_text = "DAY 0001 06:00"
-body = "Wake acknowledged. Activation report entered in the queue. No corrections.
+body = "Scheduled wake notice from the preloaded Mission Control protocol. Activation report accepted into the shipboard outbound queue. This is a local receipt generated when the report was queued; no return transmission has arrived.
 
-Queue time to your position is measured in weeks. Do not expect real-time traffic. Continue scheduled maintenance and log by shift.
+Signal time to Control is measured in weeks. Continue scheduled maintenance and log by shift.
 
 MISSION CONTROL"
 direction = &"in"

@@ -50,9 +50,19 @@ func _run() -> void:
 		await physics_frame
 	_check(not player.is_boots_engaged(), "boots disengaged")
 	_check(absf(player.velocity.y - 2.0) < 0.3, "zero-g keeps upward drift")
+	player.velocity = Vector3.ZERO
+	var head: Node3D = player.get_node(^"Head") as Node3D
+	head.rotation.x = deg_to_rad(-45.0)
+	var free_start_y: float = player.global_position.y
+	Input.action_press(&"move_forward")
+	for i: int in 30:
+		await physics_frame
+	Input.action_release(&"move_forward")
+	_check(player.global_position.y > free_start_y + 0.05, "free-flight thrust follows the camera pitch")
 
 	player.global_position = Vector3(0.0, 1.0, 0.0)
 	player.velocity = Vector3.ZERO
+	head.rotation.x = 0.0
 	_check(player.engage_boots(), "boots re-engage near surface")
 	_check(player.is_boots_engaged(), "boots report engaged")
 
@@ -60,6 +70,20 @@ func _run() -> void:
 	var pushed: bool = player.push_off()
 	_check(pushed, "push_off finds a surface while engaged")
 	_check(player.velocity.y > velocity_before.y, "push_off adds upward velocity")
+	floor_body.collision_layer = 0
+	var sensor: StaticBody3D = StaticBody3D.new()
+	sensor.collision_layer = 2
+	var sensor_shape: CollisionShape3D = CollisionShape3D.new()
+	var sensor_box: BoxShape3D = BoxShape3D.new()
+	sensor_box.size = Vector3(2.0, 0.2, 2.0)
+	sensor_shape.shape = sensor_box
+	sensor.add_child(sensor_shape)
+	sensor.position = Vector3(0.0, -0.1, 0.0)
+	root.add_child(sensor)
+	player.disengage_boots()
+	player.global_position = Vector3(0.0, 1.0, 0.0)
+	await physics_frame
+	_check(not player.engage_boots(), "boots ignore non-solid sensor geometry")
 
 	_finish()
 

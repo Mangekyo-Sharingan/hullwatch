@@ -207,6 +207,17 @@ contract lives in `test_hull_exterior` (deck, headroom, rails, posts, plate reac
 clearance), and `test_ship_layout` probes moved clear of the wider bore and the joint hatch
 jambs. Captures: `docs/design/shot_tube_walkway.png` plus the refreshed tube set.
 
+**Solar arrays authored (2026-09-28).** The stern arrays are the authored Blender piece now:
+`game/assets/models/hullwatch/exterior/hw_solar_array.glb` (32 parts) carries the canted mount
+shoe with its four bolts seated on the tank drum's cove facet, the pylon through the shell void,
+the eight-sided boom with collars, hazard band, conduit run and root gussets, the hinge, the
+junction box, and the framed 2.4 x 1.2 m cell panel with its backing plate, interconnect ribbons
+and outboard marker. It is authored on the generator's shoulder mount point with the boom
+outboard, so `build_ship_geometry.gd::_add_tube_arrays` bolts it on with no offset math and yaws
+a half turn for the port side (the procedural boxes are gone); `test_hull_exterior` asserts both
+arrays carry the authored parts and seat at the shoulder. Preview: `docs/design/asset_solar_array.png`;
+in-game: `docs/design/shot_tube_solar_array.png`.
+
 **Original Blender kits landed alongside (2026-09-24).** The cockpit hero kit (desktop CRT
 console, portrait status board, switch bank, gauge cluster, seven-segment module), the pod
 machine kit (grow rack, work bench, battery cabinet, med cot, cargo rack, spare scrubber) and
@@ -222,7 +233,29 @@ materials kept), and dressing kits (crew locker, mess table, filter rack, tool c
 stack, shelf unit, galley counter, pod service panel) plus four cockpit pieces fill the chain,
 while the exterior fittings kit (dish, thrusters, vents, floodlights, handrails) mounts on the
 drums and the lighting kit (a visible fixture at every cabin light, wall conduit runs) makes
-the light sources diegetic. Polish stays M12; the kits give it the geometry to work with.
+the light sources diegetic. The hand tool kit followed: the multimeter, wrench, wear scanner,
+sealant cartridge, hull cutter and sample canister are authored glTF (`hw_*` in
+`game/assets/models/hullwatch/tools/`, sources `art/blender/tool_kit.blend`) with one
+node-animated `use_*` action each (dial sweep, wrench turn, scanner sweep and emitter pulse,
+plunger push, cutter flicker, cap twist); the carriables render them in hand and racked on the
+storage and airlock deck, `Carriable.play_use_animation` fires the action off the sim's usage
+events (`USE_EVENTS`), the model turns from its wall-facing placement yaw to the authored axes
+when taken, and the hull cutter clips to the operator's chest when equipped instead of
+vanishing, so the suit tool is visible while a sample canister rides the carry slot.
+`test_tool_kit` covers the models, the merged animation, the event map and the hand yaw.
+The interior kit followed the same day: the bunk, the manual lectern, the hull patch plate,
+the O2 candle rack, the diagnostic probe, the cargo port and the airlock panel replace the
+last procedural props (`hw_*` in `game/assets/models/hullwatch/interior/`, sources
+`art/blender/interior_kit.blend`), the suit locker reuses the dressing-kit locker, an
+authored sliding door leaf becomes the default `DOOR_STYLE` (the Kenney/Quaternius leaves
+stay as `--door-style=` overrides), and authored container/computer/display pieces replace
+the three Kenney kit decorations. `test_interior_kit` covers the models, the leaf fit and
+the layout mounts. The door swap exposed a latent visual bug: generated door slabs are
+`Slab` containers, which `door.gd` cast to `MeshInstance3D` and silently dropped — joint
+doors rendered shut while standing open. The slab is now handled as a `Node3D`
+(`test_door` pins the stow), and the EVA cargo port finally sits on its deck (it floated
+0.75 m). Third-party model dirs stay on disk as fallbacks.
+Polish stays M12; the kits give it the geometry to work with.
 
 One milestone per commit series; each milestone ships with its tests and a playable build
 when the user wants one. Polish is explicitly M12 — do not pull it forward.

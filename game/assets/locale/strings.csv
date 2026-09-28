@@ -2,17 +2,34 @@ keys,en
 DATA_LOGS_LOG_01_01,DAY 0412  -  03:10 SHIP TIME
 DATA_LOGS_LOG_01_02,MAINTENANCE LOG  -  K. VOSS
 DATA_LOGS_LOG_01_03,"Filter swap logged 02:40. Fourth this month; the duty cycle says two. I ran the carbon budget twice and got the same answer both times, which is the problem.\n\nTold control. That was eleven weeks ago. The ack came back in nine minutes and nothing since. The queue shows my message delivered, so it is not a comms fault.\n\nI am not writing down what I think it means. If the next rotation asks me anything, I would tell them: watch the filter count."
+DATA_LOGS_LOG_02_01,DAY 0289  -  21:40 SHIP TIME
+DATA_LOGS_LOG_02_02,SURVEY NOTE  -  K. VOSS
+DATA_MANUAL_PAGE_COMMS_01,COMMS
+DATA_MANUAL_PAGE_COMMS_02,TRAFFIC TAKES WEEKS. The terminal queues outbound messages and files replies when they arrive. A reply may never come. Plan as if it will not.\n\nSENDING. Select a draft on the left to transmit it. Status reports are routine and usually answered. Questions are not.\n\nREADING. Unread traffic is marked with an asterisk. Highlight a message to read it.\n\nDo not wait on the radio. The ship does not.
 DATA_MANUAL_PAGE_DAMAGE_CONTROL_01,DAMAGE CONTROL
-DATA_MANUAL_PAGE_DAMAGE_CONTROL_02,"MICRO-PUNCTURES are normal on a hull this age. Each one raises the compartment leak rate; pressure falls, and the leak keeps working while you sleep.\n\nPATCH PROCEDURE\n  1  CLEAN the breach\n  2  FIT the patch\n  3  APPLY SEALANT   (one cartridge per patch)\n  4  VERIFY the seal\nVerify against the panel's leak rate. A failed verify means a failed seal - do it again.\n\nCarry sealant from stores before you go. The hull will not wait for a second trip."
+DATA_MANUAL_PAGE_DIAGNOSTICS_01,DIAGNOSTICS
+DATA_MANUAL_PAGE_EVA_01,EVA
+DATA_MANUAL_PAGE_FIELD_WORK_01,FIELD WORK
 DATA_MANUAL_PAGE_LIFE_SUPPORT_01,LIFE SUPPORT
+DATA_MANUAL_PAGE_MODULES_01,DOCK PODS AND MACHINES
 DATA_MANUAL_PAGE_OPERATIONS_01,OPERATIONS
 DATA_MANUAL_PAGE_POWER_01,POWER
 DATA_MANUAL_PAGE_SYMPTOMS_01,SYMPTOMS
-DATA_MANUAL_PAGE_SYMPTOMS_02,"CO2 (ppm)\n   5000   headache; reading numbers takes longer.\n  15000   judgement slips; check your work twice.\n  25000   breathing damage begins. Leave or fix it.\n\nO2\n  below 16 percent: slow thinking, then unconsciousness.\n  below 10 percent: minutes.\n\nCOLD\n  below 10 C: clumsy hands.\n  below  3 C: exposure damage.\n\nIf you feel fine, you are probably not. Read the panel."
+DATA_MANUAL_PAGE_SYMPTOMS_02,"CO2 (ppm)\n   5000   headache; reading numbers takes longer.\n  15000   judgement slips; check your work twice.\n  25000   breathing damage begins. Leave or fix it.\n\nO2\n  below 16 percent: slow thinking, then unconsciousness.\n  below 10 percent: minutes.\n\nCOLD\n  below 10 C: clumsy hands.\n  below  3 C: exposure damage.\n\nRATIONS\n  the galley draws one ration per crew per day.\n  at zero stock you starve; water runs out first.\n\nIf you feel fine, you are probably not. Read the panel."
 DATA_MANUAL_PAGE_THERMAL_01,THERMAL
 DATA_MANUAL_PAGE_THERMAL_02,"The module loses heat to the exterior, which runs near -60 C. The heater runs on LIFE SUPPORT and holds the cabin near 21 C.\n\nIf the heater loses power the cabin cools fast. Below 10 C you lose dexterity. Below 3 C exposure becomes dangerous. Pipes freeze near 1 C.\n\nIf you return to a cold module: restore life support first, then wait. The heater is not fast. Dress the wound before you clean the tools."
+INTERACTABLES_AIRLOCK_PANEL_01,Close panel
+INTERACTABLES_AIRLOCK_PANEL_02,Airlock controls
+INTERACTABLES_APPROACH_CONSOLE_01,Close board
+INTERACTABLES_APPROACH_CONSOLE_02,Sensor contacts
+INTERACTABLES_CARGO_PORT_04,Cargo port
+INTERACTABLES_COMMS_TERMINAL_01,Close comms
+INTERACTABLES_COMMS_TERMINAL_02,Read comms
+INTERACTABLES_CUTTER_TOOL_01,Take hull cutter
 INTERACTABLES_DOOR_01,Close door
 INTERACTABLES_DOOR_02,Open door
+INTERACTABLES_FABRICATOR_UNIT_01,Close fabricator
+INTERACTABLES_FABRICATOR_UNIT_02,Use fabricator
 INTERACTABLES_HULL_PATCH_01,Fit the patch
 INTERACTABLES_HULL_PATCH_02,Apply sealant
 INTERACTABLES_HULL_PATCH_03,Verify seal
@@ -20,11 +37,12 @@ INTERACTABLES_HULL_PATCH_04,Clean the breach
 INTERACTABLES_HULL_PATCH_05,Inspect patch
 INTERACTABLES_LOG_TERMINAL_01,Close log
 INTERACTABLES_LOG_TERMINAL_02,Read log
-INTERACTABLES_MAINTENANCE_BOARD_01,Close board
+INTERACTABLES_MACHINE_SOCKET_02,Socket (fitting)
+INTERACTABLES_MACHINE_SOCKET_03,Machine socket
 INTERACTABLES_MAINTENANCE_BOARD_02,Read board
-INTERACTABLES_MANUAL_BINDER_01,Read manual
-INTERACTABLES_MANUAL_BINDER_02,Close manual
-INTERACTABLES_MANUAL_BINDER_03,Next page
+INTERACTABLES_MANUAL_BINDER_01,Close manual
+INTERACTABLES_MANUAL_BINDER_02,Read manual
+INTERACTABLES_MODULE_MOUNT_02,Dock mount
 INTERACTABLES_NAV_CONSOLE_01,Begin burn
 INTERACTABLES_NAV_CONSOLE_02,Course complete
 INTERACTABLES_NAV_CONSOLE_03,Plot course
@@ -35,11 +53,18 @@ INTERACTABLES_SCRUBBER_UNIT_04,Close housing
 INTERACTABLES_SCRUBBER_UNIT_05,Power down
 INTERACTABLES_SCRUBBER_UNIT_06,Power up
 INTERACTABLES_SCRUBBER_UNIT_07,Open housing
+INTERACTABLES_SUIT_LOCKER_01,Close locker
+INTERACTABLES_SUIT_LOCKER_02,EVA suit locker
 INTERACTABLES_WATER_RECLAIMER_01,Drain loop
 INTERACTABLES_WATER_RECLAIMER_02,Replace cartridge
 INTERACTABLES_WATER_RECLAIMER_03,Prime loop
 INTERACTABLES_WATER_RECLAIMER_04,Run inspection
-UI_SETTINGS_MENU_01,SETTINGS
-UI_SETTINGS_MENU_04,TOGGLE
-UI_STATUS_PANEL_01,Close panel
+UI_GUIDE_OVERLAY_01,[ VOCAL ADVISORY // ORIENTATION ]
+UI_GUIDE_OVERLAY_02,● AUDIO COMM
+UI_GUIDE_OVERLAY_03,▶ OBJECTIVE: STANDBY
+UI_GUIDE_OVERLAY_06,STANDBY
+UI_GUIDE_OVERLAY_07,✔ COMPLETED
+UI_GUIDE_OVERLAY_08,[ ORIENTATION PROTOCOL FINISHED ]
+UI_GUIDE_OVERLAY_09,OFFLINE
+UI_GUIDE_OVERLAY_10,ALL SYSTEMS TRANSFERRED TO OPERATOR
 UI_STATUS_PANEL_02,Read panel

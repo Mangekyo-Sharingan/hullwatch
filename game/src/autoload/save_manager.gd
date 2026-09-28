@@ -7,7 +7,7 @@ const SAVE_DIR: String = "user://saves"
 const SLOT_COUNT: int = 3
 ## module_system loads first so module compartments exist before the life-support systems merge
 ## their saved per-compartment state into them.
-const SYSTEM_GROUPS: Array[StringName] = [&"module_system", &"power_system", &"atmosphere_system", &"stores_system", &"thermal_system", &"hull_system", &"nav_system", &"vitals_system", &"water_system", &"comms_system", &"airlock_system", &"sector_system", &"cargo_system", &"fabricator_system"]
+const SYSTEM_GROUPS: Array[StringName] = [&"module_system", &"power_system", &"atmosphere_system", &"stores_system", &"thermal_system", &"hull_system", &"nav_system", &"vitals_system", &"water_system", &"comms_system", &"airlock_system", &"sector_system", &"cargo_system", &"fabricator_system", &"voice_guide_system"]
 
 var _last_error: String = ""
 var _meta: Dictionary = {}

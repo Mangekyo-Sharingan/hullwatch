@@ -46,6 +46,7 @@ func _run() -> void:
 		await _hull_shot(Vector3(-9.5, 3.4, -25.5), Vector3(0.0, 1.6, -17.0), "shot_tube_hull_bow.png")
 		await _hull_shot(Vector3(-10.5, 3.8, -3.0), Vector3(0.0, 1.5, -5.0), "shot_tube_hull_broadside.png")
 		await _hull_shot(Vector3(5.0, 4.0, 17.5), Vector3(0.0, 1.6, 7.0), "shot_tube_hull_stern.png")
+		await _hull_shot(Vector3(6.8, 3.6, 5.2), Vector3(3.2, 2.4, 8.3), "shot_tube_solar_array.png")
 
 	await _capture(player, Vector3(-4.2, 0.1, -9.6), 0.0, "shot_quarters.png")
 	await _capture(player, Vector3(0.0, 0.1, -2.5), 0.0, "shot_corridor_north.png")
@@ -129,8 +130,41 @@ func _run() -> void:
 				await _capture(player, Vector3(-10.7, 0.1, -10.4), PI * 0.5, "shot_socket_menu.png")
 				socket.call("close")
 
+	await _tool_shots()
+
 	print("PASS: capture_screenshots -> ", ProjectSettings.globalize_path(OUTPUT_DIR))
 	quit(0)
+
+
+## Hand tools: the authored kit in the operator's hand mid-use, and the suit-clipped cutter
+## while a sample canister rides the carry slot. Runs last, since the cutter stays clipped.
+func _tool_shots() -> void:
+	var player: Node3D = _main.get_node("Player")
+	var event_bus: Node = root.get_node_or_null("EventBus")
+	var multimeter: Node = _main.get_node_or_null("WorldLayout/Props/MultimeterTool")
+	if multimeter != null:
+		player.global_position = Vector3(-0.35, 0.1, -3.3)
+		player.rotation.y = -PI * 0.5
+		await process_frame
+		multimeter.call("interact", player)
+		if event_bus != null:
+			event_bus.call("emit_event", &"probe_diagnosis", {"system": &"power_system"})
+		await create_timer(0.2).timeout
+		await _capture(player, Vector3(-0.35, 0.1, -3.3), -PI * 0.5, "shot_tool_multimeter.png")
+		player.call("drop_carried")
+	var cutter: Node = _main.get_node_or_null("WorldLayout/Props/CutterTool")
+	var canister: Node = _main.get_node_or_null("WorldLayout/Props/SampleCanister2")
+	if cutter != null and canister != null:
+		player.global_position = Vector3(0.1, 0.1, -0.9)
+		player.rotation.y = PI * 0.5
+		await process_frame
+		cutter.call("interact", player)
+		canister.call("interact", player)
+		if event_bus != null:
+			event_bus.call("emit_event", &"sample_taken", {"object_id": "shot", "resource": "ore", "units": 1.0, "remaining": 1.0})
+		await create_timer(0.2).timeout
+		await _capture(player, Vector3(0.1, 0.1, -0.9), PI * 0.5, "shot_tool_cutter.png")
+		player.call("drop_carried")
 
 
 ## An exterior vantage: park the player, aim at the hull, carry a work light (the

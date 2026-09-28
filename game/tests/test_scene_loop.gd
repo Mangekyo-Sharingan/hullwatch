@@ -51,6 +51,10 @@ func _run() -> void:
 	transition.fade_out_seconds = 0.05
 	transition.fade_in_seconds = 0.05
 	transition.summary_hold_seconds = 0.05
+	atmosphere.call("set_leak_rate", &"quarters", 0.01)
+	var pressure_before: float = float(atmosphere.call("get_compartment_status", &"quarters")["pressure_kpa"])
+	var power: Node = main.get_node("Systems/PowerSystem")
+	var battery_before: float = float(power.call("get_status")["battery_fraction"])
 	var sim_clock: Node = root.get_node_or_null("SimClock")
 	_check(sim_clock != null, "sim clock autoload present")
 	var before_hours: float = float(sim_clock.call("get_total_hours"))
@@ -62,7 +66,15 @@ func _run() -> void:
 	_check(not bunk.is_sleeping(), "bunk completes the sleep transition")
 	var advanced: float = float(sim_clock.call("get_total_hours")) - before_hours
 	_check(absf(advanced - 8.0) < 0.05, "scene sleep advances the shared clock by 8 hours")
-	_check(transition.get_summary_text().contains("SLEPT 8 HOURS"), "scene sleep shows the day summary")
+	var summary: String = transition.get_summary_text()
+	var pressure_after: float = float(atmosphere.call("get_compartment_status", &"quarters")["pressure_kpa"])
+	var battery_after: float = float(power.call("get_status")["battery_fraction"])
+	_check(summary.contains("SLEPT 8 HOURS"), "scene sleep shows the shift duration")
+	_check(pressure_after < pressure_before, "controlled quarters leak changes pressure overnight")
+	_check(summary.contains("QUARTERS PRESSURE  %.1f TO %.1f KPA" % [pressure_before, pressure_after]), "watch report uses measured pre/post pressure")
+	_check(summary.contains("BATTERY  %.0f%% TO %.0f%%" % [battery_before * 100.0, battery_after * 100.0]), "watch report uses measured pre/post battery charge")
+	_check(summary.contains("CHECK STATUS PANEL / MAINTENANCE BOARD"), "watch report sends operator to physical readouts")
+	_check(not summary.contains("FAULT") and not summary.contains("ALERT") and not summary.contains("ALL CLEAR"), "watch report makes no unverified diagnosis")
 
 	var audio_director: Node = root.get_node_or_null("AudioDirector")
 	_check(audio_director != null, "audio director autoload present")

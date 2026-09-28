@@ -4,7 +4,7 @@ extends CanvasLayer
 
 @export var fade_out_seconds: float = 0.6
 @export var fade_in_seconds: float = 0.8
-@export var summary_hold_seconds: float = 2.5
+@export var summary_hold_seconds: float = 4.0
 
 var _fade: ColorRect
 var _label: Label
@@ -19,10 +19,11 @@ func _ready() -> void:
 
 func run_sleep(hours: float) -> void:
 	await _fade_to(1.0, fade_out_seconds)
+	var before: Dictionary = _watch_readings()
 	var sim_clock: Node = _get_autoload(&"SimClock")
 	if sim_clock != null:
 		sim_clock.call("fast_forward", hours)
-	_summary = _format_summary(hours, sim_clock)
+	_summary = _format_summary(hours, sim_clock, before, _watch_readings())
 	_label.text = _summary
 	_label.modulate.a = 1.0
 	await _wait(summary_hold_seconds)
@@ -34,14 +35,45 @@ func get_summary_text() -> String:
 	return _summary
 
 
-func _format_summary(hours: float, sim_clock: Node) -> String:
+func _format_summary(hours: float, sim_clock: Node, before: Dictionary, after: Dictionary) -> String:
 	if sim_clock == null:
 		return "SLEPT %s" % _format_hours(hours)
-	return "DAY %d  %02d:00\nSLEPT %s" % [
-		int(sim_clock.call("get_day")),
-		int(sim_clock.call("get_hour")),
-		_format_hours(hours),
+	var lines: PackedStringArray = [
+		"OVERNIGHT WATCH  //  DAY %d  %02d:00" % [int(sim_clock.call("get_day")), int(sim_clock.call("get_hour"))],
+		"SLEPT %s" % _format_hours(hours),
 	]
+	if before.has("battery_fraction") and after.has("battery_fraction"):
+		lines.append("BATTERY  %.0f%% TO %.0f%%" % [
+			float(before["battery_fraction"]) * 100.0,
+			float(after["battery_fraction"]) * 100.0,
+		])
+	if before.has("pressure_kpa") and after.has("pressure_kpa"):
+		lines.append("QUARTERS PRESSURE  %.1f TO %.1f KPA" % [
+			float(before["pressure_kpa"]), float(after["pressure_kpa"]),
+		])
+	if before.has("co2_ppm") and after.has("co2_ppm"):
+		lines.append("QUARTERS CO2  %.0f TO %.0f PPM" % [
+			float(before["co2_ppm"]), float(after["co2_ppm"]),
+		])
+	if lines.size() > 2:
+		lines.append("CHECK STATUS PANEL / MAINTENANCE BOARD")
+	return "\n".join(lines)
+
+
+func _watch_readings() -> Dictionary:
+	var readings: Dictionary = {}
+	var power: Node = get_tree().get_first_node_in_group(&"power_system")
+	if power != null and power.has_method(&"get_status"):
+		var power_status: Dictionary = power.call("get_status")
+		if power_status.has("battery_fraction"):
+			readings["battery_fraction"] = power_status["battery_fraction"]
+	var atmosphere: Node = get_tree().get_first_node_in_group(&"atmosphere_system")
+	if atmosphere != null and bool(atmosphere.call("has_compartment", &"quarters")):
+		var air_status: Dictionary = atmosphere.call("get_compartment_status", &"quarters")
+		for key: String in ["pressure_kpa", "co2_ppm"]:
+			if air_status.has(key):
+				readings[key] = air_status[key]
+	return readings
 
 
 func _format_hours(hours: float) -> String:
