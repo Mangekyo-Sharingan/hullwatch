@@ -7,15 +7,15 @@ render_mode unshaded;
 uniform sampler2D screen_texture : hint_screen_texture, repeat_disable, filter_linear;
 
 uniform float intensity : hint_range(0.0, 1.0) = 1.0;
-uniform float grain_amount : hint_range(0.0, 0.25) = 0.02;
-uniform float aberration : hint_range(0.0, 0.02) = 0.0008;
-uniform float scanline_amount : hint_range(0.0, 0.5) = 0.02;
-uniform float vignette_amount : hint_range(0.0, 1.0) = 0.18;
-uniform float desaturation : hint_range(0.0, 1.0) = 0.08;
-uniform float warp_amount : hint_range(0.0, 0.1) = 0.005;
-uniform float flicker_amount : hint_range(0.0, 0.2) = 0.008;
-uniform float scratch_amount : hint_range(0.0, 0.2) = 0.0;
-uniform float dust_amount : hint_range(0.0, 0.2) = 0.0;
+uniform float grain_amount : hint_range(0.0, 0.25) = 0.085;
+uniform float aberration : hint_range(0.0, 0.02) = 0.0028;
+uniform float scanline_amount : hint_range(0.0, 0.5) = 0.07;
+uniform float vignette_amount : hint_range(0.0, 1.0) = 0.55;
+uniform float desaturation : hint_range(0.0, 1.0) = 0.28;
+uniform float warp_amount : hint_range(0.0, 0.1) = 0.015;
+uniform float flicker_amount : hint_range(0.0, 0.2) = 0.025;
+uniform float scratch_amount : hint_range(0.0, 0.2) = 0.025;
+uniform float dust_amount : hint_range(0.0, 0.2) = 0.03;
 uniform vec3 warm_tint : source_color = vec3(1.03, 0.985, 0.93);
 
 const vec3 LUMA_WEIGHTS = vec3(0.2126, 0.7152, 0.0722);
@@ -70,7 +70,7 @@ void fragment() {
 	float scratch_fade = 0.5 + 0.5 * sin(TIME * 31.0 + lane);
 	color += vec3(scratch * scratch_fade * scratch_amount * active);
 
-	// Smoothstep vignette.
+	// Heavy smoothstep vignette.
 	float edge = smoothstep(0.35, 1.05, radius * 1.41421356);
 	color *= 1.0 - vignette_amount * active * edge;
 

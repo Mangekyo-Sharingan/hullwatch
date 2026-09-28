@@ -2,12 +2,12 @@
 ## Autoload name: SaveManager. No class_name on purpose — it would conflict with the autoload.
 extends Node
 
-const SAVE_VERSION: int = 2
+const SAVE_VERSION: int = 3
 const SAVE_DIR: String = "user://saves"
 const SLOT_COUNT: int = 3
 ## module_system loads first so module compartments exist before the life-support systems merge
 ## their saved per-compartment state into them.
-const SYSTEM_GROUPS: Array[StringName] = [&"module_system", &"power_system", &"atmosphere_system", &"stores_system", &"thermal_system", &"hull_system", &"nav_system", &"vitals_system", &"water_system", &"comms_system", &"airlock_system", &"sector_system", &"cargo_system", &"fabricator_system", &"voice_guide_system"]
+const SYSTEM_GROUPS: Array[StringName] = [&"module_system", &"power_system", &"atmosphere_system", &"stores_system", &"thermal_system", &"hull_system", &"nav_system", &"vitals_system", &"water_system", &"comms_system", &"airlock_system", &"sector_system", &"cargo_system", &"fabricator_system", &"computer_system", &"voice_guide_system"]
 
 var _last_error: String = ""
 var _meta: Dictionary = {}
@@ -168,6 +168,9 @@ func _migrate(data: Dictionary) -> Dictionary:
 		}
 		data.erase("created_unix")
 		data["save_version"] = 2
+		version = 2
+	if version == 2:
+		data["save_version"] = 3
 	return data
 
 

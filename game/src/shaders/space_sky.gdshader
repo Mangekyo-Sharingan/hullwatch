@@ -27,10 +27,10 @@ void sky() {
 	float star_hash = hash13(cell);
 	float star = step(star_threshold, star_hash) * star_brightness * (0.5 + 0.5 * hash13(cell + 7.0));
 	color += star * star_tint;
-	float sun = smoothstep(sun_size, sun_size * 0.35, distance(dir, normalize(sun_direction)));
+	float sun = 1.0 - smoothstep(sun_size * 0.35, sun_size, distance(dir, normalize(sun_direction)));
 	color += sun * sun_color * 2.5;
 	vec3 planet_axis = normalize(planet_direction);
-	float planet = smoothstep(planet_size, planet_size * 0.93, distance(dir, planet_axis));
+	float planet = 1.0 - smoothstep(planet_size * 0.93, planet_size, distance(dir, planet_axis));
 	if (planet > 0.0) {
 		float band = sin((dir.y - planet_axis.y) * 120.0 + hash13(planet_axis) * 6.0) * 0.5 + 0.5;
 		vec3 surface = mix(planet_color, planet_band_color, band * 0.6);

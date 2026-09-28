@@ -21,6 +21,9 @@ func _run() -> void:
 	var sim_clock: Node = load("res://src/autoload/sim_clock.gd").new()
 	sim_clock.name = &"SimClock"
 	root.add_child(sim_clock)
+	var computer := ComputerSystem.new()
+	computer.name = &"ComputerSystem"
+	root.add_child(computer)
 
 	_test_manual_book()
 	_test_binder()
@@ -89,21 +92,21 @@ func _test_binder() -> void:
 func _test_board() -> void:
 	var board := MaintenanceBoard.new()
 	root.add_child(board)
-	_check(board.build_readout()[0] == "MAINTENANCE BOARD", "board readout has a header")
+	_check(board.build_readout()[0] == "HULLWATCH SHIP COMPUTER", "board readout carries the computer header")
 	_check(not board.is_open(), "board starts closed")
 
 	var event_bus: Node = _find_root_child(&"EventBus")
 	event_bus.call("emit_event", &"component_failed", {"component_id": &"rtg_main", "failure_mode_id": &"rtg_degraded"})
 	event_bus.call("emit_event", &"stores_low", {"part_id": &"filter_co2", "new_count": 1})
 	event_bus.call("emit_event", &"ignored_event", {})
-	_check(board.get_entries().size() == 2, "board accumulates watched events only")
-	_check(StringName(board.get_entries()[0]["name"]) == &"stores_low", "newest entry is first")
+	_check(board.get_entries().size() == 2, "the ship computer keeps watched events only")
+	_check(StringName(board.get_entries()[0]["kind"]) == &"stores_low", "newest entry is first")
 
 	board.interact(null)
 	_check(board.is_open(), "board opens on interact")
 	var text: String = "\n".join(board.build_readout())
-	_check(text.contains("COMPONENT_FAILED") and text.contains("rtg_main"), "board names the failed component")
-	_check(text.contains("STORES_LOW"), "board names the low-stock event")
+	_check(text.contains("COMPONENT FAILED") and text.contains("RTG_MAIN"), "board names the failed component")
+	_check(text.contains("STORES LOW"), "board names the low-stock event")
 	board.interact(null)
 	_check(not board.is_open(), "board closes on second interact")
 	board.interact(null)

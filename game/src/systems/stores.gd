@@ -14,6 +14,9 @@ func _ready() -> void:
 	add_to_group(&"stores_system")
 	inventory = initial_inventory.duplicate()
 	super._ready()
+	var event_bus: Node = _get_autoload(&"EventBus")
+	if event_bus != null and not event_bus.is_connected(&"destination_arrived", _on_destination_arrived):
+		event_bus.connect(&"destination_arrived", _on_destination_arrived)
 
 
 func sim_tick(_delta_hours: float) -> void:
@@ -35,6 +38,13 @@ func add_part(part_id: StringName, count: int = 1) -> void:
 	inventory[part_id] = new_count
 	_emit_stores_changed(part_id, new_count)
 	emit_sim_event(&"part_added", {"part_id": part_id, "count": count, "new_count": new_count})
+
+
+func _on_destination_arrived(_destination_id: StringName, _kind: StringName, _sector_seed: int, _resource_id: StringName, _resource_units: float, arrival_stores: Dictionary) -> void:
+	for key: Variant in arrival_stores:
+		var count: int = int(arrival_stores[key])
+		if count > 0:
+			add_part(StringName(String(key)), count)
 
 
 func consume_part(part_id: StringName, count: int = 1) -> bool:

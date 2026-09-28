@@ -124,6 +124,15 @@ func move_selection(delta: int) -> void:
 	option_highlighted.emit(_index)
 
 
+## Jumps the highlight to an absolute row; used when a page switch replaces the item list.
+func set_highlighted_index(index: int) -> void:
+	if _items.is_empty():
+		return
+	_index = clampi(index, 0, _items.size() - 1)
+	_refresh_rows()
+	option_highlighted.emit(_index)
+
+
 func confirm() -> void:
 	if _items.is_empty():
 		return

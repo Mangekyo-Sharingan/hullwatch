@@ -20,6 +20,9 @@ func _ready() -> void:
 	system_id = &"cargo"
 	add_to_group(&"cargo_system")
 	super._ready()
+	var event_bus: Node = _get_autoload(&"EventBus")
+	if event_bus != null and not event_bus.is_connected(&"destination_arrived", _on_destination_arrived):
+		event_bus.connect(&"destination_arrived", _on_destination_arrived)
 
 
 ## Accepts what fits; returns the units actually stowed.
@@ -32,6 +35,11 @@ func add_material(kind: StringName, units: float) -> float:
 	_materials[kind] = float(_materials.get(kind, 0.0)) + accepted
 	emit_sim_event(&"cargo_stowed", {"kind": String(kind), "units": accepted, "total": float(_materials[kind])})
 	return accepted
+
+
+func _on_destination_arrived(_destination_id: StringName, _kind: StringName, _sector_seed: int, resource_id: StringName, resource_units: float, _arrival_stores: Dictionary) -> void:
+	if resource_id != &"" and resource_units > 0.0:
+		add_material(resource_id, resource_units)
 
 
 func consume_material(kind: StringName, units: float) -> bool:

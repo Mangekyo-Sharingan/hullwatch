@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="VoyageDestination" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/components/voyage_destination.gd" id="1_destination"]
+
+[resource]
+script = ExtResource("1_destination")
+destination_id = &"arden_ii"
+display_name = "Arden II"
+kind = &"planet"
+transit_days = 2
+course_plot_hours = 1.0
+course_plot_fuel_kg = 5.0
+fuel_cost_kg = 180.0
+sector_seed = 73019
+arrival_resource = &"ice"
+arrival_resource_units = 4.0
+arrival_stores = {&"food_ration": 3, &"filter_co2": 1}
+arrival_report = "Survey orbit established. Spectral readings at the mapped sampling site indicate exposed water ice. The orbit and approach remain within the preflight envelope."
+sun_direction = Vector3(0.42, 0.16, -0.89)
+sun_color = Color(1, 0.88, 0.7, 1)
+sun_size = 0.01
+planet_direction = Vector3(-0.48, 0.12, 0.87)
+planet_color = Color(0.46, 0.55, 0.65, 1)
+planet_band_color = Color(0.27, 0.34, 0.41, 1)
+planet_size = 0.082

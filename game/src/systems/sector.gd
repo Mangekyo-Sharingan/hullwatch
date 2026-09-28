@@ -34,6 +34,9 @@ func _ready() -> void:
 	system_id = &"sector"
 	add_to_group(&"sector_system")
 	super._ready()
+	var event_bus: Node = _get_autoload(&"EventBus")
+	if event_bus != null and not event_bus.is_connected(&"destination_arrived", _on_destination_arrived):
+		event_bus.connect(&"destination_arrived", _on_destination_arrived)
 	_rebuild_active()
 
 
@@ -178,6 +181,19 @@ func _rebuild_active() -> void:
 					continue
 				var entry: Dictionary = _make_object(cx, cy, cz, axis, right, up)
 				_active.append(entry)
+
+
+func _on_destination_arrived(_destination_id: StringName, _kind: StringName, next_seed: int, _resource_id: StringName, _resource_units: float, _arrival_stores: Dictionary) -> void:
+	field_seed = next_seed
+	_drift_distance_m = 0.0
+	_offset = Vector3.ZERO
+	_holding = false
+	_approach_target_id = ""
+	_mined.clear()
+	_base_chunk = -999999
+	_contact_ids.clear()
+	_rebuild_active()
+	_update_contacts()
 
 
 func _make_object(cx: int, cy: int, cz: int, axis: Vector3, right: Vector3, up: Vector3) -> Dictionary:

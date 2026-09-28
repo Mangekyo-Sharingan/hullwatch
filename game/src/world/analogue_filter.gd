@@ -9,15 +9,15 @@ const DEFAULT_ENABLED: bool = true
 const DEFAULT_INTENSITY: float = 1.0
 
 const SHADER_DEFAULTS: Dictionary = {
-	&"grain_amount": 0.02,
-	&"aberration": 0.0008,
-	&"scanline_amount": 0.02,
-	&"vignette_amount": 0.18,
-	&"desaturation": 0.08,
-	&"warp_amount": 0.005,
-	&"flicker_amount": 0.008,
-	&"scratch_amount": 0.0,
-	&"dust_amount": 0.0,
+	&"grain_amount": 0.085,
+	&"aberration": 0.0028,
+	&"scanline_amount": 0.07,
+	&"vignette_amount": 0.55,
+	&"desaturation": 0.28,
+	&"warp_amount": 0.015,
+	&"flicker_amount": 0.025,
+	&"scratch_amount": 0.025,
+	&"dust_amount": 0.03,
 	&"warm_tint": Vector3(1.03, 0.985, 0.93),
 }
 

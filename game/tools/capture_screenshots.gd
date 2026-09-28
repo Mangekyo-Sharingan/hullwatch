@@ -22,6 +22,11 @@ func _run() -> void:
 
 	var player: Node3D = _main.get_node("Player")
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	if OS.get_cmdline_user_args().has("--voyage-only"):
+		await _voyage_shots(player)
+		print("PASS: voyage captures -> ", ProjectSettings.globalize_path(OUTPUT_DIR))
+		quit(0)
+		return
 
 	if _tube_preview():
 		if player.has_method("release_tether"):
@@ -131,6 +136,7 @@ func _run() -> void:
 				socket.call("close")
 
 	await _tool_shots()
+	await _voyage_shots(player)
 
 	print("PASS: capture_screenshots -> ", ProjectSettings.globalize_path(OUTPUT_DIR))
 	quit(0)
@@ -148,7 +154,7 @@ func _tool_shots() -> void:
 		await process_frame
 		multimeter.call("interact", player)
 		if event_bus != null:
-			event_bus.call("emit_event", &"probe_diagnosis", {"system": &"power_system"})
+			event_bus.call("emit_event", &"probe_diagnosis", {"system": &"power_system", "component_id": &"rtg_main", "failure_mode_id": &"rtg_degraded"})
 		await create_timer(0.2).timeout
 		await _capture(player, Vector3(-0.35, 0.1, -3.3), -PI * 0.5, "shot_tool_multimeter.png")
 		player.call("drop_carried")
@@ -165,6 +171,41 @@ func _tool_shots() -> void:
 		await create_timer(0.2).timeout
 		await _capture(player, Vector3(0.1, 0.1, -0.9), PI * 0.5, "shot_tool_cutter.png")
 		player.call("drop_carried")
+
+
+func _voyage_shots(player: Node3D) -> void:
+	var nav: Node = _main.get_node_or_null("Systems/NavSystem")
+	var console: NavConsole = _main.get_node_or_null("WorldLayout/Props/NavConsole") as NavConsole
+	if nav == null or console == null:
+		return
+	player.call("release_tether")
+	await create_timer(4.1).timeout
+	var arrival: Node = _main.get_node_or_null("UI/LegCompleteOverlay")
+	console.interact(player)
+	await _capture(player, Vector3(0.0, 0.1, -15.0), 0.0, "shot_star_chart.png")
+	console.select_action(&"arden_ii")
+	await _capture(player, Vector3(0.0, 0.1, -15.0), 0.0, "shot_star_chart_course.png")
+	console.close()
+	if bool(nav.call("begin_transit")):
+		nav.call("sim_tick", 48.0)
+		await _capture(player, Vector3(0.0, 0.1, -15.0), 0.0, "shot_arden_ii_arrival.png")
+		if arrival != null:
+			arrival.call("dismiss")
+			await _capture(player, Vector3(0.0, 0.1, -15.0), 0.0, "shot_arden_ii_window.png")
+		console.interact(player)
+		await _capture(player, Vector3(0.0, 0.1, -15.0), 0.0, "shot_arden_ii_chart.png")
+		console.close()
+		if bool(nav.call("plot_course", &"kestrel_system")) and bool(nav.call("begin_transit")):
+			nav.call("sim_tick", 96.0)
+			await _capture(player, Vector3(0.0, 0.1, -15.0), 0.0, "shot_kestrel_arrival.png")
+			if arrival != null:
+				arrival.call("dismiss")
+				await _capture(player, Vector3(0.0, 0.1, -15.0), 0.0, "shot_kestrel_window.png")
+	var breaker: BreakerPanel = _main.get_node_or_null("WorldLayout/Props/BreakerPanel") as BreakerPanel
+	if breaker != null:
+		breaker.interact(player)
+		await _capture(player, Vector3(0.0, 0.1, -4.5), PI, "shot_lighting_breaker_open.png")
+		breaker.interact(player)
 
 
 ## An exterior vantage: park the player, aim at the hull, carry a work light (the

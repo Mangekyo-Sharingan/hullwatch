@@ -20,6 +20,7 @@ const SCRIPT_TETHER_ZONE: String = "res://src/world/tether_zone.gd"
 const SCRIPT_ZONE: String = "res://src/world/compartment_zone.gd"
 const SCRIPT_LINK: String = "res://src/world/compartment_link.gd"
 const SCRIPT_MODULE_MOUNT: String = "res://src/interactables/module_mount.gd"
+const SCRIPT_CABIN_LIGHT: String = "res://src/world/cabin_light.gd"
 ## Interior style. "flat" is the shipped layout (wide rooms off the hexagon corridor); "tube"
 ## is the M13.2 chain of TubeLayout sections (train layout). Both are generated from tables, so
 ## flipping this is the conversion; `--interior-style=tube` previews it without touching the
@@ -1401,6 +1402,7 @@ func _add_tube_cabin_light(hull: StaticBody3D, center_z: float) -> void:
 	light.light_energy = 1.2
 	light.omni_range = 5.5
 	light.shadow_enabled = true
+	light.set_script(load(SCRIPT_CABIN_LIGHT) as Script)
 	hull.add_child(light)
 	# The visible fixture, scaled to sit between the ceiling pipes (x = +/- 0.34).
 	_add_hull_model(hull, "res://assets/models/hullwatch/exterior/hw_ceiling_lamp.glb", "CabinLamp%.1f" % center_z, Vector3(0.0, SectionHull.TUBE_CEILING, center_z), Vector3.ZERO, 0.8)

@@ -114,6 +114,24 @@ func get_door_refusal(side: StringName, open: bool) -> StringName:
 	return &""
 
 
+## Reason a cycle request would be refused; empty when the cycle would start.
+func get_cycle_refusal(mode: StringName) -> StringName:
+	if state != State.IDLE:
+		return &"airlock_cycling"
+	if mode == &"pressurize":
+		if outer_open:
+			return &"airlock_interlock"
+		if _pressure() >= target_pressure_kpa * TARGET_REACHED_FRACTION:
+			return &"airlock_pressurized"
+		return &""
+	if mode == &"depressurize" or mode == &"vent":
+		if inner_open:
+			return &"airlock_interlock"
+		if _pressure() <= AtmosphereSystem.VACUUM_PRESSURE_KPA:
+			return &"airlock_depressurized"
+	return &""
+
+
 ## Restores door state from a loaded save without running the interlock.
 func force_door_state(side: StringName, open: bool) -> void:
 	if side == &"inner":

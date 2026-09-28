@@ -1,3 +1,4 @@
+## Deterministic navigation checks: plot costs, course drift, transit, arrival and persistence.
 extends SceneTree
 
 var _failures: int = 0
@@ -6,144 +7,65 @@ var _course_changed: Array[Dictionary] = []
 
 
 func _initialize() -> void:
-	_run()
-
-
-func _run() -> void:
 	await process_frame
-
 	_test_absent_safe()
-	_test_plot_emits_events()
-	_test_burn_consumes_and_advances()
-	_test_burn_without_course()
-	_test_no_fuel_plot_refusal()
-	_test_no_fuel_burn_refusal()
+	_test_plot_and_arrival()
 	_test_course_expiry()
-	_test_save_load()
-	_test_console_prompt_flow()
-	_test_arrival()
-
+	_test_save_load_and_legacy_state()
+	_test_console_flow()
 	_despawn_all()
-	for autoload_name: StringName in [&"EventBus", &"SimClock"]:
-		var node: Node = _find_root_child(autoload_name)
-		if node != null:
-			root.remove_child(node)
-			node.free()
-
 	_finish()
 
 
 func _test_absent_safe() -> void:
-	for autoload_name: StringName in [&"EventBus", &"SimClock"]:
-		var existing: Node = _find_root_child(autoload_name)
-		if existing != null:
-			root.remove_child(existing)
-			existing.free()
-	_check(_find_root_child(&"EventBus") == null, "absent-safe: no EventBus present")
-	_check(_find_root_child(&"SimClock") == null, "absent-safe: no SimClock present")
+	_remove_root_child(&"EventBus")
+	_remove_root_child(&"SimClock")
 	var nav: NavSystem = _spawn_nav()
-	_check(nav.plot_course(&"relay_cache"), "absent-safe: plot works without autoloads")
-	_check(nav.begin_burn(), "absent-safe: burn works without autoloads")
-	_check(nav.current_leg == 1, "absent-safe: leg advanced without SimClock")
+	_check(nav.plot_course(&"arden_ii"), "absent-safe: plot works without autoloads")
+	_check(nav.begin_transit(), "absent-safe: transit starts without autoloads")
+	nav.sim_tick(24.0)
+	_check(is_equal_approx(nav.transit_elapsed_hours, 24.0), "absent-safe: transit advances without SimClock")
 	_despawn_all()
 
 
-func _test_plot_emits_events() -> void:
+func _test_plot_and_arrival() -> void:
 	var harness := SimHarness.new(self)
 	harness.setup_clock()
+	_course_changed.clear()
 	var event_bus: Node = _find_root_child(&"EventBus")
 	if event_bus != null:
 		event_bus.connect(&"course_changed", _on_course_changed)
-	_course_changed.clear()
 	var nav: NavSystem = _spawn_nav()
-	_check(nav.plot_course(&"relay_cache"), "plot: known waypoint accepted")
-	var status: Dictionary = nav.get_status()
-	_check(StringName(status["plotted_waypoint"]) == &"relay_cache", "plot: plotted waypoint recorded")
-	_check(int(status["current_leg"]) == 0, "plot: current leg starts at zero")
-	_check(StringName(status["current_waypoint"]) == &"relay_cache", "plot: current waypoint is the next leg")
-	_check(not bool(status["arrived"]), "plot: not arrived")
-	var plotted_events: Array[Dictionary] = harness.events_named(&"course_plotted")
-	_check(plotted_events.size() == 1, "plot: course_plotted sim event emitted")
-	if plotted_events.size() == 1:
-		var payload: Dictionary = plotted_events[0]["payload"]
-		_check(StringName(payload["waypoint_id"]) == &"relay_cache", "plot: sim payload waypoint_id")
-		_check(is_equal_approx(float(payload["delta_v_cost"]), 60.0), "plot: sim payload delta_v_cost")
-	_check(_course_changed.size() == 1, "plot: typed course_changed emitted once")
-	if _course_changed.size() == 1:
-		_check(_course_changed[0]["leg_id"] == &"relay_cache", "plot: typed leg_id")
-		_check(is_equal_approx(float(_course_changed[0]["delta_v_cost"]), 60.0), "plot: typed delta_v_cost")
-	_check(not nav.plot_course(&"unknown_waypoint"), "plot: unknown waypoint refused")
-	_check(_course_changed.size() == 1, "plot: refusal emits no course_changed")
-	_despawn_all()
-
-
-func _test_burn_consumes_and_advances() -> void:
-	var harness := SimHarness.new(self)
-	harness.setup_clock()
-	var nav: NavSystem = _spawn_nav()
-	var hours_before: float = harness.hours()
-	_check(nav.plot_course(&"relay_cache"), "burn: course plotted")
-	_check(nav.begin_burn(), "burn: begin_burn succeeds with course and fuel")
-	_check(is_equal_approx(nav.fuel_mass_kg, 1140.0), "burn: fuel consumed by burn_fuel_kg")
-	_check(nav.current_leg == 1, "burn: leg index advanced")
-	_check(nav.plotted_waypoint == &"", "burn: plotted course cleared")
-	_check(is_equal_approx(harness.hours() - hours_before, nav.burn_hours), "burn: sim clock advanced by burn_hours")
-	var burn_events: Array[Dictionary] = harness.events_named(&"burn_completed")
-	_check(burn_events.size() == 1, "burn: burn_completed emitted once")
-	if burn_events.size() == 1:
-		var payload: Dictionary = burn_events[0]["payload"]
-		_check(StringName(payload["waypoint_id"]) == &"relay_cache", "burn: payload waypoint_id")
-		_check(int(payload["leg_index"]) == 1, "burn: payload leg_index follows the advanced leg")
-		_check(is_equal_approx(float(payload["fuel_remaining"]), 1140.0), "burn: payload fuel_remaining")
-	_check(not nav.plot_course(&"relay_cache"), "burn: plotting a completed waypoint refused")
-	_check(not nav.begin_burn(), "burn: second burn without a new course refused")
-	_despawn_all()
-
-
-func _test_burn_without_course() -> void:
-	var harness := SimHarness.new(self)
-	harness.setup_clock()
-	var nav: NavSystem = _spawn_nav()
-	_check(not nav.begin_burn(), "no_course: burn refused")
-	_check(nav.current_leg == 0, "no_course: leg unchanged")
-	_check(is_equal_approx(nav.fuel_mass_kg, 1200.0), "no_course: fuel unchanged")
-	_check(harness.hours() == 0.0, "no_course: clock unchanged")
-	_despawn_all()
-
-
-func _test_no_fuel_plot_refusal() -> void:
-	var harness := SimHarness.new(self)
-	harness.setup_clock()
-	var nav: NavSystem = _spawn_nav()
-	nav.fuel_mass_kg = 10.0
-	_check(not nav.plot_course(&"relay_cache"), "no_fuel: plot refused when fuel is short")
-	_check(nav.plotted_waypoint == &"", "no_fuel: nothing plotted")
-	var console: NavConsole = _spawn_console(&"drift_marker")
-	console.interact(null)
-	var errors: Array[Dictionary] = harness.events_named(&"procedure_error")
-	_check(errors.size() == 1, "no_fuel: console emits procedure_error when plotting without fuel")
-	if errors.size() == 1:
-		_check(StringName(errors[0]["payload"]["reason"]) == &"no_fuel", "no_fuel: plot reason is no_fuel")
-	_check(nav.plotted_waypoint == &"", "no_fuel: console refusal leaves nothing plotted")
-	_despawn_all()
-
-
-func _test_no_fuel_burn_refusal() -> void:
-	var harness := SimHarness.new(self)
-	harness.setup_clock()
-	var nav: NavSystem = _spawn_nav()
-	_check(nav.plot_course(&"relay_cache"), "no_fuel_burn: plotted while fuelled")
-	nav.fuel_mass_kg = 10.0
-	var console: NavConsole = _spawn_console(&"relay_cache")
-	_check(console.get_interaction_prompt() == "Begin burn", "no_fuel_burn: prompt offers burn")
-	console.interact(null)
-	var errors: Array[Dictionary] = harness.events_named(&"procedure_error")
-	_check(errors.size() == 1, "no_fuel_burn: console emits procedure_error")
-	if errors.size() == 1:
-		_check(StringName(errors[0]["payload"]["reason"]) == &"no_fuel", "no_fuel_burn: reason is no_fuel")
-	_check(nav.plotted_waypoint == &"relay_cache", "no_fuel_burn: course stays plotted")
-	_check(not nav.begin_burn(), "no_fuel_burn: direct burn refused")
-	_check(is_equal_approx(nav.fuel_mass_kg, 10.0), "no_fuel_burn: fuel unchanged")
+	var sector := SectorSystem.new()
+	_spawn(sector)
+	var cargo := CargoSystem.new()
+	_spawn(cargo)
+	var stores := Stores.new()
+	stores.initial_inventory = {}
+	_spawn(stores)
+	var start_seed: int = sector.field_seed
+	_check(nav.plot_course(&"arden_ii"), "plot: known planet accepted")
+	_check(nav.plotted_destination_id == &"arden_ii", "plot: destination recorded")
+	_check(is_equal_approx(nav.fuel_mass_kg, 1195.0), "plot: course-setting fuel consumed")
+	_check(is_equal_approx(harness.hours(), 1.0), "plot: course-setting time advances the whole simulation")
+	_check(_course_changed.size() == 1, "plot: typed course_changed emitted")
+	_check(is_equal_approx(float(_course_changed[0]["fuel_cost_kg"]), 180.0), "plot: typed signal carries transit fuel budget")
+	_check(not nav.plot_course(&"kestrel_system"), "plot: a course must be cancelled before replacing it")
+	_check(nav.begin_transit(), "transit: plotted course starts")
+	_check(bool(nav.get_status()["transit_active"]), "transit: active state is visible")
+	_check(is_equal_approx(nav.fuel_mass_kg, 1195.0), "transit: fuel is consumed over the route")
+	for _day: int in range(2):
+		nav.sim_tick(24.0)
+	_check(not bool(nav.get_status()["transit_active"]), "arrival: transit ends at the destination")
+	_check(nav.current_destination_id == &"arden_ii", "arrival: current destination updates")
+	_check(is_equal_approx(nav.fuel_mass_kg, 1015.0), "arrival: route fuel is consumed exactly")
+	_check(sector.field_seed == 73019, "arrival: sector seed swaps to the planet field")
+	_check(is_equal_approx(sector.get_drift_distance(), 0.0), "arrival: field drift resets at the new sector")
+	_check(is_equal_approx(cargo.get_units(&"ice"), 4.0), "arrival: destination material reaches cargo")
+	_check(stores.get_count(&"food_ration") == 3, "arrival: finite ration cache reaches stores")
+	_check(stores.get_count(&"filter_co2") == 1, "arrival: life-support cache reaches stores")
+	_check(harness.events_named(&"destination_arrived").size() == 1, "arrival: one destination event is emitted")
+	_check(harness.events_named(&"transit_day_advanced").size() == 2, "transit: each full day is recorded")
 	_despawn_all()
 
 
@@ -152,98 +74,65 @@ func _test_course_expiry() -> void:
 	harness.setup_clock()
 	var nav: NavSystem = _spawn_nav()
 	nav.course_error_per_hour = 0.1
-	_check(nav.plot_course(&"relay_cache"), "expiry: course plotted")
+	_check(nav.plot_course(&"kestrel_system"), "expiry: long route plotted")
+	_check(float(nav.get_status()["course_error"]) > 0.19, "expiry: plotting time adds measurable drift")
 	harness.advance(5.0)
-	_check(nav.plotted_waypoint == &"relay_cache", "expiry: course survives five hours of drift")
-	_check(float(nav.get_status()["course_error"]) > 0.4, "expiry: course error accumulates")
-	harness.advance(6.0)
-	_check(nav.plotted_waypoint == &"", "expiry: course cleared once drift saturates")
-	_check(is_equal_approx(float(nav.get_status()["course_error"]), 1.0), "expiry: course error pinned at one")
-	_check(harness.events_named(&"course_expired").size() == 1, "expiry: course_expired emitted once")
-	_check(nav.current_leg == 0, "expiry: leg not advanced by drift")
+	_check(nav.plotted_destination_id == &"kestrel_system", "expiry: course survives before error saturates")
+	harness.advance(4.0)
+	_check(nav.plotted_destination_id == &"", "expiry: course clears when drift saturates")
+	_check(harness.events_named(&"course_expired").size() == 1, "expiry: one course-expired event is emitted")
 	_despawn_all()
 
 
-func _test_save_load() -> void:
+func _test_save_load_and_legacy_state() -> void:
 	var harness := SimHarness.new(self)
 	harness.setup_clock()
 	var nav: NavSystem = _spawn_nav()
-	_check(nav.plot_course(&"relay_cache"), "save: course plotted")
-	harness.advance(2.0)
+	_check(nav.plot_course(&"arden_ii"), "save: course plotted")
+	_check(nav.begin_transit(), "save: transit started")
+	nav.sim_tick(24.0)
 	var saved: Dictionary = nav.save_state()
-	_check(saved["system_id"] == "nav", "save: system_id is nav")
-	_check(int(saved["state_version"]) == 1, "save: state_version is 1")
-	_check(int(saved["current_leg"]) == 0, "save: current_leg captured")
-	_check(String(saved["plotted_waypoint"]) == "relay_cache", "save: plotted waypoint captured as String")
-	_check(is_equal_approx(float(saved["fuel_mass_kg"]), 1200.0), "save: fuel captured")
-	_check(absf(float(saved["course_error"]) - 0.02) < 0.001, "save: course error captured")
-	var json_text: String = JSON.stringify(saved)
-	var parsed: Variant = JSON.parse_string(json_text)
-	_check(parsed is Dictionary, "save: JSON round trip parses to Dictionary")
-	var parsed_dict: Dictionary = {}
-	if parsed is Dictionary:
-		parsed_dict = parsed
-	_check(nav.begin_burn(), "save: burn mutates state after save")
-	harness.advance(5.0)
-	nav.load_state(parsed_dict)
-	var status: Dictionary = nav.get_status()
-	_check(int(status["current_leg"]) == 0, "load: leg restored from JSON")
-	_check(StringName(status["plotted_waypoint"]) == &"relay_cache", "load: plotted waypoint restored")
-	_check(is_equal_approx(float(status["fuel_mass_kg"]), 1200.0), "load: fuel restored")
-	_check(absf(float(status["course_error"]) - 0.02) < 0.001, "load: course error restored")
-	nav.load_state({})
-	_check(int(nav.get_status()["current_leg"]) == 0, "load: missing keys tolerated")
+	_check(int(saved["state_version"]) == 2, "save: current state version recorded")
+	nav.sim_tick(12.0)
+	nav.load_state(saved)
+	_check(nav.transit_active, "load: active transit restored")
+	_check(is_equal_approx(nav.transit_elapsed_hours, 24.0), "load: elapsed transit restored")
+	_check(is_equal_approx(nav.fuel_mass_kg, 1105.0), "load: fuel restored")
+	nav.load_state({"state_version": 1, "current_leg": 1, "plotted_waypoint": "drift_marker", "fuel_mass_kg": 900.0, "course_error": 0.2})
+	_check(nav.current_destination_id == &"arden_ii", "migration: prior completed leg maps to first destination")
+	_check(nav.plotted_destination_id == &"kestrel_system", "migration: prior plotted leg maps to the next destination")
+	_check(is_equal_approx(nav.fuel_mass_kg, 900.0), "migration: legacy fuel is preserved")
 	_despawn_all()
 
 
-func _test_console_prompt_flow() -> void:
+func _test_console_flow() -> void:
 	var harness := SimHarness.new(self)
 	harness.setup_clock()
 	var nav: NavSystem = _spawn_nav()
-	var console: NavConsole = _spawn_console(&"drift_marker")
-	_check(console.get_interaction_prompt() == "Plot course", "console: starts on plot")
+	var console := NavConsole.new()
+	_spawn(console)
+	_check(console.get_interaction_prompt() == "Open star chart", "console: prompts the star chart")
 	console.interact(null)
-	_check(StringName(nav.get_status()["plotted_waypoint"]) == &"drift_marker", "console: interact plots its waypoint")
-	_check(console.get_interaction_prompt() == "Begin burn", "console: plotted course offers burn")
-	console.interact(null)
-	_check(nav.current_leg == 1, "console: burn advances leg")
-	_check(console.get_interaction_prompt() == "Course complete", "console: arrival offers complete")
-	console.interact(null)
-	_check(nav.current_leg == 1, "console: complete interaction is inert")
+	_check(console.is_open(), "console: interaction opens the chart")
+	_check(console.get_actions() == [&"arden_ii", &"kestrel_system"], "console: lists available destinations")
+	_check(console.select_action(&"arden_ii"), "console: selection plots route")
+	_check(console.get_actions() == [&"begin_transit", &"cancel_course"], "console: plotted route requires confirmation")
+	_check(console.get_interaction_prompt() == "Close star chart", "console: open prompt offers close")
+	_check(console.select_action(&"begin_transit"), "console: confirmation begins travel")
+	_check(bool(nav.get_status()["transit_active"]), "console: autopilot engages")
+	_check(" ".join(console.build_readout()).contains("SHIP SYSTEMS REMAIN ON DUTY"), "console: readout explains live transit")
+	console.close()
+	_check(not console.is_open(), "console: chart closes")
 	_despawn_all()
-
-
-func _test_arrival() -> void:
-	var harness := SimHarness.new(self)
-	harness.setup_clock()
-	var nav: NavSystem = _spawn_nav()
-	for waypoint_id: StringName in nav.waypoints:
-		_check(nav.plot_course(waypoint_id), "arrival: plotted %s" % String(waypoint_id))
-		_check(nav.begin_burn(), "arrival: burned to %s" % String(waypoint_id))
-	var status: Dictionary = nav.get_status()
-	_check(bool(status["arrived"]), "arrival: arrived after the final leg")
-	_check(StringName(status["current_waypoint"]) == &"", "arrival: no current waypoint")
-	_check(int(status["current_leg"]) == nav.waypoints.size(), "arrival: leg index at route end")
-	_check(is_equal_approx(nav.fuel_mass_kg, 1020.0), "arrival: three burns consumed fuel")
-	_check(not nav.plot_course(&"leg_end"), "arrival: plotting after arrival refused")
-	_despawn_all()
-
-
-func _on_course_changed(leg_id: StringName, delta_v_cost: float) -> void:
-	_course_changed.append({"leg_id": leg_id, "delta_v_cost": delta_v_cost})
 
 
 func _spawn_nav() -> NavSystem:
 	var nav := NavSystem.new()
+	var arden: VoyageDestination = load("res://src/data/destinations/destination_arden_ii.tres")
+	var kestrel: VoyageDestination = load("res://src/data/destinations/destination_kestrel_system.tres")
+	nav.destinations = [arden, kestrel]
 	_spawn(nav)
 	return nav
-
-
-func _spawn_console(waypoint_id: StringName) -> NavConsole:
-	var console := NavConsole.new()
-	console.waypoint_id = waypoint_id
-	_spawn(console)
-	return console
 
 
 func _spawn(node: Node) -> void:
@@ -258,13 +147,15 @@ func _despawn_all() -> void:
 	_spawned.clear()
 
 
-func _finish() -> void:
-	if _failures == 0:
-		print("PASS: test_nav")
-		quit(0)
-	else:
-		print("FAILURES: ", _failures)
-		quit(1)
+func _remove_root_child(node_name: StringName) -> void:
+	var node: Node = _find_root_child(node_name)
+	if node != null:
+		root.remove_child(node)
+		node.free()
+
+
+func _on_course_changed(destination_id: StringName, fuel_cost_kg: float) -> void:
+	_course_changed.append({"destination_id": destination_id, "fuel_cost_kg": fuel_cost_kg})
 
 
 func _find_root_child(node_name: StringName) -> Node:
@@ -272,6 +163,15 @@ func _find_root_child(node_name: StringName) -> Node:
 		if child.name == node_name:
 			return child
 	return null
+
+
+func _finish() -> void:
+	if _failures == 0:
+		print("PASS: test_nav")
+		quit(0)
+	else:
+		print("FAILURES: ", _failures)
+		quit(1)
 
 
 func _check(condition: bool, label: String) -> void:

@@ -78,6 +78,15 @@
 [ext_resource type="Resource" path="res://src/data/machines/machine_scrubber_spare.tres" id="97_machine_scrubber_spare"]
 [ext_resource type="Script" uid="uid://catrwpbk3xnvw" path="res://src/systems/voice_guide.gd" id="98_voice_guide"]
 [ext_resource type="Script" uid="uid://0t82o4vlx6f3" path="res://src/ui/guide_overlay.gd" id="99_guide_overlay"]
+[ext_resource type="Script" path="res://src/systems/nav.gd" id="100_nav"]
+[ext_resource type="Script" path="res://src/components/voyage_destination.gd" id="101_destination_script"]
+[ext_resource type="Resource" path="res://src/data/destinations/destination_arden_ii.tres" id="102_destination_arden"]
+[ext_resource type="Resource" path="res://src/data/destinations/destination_kestrel_system.tres" id="103_destination_kestrel"]
+[ext_resource type="Script" path="res://src/world/destination_backdrop.gd" id="104_destination_backdrop"]
+[ext_resource type="Script" path="res://src/systems/computer.gd" id="105_computer"]
+[ext_resource type="Script" path="res://src/components/log_entry.gd" id="106_log_entry"]
+[ext_resource type="Resource" path="res://src/data/logs/log_01.tres" id="107_log_01"]
+[ext_resource type="Resource" path="res://src/data/logs/log_02.tres" id="108_log_02"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_sky"]
 shader = ExtResource("71_space_sky")
@@ -109,6 +118,7 @@ tonemap_mode = 2
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=409178157]
 environment = SubResource("Environment_1")
+script = ExtResource("104_destination_backdrop")
 
 [node name="FillLight" type="DirectionalLight3D" parent="." unique_id=1117170076]
 transform = Transform3D(0.866, 0, -0.5, -0.3536, 0.7071, -0.6124, 0.3536, 0.7071, 0.6124, 0, 4, 0)
@@ -120,83 +130,6 @@ transform = Transform3D(-0.9781476, -0.12800318, 0.16383658, 0, 0.7880108, 0.615
 light_color = Color(1, 0.92, 0.8, 1)
 light_energy = 0.45
 light_specular = 0.4
-
-[node name="CabinLight" type="OmniLight3D" parent="." unique_id=1618591116]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.8, -4)
-light_color = Color(1, 0.85, 0.65, 1)
-light_energy = 1.2
-shadow_enabled = true
-omni_range = 12.0
-
-[node name="SpineLightA" type="OmniLight3D" parent="." unique_id=1548618363]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.7, -9.5)
-light_color = Color(1, 0.82, 0.6, 1)
-omni_range = 6.0
-
-[node name="SpineLightB" type="OmniLight3D" parent="." unique_id=293793803]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.7, -1.5)
-light_color = Color(1, 0.82, 0.6, 1)
-omni_range = 6.0
-
-[node name="CockpitLight" type="OmniLight3D" parent="." unique_id=246190580]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.8, -16.5)
-light_color = Color(0.85, 0.92, 1, 1)
-omni_range = 8.0
-
-[node name="LifeSupportLight" type="OmniLight3D" parent="." unique_id=197862919]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.65, 2.7, -6.3)
-light_color = Color(1, 0.85, 0.65, 1)
-omni_range = 6.0
-
-[node name="GalleyLight" type="OmniLight3D" parent="." unique_id=771452317]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.9, 2.7, -5.8)
-light_color = Color(1, 0.85, 0.65, 1)
-omni_range = 6.0
-
-[node name="WaterClosetLight" type="OmniLight3D" parent="." unique_id=1409811790]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.2, 2.7, -1.9)
-light_color = Color(0.9, 0.95, 1, 1)
-light_energy = 0.8
-
-[node name="StorageLight" type="OmniLight3D" parent="." unique_id=1235868277]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.75, 2.7, -1.2)
-light_color = Color(1, 0.8, 0.6, 1)
-light_energy = 0.8
-
-[node name="AirlockLight" type="OmniLight3D" parent="." unique_id=870194938]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.8, 2.7, -1.2)
-light_color = Color(0.8, 0.9, 1, 1)
-light_energy = 0.9
-
-[node name="ScrubberTaskLight" type="OmniLight3D" parent="." unique_id=1302812045]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.6, 2.2, -6.4)
-light_color = Color(1, 0.85, 0.6, 1)
-light_energy = 0.6
-omni_range = 3.5
-
-[node name="ReclaimerTaskLight" type="OmniLight3D" parent="." unique_id=451676131]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.2, 2.2, -1.9)
-light_color = Color(1, 0.9, 0.7, 1)
-light_energy = 0.5
-omni_range = 3.0
-
-[node name="ConsoleTaskLight" type="OmniLight3D" parent="." unique_id=1703680257]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.2, -17.8)
-light_color = Color(0.8, 0.9, 1, 1)
-light_energy = 0.5
-omni_range = 3.0
-
-[node name="QuartersLight" type="OmniLight3D" parent="." unique_id=659718217]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.15, 2.8, -10.4)
-light_color = Color(1, 0.8, 0.6, 1)
-light_energy = 1.1
-omni_range = 7.0
-
-[node name="EngineLight" type="OmniLight3D" parent="." unique_id=1986185717]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.8, 4.7)
-light_color = Color(0.8, 0.9, 1, 1)
-light_energy = 1.2
-omni_range = 9.0
 
 [node name="ShipGeometry" parent="." unique_id=1817031159 instance=ExtResource("42_ship_geometry")]
 
@@ -253,6 +186,10 @@ script = ExtResource("70_airlock")
 [node name="SectorSystem" type="Node" parent="Systems" unique_id=62577210]
 script = ExtResource("72_sector")
 
+[node name="NavSystem" type="Node" parent="Systems"]
+script = ExtResource("100_nav")
+destinations = Array[ExtResource("101_destination_script")]([ExtResource("102_destination_arden"), ExtResource("103_destination_kestrel")])
+
 [node name="CargoSystem" type="Node" parent="Systems" unique_id=1845889633]
 script = ExtResource("74_cargo")
 
@@ -264,6 +201,10 @@ recipes = Array[ExtResource("81_recipe_script")]([ExtResource("77_recipe_water")
 script = ExtResource("82_modules")
 catalog = Array[ExtResource("83_ship_module")]([ExtResource("84_module_utility"), ExtResource("85_module_storage"), ExtResource("86_module_greenhouse"), ExtResource("87_module_workshop"), ExtResource("88_module_expanded_storage"), ExtResource("89_module_aux_battery"), ExtResource("90_module_med_bay")])
 machine_catalog = Array[ExtResource("91_machine_script")]([ExtResource("92_machine_grow_rack"), ExtResource("93_machine_work_bench"), ExtResource("94_machine_cargo_rack"), ExtResource("95_machine_battery_cabinet"), ExtResource("96_machine_med_bed"), ExtResource("97_machine_scrubber_spare")])
+
+[node name="ComputerSystem" type="Node" parent="Systems" unique_id=209841286]
+script = ExtResource("105_computer")
+archive = Array[ExtResource("106_log_entry")]([ExtResource("107_log_01"), ExtResource("108_log_02")])
 
 [node name="VoiceGuideSystem" type="Node" parent="Systems" unique_id=209841285]
 script = ExtResource("98_voice_guide")

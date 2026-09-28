@@ -21,6 +21,7 @@ var _slab_shape_base_position: Vector3 = Vector3.ZERO
 
 
 func _ready() -> void:
+	add_to_group(&"ship_door")
 	_slab = get_node_or_null(^"Slab") as Node3D
 	_slab_shape = get_node_or_null(^"SlabShape") as CollisionShape3D
 	if _slab != null:
@@ -42,22 +43,40 @@ func get_interaction_prompt() -> String:
 	return "Open door"
 
 
+## Human name for the ship computer: the authored name, else the joined compartments.
+func get_door_label() -> String:
+	if not display_name.is_empty():
+		return display_name
+	var parts: PackedStringArray = PackedStringArray()
+	for side: StringName in [compartment_a, compartment_b]:
+		if side == &"":
+			continue
+		parts.append(String(side).to_upper().replace("_", " "))
+	return " - ".join(parts)
+
+
 func _handle_interact(_player: Node) -> void:
+	request_open(not _open)
+
+
+## Shared toggle for players and the ship computer; a refusal is reported as a sim event.
+func request_open(open: bool) -> bool:
+	if open == _open:
+		return true
 	if airlock_id != &"":
 		var airlock: Node = _get_system(&"airlock_system")
 		if airlock != null and airlock.has_method(&"request_door"):
-			if bool(airlock.call("request_door", airlock_side, not _open)):
-				_set_open(not _open)
-			else:
-				_emit_airlock_refusal(airlock)
-			return
-	_set_open(not _open)
+			if not bool(airlock.call("request_door", airlock_side, open)):
+				_emit_airlock_refusal(airlock, open)
+				return false
+	_set_open(open)
+	return true
 
 
-func _emit_airlock_refusal(airlock: Node) -> void:
+func _emit_airlock_refusal(airlock: Node, open: bool) -> void:
 	var reason: StringName = &"airlock_interlock"
 	if airlock.has_method(&"get_door_refusal"):
-		reason = StringName(airlock.call("get_door_refusal", airlock_side, not _open))
+		reason = StringName(airlock.call("get_door_refusal", airlock_side, open))
 	_emit_sim_event(&"procedure_error", {"reason": reason, "airlock_id": airlock_id})
 
 

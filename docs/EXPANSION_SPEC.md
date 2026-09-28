@@ -107,7 +107,7 @@ protrude or overlap:
 | **M8 — Deep field** | 2 | Chunked procedural field around the drifting ship, ~98% empty; asteroids/anomalies/debris; contacts detection (console + scanner ping); manual close-approach thrusters (hybrid traversal) | 7 headless sim days → deterministic density + seeds; contacts appear; stream in/out leak-free; one contact reachable by EVA |
 | **M9 — Materials & fabrication** | 3 | Mineable asteroids (ice/ore/metal/exotic), handheld cutter + sample hauling, cargo hold, anomaly salvage, Fabricator recipes (filter, sealant, O2 candle, water filter, ration, spares) | Month-long scenario sustained on mined inputs alone; fabrication gated by power; cargo mass persists in save |
 | **M10 — Ship expansion** | 4 | Exterior hardpoints + module catalog: greenhouse (renewable food), workshop, expanded storage, aux battery, med bay; EVA construction flow; new compartments auto-register in atmosphere/thermal/power | Build greenhouse → renewable food in scenario; module save/load; geometry regenerates deterministically |
-| **M11 — Destinations** | 5 | Star chart (planets/stars), course-setting, multi-day transit with events + fuel, arrival content (sector swap, sky, special resources, comms beats) | Voyage to a planet and a star in scenario; fuel consumption; arrival content differs per destination; save/load |
+| **M11 — Destinations** | 5 | Star chart (planets/stars), course-setting, multi-day transit with events + fuel, arrival content (sector swap, sky, finite supplies) | **Complete (2026-09-28):** tested voyages to a planet and star, per-route time/fuel costs, distinct arrival fields and caches, save/load in transit |
 | **M12 — Feel & polish** | 6+ | EVA feel (tether tension, suit audio/HUD, hull lighting), exterior art pass, encounter pacing, space ambience, performance + rebalance | External playtest round on a build with the full loop; profiler budgets hold |
 
 ### M13 — Modular hull in the reference language (user-requested 2026-09-20)
@@ -385,13 +385,20 @@ the docks into radial ports the bore goes to 1.2 m to match interior doors, at n
 - M9: mining extraction, cargo capacity/mass, recipe gating, 30-day sustenance scenario.
 - M10: module install/uninstall, compartment registration, greenhouse food production.
 - M11: course/transit/arrival state machine, destination data validation, fuel math.
-- Every milestone: save/load round trip + full suite stays green (currently 59 suites).
+- Every milestone: save/load round trip + full suite stays green.
 
 ## Save format
 
-Bump to **v3** when the first new state lands (M7: airlock/suit; M8: sector + contacts;
-M9: cargo; M10: modules; M11: destination). v2 saves keep loading where feasible;
-migration tests cover the gap.
+The current format is **v3**. v1 saves migrate through the v2 metadata shape; v2 saves keep
+loading and map legacy navigation progress to the available destination data. Migration tests
+cover both paths, and in-flight M11 transit is part of the saved navigation state.
+
+**M11 landed (2026-09-28):** destination resources drive course plotting, plot time/fuel,
+multi-day fixed-tick transit, daily transit events, and finite first-visit caches. The cockpit
+star chart selects Arden II and Kestrel System; arrivals swap the seeded field and distant-body
+sky. `test_destination_data`, `test_nav`, `test_m11_voyage`, and `test_save_migration` cover the
+route, both arrivals, continued ship simulation, and save restoration. Cabin lights now follow
+the lighting breaker, and the stronger analogue-horror filter defaults are restored.
 
 ## Risks
 

@@ -201,7 +201,7 @@ const PROPS: Array[Dictionary] = [
 		"tube_position": Vector3(1.45, 1.2, -16.0),
 		"size": Vector3(0.15, 0.5, 0.6),
 		"material": MATERIAL_SCREEN_GLOW,
-		"exports": {"waypoint_id": &"relay_cache"},
+		"exports": {},
 		"crt": {"facing": "z+", "phosphor": "green", "keys": true},
 	},
 	{

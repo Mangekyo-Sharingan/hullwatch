@@ -1,4 +1,4 @@
-## Save v1 -> v2 migration test: hand-crafted v1 dicts must load, migrate in place, and round trip.
+## Save v1/v2 -> v3 migration test: prior formats keep loading without losing clock data.
 extends SceneTree
 
 var _failures: int = 0
@@ -20,8 +20,9 @@ func _run() -> void:
 	root.add_child(sim_clock)
 
 	_test_v1_migration()
-	_test_fresh_v2_shape()
-	_test_v2_round_trip()
+	_test_v2_migration()
+	_test_fresh_v3_shape()
+	_test_v3_round_trip()
 	_test_missing_meta_tolerance()
 	_test_version_refusal()
 
@@ -41,7 +42,7 @@ func _test_v1_migration() -> void:
 		"interactables": {},
 	}
 	_check(bool(save_manager.call("load_from_dict", v1)), "v1 dict loads through migration")
-	_check(int(v1.get("save_version", 0)) == 2, "migrated dict is version 2")
+	_check(int(v1.get("save_version", 0)) == 3, "migrated v1 dict is version 3")
 	_check(not v1.has("created_unix"), "old root created_unix key is removed")
 	var meta: Dictionary = v1.get("meta", {})
 	_check(absf(float(meta.get("play_hours", -1.0)) - 2.0) < 0.001, "migrated meta.play_hours is 2.0")
@@ -49,20 +50,37 @@ func _test_v1_migration() -> void:
 	_check(absf(float(_sim_clock().call("get_total_hours")) - 2.0) < 0.001, "migrated v1 clock restored")
 
 
-func _test_fresh_v2_shape() -> void:
+func _test_v2_migration() -> void:
+	var save_manager: Node = _find_root_child(&"SaveManager")
+	if save_manager == null:
+		return
+	var v2: Dictionary = {
+		"save_version": 2,
+		"meta": {"created_unix": 7654321, "play_hours": 12.5},
+		"clock": {"sim_seconds": 45000.0, "tick_index": 750, "last_hour": 12, "last_day": 1},
+		"systems": {"nav": {"current_leg": 1}},
+		"interactables": {},
+	}
+	_check(bool(save_manager.call("load_from_dict", v2)), "v2 dict loads through migration")
+	_check(int(v2.get("save_version", 0)) == 3, "migrated v2 dict is version 3")
+	_check(float((v2["meta"] as Dictionary).get("play_hours", 0.0)) == 12.5, "v2 meta is preserved")
+	_check(int(((v2["systems"] as Dictionary)["nav"] as Dictionary).get("current_leg", 0)) == 1, "v2 system state is preserved")
+
+
+func _test_fresh_v3_shape() -> void:
 	var save_manager: Node = _find_root_child(&"SaveManager")
 	if save_manager == null:
 		return
 	var data: Dictionary = save_manager.call("save_to_dict")
-	_check(int(data.get("save_version", 0)) == 2, "fresh save dict is version 2")
+	_check(int(data.get("save_version", 0)) == 3, "fresh save dict is version 3")
 	_check(not data.has("created_unix"), "fresh save has no root created_unix")
 	var meta: Dictionary = data.get("meta", {})
 	_check(meta.has("created_unix"), "fresh meta carries created_unix")
 	_check(meta.has("play_hours"), "fresh meta carries play_hours")
-	_check(absf(float(meta.get("play_hours", -1.0)) - 2.0) < 0.001, "fresh meta.play_hours reflects the clock")
+	_check(absf(float(meta.get("play_hours", -1.0)) - 12.5) < 0.001, "fresh meta.play_hours reflects the migrated clock")
 
 
-func _test_v2_round_trip() -> void:
+func _test_v3_round_trip() -> void:
 	var save_manager: Node = _find_root_child(&"SaveManager")
 	if save_manager == null:
 		return
@@ -70,8 +88,8 @@ func _test_v2_round_trip() -> void:
 	sim_clock.call("load_state", {"sim_seconds": 7200.0})
 	var data: Dictionary = save_manager.call("save_to_dict")
 	sim_clock.call("load_state", {"sim_seconds": 0.0})
-	_check(bool(save_manager.call("load_from_dict", data)), "v2 dict loads")
-	_check(absf(float(sim_clock.call("get_total_hours")) - 2.0) < 0.001, "v2 round trip restores the clock")
+	_check(bool(save_manager.call("load_from_dict", data)), "v3 dict loads")
+	_check(absf(float(sim_clock.call("get_total_hours")) - 2.0) < 0.001, "v3 round trip restores the clock")
 
 
 func _test_missing_meta_tolerance() -> void:
@@ -85,6 +103,7 @@ func _test_missing_meta_tolerance() -> void:
 		"interactables": {},
 	}
 	_check(bool(save_manager.call("load_from_dict", data)), "v2 dict without meta loads")
+	_check(int(data.get("save_version", 0)) == 3, "v2 dict without meta migrates to version 3")
 	_check(absf(float(_sim_clock().call("get_total_hours")) - 1.0) < 0.001, "v2 dict without meta restores the clock")
 
 

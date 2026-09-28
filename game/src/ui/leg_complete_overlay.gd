@@ -37,12 +37,24 @@ func get_overlay_text() -> String:
 func _show_overlay(waypoint_id: StringName) -> void:
 	_text = "LEG COMPLETE\n%s\n\nPRESS E TO CONTINUE" % String(waypoint_id).to_upper()
 	_label.text = _text
+	_label.visible = true
+	_fade.modulate.a = 1.0
+	_visible = true
+
+
+func _show_arrival(payload: Dictionary) -> void:
+	var display_name: String = String(payload.get("display_name", payload.get("destination_id", "Waypoint"))).to_upper()
+	var report: String = String(payload.get("arrival_report", "Navigation reference confirmed."))
+	_text = "WAYPOINT REACHED\n%s\n\n%s\n\nPRESS E TO CONTINUE" % [display_name, report]
+	_label.text = _text
+	_label.visible = true
 	_fade.modulate.a = 1.0
 	_visible = true
 
 
 func dismiss() -> void:
 	_visible = false
+	_label.visible = false
 	_fade.modulate.a = 0.0
 	var event_bus: Node = get_node_or_null(^"/root/EventBus")
 	if event_bus != null:
@@ -51,7 +63,9 @@ func dismiss() -> void:
 
 
 func _on_sim_event(event_name: StringName, payload: Dictionary) -> void:
-	if event_name == &"leg_completed":
+	if event_name == &"destination_arrived":
+		_show_arrival(payload)
+	elif event_name == &"leg_completed":
 		_show_overlay(StringName(payload.get("waypoint_id", &"")))
 
 
@@ -66,11 +80,17 @@ func _build_ui() -> void:
 	_label = Label.new()
 	_label.name = "LegText"
 	_label.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_label.anchor_left = 0.06
+	_label.anchor_right = 0.94
+	_label.offset_left = 0.0
+	_label.offset_right = 0.0
 	_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_label.add_theme_font_size_override("font_size", UiScale.size(self, BASE_FONT_SIZE))
 	_label.add_theme_color_override("font_color", Color(0.72, 0.78, 0.72, 1.0))
 	_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_label.visible = false
 	add_child(_label)
 
 
