@@ -2,13 +2,13 @@
 ## TubeLayout entry plus a joint body per hatch, every bulkhead hatch is walkable end to
 ## end, the airlock's outer opening is clear, walls block beside the port doorways, the
 ## swept cross-section keeps its profile at walk heights, deck and ceiling sit at their
-## planes, and the cupola carries the dash and the viewport pane.
+## planes, and the cupola carries the dash and a sealed transparent viewport.
 extends SceneTree
 
 const GEOMETRY_PATH: String = "res://scenes/ship_geometry.tscn"
 const XENON_MATERIAL_PATH: String = "res://src/data/materials/mat_xenon_metal.tres"
 const FLOOR_MATERIAL_PATH: String = "res://src/data/materials/mat_deck_plate.tres"
-const WINDOW_MATERIAL_PATH: String = "res://src/data/materials/mat_space_window.tres"
+const WINDOW_MATERIAL_PATH: String = "res://src/data/materials/mat_pressure_glass.tres"
 const RAY_Y: float = 1.2
 
 var _failures: int = 0
@@ -199,9 +199,21 @@ func _test_cockpit_dash() -> void:
 	var face_z: float = TubeLayout.span(TubeLayout.index_of("cupola")).x + 0.28
 	_check(_ray_hits(Vector3(0.0, 0.9, face_z + 1.2), Vector3(0.0, 0.9, face_z - 0.2)), "the dash blocks at console height")
 	var pane: MeshInstance3D = cupola.get_node_or_null(^"DressingWindowPane") as MeshInstance3D
-	_check(pane != null and pane.material_override != null, "the viewport pane exists")
-	if pane != null and pane.material_override != null:
-		_check(pane.material_override.resource_path == WINDOW_MATERIAL_PATH, "the viewport uses the space window shader")
+	var seal: CollisionShape3D = cupola.get_node_or_null(^"DressingWindowPaneSeal") as CollisionShape3D
+	_check(pane != null and pane.material_override is StandardMaterial3D, "the viewport has a physical glass material")
+	_check(seal != null and seal.shape is BoxShape3D, "the viewport glass has collision sealing")
+	if pane != null and pane.material_override is StandardMaterial3D:
+		var glass: StandardMaterial3D = pane.material_override as StandardMaterial3D
+		_check(glass.resource_path == WINDOW_MATERIAL_PATH, "the viewport uses pressure glass")
+		_check(glass.transparency == BaseMaterial3D.TRANSPARENCY_ALPHA and glass.albedo_color.a < 0.2, "the pressure glass is lightly tinted and transparent")
+	if pane != null and seal != null and seal.shape is BoxShape3D:
+		var pane_size: Vector3 = (pane.mesh as BoxMesh).size
+		_check((seal.shape as BoxShape3D).size.is_equal_approx(pane_size), "the pane seal matches the glass dimensions")
+		var hit: Dictionary = _ray_result(
+			Vector3(0.0, pane.global_position.y, pane.global_position.z - 1.0),
+			Vector3(0.0, pane.global_position.y, pane.global_position.z + 0.5)
+		)
+		_check(not hit.is_empty() and absf(float((hit["position"] as Vector3).z) - (pane.global_position.z - pane_size.z * 0.5)) < 0.03, "the viewport blocks a ray at the glass plane")
 
 
 func _test_surface_materials() -> void:

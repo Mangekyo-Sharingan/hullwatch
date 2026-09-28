@@ -1,4 +1,4 @@
-## Door regression: isolation toggling, slab collision/offset, save/load round trip.
+## Door regression: per-door gas flow, slab collision/offset, and save/load round trip.
 extends SceneTree
 
 var _failures: int = 0
@@ -24,7 +24,9 @@ func _test_door_toggle() -> void:
 
 	_check(not door.is_open(), "door starts closed")
 	_check(door.get_interaction_prompt() == "Open door", "closed prompt asks to open")
-	_check(_isolated(atmosphere, &"main") and _isolated(atmosphere, &"corridor"), "closed door isolates both compartments")
+	var pressure_gap: float = _pressure_difference(atmosphere)
+	atmosphere.sim_tick(1.0)
+	_check(absf(_pressure_difference(atmosphere) - pressure_gap) < 1e-9, "closed door blocks its direct gas path")
 
 	var slab: MeshInstance3D = door.get_node(^"Slab") as MeshInstance3D
 	var slab_shape: CollisionShape3D = door.get_node(^"SlabShape") as CollisionShape3D
@@ -33,7 +35,9 @@ func _test_door_toggle() -> void:
 	door.interact(null)
 	_check(door.is_open(), "interact opens the door")
 	_check(door.get_interaction_prompt() == "Close door", "open prompt asks to close")
-	_check(not _isolated(atmosphere, &"main") and not _isolated(atmosphere, &"corridor"), "open door un-isolates both compartments")
+	pressure_gap = _pressure_difference(atmosphere)
+	atmosphere.sim_tick(1.0)
+	_check(_pressure_difference(atmosphere) < pressure_gap, "open door mixes its direct gas path")
 	_check(slab_shape.disabled, "open slab collision is disabled")
 	_check(slab.position.is_equal_approx(door.open_offset), "open slab moved by open_offset")
 
@@ -46,7 +50,6 @@ func _test_door_toggle() -> void:
 		_check(not door.is_open(), "interacting with the frame closes the open door")
 
 	_check(not door.is_open(), "door stays closed after the frame interaction")
-	_check(_isolated(atmosphere, &"main") and _isolated(atmosphere, &"corridor"), "re-closed door isolates both compartments")
 	_check(not slab_shape.disabled, "closed slab collision is re-enabled")
 	_check(slab.position.is_equal_approx(Vector3.ZERO), "closed slab returned to its base position")
 
@@ -70,12 +73,19 @@ func _test_door_save_load() -> void:
 
 	door.load_state({"open": false})
 	_check(not door.is_open(), "load: closed state applied")
-	_check(_isolated(atmosphere, &"main"), "load: closed door re-isolates")
+	atmosphere.set_leak_rate(&"main", 1.0)
+	atmosphere.sim_tick(1.0)
+	atmosphere.set_leak_rate(&"main", 0.0)
+	var closed_gap: float = _pressure_difference(atmosphere)
+	atmosphere.sim_tick(1.0)
+	_check(absf(_pressure_difference(atmosphere) - closed_gap) < 1e-9, "load: closed door blocks its direct gas path")
 
 	if parsed is Dictionary:
 		door.load_state(parsed)
 	_check(door.is_open(), "load: open state restored from JSON")
-	_check(not _isolated(atmosphere, &"main") and not _isolated(atmosphere, &"corridor"), "load: open door re-syncs isolation")
+	var open_gap: float = _pressure_difference(atmosphere)
+	atmosphere.sim_tick(1.0)
+	_check(_pressure_difference(atmosphere) < open_gap, "load: open door restores its direct gas path")
 
 	_despawn_all()
 
@@ -115,9 +125,11 @@ func _make_atmosphere() -> AtmosphereSystem:
 		var config: CompartmentConfig = CompartmentConfig.new()
 		config.compartment_id = compartment_id
 		config.volume_m3 = 50.0
+		config.initial_pressure_kpa = 50.0 if compartment_id == &"corridor" else 101.325
 		defs.append(config)
 	atmosphere.compartment_defs = defs
 	_spawn(atmosphere)
+	atmosphere.connect_compartments(&"main", &"corridor")
 	return atmosphere
 
 
@@ -153,8 +165,10 @@ func _make_door(compartment_a: StringName, compartment_b: StringName) -> Door:
 	return door
 
 
-func _isolated(atmosphere: AtmosphereSystem, compartment_id: StringName) -> bool:
-	return bool(atmosphere.get_compartment_status(compartment_id).get("isolated", false))
+func _pressure_difference(atmosphere: AtmosphereSystem) -> float:
+	var main_pressure: float = float(atmosphere.get_compartment_status(&"main")["pressure_kpa"])
+	var corridor_pressure: float = float(atmosphere.get_compartment_status(&"corridor")["pressure_kpa"])
+	return absf(main_pressure - corridor_pressure)
 
 
 func _spawn(node: Node) -> void:

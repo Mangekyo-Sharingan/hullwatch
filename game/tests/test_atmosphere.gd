@@ -27,6 +27,7 @@ func _run() -> void:
 	_test_leak()
 	_test_candles()
 	_test_mixing()
+	_test_connection_flow()
 	_test_signals()
 	_test_determinism()
 	_test_data()
@@ -208,6 +209,27 @@ func _test_mixing() -> void:
 	isolated.sim_tick(1.0)
 	var isolated_after: float = _pressure_difference(isolated)
 	_check(absf(isolated_after - isolated_before) < 1e-9, "isolation blocks mixing")
+
+
+func _test_connection_flow() -> void:
+	var system := AtmosphereSystem.new()
+	system.add_compartment(_make_config(&"center", 30.0, 0.0, 0, 100.0))
+	system.add_compartment(_make_config(&"closed_neighbor", 30.0, 0.0, 0, 50.0))
+	system.add_compartment(_make_config(&"open_neighbor", 30.0, 0.0, 0, 50.0))
+	system.set_connection_open(&"center", &"closed_neighbor", false)
+	system.connect_compartments(&"center", &"closed_neighbor")
+	system.connect_compartments(&"center", &"open_neighbor")
+	system.connect_compartments(&"center", &"closed_neighbor")
+	var center_before: float = float(system.get_compartment_status(&"center")["pressure_kpa"])
+	var closed_before: float = float(system.get_compartment_status(&"closed_neighbor")["pressure_kpa"])
+	var open_before: float = float(system.get_compartment_status(&"open_neighbor")["pressure_kpa"])
+	system.sim_tick(1.0)
+	var center_after: float = float(system.get_compartment_status(&"center")["pressure_kpa"])
+	var closed_after: float = float(system.get_compartment_status(&"closed_neighbor")["pressure_kpa"])
+	var open_after: float = float(system.get_compartment_status(&"open_neighbor")["pressure_kpa"])
+	_check(absf(closed_after - closed_before) < 1e-9, "closed connection blocks only its own gas path")
+	_check(center_after < center_before and open_after > open_before, "the other open path still mixes gas")
+	_check(absf(center_after - open_after) < absf(center_before - open_before), "open passage equalizes toward shared pressure")
 
 
 func _test_signals() -> void:

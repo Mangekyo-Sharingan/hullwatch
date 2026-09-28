@@ -27,6 +27,7 @@ const HUMIDITY_EMIT_DELTA_FRACTION: float = 0.05
 
 var _compartments: Dictionary = {}
 var _connections: Dictionary = {}
+var _connection_open: Dictionary = {}
 var _efficiency_multiplier: float = 1.0
 var _rng: RandomNumberGenerator
 var _condition_bucket: Dictionary = {}
@@ -74,6 +75,11 @@ func has_compartment(compartment_id: StringName) -> bool:
 func remove_compartment(compartment_id: StringName) -> bool:
 	if not _compartments.has(compartment_id):
 		return false
+	var neighbors: Array = _connections.get(compartment_id, [])
+	for neighbor: StringName in neighbors:
+		_connection_open.erase(_connection_key(compartment_id, neighbor))
+		var linked: Array = _connections.get(neighbor, [])
+		linked.erase(compartment_id)
 	_compartments.erase(compartment_id)
 	_connections.erase(compartment_id)
 	return true
@@ -250,8 +256,18 @@ func connect_compartments(a: StringName, b: StringName) -> void:
 	if a == b or not _compartments.has(a) or not _compartments.has(b):
 		push_error("AtmosphereSystem.connect_compartments: unknown or identical compartment ids.")
 		return
+	var key: String = _connection_key(a, b)
+	if not _connection_open.has(key):
+		_connection_open[key] = true
 	_add_neighbor(a, b)
 	_add_neighbor(b, a)
+
+
+func set_connection_open(a: StringName, b: StringName, open: bool) -> void:
+	if a == b or not _compartments.has(a) or not _compartments.has(b):
+		push_error("AtmosphereSystem.set_connection_open: unknown or identical compartment ids.")
+		return
+	_connection_open[_connection_key(a, b)] = open
 
 
 func get_status() -> Dictionary:
@@ -404,6 +420,8 @@ func _mix_connected(hours: float) -> void:
 		for id_b: StringName in neighbors:
 			if String(id_a) >= String(id_b) or not _compartments.has(id_b):
 				continue
+			if not bool(_connection_open.get(_connection_key(id_a, id_b), true)):
+				continue
 			var state_a: Dictionary = _compartments[id_a]
 			var state_b: Dictionary = _compartments[id_b]
 			if bool(state_a["isolated"]) or bool(state_b["isolated"]):
@@ -481,6 +499,16 @@ func _add_neighbor(a: StringName, b: StringName) -> void:
 	var neighbors: Array[StringName] = _connections[a]
 	if not neighbors.has(b):
 		neighbors.append(b)
+
+
+func _connection_key(a: StringName, b: StringName) -> String:
+	var first: String = String(a)
+	var second: String = String(b)
+	if first > second:
+		var swap: String = first
+		first = second
+		second = swap
+	return first + "\u001f" + second
 
 
 func _total_moles(state: Dictionary) -> float:

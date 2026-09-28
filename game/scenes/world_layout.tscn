@@ -595,7 +595,7 @@ shape = SubResource("BoxShape3D_ww7vg")
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0, -0.6, 0)
 
 [node name="BreakerPanel" type="StaticBody3D" parent="Props"]
-transform = Transform3D(0.8660254, 0.5, 0, -0.5, 0.8660254, 0, 0, 0, 1, 0.90071917, 0.8, -3.5)
+transform = Transform3D(0.8660254, 0.5, 0, -0.5, 0.8660254, 0, 0, 0, 1, 1.479048, 0.8, -3.5)
 script = ExtResource("5_frfji")
 
 [node name="Shape" type="CollisionShape3D" parent="Props/BreakerPanel"]
@@ -605,7 +605,7 @@ shape = SubResource("BoxShape3D_4b61h")
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0.07499999, 0, 0)
 
 [node name="StatusPanel" type="StaticBody3D" parent="Props"]
-transform = Transform3D(0.8660254, -0.5, 0, 0.5, 0.8660254, 0, 0, 0, 1, -0.91376287, 0.8, -8)
+transform = Transform3D(0.8660254, -0.5, 0, 0.5, 0.8660254, 0, 0, 0, 1, -1.7160578, 0.8, -8)
 script = ExtResource("7_g732p")
 
 [node name="Shape" type="CollisionShape3D" parent="Props/StatusPanel"]
@@ -623,7 +623,7 @@ script = ExtResource("9_vd0g3")
 phosphor_material = ExtResource("10_aqd4q")
 
 [node name="MaintenanceBoard" type="StaticBody3D" parent="Props"]
-transform = Transform3D(0.8660254, -0.5, 0, 0.5, 0.8660254, 0, 0, 0, 1, -1.3787653, 0.8, -13)
+transform = Transform3D(0.8660254, -0.5, 0, 0.5, 0.8660254, 0, 0, 0, 1, -2.2430577, 0.8, -13)
 script = ExtResource("11_ry1gd")
 
 [node name="Shape" type="CollisionShape3D" parent="Props/MaintenanceBoard"]
@@ -726,7 +726,7 @@ script = ExtResource("9_vd0g3")
 phosphor_material = ExtResource("18_vnr65")
 
 [node name="WallComputer" type="StaticBody3D" parent="Props"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.4578106, 1.15, -17.75)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.55, 1.15, -17.75)
 script = ExtResource("22_plr0f")
 
 [node name="Shape" type="CollisionShape3D" parent="Props/WallComputer"]
@@ -750,7 +750,7 @@ shape = SubResource("BoxShape3D_fibos")
 transform = Transform3D(0.85, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.35, 0)
 
 [node name="HullPatch" type="StaticBody3D" parent="Props"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.7450527, 1.2, 5.581613)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.364, 1.2, 5.581613)
 script = ExtResource("26_d2apg")
 
 [node name="Shape" type="CollisionShape3D" parent="Props/HullPatch"]
@@ -760,7 +760,7 @@ shape = SubResource("BoxShape3D_1yc42")
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0.046999987, 0, 0)
 
 [node name="O2CandleRack" type="StaticBody3D" parent="Props"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.1891578, 0.9, -11.165384)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.723, 0.9, -11.165384)
 script = ExtResource("28_7wcb8")
 
 [node name="Shape" type="CollisionShape3D" parent="Props/O2CandleRack"]
@@ -806,7 +806,7 @@ shape = SubResource("BoxShape3D_j1sq7")
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0, -0.069, 0)
 
 [node name="ProbePower" type="StaticBody3D" parent="Props"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.0722263, 0.35, -4.2)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.6281, 0.35, -4.2)
 script = ExtResource("34_wv0xx")
 
 [node name="Shape" type="CollisionShape3D" parent="Props/ProbePower"]
@@ -816,7 +816,7 @@ shape = SubResource("BoxShape3D_1ehcs")
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0.03999999, 0, 0)
 
 [node name="ProbeAtmosphere" type="StaticBody3D" parent="Props"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.97116315, 0.35, -11.257692)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.4787, 0.35, -11.257692)
 script = ExtResource("34_wv0xx")
 system_group = &"atmosphere_system"
 
@@ -827,7 +827,7 @@ shape = SubResource("BoxShape3D_n2gmn")
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -0.03999999, 0, 0)
 
 [node name="ProbeThermal" type="StaticBody3D" parent="Props"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.3248842, 0.35, 3.575)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.0016, 0.35, 3.575)
 script = ExtResource("34_wv0xx")
 system_group = &"thermal_system"
 
@@ -838,7 +838,7 @@ shape = SubResource("BoxShape3D_6r703")
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0.03999999, 0, 0)
 
 [node name="ProbeHull" type="StaticBody3D" parent="Props"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.3248842, 0.35, 5.525484)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.0016, 0.35, 5.525484)
 script = ExtResource("34_wv0xx")
 system_group = &"hull_system"
 
@@ -849,7 +849,7 @@ shape = SubResource("BoxShape3D_27ohx")
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0.03999999, 0, 0)
 
 [node name="ProbeWater" type="StaticBody3D" parent="Props"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.9206316, 0.35, -5.75)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.404, 0.35, -5.75)
 script = ExtResource("34_wv0xx")
 system_group = &"water_system"
 
@@ -999,13 +999,13 @@ transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0, -
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.7205, 0, -2.9222221)
 
 [node name="ComputerProp" type="Node3D" parent="Props" instance=ExtResource("51_eb0if")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7867895, 0.75, -8.633333)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.524, 0.75, -8.633333)
 
 [node name="DisplayProp" type="Node3D" parent="Props" instance=ExtResource("52_6t2we")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.580821, 1.6, -19.914675)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.862, 1.6, -19.914675)
 
 [node name="SwitchBank" type="StaticBody3D" parent="Props"]
-transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -1.7765263, 1.6, -18.325)
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -2.002, 1.6, -18.325)
 
 [node name="Model" type="Node3D" parent="Props/SwitchBank" instance=ExtResource("53_58hxo")]
 
@@ -1014,7 +1014,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.045520596)
 shape = SubResource("BoxShape3D_ybqrl")
 
 [node name="GaugeCluster" type="StaticBody3D" parent="Props"]
-transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 1.5841053, 1.3, -19.058695)
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 1.982, 1.3, -19.058695)
 
 [node name="Model" type="Node3D" parent="Props/GaugeCluster" instance=ExtResource("54_b175g")]
 
@@ -1023,7 +1023,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.064)
 shape = SubResource("BoxShape3D_s0nk4")
 
 [node name="SevenSegment" type="StaticBody3D" parent="Props"]
-transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 1.7732632, 1.5, -18.651087)
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 2.012, 1.5, -18.651087)
 
 [node name="Model" type="Node3D" parent="Props/SevenSegment" instance=ExtResource("55_ksqsq")]
 
@@ -1249,8 +1249,10 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.925, 0.425)
 script = ExtResource("62_kejwi")
 compartment_a = &"airlock"
 compartment_b = &"engine_bay"
+airlock_id = &"airlock_main"
 starts_open = true
 hide_when_open = true
+airlock_side = &"inner"
 
 [node name="Slab" type="Node3D" parent="Props/DoorJoint_airlock_engine_bay_a"]
 

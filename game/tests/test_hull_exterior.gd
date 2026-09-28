@@ -1,5 +1,5 @@
 ## M13.2 exterior regression: the drum hull wraps the chain, the flange collars girdle the
-## joint steps, the bow cowl frames a viewport that really is a hole, the stern cap closes
+## joint steps, the bow cowl frames a pressure-glass viewport, the stern cap closes
 ## the stack, the airlock opens onto the EVA platform, and nothing intrudes into the rooms.
 extends SceneTree
 
@@ -103,7 +103,7 @@ func _test_no_sightlines_out() -> void:
 	var escapes: PackedStringArray = PackedStringArray()
 	for index: int in TubeLayout.sections().size():
 		var section: Dictionary = TubeLayout.sections()[index]
-		if not TubeLayout.is_walkable(index) or String(section["kind"]) == "dome":
+		if not TubeLayout.is_walkable(index):
 			continue
 		var center_z: float = (TubeLayout.span(index).x + TubeLayout.span(index).y) * 0.5
 		for x: float in [-0.6, 0.0, 0.6]:
@@ -207,8 +207,30 @@ func _test_bow_and_stern() -> void:
 	var bow: float = float(drum["z0"]) - SectionHull.PROW_DEPTH
 	var cowl: Dictionary = _ray_result(Vector3(0.0, 1.2, bow - 1.0), Vector3(0.0, 1.2, bow + 0.6))
 	_check(not cowl.is_empty() and absf(float((cowl["position"] as Vector3).z) - bow) < 0.05, "the bow cowl face is solid")
-	var window: float = (SectionHull.TUBE_WINDOW_MIN.y + SectionHull.TUBE_WINDOW_MAX.y) * 0.5
-	_check(not _ray_hits(Vector3(0.0, window, bow - 1.0), Vector3(0.0, window, float(drum["z0"]) + 0.2)), "the viewport is a hole through the cowl and the cupola face")
+	var radius: float = float(drum["radius"])
+	var bow_side: Dictionary = _ray_result(
+		Vector3(radius + SectionHull.TUBE_BAND + 2.0, 1.2, bow + SectionHull.PROW_DEPTH * 0.5),
+		Vector3(0.0, 1.2, bow + SectionHull.PROW_DEPTH * 0.5)
+	)
+	var bow_side_x: float = absf(float((bow_side["position"] as Vector3).x)) if not bow_side.is_empty() else -1.0
+	_check(not bow_side.is_empty() and absf(bow_side_x - SectionHull.tube_drum_half_width(radius, 1.2)) < 0.03, "the shell closes the full cowl depth around the viewport")
+	var pane: MeshInstance3D = _geometry.get_node_or_null(^"Section_cupola/DressingWindowPane") as MeshInstance3D
+	var seal: CollisionShape3D = _geometry.get_node_or_null(^"Section_cupola/DressingWindowPaneSeal") as CollisionShape3D
+	var window_x: float = (SectionHull.TUBE_WINDOW_MIN.x + SectionHull.TUBE_WINDOW_MAX.x) * 0.5
+	var window_y: float = (SectionHull.TUBE_WINDOW_MIN.y + SectionHull.TUBE_WINDOW_MAX.y) * 0.5
+	var window_hit: Dictionary = _ray_result(Vector3(window_x, window_y, bow - 1.0), Vector3(window_x, window_y, float(drum["z0"]) + 0.2))
+	_check(pane != null and seal != null and seal.shape is BoxShape3D, "the viewport pane has a collision seal")
+	if pane != null and not window_hit.is_empty():
+		_check(absf(float((window_hit["position"] as Vector3).z) - (pane.global_position.z - 0.025)) < 0.03, "the bow center ray is sealed at the glass pane")
+	else:
+		_check(false, "the bow center ray is sealed at the glass pane")
+	for point: Vector2 in [
+		Vector2(SectionHull.TUBE_WINDOW_MAX.x + 0.1, window_y),
+		Vector2(SectionHull.TUBE_WINDOW_MIN.x - 0.1, window_y),
+		Vector2(0.0, SectionHull.TUBE_WINDOW_MAX.y + 0.1),
+		Vector2(0.0, SectionHull.TUBE_WINDOW_MIN.y - 0.1),
+	]:
+		_check(_ray_hits(Vector3(point.x, point.y, bow - 1.0), Vector3(point.x, point.y, float(drum["z0"]) + 0.2)), "the window frame seals around its perimeter at %s" % point)
 	var last: Dictionary = SectionHull.tube_drums()[TubeLayout.sections().size() - 1]
 	var cap: Dictionary = _ray_result(Vector3(0.0, 1.2, float(last["z1"]) + 1.0), Vector3(0.0, 1.2, float(last["z1"]) - 1.0))
 	_check(not cap.is_empty() and absf(float((cap["position"] as Vector3).z) - float(last["z1"])) < 0.05, "the stern cap closes the last drum")

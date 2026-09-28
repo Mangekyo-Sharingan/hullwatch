@@ -12,7 +12,7 @@ const MATERIAL_XENON: String = "res://src/data/materials/mat_xenon_metal.tres"
 const MATERIAL_DARK_PLASTIC: String = "res://src/data/materials/mat_dark_plastic.tres"
 const MATERIAL_STRIP: String = "res://src/data/materials/mat_light_strip.tres"
 const MATERIAL_CONDUIT: String = "res://src/data/materials/mat_machined_metal.tres"
-const MATERIAL_WINDOW: String = "res://src/data/materials/mat_space_window.tres"
+const MATERIAL_WINDOW: String = "res://src/data/materials/mat_pressure_glass.tres"
 ## The authored solar array (Blender exterior kit): mount shoe, pylon, boom and panel in one
 ## model, authored on the generator's shoulder mount point with the boom outboard (+X).
 const MODEL_SOLAR_ARRAY: String = "res://assets/models/hullwatch/exterior/hw_solar_array.glb"
@@ -296,7 +296,7 @@ func _build() -> void:
 ## viewport, in the same faceted language as the flat cockpit's wrap (which the tube bow is
 ## too small to hold).
 ## The tube cockpit window: the pane at the cowl's mouth with its frame trim, so the bow is
-## a shader view of space rather than a raw hole in the hull.
+## a transparent pressure pane rather than a raw hole in the hull.
 func _build_tube_cockpit_window() -> void:
 	if TubeLayout.index_of("cupola") < 0:
 		return
@@ -307,14 +307,7 @@ func _build_tube_cockpit_window() -> void:
 	var pane_z: float = float(first["z0"]) - SectionHull.PROW_DEPTH + 0.05
 	var center: Vector2 = (SectionHull.TUBE_WINDOW_MIN + SectionHull.TUBE_WINDOW_MAX) * 0.5
 	var size: Vector2 = SectionHull.TUBE_WINDOW_MAX - SectionHull.TUBE_WINDOW_MIN
-	var pane: MeshInstance3D = MeshInstance3D.new()
-	pane.name = "DressingWindowPane"
-	var pane_mesh: BoxMesh = BoxMesh.new()
-	pane_mesh.size = Vector3(size.x, size.y, 0.05)
-	pane.mesh = pane_mesh
-	pane.material_override = _materials[MATERIAL_WINDOW] as Material
-	pane.position = Vector3(0.0, center.y, pane_z)
-	cupola.add_child(pane)
+	_add_window_pane(cupola, Vector3(0.0, center.y, pane_z), Vector3(size.x, size.y, 0.05))
 	var trim_z: float = pane_z + 0.25
 	_add_dash_panel(cupola, "WindowSill", Vector3(0.0, SectionHull.TUBE_WINDOW_MIN.y - 0.08, trim_z), Vector3(size.x + 0.32, 0.16, 0.55), Vector3.ZERO)
 	_add_dash_panel(cupola, "WindowHeader", Vector3(0.0, SectionHull.TUBE_WINDOW_MAX.y + 0.08, trim_z), Vector3(size.x + 0.32, 0.16, 0.55), Vector3.ZERO)
@@ -554,9 +547,11 @@ func _build_tube_interior() -> void:
 		var collision: Array[Vector3] = []
 		var gaps: Array = []
 		if TubeLayout.port_of(index) != &"":
-			gaps.append({"edge": _tube_port_edge(index), "from": center_z - TUBE_DOCK_DOOR_HALF, "to": center_z + TUBE_DOCK_DOOR_HALF, "top": 2.1})
+			for edge: int in _tube_side_edges(_tube_port_edge(index)):
+				gaps.append({"edge": edge, "from": center_z - TUBE_DOCK_DOOR_HALF, "to": center_z + TUBE_DOCK_DOOR_HALF, "top": 2.1})
 		if bool(section.get("outer_hatch", false)):
-			gaps.append({"edge": SectionHull.TUBE_EDGE_PORT, "from": center_z - 0.5, "to": center_z + 0.5, "top": 2.0})
+			for edge: int in _tube_side_edges(SectionHull.TUBE_EDGE_PORT):
+				gaps.append({"edge": edge, "from": center_z - 0.5, "to": center_z + 0.5, "top": 2.0})
 		_add_tunnel_band(walls, ring, bounds.x, bounds.y, gaps, collision, true, false)
 		_add_tunnel_band(walls, ring, bounds.x, bounds.y, gaps, collision, false, false)
 		_add_tunnel_deck(floors, ring, bounds.x, bounds.y, collision)
@@ -1118,21 +1113,32 @@ func _build_cockpit_dash() -> void:
 
 
 ## Forward windshield: the wall band carries a real opening (SPACES cockpit gap with a
-## bottom), lined with sill, header and jamb parts and closed by the space pane.
+## bottom), lined with sill, header and jamb parts and closed by pressure glass.
 func _build_cockpit_window(space: Node3D) -> void:
-	var pane: MeshInstance3D = MeshInstance3D.new()
-	pane.name = "DressingWindowPane"
-	var pane_mesh: BoxMesh = BoxMesh.new()
-	pane_mesh.size = Vector3(3.8, 1.06, 0.04)
-	pane.mesh = pane_mesh
-	pane.material_override = _materials[MATERIAL_WINDOW] as Material
-	pane.position = Vector3(0.0, 1.75, -18.72)
-	space.add_child(pane)
+	_add_window_pane(space, Vector3(0.0, 1.75, -18.72), Vector3(3.8, 1.06, 0.04))
 	_add_dash_panel(space, "WindowSill", Vector3(0.0, 1.19, -18.72), Vector3(4.0, 0.14, 0.22), Vector3.ZERO)
 	_add_dash_panel(space, "WindowHeader", Vector3(0.0, 2.31, -18.72), Vector3(4.0, 0.14, 0.22), Vector3.ZERO)
 	_add_dash_panel(space, "WindowJambW", Vector3(-1.97, 1.75, -18.72), Vector3(0.14, 1.06, 0.22), Vector3.ZERO)
 	_add_dash_panel(space, "WindowJambE", Vector3(1.97, 1.75, -18.72), Vector3(0.14, 1.06, 0.22), Vector3.ZERO)
 	_add_dressing("Cockpit", "WindowStrip", Vector3(0.0, 2.4, -18.62), Vector3(3.8, 0.03, 0.06), MATERIAL_STRIP)
+
+
+func _add_window_pane(space: Node3D, center: Vector3, size: Vector3) -> void:
+	var pane_mesh: BoxMesh = BoxMesh.new()
+	pane_mesh.size = size
+	var pane: MeshInstance3D = MeshInstance3D.new()
+	pane.name = "DressingWindowPane"
+	pane.mesh = pane_mesh
+	pane.material_override = _materials[MATERIAL_WINDOW] as Material
+	pane.position = center
+	space.add_child(pane)
+	var seal_shape: BoxShape3D = BoxShape3D.new()
+	seal_shape.size = size
+	var seal: CollisionShape3D = CollisionShape3D.new()
+	seal.name = "DressingWindowPaneSeal"
+	seal.shape = seal_shape
+	seal.position = center
+	space.add_child(seal)
 
 
 ## A dash panel: box mesh + its own collision shape inside the cockpit body.
@@ -1230,12 +1236,15 @@ func _build_tube_hull(hull: StaticBody3D, shell: Dictionary, decks: Dictionary, 
 				z1 -= SectionHull.TUBE_STEP * 0.5
 		var gaps: Array = []
 		if TubeLayout.port_of(index) != &"":
-			gaps.append({"edge": _tube_drum_port_edge(index), "from": center_z - TUBE_DOCK_DOOR_HALF, "to": center_z + TUBE_DOCK_DOOR_HALF, "top": 2.1})
+			for edge: int in _tube_side_edges(_tube_drum_port_edge(index)):
+				gaps.append({"edge": edge, "from": center_z - TUBE_DOCK_DOOR_HALF, "to": center_z + TUBE_DOCK_DOOR_HALF, "top": 2.1})
 		if bool(TubeLayout.sections()[index].get("outer_hatch", false)):
-			gaps.append({"edge": SectionHull.TUBE_DRUM_EDGE_PORT, "from": center_z - 0.5, "to": center_z + 0.5, "top": 2.0})
+			for edge: int in _tube_side_edges(SectionHull.TUBE_DRUM_EDGE_PORT):
+				gaps.append({"edge": edge, "from": center_z - 0.5, "to": center_z + 0.5, "top": 2.0})
 		var drum_ring: PackedVector2Array = SectionHull.tube_drum_section(radius)
-		_add_tunnel_band(shell, drum_ring, z0, z1, gaps, collision, false)
-		_add_tunnel_band(shell, drum_ring, z0, z1, gaps, collision, true)
+		var sweep_start: float = z0 - SectionHull.PROW_DEPTH if index == 0 else z0
+		_add_tunnel_band(shell, drum_ring, sweep_start, z1, gaps, collision, false)
+		_add_tunnel_band(shell, drum_ring, sweep_start, z1, gaps, collision, true)
 	if drums.is_empty():
 		return
 	var first: Dictionary = drums[0]
@@ -1609,6 +1618,11 @@ func _tube_port_edge(index: int) -> int:
 
 func _tube_drum_port_edge(index: int) -> int:
 	return SectionHull.TUBE_DRUM_EDGE_STARBOARD if _tube_port_edge(index) == SectionHull.TUBE_EDGE_STARBOARD else SectionHull.TUBE_DRUM_EDGE_PORT
+
+
+## A doorway cuts through the lower bevel, vertical wall and upper bevel on one side.
+func _tube_side_edges(wall_edge: int) -> Array[int]:
+	return [wall_edge - 1, wall_edge, wall_edge + 1]
 
 
 ## Doorway openings in the shell's west/east facets: the airlock's outer door plus every

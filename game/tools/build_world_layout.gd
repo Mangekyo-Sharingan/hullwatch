@@ -732,11 +732,15 @@ func _build_tube_chain() -> void:
 			"compartment_a": TubeLayout.ROOM_COMPARTMENTS[aft_room],
 			"compartment_b": TubeLayout.ROOM_COMPARTMENTS[fore_room],
 		}
-		var airlock_joint: bool = (aft_room == &"airlock" and fore_room == &"storage") or (aft_room == &"storage" and fore_room == &"airlock")
-		if not airlock_joint:
+		var airlock_inner_hatch: bool = (aft_room == &"airlock" and fore_room == &"engine_bay") or (aft_room == &"engine_bay" and fore_room == &"airlock")
+		var custom_airlock_hatch: bool = (aft_room == &"airlock" and fore_room == &"storage") or (aft_room == &"storage" and fore_room == &"airlock")
+		if not custom_airlock_hatch:
 			var joint_exports: Dictionary = exports.duplicate()
 			joint_exports["starts_open"] = true
 			joint_exports["hide_when_open"] = true
+			if airlock_inner_hatch:
+				joint_exports["airlock_id"] = &"airlock_main"
+				joint_exports["airlock_side"] = &"inner"
 			_build_door({
 				"name": "DoorJoint_%s_%s" % [String(TubeLayout.sections()[index]["name"]), String(TubeLayout.sections()[index + 1]["name"])],
 				"position": Vector3(0.0, TubeLayout.HATCH_HEIGHT * 0.5, joint_z),

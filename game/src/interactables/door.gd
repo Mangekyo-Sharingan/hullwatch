@@ -1,4 +1,4 @@
-## Sliding pressure door between two compartments. Toggles atmospheric isolation when opened or closed.
+## Sliding pressure door between two compartments. Opens or closes only its own gas path.
 class_name Door
 extends Interactable
 
@@ -11,7 +11,6 @@ extends Interactable
 @export var airlock_side: StringName = &""
 
 var _open: bool = false
-var _ready_open: bool = false
 ## The slab is a container: a single MeshInstance3D leaf on legacy doors, the fitted
 ## authored leaf on generated ones. Either way it moves and hides as one node.
 var _slab: Node3D
@@ -29,7 +28,6 @@ func _ready() -> void:
 	if _slab_shape != null:
 		_slab_shape_base_position = _slab_shape.position
 	_open = starts_open
-	_ready_open = starts_open
 	_apply_open_state()
 
 
@@ -66,7 +64,7 @@ func request_open(open: bool) -> bool:
 	if airlock_id != &"":
 		var airlock: Node = _get_system(&"airlock_system")
 		if airlock != null and airlock.has_method(&"request_door"):
-			if not bool(airlock.call("request_door", airlock_side, open)):
+			if not bool(airlock.call("request_door", airlock_side, open, _airlock_door_id())):
 				_emit_airlock_refusal(airlock, open)
 				return false
 	_set_open(open)
@@ -76,7 +74,7 @@ func request_open(open: bool) -> bool:
 func _emit_airlock_refusal(airlock: Node, open: bool) -> void:
 	var reason: StringName = &"airlock_interlock"
 	if airlock.has_method(&"get_door_refusal"):
-		reason = StringName(airlock.call("get_door_refusal", airlock_side, open))
+		reason = StringName(airlock.call("get_door_refusal", airlock_side, open, _airlock_door_id()))
 	_emit_sim_event(&"procedure_error", {"reason": reason, "airlock_id": airlock_id})
 
 
@@ -93,26 +91,32 @@ func _apply_open_state() -> void:
 	if _slab_shape != null:
 		_slab_shape.position = _slab_shape_base_position + offset
 		_slab_shape.disabled = _open
-	_sync_isolation()
+	_sync_connection()
+	_sync_airlock_state()
 
 
-func _sync_isolation() -> void:
-	if airlock_id != &"":
+func _sync_connection() -> void:
+	if compartment_a == &"" or compartment_b == &"" or compartment_a == compartment_b:
 		return
 	var atmosphere: Node = _get_system(&"atmosphere_system")
-	if atmosphere == null or not atmosphere.has_method(&"set_isolated"):
+	if atmosphere == null or not atmosphere.has_method(&"set_connection_open"):
 		return
-	for compartment_id: StringName in [compartment_a, compartment_b]:
-		if compartment_id == &"":
-			continue
-		if atmosphere.has_method(&"has_compartment") and not bool(atmosphere.call(&"has_compartment", compartment_id)):
-			continue
-		if _ready_open:
-			# A door that ships open is a passage: the compartments keep their own air, so
-			# the chain stays walkable without merging the whole ship into one volume.
-			atmosphere.call(&"set_isolated", compartment_id, true)
-		else:
-			atmosphere.call(&"set_isolated", compartment_id, not _open)
+	if atmosphere.has_method(&"has_compartment"):
+		if not bool(atmosphere.call(&"has_compartment", compartment_a)) or not bool(atmosphere.call(&"has_compartment", compartment_b)):
+			return
+	atmosphere.call(&"set_connection_open", compartment_a, compartment_b, _open)
+
+
+func _sync_airlock_state() -> void:
+	if airlock_id == &"" or (airlock_side != &"inner" and airlock_side != &"outer"):
+		return
+	var airlock: Node = _get_system(&"airlock_system")
+	if airlock != null and airlock.has_method(&"set_door_state"):
+		airlock.call(&"set_door_state", _airlock_door_id(), airlock_side, _open)
+
+
+func _airlock_door_id() -> StringName:
+	return StringName(String(get_path()))
 
 
 func save_state() -> Dictionary:
@@ -126,6 +130,3 @@ func save_state() -> Dictionary:
 func load_state(state: Dictionary) -> void:
 	super.load_state(state)
 	_set_open(bool(state.get("open", _open)))
-	var airlock: Node = _get_system(&"airlock_system")
-	if airlock != null and airlock.has_method(&"force_door_state"):
-		airlock.call("force_door_state", airlock_side, _open)

@@ -57,8 +57,16 @@ func _test_section_hull() -> void:
 	_check(absf(float(tube_drums[0]["z0"]) - TubeLayout.span(0).x) < 0.001 and absf(float(tube_drums[-1]["z1"]) - TubeLayout.span(TubeLayout.sections().size() - 1).y) < 0.001, "the drum chain spans the interior exactly")
 	_check(SectionHull.tube_joints().size() > 0, "the varying radii leave step joints for the collars")
 	_check(SectionHull.validate_tube().is_empty(), "the tube drum tables validate cleanly")
+	var inner_ring: PackedVector2Array = SectionHull.tube_section(float(tube_drums[0]["radius"]))
 	var outer_ring: PackedVector2Array = SectionHull.tube_drum_section(float(tube_drums[0]["radius"]))
+	_check(inner_ring.size() == 8, "the interior tube is an octagonal cross-section")
 	_check(outer_ring.size() == 8, "the outer tube drum is an octagonal cross-section")
+	var enclosed: bool = true
+	for point: Vector2 in inner_ring:
+		if not SectionHull.contains_point(outer_ring, point):
+			enclosed = false
+	_check(enclosed, "the octagonal shell contains every interior profile vertex")
+	_check(inner_ring[2].y < inner_ring[3].y and inner_ring[2].x == inner_ring[3].x, "the interior has a vertical side wall between its bevels")
 	_check(outer_ring[3].y > SectionHull.TUBE_WALL_TOP and outer_ring[3].x > outer_ring[4].x, "the outer drum has a broad, angled roof shoulder")
 	_check(SectionHull.tube_collar_section(float(tube_drums[0]["radius"])).size() == 8, "joint collars follow the octagonal drum profile")
 	_check(SectionHull.encloses_cabin(SectionHull.outline_at(-19.2)), "the bow window ring encloses the cabin envelope")

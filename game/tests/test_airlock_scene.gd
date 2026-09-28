@@ -26,15 +26,18 @@ func _run() -> void:
 	var panel: AirlockPanel = main.get_node("WorldLayout/Props/AirlockPanel") as AirlockPanel
 	var locker: SuitLocker = main.get_node("WorldLayout/Props/SuitLocker") as SuitLocker
 	var inner: Door = main.get_node("WorldLayout/Props/DoorAirlockInner") as Door
+	var engine_bay_inner: Door = main.get_node("WorldLayout/Props/DoorJoint_airlock_engine_bay_a") as Door
 	var outer: Door = main.get_node("WorldLayout/Props/DoorAirlockOuter") as Door
-	_check(airlock != null and panel != null and locker != null and inner != null and outer != null, "airlock system and interactables are wired")
-	if airlock == null or panel == null or locker == null or inner == null or outer == null:
+	_check(airlock != null and panel != null and locker != null and inner != null and engine_bay_inner != null and outer != null, "airlock system and interactables are wired")
+	if airlock == null or panel == null or locker == null or inner == null or engine_bay_inner == null or outer == null:
 		main.free()
 		_finish()
 		return
 	_check(bool(atmosphere.call("has_compartment", &"airlock")), "airlock compartment is registered")
 	_check(inner.get(&"airlock_side") == &"inner" and outer.get(&"airlock_side") == &"outer", "doors carry their airlock sides")
 	_check(inner.get(&"airlock_id") == &"airlock_main" and outer.get(&"airlock_id") == &"airlock_main", "doors carry the airlock id")
+	_check(engine_bay_inner.is_open() and engine_bay_inner.get(&"airlock_id") == &"airlock_main" and engine_bay_inner.get(&"airlock_side") == &"inner", "open engine-bay hatch is registered as a second inner door")
+	_check(bool(airlock.call("get_status")["inner_open"]), "airlock summary includes every open inner door")
 	_check(float(airlock.call("get_status")["pressure_kpa"]) > 90.0, "lock ships pressurized")
 
 	inner.interact(null)
@@ -46,7 +49,13 @@ func _run() -> void:
 	_check(not panel.select_action(&"depressurize"), "panel refuses to pump while the inner door is open")
 	inner.interact(null)
 	_check(not inner.is_open(), "inner door closes")
+	_check(not panel.select_action(&"depressurize"), "pump refuses while the second inner door is open")
+	engine_bay_inner.interact(null)
+	_check(not engine_bay_inner.is_open(), "second inner door closes")
 	_check(panel.select_action(&"depressurize"), "panel starts the pump")
+	inner.interact(null)
+	engine_bay_inner.interact(null)
+	_check(not inner.is_open() and not engine_bay_inner.is_open(), "both inner doors refuse opening during pump-down")
 
 	var sim_clock: Node = root.get_node_or_null("SimClock")
 	_check(sim_clock != null, "sim clock autoload present")
@@ -58,10 +67,14 @@ func _run() -> void:
 	outer.interact(null)
 	_check(outer.is_open(), "outer door opens on vacuum")
 	inner.interact(null)
-	_check(not inner.is_open(), "inner door refuses while the outer door is open")
+	engine_bay_inner.interact(null)
+	_check(not inner.is_open() and not engine_bay_inner.is_open(), "both inner doors refuse while the outer door is open")
 	outer.interact(null)
 	_check(not outer.is_open(), "outer door closes")
 	_check(panel.select_action(&"pressurize"), "panel starts repressurize")
+	inner.interact(null)
+	engine_bay_inner.interact(null)
+	_check(not inner.is_open() and not engine_bay_inner.is_open(), "both inner doors refuse opening during pump-up")
 	sim_clock.call("fast_forward", 0.5)
 	status = airlock.call("get_status")
 	_check(float(status["pressure_kpa"]) > 90.0, "lock repressurized")

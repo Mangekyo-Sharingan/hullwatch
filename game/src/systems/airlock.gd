@@ -31,6 +31,7 @@ var suit_o2_hours: float = 0.0
 var _vent_remaining_hours: float = 0.0
 var _stalled: bool = false
 var _suit_depleted_emitted: bool = false
+var _door_states: Dictionary = {}
 
 
 func _ready() -> void:
@@ -69,35 +70,19 @@ func get_state_name() -> StringName:
 			return &"idle"
 
 
-func request_door(side: StringName, open: bool) -> bool:
-	if not open:
-		if side == &"inner":
-			inner_open = false
-		elif side == &"outer":
-			outer_open = false
-		else:
-			return false
-		_emit_state_changed()
-		return true
-	if state != State.IDLE:
+func request_door(side: StringName, open: bool, door_id: StringName = &"") -> bool:
+	if side != &"inner" and side != &"outer":
 		return false
-	if side == &"inner":
-		if outer_open or _pressure() < INNER_OPEN_MIN_KPA:
-			return false
-		inner_open = true
-		_emit_state_changed()
-		return true
-	if side == &"outer":
-		if inner_open or _pressure() > AtmosphereSystem.VACUUM_PRESSURE_KPA:
-			return false
-		outer_open = true
-		_emit_state_changed()
-		return true
-	return false
+	if open and get_door_refusal(side, true, door_id) != &"":
+		return false
+	set_door_state(door_id, side, open)
+	return true
 
 
-func get_door_refusal(side: StringName, open: bool) -> StringName:
+func get_door_refusal(side: StringName, open: bool, _door_id: StringName = &"") -> StringName:
 	if not open:
+		return &""
+	if side != &"inner" and side != &"outer":
 		return &""
 	if state != State.IDLE:
 		return &"airlock_cycling"
@@ -132,13 +117,22 @@ func get_cycle_refusal(mode: StringName) -> StringName:
 	return &""
 
 
-## Restores door state from a loaded save without running the interlock.
-func force_door_state(side: StringName, open: bool) -> void:
-	if side == &"inner":
-		inner_open = open
-	elif side == &"outer":
-		outer_open = open
+## Door interactables own persisted state and sync it here on ready and load.
+func set_door_state(door_id: StringName, side: StringName, open: bool) -> void:
+	if side != &"inner" and side != &"outer":
+		return
+	var key: StringName = _door_state_id(door_id, side)
+	var current: Dictionary = _door_states.get(key, {})
+	if StringName(current.get("side", &"")) == side and bool(current.get("open", false)) == open:
+		return
+	_door_states[key] = {"side": side, "open": open}
+	_refresh_door_summaries()
 	_emit_state_changed()
+
+
+## Compatibility API for direct system callers and older integrations.
+func force_door_state(side: StringName, open: bool, door_id: StringName = &"") -> void:
+	set_door_state(door_id, side, open)
 
 
 func request_cycle(mode: StringName) -> bool:
@@ -256,8 +250,18 @@ func load_state(state_dict: Dictionary) -> void:
 	state = clampi(int(state_dict.get("state", state)), State.IDLE, State.VENTING)
 	if state == State.VENTING:
 		state = State.IDLE
-	inner_open = bool(state_dict.get("inner_open", inner_open))
-	outer_open = bool(state_dict.get("outer_open", outer_open))
+	var saved_inner_open: bool = bool(state_dict.get("inner_open", inner_open))
+	var saved_outer_open: bool = bool(state_dict.get("outer_open", outer_open))
+	var default_inner: StringName = _door_state_id(&"", &"inner")
+	var default_outer: StringName = _door_state_id(&"", &"outer")
+	if _door_states.has(default_inner) or _door_states.has(default_outer):
+		_door_states[default_inner] = {"side": &"inner", "open": saved_inner_open}
+		_door_states[default_outer] = {"side": &"outer", "open": saved_outer_open}
+	if _door_states.is_empty():
+		inner_open = saved_inner_open
+		outer_open = saved_outer_open
+	else:
+		_refresh_door_summaries()
 	suit_stored = bool(state_dict.get("suit_stored", suit_stored))
 	suit_worn = bool(state_dict.get("suit_worn", suit_worn))
 	suit_o2_hours = maxf(float(state_dict.get("suit_o2_hours", suit_o2_hours)), 0.0)
@@ -342,6 +346,24 @@ func _set_state(new_state: int) -> void:
 		return
 	state = new_state
 	_emit_state_changed()
+
+
+func _door_state_id(door_id: StringName, side: StringName) -> StringName:
+	return door_id if door_id != &"" else StringName("default_" + String(side))
+
+
+func _refresh_door_summaries() -> void:
+	inner_open = false
+	outer_open = false
+	for saved: Variant in _door_states.values():
+		if not (saved is Dictionary):
+			continue
+		var side: StringName = StringName((saved as Dictionary).get("side", &""))
+		var open: bool = bool((saved as Dictionary).get("open", false))
+		if side == &"inner":
+			inner_open = inner_open or open
+		elif side == &"outer":
+			outer_open = outer_open or open
 
 
 func _emit_state_changed() -> void:

@@ -25,10 +25,11 @@ func _run() -> void:
 	var panel: AirlockPanel = main.get_node("WorldLayout/Props/AirlockPanel") as AirlockPanel
 	var locker: SuitLocker = main.get_node("WorldLayout/Props/SuitLocker") as SuitLocker
 	var inner: Door = main.get_node("WorldLayout/Props/DoorAirlockInner") as Door
+	var engine_bay_inner: Door = main.get_node("WorldLayout/Props/DoorJoint_airlock_engine_bay_a") as Door
 	var outer: Door = main.get_node("WorldLayout/Props/DoorAirlockOuter") as Door
 	var player: CharacterBody3D = main.get_node("Player") as CharacterBody3D
-	_check(airlock != null and panel != null and locker != null and inner != null and outer != null and player != null, "the EVA cast is wired")
-	if airlock == null or panel == null or locker == null or inner == null or outer == null or player == null:
+	_check(airlock != null and panel != null and locker != null and inner != null and engine_bay_inner != null and outer != null and player != null, "the EVA cast is wired")
+	if airlock == null or panel == null or locker == null or inner == null or engine_bay_inner == null or outer == null or player == null:
 		main.free()
 		_finish()
 		return
@@ -37,6 +38,8 @@ func _run() -> void:
 
 	_check(locker.select_action(&"refill"), "suit tank fills from ship air")
 	_check(locker.select_action(&"equip"), "suit is worn")
+	engine_bay_inner.interact(null)
+	_check(not engine_bay_inner.is_open(), "the second inner hatch closes for cycling")
 	_check(panel.select_action(&"depressurize"), "lock pumps down with the inner hatch closed")
 	sim_clock.call("fast_forward", 0.5)
 	_check(float(airlock.call("get_status")["pressure_kpa"]) < 1.0, "lock reaches vacuum")
@@ -67,6 +70,8 @@ func _run() -> void:
 	_check(inner.is_open(), "inner hatch opens home")
 	inner.interact(null)
 	_check(locker.select_action(&"store"), "suit stows in the locker")
+	engine_bay_inner.interact(null)
+	_check(engine_bay_inner.is_open(), "the second inner hatch reopens after the EVA")
 
 	var save_manager: Node = root.get_node_or_null("SaveManager")
 	if save_manager != null:
