@@ -43,6 +43,29 @@ func _run() -> void:
 	var screen: MeshInstance3D = terminal.find_child("Screen", true, false) as MeshInstance3D
 	_check(screen != null, "model exposes its screen mesh")
 	_check(screen != null and screen.material_override != null, "screen takes the phosphor tint on load")
+	var display: MeshInstance3D = terminal.find_child("ScreenDisplay", true, false) as MeshInstance3D
+	var viewport: SubViewport = terminal.get_node_or_null(^"BladeDisplay") as SubViewport
+	_check(display != null and display.mesh is QuadMesh, "blade has a UV-mapped live screen")
+	_check(viewport != null and viewport.size == Vector2i(640, 552), "blade owns a dedicated CRT viewport")
+	var os_row: HBoxContainer = terminal.find_child("BladeOS", true, false) as HBoxContainer
+	_check(os_row != null and os_row.size.x <= float(viewport.size.x), "programs and readout fit the physical screen")
+	_check(display != null and (display.material_override as StandardMaterial3D).albedo_texture == viewport.get_texture(), "physical screen displays the computer viewport")
+	var previous_camera := Camera3D.new()
+	layout.add_child(previous_camera)
+	previous_camera.make_current()
+	var hud := CanvasLayer.new()
+	hud.name = "HUD"
+	layout.add_child(hud)
+	var messages := CanvasLayer.new()
+	messages.name = "Messages"
+	hud.add_child(messages)
+	var message := Label.new()
+	message.name = "Message"
+	messages.add_child(message)
+	var operator := Node.new()
+	layout.add_child(operator)
+	operator.set_physics_process(true)
+	operator.set_process_unhandled_input(true)
 
 	var shape: CollisionShape3D = terminal.get_node_or_null(^"Shape") as CollisionShape3D
 	_check(shape != null and (shape.shape as BoxShape3D).size.x <= 0.2, "stowed collision stays a slim wall box")
@@ -58,8 +81,13 @@ func _run() -> void:
 	_check(terminal.get_current_program() == &"status", "wall terminal opens on the status report")
 
 	_check(terminal.get_interaction_prompt() == "Use terminal", "stowed terminal invites use")
-	terminal.interact(null)
+	terminal.interact(operator)
 	_check(terminal.is_open(), "interaction opens the terminal")
+	_check(root.get_viewport().get_camera_3d() == terminal.find_child("ScreenFocus", true, false), "computer focuses the physical screen")
+	_check(not hud.visible and not messages.visible and not message.visible and not operator.is_physics_processing(), "focused computer hides HUD and holds operator still")
+	terminal._unhandled_input(_press(&"menu_next"))
+	terminal._unhandled_input(_press(&"menu_select"))
+	_check(terminal.get_current_program() == &"control", "blade controls open the live control program")
 	await process_frame
 	_check(animator != null and animator.current_animation == &"unfold", "opening plays the unfold clip")
 	_check(animator != null and animator.get_playing_speed() > 0.0, "the clip runs forward to deploy")
@@ -72,6 +100,8 @@ func _run() -> void:
 	terminal.close()
 	await process_frame
 	_check(not terminal.is_open(), "close stows the readout")
+	_check(root.get_viewport().get_camera_3d() == previous_camera, "closing restores the operator camera")
+	_check(hud.visible and messages.visible and message.visible and operator.is_physics_processing() and operator.is_processing_unhandled_input(), "closing restores HUD and operator input")
 	_check(animator != null and animator.current_animation == &"unfold" and animator.get_playing_speed() < 0.0, "stowing folds the blade back")
 	_check(deploy_shape != null and not deploy_shape.disabled, "tray remains solid while it stows")
 	if animator != null:
@@ -87,6 +117,13 @@ func _find_root_child(node_name: StringName) -> Node:
 		if child.name == node_name:
 			return child
 	return null
+
+
+func _press(action: StringName) -> InputEventAction:
+	var event := InputEventAction.new()
+	event.action = action
+	event.pressed = true
+	return event
 
 
 func _finish() -> void:
