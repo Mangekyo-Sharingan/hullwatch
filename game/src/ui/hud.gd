@@ -205,7 +205,10 @@ func _update_eva(delta: float) -> void:
 	var parts: PackedStringArray = PackedStringArray()
 	var player: Node = _find_player()
 	if player != null and player.has_method(&"is_tethered") and bool(player.call(&"is_tethered")):
-		parts.append("TETHER %.1f m  [T: RELEASE]" % float(player.call(&"get_tether_distance")))
+		var tether_label: String = "TETHER %.1f m  [T: RELEASE]" % float(player.call(&"get_tether_distance"))
+		if player.has_method(&"get_tether_extension_ratio") and float(player.call(&"get_tether_extension_ratio")) >= 0.9:
+			tether_label = "TETHER STRAIN %.1f m  [T: RELEASE]" % float(player.call(&"get_tether_distance"))
+		parts.append(tether_label)
 	var suit: String = _eva_suit_text()
 	if not suit.is_empty():
 		parts.append(suit)

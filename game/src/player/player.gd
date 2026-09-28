@@ -44,6 +44,7 @@ var _carried_item: Node = null
 var _suit_cutter: bool = false
 var _tether_anchor: Node3D = null
 var _tethered: bool = false
+var _tether_strain_armed: bool = true
 
 
 func _ready() -> void:
@@ -254,6 +255,7 @@ func attach_tether(anchor: Node3D) -> bool:
 		return false
 	_tether_anchor = anchor
 	_tethered = true
+	_tether_strain_armed = true
 	_emit_sim_event(&"tether_attached", {"anchor": String(anchor.name)})
 	return true
 
@@ -263,6 +265,7 @@ func release_tether() -> void:
 		return
 	_tethered = false
 	_tether_anchor = null
+	_tether_strain_armed = true
 	_emit_sim_event(&"tether_released", {})
 
 
@@ -274,6 +277,15 @@ func get_tether_distance() -> float:
 	if not _tethered or _tether_anchor == null or not is_instance_valid(_tether_anchor):
 		return 0.0
 	return global_position.distance_to(_tether_anchor.global_position)
+
+
+func get_tether_extension_ratio() -> float:
+	if not _tethered or _tether_anchor == null or not is_instance_valid(_tether_anchor):
+		return 0.0
+	var limit: float = float(_tether_anchor.get(&"max_length"))
+	if limit <= 0.0:
+		limit = 14.0
+	return clampf(get_tether_distance() / limit, 0.0, 1.0)
 
 
 func _toggle_tether() -> void:
@@ -305,6 +317,12 @@ func _apply_tether() -> void:
 	if _tether_anchor == null or not is_instance_valid(_tether_anchor):
 		release_tether()
 		return
+	var extension_ratio: float = get_tether_extension_ratio()
+	if extension_ratio < 0.8:
+		_tether_strain_armed = true
+	elif extension_ratio >= 0.9 and _tether_strain_armed:
+		_tether_strain_armed = false
+		_emit_sim_event(&"tether_strained", {"ratio": extension_ratio})
 	var to_anchor: Vector3 = _tether_anchor.global_position - global_position
 	var distance: float = to_anchor.length()
 	if distance <= 0.0001:

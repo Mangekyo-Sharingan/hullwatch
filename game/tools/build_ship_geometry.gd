@@ -1336,7 +1336,19 @@ func _add_tube_exterior_kit(hull: StaticBody3D) -> void:
 	]
 	for i: int in light_spots.size():
 		var yaw: float = 90.0 if i == 0 else 0.0
-		_add_hull_model(hull, base + "hw_floodlight.glb", "Floodlight%d" % i, light_spots[i], Vector3(0.0, yaw, 0.0))
+		var fitting: Node3D = _add_hull_model(hull, base + "hw_floodlight.glb", "Floodlight%d" % i, light_spots[i], Vector3(0.0, yaw, 0.0))
+		if fitting == null:
+			continue
+		var beam: SpotLight3D = SpotLight3D.new()
+		beam.name = "WorkLight"
+		beam.position = Vector3(0.0, 0.51, 0.04)
+		beam.rotation_degrees.y = 180.0
+		beam.light_color = Color(0.82, 0.88, 1.0, 1.0)
+		beam.light_energy = 2.0
+		beam.spot_range = 12.0
+		beam.spot_angle = 42.0
+		beam.shadow_enabled = false
+		fitting.add_child(beam)
 	var rail_spots: Array[Vector3] = [
 		Vector3(-3.6, 0.0, -6.0), Vector3(-3.6, 0.0, -8.0),
 		Vector3(-4.5, 0.0, -3.0), Vector3(-4.5, 0.0, -1.8),
@@ -1356,12 +1368,12 @@ func _add_tube_exterior_kit(hull: StaticBody3D) -> void:
 ## Attaches an authored model fitting to the hull at a fixed spot (the hull generator's
 ## counterpart of the layout's model props). Fittings are dressing: the shell keeps the
 ## collision, so they carry no shape of their own.
-func _add_hull_model(hull: StaticBody3D, path: String, node_name: String, position: Vector3, rotation: Vector3, scale: float = 1.0) -> void:
+func _add_hull_model(hull: StaticBody3D, path: String, node_name: String, position: Vector3, rotation: Vector3, scale: float = 1.0) -> Node3D:
 	if not ResourceLoader.exists(path):
-		return
+		return null
 	var scene: PackedScene = load(path) as PackedScene
 	if scene == null:
-		return
+		return null
 	var node: Node3D = Node3D.new()
 	node.name = node_name
 	node.position = position
@@ -1371,6 +1383,7 @@ func _add_hull_model(hull: StaticBody3D, path: String, node_name: String, positi
 	model.name = "Model"
 	node.add_child(model)
 	hull.add_child(node)
+	return node
 
 
 ## Every opening through the inner shell gets a sleeve out to whatever closes it - the dock

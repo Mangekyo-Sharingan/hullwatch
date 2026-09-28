@@ -33,6 +33,7 @@ func _run() -> void:
 	_test_joint_collars()
 	_test_bow_and_stern()
 	_test_solar_arrays()
+	_test_floodlights()
 	_test_airlock_opens_onto_the_platform()
 	_test_platform_railing()
 	_test_walkway()
@@ -349,6 +350,29 @@ func _test_solar_arrays() -> void:
 		_check(parts.size() >= 30 and authored, "solar array is the authored model: %.0f (%d parts)" % [side, parts.size()])
 		_check(absf(absf(node.position.x) - shoulder) <= 0.01, "solar array seats at the shoulder: %.0f" % side)
 		_check(absf(node.position.y - SectionHull.ARRAY_BOOM_Y) <= 0.01, "solar array sits at boom height: %.0f" % side)
+
+
+func _test_floodlights() -> void:
+	var expected: Array[Dictionary] = [
+		{"name": "Floodlight0", "position": Vector3(-4.6, 0.0, -0.65)},
+		{"name": "Floodlight1", "position": Vector3(-3.24, 0.0, -9.2)},
+	]
+	for spec: Dictionary in expected:
+		var fitting: Node3D = _geometry.get_node_or_null(NodePath("HullExterior/%s" % String(spec["name"]))) as Node3D
+		if fitting == null:
+			_check(false, "exterior floodlight fitting exists: " + String(spec["name"]))
+			continue
+		_check(fitting.position.distance_to(spec["position"]) < 0.01, "floodlight remains on its authored hull mount: " + String(spec["name"]))
+		var beam: SpotLight3D = fitting.get_node_or_null(^"WorkLight") as SpotLight3D
+		if beam == null:
+			_check(false, "floodlight has a native beam: " + String(spec["name"]))
+			continue
+		var lens_direction: Vector3 = (fitting.global_basis * Vector3(0.0, 0.0, 1.0)).normalized()
+		var beam_direction: Vector3 = (-beam.global_basis.z).normalized()
+		_check(beam.global_position.distance_to(fitting.to_global(Vector3(0.0, 0.51, 0.04))) < 0.01, "beam starts at the authored lens: " + String(spec["name"]))
+		_check(beam_direction.dot(lens_direction) > 0.99, "beam follows the floodlight lens: " + String(spec["name"]))
+		_check(beam.spot_range == 12.0 and beam.spot_angle == 42.0 and beam.light_energy > 0.0, "beam has a useful work-light range: " + String(spec["name"]))
+		_check(not beam.shadow_enabled, "beam keeps shadows disabled: " + String(spec["name"]))
 
 
 func _ray_hits(from: Vector3, to: Vector3) -> bool:

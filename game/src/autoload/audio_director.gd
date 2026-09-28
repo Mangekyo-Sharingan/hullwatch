@@ -22,6 +22,7 @@ const EVENT_CUES: Dictionary = {
 	&"sleep_started": &"drone",
 	&"slept": &"thunk",
 	&"footstep": &"footstep",
+	&"tether_strained": &"tether_warning",
 }
 
 const HUM_HEALTHY_DB: float = -14.0
@@ -42,6 +43,10 @@ const BREATH_PITCH_MAX: float = 1.15
 const BREATH_SMOOTH_DB_PER_SECOND: float = 180.0
 const BREATH_SMOOTH_PITCH_PER_SECOND: float = 3.0
 const BREATH_MIN_SMOOTH_DELTA: float = 1.0 / 60.0
+const OUTSIDE_HUM_REDUCTION_DB: float = -10.0
+const OUTSIDE_SCRUBBER_REDUCTION_DB: float = -14.0
+const OUTSIDE_BREATH_BOOST_DB: float = 10.0
+const TETHER_WARNING_DB: float = -12.0
 
 var _hum: AudioStreamPlayer
 var _scrubber: AudioStreamPlayer
@@ -60,6 +65,9 @@ var _scrubber_audible: bool = false
 var _exertion: float = 0.0
 var _effective_exertion: float = 0.0
 var _breath_db: float = BREATH_START_DB
+var _breath_target_db: float = BREATH_START_DB
+var _outside_suited: bool = false
+var _last_tether_ratio: float = 0.0
 
 
 func _ready() -> void:
@@ -89,7 +97,8 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
-	_hum.volume_db = move_toward(_hum.volume_db, _hum_target_db, HUM_SMOOTH_DB_PER_SECOND * delta)
+	_poll_outside_mix()
+	_hum.volume_db = move_toward(_hum.volume_db, _hum_mix_target_db(), HUM_SMOOTH_DB_PER_SECOND * delta)
 	if _alarm_hold_seconds > 0.0:
 		_alarm_hold_seconds = maxf(_alarm_hold_seconds - delta, 0.0)
 	_alarm.volume_db = ALARM_ACTIVE_DB if _alarm_hold_seconds > 0.0 else ALARM_SILENT_DB
@@ -97,7 +106,7 @@ func _process(delta: float) -> void:
 	_poll_breath(delta)
 
 
-func play_cue(cue: StringName) -> void:
+func play_cue(cue: StringName, tension_ratio: float = 0.9) -> void:
 	var resolved: StringName = cue
 	if EVENT_CUES.has(resolved):
 		resolved = EVENT_CUES[resolved]
@@ -112,6 +121,10 @@ func play_cue(cue: StringName) -> void:
 			_play_sfx(ProcAudio.make_buzz())
 		&"drone":
 			_play_sfx(ProcAudio.make_drone())
+		&"tether_warning":
+			_last_tether_ratio = clampf(tension_ratio, 0.0, 1.0)
+			var warning_pitch: float = lerpf(520.0, 680.0, inverse_lerp(0.9, 1.0, clampf(tension_ratio, 0.9, 1.0)))
+			_play_sfx(ProcAudio.make_beep(warning_pitch, 0.18), TETHER_WARNING_DB)
 		&"alarm":
 			_alarm_hold_seconds = ALARM_HOLD_SECONDS
 		&"footstep":
@@ -148,6 +161,11 @@ func get_debug_state() -> Dictionary:
 		"alarm_active": _alarm_hold_seconds > 0.0,
 		"exertion": _effective_exertion,
 		"breath_db": _breath_db,
+		"breath_target_db": _breath_target_db,
+		"outside_suited": _outside_suited,
+		"hum_mix_target_db": _hum_mix_target_db(),
+		"scrubber_volume_db": _scrubber.volume_db,
+		"last_tether_ratio": _last_tether_ratio,
 	}
 
 
@@ -164,12 +182,13 @@ func _make_loop_player(stream: AudioStream, volume_db: float) -> AudioStreamPlay
 	return player
 
 
-func _play_sfx(stream: AudioStream) -> void:
+func _play_sfx(stream: AudioStream, volume_db: float = 0.0) -> void:
 	if _sfx_pool.is_empty():
 		return
 	var player: AudioStreamPlayer = _sfx_pool[_sfx_index]
 	_sfx_index = (_sfx_index + 1) % _sfx_pool.size()
 	player.stream = stream
+	player.volume_db = volume_db
 	player.play()
 
 
@@ -185,7 +204,7 @@ func _poll_scrubber() -> void:
 	var condition: float = clampf(float(status.get("filter_condition", 0.0)), 0.0, 1.0)
 	_scrubber_audible = powered
 	if powered:
-		_scrubber.volume_db = SCRUBBER_ON_DB
+		_scrubber.volume_db = SCRUBBER_ON_DB + (OUTSIDE_SCRUBBER_REDUCTION_DB if _outside_suited else 0.0)
 		_scrubber.pitch_scale = (0.7 + 0.5 * condition) if installed else 0.6
 	else:
 		_scrubber.volume_db = SCRUBBER_OFF_DB
@@ -207,7 +226,7 @@ func _on_sim_event(event_name: StringName, payload: Dictionary) -> void:
 		_record_cue(event_name)
 		return
 	var cue: StringName = EVENT_CUES[event_name]
-	play_cue(cue)
+	play_cue(cue, float(payload.get("ratio", 0.9)))
 
 
 func _record_cue(cue: StringName) -> void:
@@ -217,12 +236,53 @@ func _record_cue(cue: StringName) -> void:
 
 func _poll_breath(delta: float) -> void:
 	_effective_exertion = maxf(_exertion, _vitals_exertion_floor())
-	var target_db: float = lerpf(BREATH_MIN_DB, BREATH_MAX_DB, _effective_exertion)
+	_breath_target_db = lerpf(BREATH_MIN_DB, BREATH_MAX_DB, _effective_exertion)
+	if _outside_suited:
+		_breath_target_db = clampf(_breath_target_db + OUTSIDE_BREATH_BOOST_DB, BREATH_MIN_DB, BREATH_MAX_DB)
 	var target_pitch: float = lerpf(BREATH_PITCH_MIN, BREATH_PITCH_MAX, _effective_exertion)
 	var smooth_delta: float = maxf(delta, BREATH_MIN_SMOOTH_DELTA)
-	_breath_db = move_toward(_breath_db, target_db, BREATH_SMOOTH_DB_PER_SECOND * smooth_delta)
+	_breath_db = move_toward(_breath_db, _breath_target_db, BREATH_SMOOTH_DB_PER_SECOND * smooth_delta)
 	_breath.volume_db = _breath_db
 	_breath.pitch_scale = move_toward(_breath.pitch_scale, target_pitch, BREATH_SMOOTH_PITCH_PER_SECOND * smooth_delta)
+
+
+func _poll_outside_mix() -> void:
+	_outside_suited = false
+	var tree: SceneTree = get_tree()
+	if tree == null:
+		return
+	var airlock: Node = tree.get_first_node_in_group(&"airlock_system")
+	if airlock == null:
+		return
+	var suit_worn: bool = false
+	if airlock.has_method(&"is_suit_worn"):
+		suit_worn = bool(airlock.call(&"is_suit_worn"))
+	elif airlock.has_method(&"get_status"):
+		var airlock_status: Variant = airlock.call(&"get_status")
+		if airlock_status is Dictionary:
+			suit_worn = bool((airlock_status as Dictionary).get("suit_worn", false))
+	if not suit_worn:
+		return
+	var atmosphere: Node = tree.get_first_node_in_group(&"atmosphere_system")
+	if atmosphere == null or not atmosphere.has_method(&"get_status"):
+		return
+	var atmosphere_status: Variant = atmosphere.call(&"get_status")
+	if not (atmosphere_status is Dictionary):
+		return
+	var compartments: Variant = (atmosphere_status as Dictionary).get("compartments", {})
+	if not (compartments is Dictionary):
+		return
+	for compartment: Variant in (compartments as Dictionary).values():
+		if not (compartment is Dictionary):
+			continue
+		var status: Dictionary = compartment
+		if int(status.get("occupants", 0)) > 0 and float(status.get("pressure_kpa", 0.0)) >= AtmosphereSystem.VACUUM_PRESSURE_KPA:
+			return
+	_outside_suited = true
+
+
+func _hum_mix_target_db() -> float:
+	return _hum_target_db + (OUTSIDE_HUM_REDUCTION_DB if _outside_suited else 0.0)
 
 
 func _vitals_exertion_floor() -> float:

@@ -69,6 +69,7 @@ func _test_audio_director() -> void:
 	await process_frame
 
 	_check(int(audio_director.call(&"get_sfx_pool_size")) == 4, "sfx pool has four players")
+	_check(not bool(audio_director.call(&"get_debug_state")["outside_suited"]), "missing airlock and atmosphere keeps interior mix")
 
 	audio_director.call(&"play_cue", &"relay")
 	var state: Dictionary = audio_director.call(&"get_debug_state")
@@ -100,6 +101,13 @@ func _test_audio_director() -> void:
 	event_bus.call(&"emit_event", &"probe_scanned", {"system": &"power_system"})
 	state = audio_director.call(&"get_debug_state")
 	_check(state["last_cue"] == &"beep", "probe_scanned maps to beep")
+	var cue_count_before_tether: int = int(state["cue_count"])
+	event_bus.call(&"emit_event", &"tether_strained", {"ratio": 0.95})
+	state = audio_director.call(&"get_debug_state")
+	_check(state["last_cue"] == &"tether_warning", "tether_strained maps to warning cue")
+	_check(int(state["cue_count"]) == cue_count_before_tether + 1, "tether strain produces one cue")
+	_check(is_equal_approx(float(state["last_tether_ratio"]), 0.95), "tether warning reads extension ratio")
+	_check(is_equal_approx((audio_director.get_node("Sfx0") as AudioStreamPlayer).volume_db, -12.0), "tether warning stays restrained")
 
 	var atmosphere: AtmosphereSystem = AtmosphereSystem.new()
 	var config: CompartmentConfig = CompartmentConfig.new()
@@ -110,6 +118,13 @@ func _test_audio_director() -> void:
 	root.add_child(atmosphere)
 	await process_frame
 	await process_frame
+	_check(not bool(audio_director.call(&"get_debug_state")["outside_suited"]), "missing airlock keeps atmosphere mix interior")
+
+	var airlock: AirlockSystem = AirlockSystem.new()
+	root.add_child(airlock)
+	await process_frame
+	_check(airlock.equip_suit(), "suit equips for exterior mix test")
+	atmosphere.set_occupants(&"main", 0)
 
 	atmosphere.set_scrubber_powered(&"main", true)
 	atmosphere.set_filter_installed(&"main", true)
@@ -117,6 +132,18 @@ func _test_audio_director() -> void:
 	await process_frame
 	state = audio_director.call(&"get_debug_state")
 	_check(bool(state["scrubber_audible"]), "scrubber audible when powered with filter")
+	_check(bool(state["outside_suited"]), "suited operator outside pressurized rooms gets exterior mix")
+	_check(is_equal_approx(float(state["hum_mix_target_db"]), -24.0), "ship hum recedes outside")
+	_check(is_equal_approx(float(state["scrubber_volume_db"]), -36.0), "scrubber recedes outside")
+	_check(is_equal_approx(float(state["breath_target_db"]), -30.0), "breathing becomes more present outside")
+
+	atmosphere.set_occupants(&"main", 1)
+	await process_frame
+	state = audio_director.call(&"get_debug_state")
+	_check(not bool(state["outside_suited"]), "pressurized compartment re-entry restores interior mix")
+	_check(is_equal_approx(float(state["hum_mix_target_db"]), -14.0), "ship hum returns on re-entry")
+	_check(is_equal_approx(float(state["scrubber_volume_db"]), -22.0), "scrubber returns on re-entry")
+	_check(is_equal_approx(float(state["breath_target_db"]), -40.0), "breathing returns to interior baseline")
 
 	atmosphere.set_scrubber_powered(&"main", false)
 	await process_frame
@@ -125,6 +152,7 @@ func _test_audio_director() -> void:
 	_check(not bool(state["scrubber_audible"]), "scrubber silent when unpowered")
 
 	atmosphere.free()
+	airlock.free()
 	audio_director.free()
 	event_bus.free()
 
