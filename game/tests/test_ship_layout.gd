@@ -178,8 +178,7 @@ func _test_floor_and_ceiling() -> void:
 		_check((ceiling_hit["normal"] as Vector3).dot(Vector3.DOWN) > 0.9, "ceiling faces down")
 
 
-## The cupola's console bank and viewport: the dash panels and the window trim carry
-## collision, the pane uses the space shader, and the dash blocks at console height.
+## The cupola keeps its sealed viewport without the old decorative desk blocks.
 func _test_cockpit_dash() -> void:
 	var cupola: Node = _geometry.get_node_or_null(^"Section_cupola")
 	_check(cupola != null, "cupola section exists for the dash check")
@@ -194,10 +193,8 @@ func _test_cockpit_dash() -> void:
 			dash += 1
 		elif String(child.name).begins_with("Window"):
 			trim += 1
-	_check(dash >= 6, "the dash has its panels (%d collision parts)" % dash)
+	_check(dash == 0, "the cupola has no placeholder dash blocks")
 	_check(trim >= 4, "the viewport carries its trim (%d collision parts)" % trim)
-	var face_z: float = TubeLayout.span(TubeLayout.index_of("cupola")).x + 0.28
-	_check(_ray_hits(Vector3(0.0, 0.9, face_z + 1.2), Vector3(0.0, 0.9, face_z - 0.2)), "the dash blocks at console height")
 	var pane: MeshInstance3D = cupola.get_node_or_null(^"DressingWindowPane") as MeshInstance3D
 	var seal: CollisionShape3D = cupola.get_node_or_null(^"DressingWindowPaneSeal") as CollisionShape3D
 	_check(pane != null and pane.material_override is StandardMaterial3D, "the viewport has a physical glass material")

@@ -143,10 +143,31 @@ func _test_props_carry() -> void:
 func _test_cockpit_instruments() -> void:
 	var cupola: Vector2 = TubeLayout.span(TubeLayout.index_of("cupola"))
 	var cockpit: Vector2 = TubeLayout.span(TubeLayout.index_of("cockpit"))
+	var front_row: Array[String] = ["SwitchBank", "GaugeCluster", "SevenSegment"]
+	var previous_x: float = -INF
 	for prop_name: String in ["GaugeCluster", "SevenSegment", "SwitchBank"]:
 		var prop: Node3D = _props.get_node_or_null(NodePath(prop_name)) as Node3D
 		_check(prop != null and prop.position.z >= cupola.x and prop.position.z <= cockpit.y, "%s belongs to the cockpit" % prop_name)
 		_check(prop is CockpitInstrumentPanel, "%s drives its authored live instrument" % prop_name)
+	for prop_name: String in front_row:
+		var panel: Node3D = _props.get_node_or_null(NodePath(prop_name)) as Node3D
+		if panel == null:
+			continue
+		_check(absf(panel.position.z - (cupola.x + 0.18)) < 0.05, "%s sits on the forward instrument row" % prop_name)
+		_check(panel.position.x > previous_x, "%s follows the forward grid" % prop_name)
+		previous_x = panel.position.x
+	var station_rows: Array[Array] = [["LogTerminal", "ContactConsole", "NavConsole"], ["WallComputer", "ArchiveTerminal", "CommsTerminal"]]
+	for side: int in station_rows.size():
+		var previous_z: float = -INF
+		for station_name: String in station_rows[side]:
+			var station: Node3D = _props.get_node_or_null(NodePath(station_name)) as Node3D
+			if station == null:
+				continue
+			var box: AABB = _world_bounds(station)
+			var outer: float = box.end.x if side == 0 else -box.position.x
+			_check(absf(SectionHull.tube_half_width(2.4, box.position.y) - outer) < 0.12, "%s mounts flush to the cockpit wall" % station_name)
+			_check(absf(station.position.y - 1.25) < 0.01 and station.position.z > previous_z, "%s follows the cockpit station grid" % station_name)
+			previous_z = station.position.z
 	var chair: PilotChair = _props.get_node_or_null(^"PilotChair") as PilotChair
 	_check(chair != null and chair.position.z >= cupola.x and chair.position.z < cupola.y, "pilot chair mounts inside the cupola")
 	_check(chair != null and chair.position.x < -TubeLayout.HATCH_HALF_WIDTH - 0.2, "pilot chair sits beside the cupola hatch")

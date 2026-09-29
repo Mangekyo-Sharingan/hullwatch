@@ -280,7 +280,6 @@ func _build() -> void:
 	_root.name = "ShipGeometry"
 	if _interior_style() == "tube":
 		_build_tube_interior()
-		_build_tube_cockpit_dash()
 		_build_tube_cockpit_window()
 	else:
 		for spec: Dictionary in SPACES:
@@ -292,9 +291,6 @@ func _build() -> void:
 		_build_dock_throats()
 
 
-## The tube cockpit's dash: a console bank across the cupola's forward face, below the
-## viewport, in the same faceted language as the flat cockpit's wrap (which the tube bow is
-## too small to hold).
 ## The tube cockpit window: the pane at the cowl's mouth with its frame trim, so the bow is
 ## a transparent pressure pane rather than a raw hole in the hull.
 func _build_tube_cockpit_window() -> void:
@@ -313,28 +309,6 @@ func _build_tube_cockpit_window() -> void:
 	_add_dash_panel(cupola, "WindowHeader", Vector3(0.0, SectionHull.TUBE_WINDOW_MAX.y + 0.08, trim_z), Vector3(size.x + 0.32, 0.16, 0.55), Vector3.ZERO)
 	for side: int in [-1, 1]:
 		_add_dash_panel(cupola, "WindowJamb%d" % side, Vector3(float(side) * (size.x * 0.5 + 0.08), center.y, trim_z), Vector3(0.16, size.y + 0.32, 0.55), Vector3.ZERO)
-
-func _build_tube_cockpit_dash() -> void:
-	if TubeLayout.index_of("cupola") < 0:
-		return
-	var cupola: Node3D = _root.get_node_or_null(^"Section_cupola") as Node3D
-	if cupola == null:
-		return
-	var bounds: Vector2 = TubeLayout.span(TubeLayout.index_of("cupola"))
-	var radius: float = float(TubeLayout.sections()[TubeLayout.index_of("cupola")]["radius"])
-	var face_z: float = bounds.x + 0.28
-	var tilt: float = -22.0
-	var panel_x: Array[float] = [-1.05, 0.0, 1.05]
-	for i: int in panel_x.size():
-		_add_dash_panel(cupola, "DashN%d" % i, Vector3(panel_x[i], 0.9, face_z), Vector3(1.02, 0.18, 0.46), Vector3(tilt, 0, 0))
-		_add_dressing("Section_cupola", "DashScreenN%d" % i, Vector3(panel_x[i], 0.99, face_z + 0.13), Vector3(0.48, 0.02, 0.24), MATERIAL_STRIP)
-	var half: float = SectionHull.tube_half_width(radius, 0.9) - 0.35
-	for side: int in [-1, 1]:
-		_add_dash_panel(cupola, "DashSide%d" % side, Vector3(half * float(side), 0.9, face_z + 0.9), Vector3(0.46, 0.18, 1.0), Vector3(0, 0, tilt * float(side)))
-		_add_dressing("Section_cupola", "DashScreenSide%d" % side, Vector3(half * float(side) - 0.12 * float(side), 0.99, face_z + 0.9), Vector3(0.2, 0.02, 0.42), MATERIAL_STRIP)
-	_add_dash_panel(cupola, "DashPedestal", Vector3(0.0, 0.44, face_z + 0.20), Vector3(0.84, 0.88, 0.46), Vector3.ZERO)
-	_add_dressing("Section_cupola", "DashPedestalScreen", Vector3(0.0, 0.9, face_z + 0.40), Vector3(0.46, 0.02, 0.24), MATERIAL_STRIP)
-
 
 ## The generated dock pod: a placeable module room in the same faceted language, origin at
 ## its mating doorway on the hull's outer face (see POD_* constants). Spawned by M10.3.
