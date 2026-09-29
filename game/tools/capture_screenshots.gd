@@ -43,18 +43,13 @@ func _run() -> void:
 			player.rotation.y = PI * 0.5
 			await _capture_current("shot_tube_cockpit_port_bank.png")
 			player.call("exit_pilot_seat")
-			await create_timer(0.75).timeout
 		await _capture(player, Vector3(0.0, 0.1, -4.5), PI, "shot_tube_storage.png")
 		await _capture(player, Vector3(0.0, 0.1, -13.9), 0.0, "shot_tube_quarters.png")
-		await _capture(player, Vector3(0.0, 2.3, -13.2), PI * 0.5, "shot_tube_quarters_mezzanine.png", -0.24)
-		await _capture(player, Vector3(0.0, 2.3, -2.5), PI * 0.5, "shot_tube_storage_mezzanine.png", -0.24)
 		await _capture(player, Vector3(-0.8, 0.1, -13.9), -PI * 0.5, "shot_tube_quarters_locker.png")
 		await _capture(player, Vector3(0.6, 0.1, -8.3), PI * 0.5, "shot_tube_galley.png")
 		await _capture(player, Vector3(0.8, 0.1, -11.05), PI * 0.5, "shot_tube_life_support.png")
 		await _capture(player, Vector3(0.6, 1.3, -10.3), PI * 0.5, "shot_tube_filter_rack.png")
 		await _capture(player, Vector3(1.0, 0.1, 2.0), PI * 0.5, "shot_tube_engine_bay.png")
-		await _capture(player, Vector3(0.0, 2.3, 2.7), PI * 0.5, "shot_tube_engine_bay_a_mezzanine.png", -0.24)
-		await _capture(player, Vector3(0.0, 2.3, 5.8), PI * 0.5, "shot_tube_engine_bay_mezzanine.png", -0.24)
 		await _capture(player, Vector3(-1.0, 0.1, 2.0), -PI * 0.5, "shot_tube_tool_cart.png")
 		var wall_computer: WallComputer = _main.get_node_or_null("WorldLayout/Props/WallComputer") as WallComputer
 		if wall_computer != null:
@@ -75,6 +70,7 @@ func _run() -> void:
 		await _hull_shot(Vector3(-9.5, 3.4, -25.5), Vector3(0.0, 1.6, -17.0), "shot_tube_hull_bow.png")
 		await _hull_shot(Vector3(-10.5, 3.8, -3.0), Vector3(0.0, 1.5, -5.0), "shot_tube_hull_broadside.png")
 		await _hull_shot(Vector3(5.0, 4.0, 17.5), Vector3(0.0, 1.6, 7.0), "shot_tube_hull_stern.png")
+		await _ion_drive_shots()
 		await _hull_shot(Vector3(6.8, 3.6, 5.2), Vector3(3.2, 2.4, 8.3), "shot_tube_solar_array.png")
 
 	await _capture(player, Vector3(-4.2, 0.1, -9.6), 0.0, "shot_quarters.png")
@@ -234,17 +230,38 @@ func _voyage_shots(player: Node3D) -> void:
 
 ## An exterior vantage: park the player, aim at the hull, carry a work light (the
 ## exterior has no lighting until the M12 pass).
-func _hull_shot(position: Vector3, target: Vector3, file_name: String) -> void:
+func _hull_shot(position: Vector3, target: Vector3, file_name: String, hide_hud: bool = false) -> void:
 	var player: Node3D = _main.get_node("Player")
 	player.global_position = position
 	player.look_at(target, Vector3.UP)
-	await _capture(player, player.global_position, player.rotation.y, file_name)
+	await _capture(player, player.global_position, player.rotation.y, file_name, hide_hud)
 
 
-func _capture(player: Node3D, position: Vector3, yaw: float, file_name: String, pitch: float = 0.0) -> void:
+func _ion_drive_shots() -> void:
+	var nav: Node = _main.get_node_or_null("Systems/NavSystem")
+	if nav == null:
+		return
+	nav.call("load_state", {
+		"state_version": 2,
+		"current_destination_id": "",
+		"plotted_destination_id": "",
+		"fuel_mass_kg": 1200.0,
+		"course_error": 0.0,
+		"transit_elapsed_hours": 0.0,
+		"transit_active": false,
+		"visited_destinations": {},
+	})
+	await _hull_shot(Vector3(0.0, 1.8, 14.8), Vector3(0.0, 1.55, 10.5), "shot_tube_ion_drives_idle.png", true)
+	await _hull_shot(Vector3(-1.9, 2.25, 10.6), Vector3(-0.72, 1.55, 10.5), "shot_tube_ion_drive_service.png", true)
+	await _hull_shot(Vector3(2.5, 1.8, 12.6), Vector3(0.72, 1.55, 10.5), "shot_tube_ion_drive_eva.png", true)
+	if bool(nav.call("plot_course", &"arden_ii")) and bool(nav.call("begin_transit")):
+		await _hull_shot(Vector3(3.2, 1.8, 14.4), Vector3(0.0, 1.55, 10.7), "shot_tube_ion_drives_burning.png", true)
+		nav.call("sim_tick", 48.0)
+
+
+func _capture(player: Node3D, position: Vector3, yaw: float, file_name: String, hide_hud: bool = false) -> void:
 	player.global_position = position
 	player.rotation.y = yaw
-	(player.get_node(^"Head") as Node3D).rotation.x = pitch
 	var work_light: OmniLight3D = null
 	if _needs_work_light(position):
 		work_light = OmniLight3D.new()
@@ -256,10 +273,19 @@ func _capture(player: Node3D, position: Vector3, yaw: float, file_name: String, 
 	await physics_frame
 	await physics_frame
 	await process_frame
+	var restore_layers: Array[CanvasLayer] = []
+	if hide_hud:
+		for node: Node in _main.find_children("*", "CanvasLayer", true, false):
+			var layer: CanvasLayer = node as CanvasLayer
+			if layer.name != &"AnalogueFilter" and layer.visible:
+				restore_layers.append(layer)
+				layer.visible = false
 	await RenderingServer.frame_post_draw
 	var image: Image = root.get_texture().get_image()
 	DirAccess.make_dir_recursive_absolute(OUTPUT_DIR)
 	image.save_png(OUTPUT_DIR + "/" + file_name)
+	for layer: CanvasLayer in restore_layers:
+		layer.visible = true
 	if work_light != null:
 		work_light.queue_free()
 

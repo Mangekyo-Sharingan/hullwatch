@@ -45,7 +45,6 @@ func _run() -> void:
 	_test_walls_block()
 	_test_section_profile()
 	_test_floor_and_ceiling()
-	_test_mezzanines()
 	_test_cockpit_dash()
 	_test_surface_materials()
 
@@ -144,18 +143,12 @@ func _test_section_profile() -> void:
 		var section_name: String = String(TubeLayout.sections()[index]["name"])
 		if section_name == "cupola":
 			continue
-		var section: Dictionary = TubeLayout.sections()[index]
-		var radius: float = float(section["radius"])
-		var ceiling_lift: float = SectionHull.section_ceiling_lift(section)
-		var wall_top: float = SectionHull.section_wall_top(section)
+		var radius: float = float(TubeLayout.sections()[index]["radius"])
 		var bounds: Vector2 = TubeLayout.span(index)
 		var center_z: float = (bounds.x + bounds.y) * 0.5
 		var probe_z: float = _probe_z(index, center_z)
-		var heights: Array[float] = [0.3, 1.2, 2.2]
-		if SectionHull.section_mezzanine_y(section) > 0.0:
-			heights = [0.3, 1.2, 1.9, 3.6, 4.2]
-		for y: float in heights:
-			var half: float = SectionHull.tube_half_width(radius, y, ceiling_lift, wall_top)
+		for y: float in [0.3, 1.2, 2.2]:
+			var half: float = SectionHull.tube_half_width(radius, y)
 			_check(
 				not _ray_hits(Vector3(-half + 0.06, y, probe_z), Vector3(half - 0.06, y, probe_z)),
 				"%s clear inside the wall at y=%.2f" % [section_name, y]
@@ -172,83 +165,17 @@ func _test_floor_and_ceiling() -> void:
 	_check(storage >= 0, "storage section exists in the table")
 	if storage < 0:
 		return
-	var center_z: float = TubeLayout.span(storage).x + 0.2
+	var center_z: float = (TubeLayout.span(storage).x + TubeLayout.span(storage).y) * 0.5
 	var floor_hit: Dictionary = _ray_result(Vector3(0.0, 1.0, center_z), Vector3(0.0, -0.5, center_z))
 	_check(not floor_hit.is_empty(), "section floor is solid")
 	if not floor_hit.is_empty():
 		_check(absf(float((floor_hit["position"] as Vector3).y)) < 0.02, "floor surface is at deck height")
 		_check((floor_hit["normal"] as Vector3).dot(Vector3.UP) > 0.9, "floor faces up")
-	var ceiling_hit: Dictionary = _ray_result(Vector3(0.0, 2.0, center_z), Vector3(0.0, 4.9, center_z))
+	var ceiling_hit: Dictionary = _ray_result(Vector3(0.0, 2.0, center_z), Vector3(0.0, 3.2, center_z))
 	_check(not ceiling_hit.is_empty(), "section ceiling is solid")
 	if not ceiling_hit.is_empty():
-		_check(absf(float((ceiling_hit["position"] as Vector3).y) - 4.4) < 0.02, "double-height ceiling surface is at the cove crown")
+		_check(absf(float((ceiling_hit["position"] as Vector3).y) - SectionHull.TUBE_CEILING) < 0.02, "ceiling surface is at the cove crown")
 		_check((ceiling_hit["normal"] as Vector3).dot(Vector3.DOWN) > 0.9, "ceiling faces down")
-
-
-func _test_mezzanines() -> void:
-	var capsule: CapsuleShape3D = CapsuleShape3D.new()
-	capsule.radius = 0.24
-	capsule.height = 1.75
-	var query: PhysicsShapeQueryParameters3D = PhysicsShapeQueryParameters3D.new()
-	query.shape = capsule
-	query.collision_mask = 1
-	for room: String in ["Quarters", "Storage", "EngineBayA", "EngineBayB"]:
-		var deck: StaticBody3D = _geometry.get_node_or_null("RingDeck_" + room) as StaticBody3D
-		var ladder: ShipLadder = _geometry.get_node_or_null("ShipLadder_" + room) as ShipLadder
-		_check(deck != null and ladder != null, "ring deck and ladder exist: " + room)
-		if deck == null or ladder == null:
-			continue
-		var visual: MeshInstance3D = deck.get_node_or_null(^"MezzanineSlabMesh") as MeshInstance3D
-		var collision: CollisionShape3D = deck.get_node_or_null(^"MezzanineSlabShape") as CollisionShape3D
-		_check(visual != null and visual.mesh is BoxMesh, "mezzanine has visible plate geometry: " + room)
-		_check(collision != null and collision.shape is BoxShape3D, "mezzanine has solid collision: " + room)
-		var expected_width: float = _expected_mezzanine_width(room, ladder.deck_height)
-		if visual != null and visual.mesh is BoxMesh:
-			_check(absf((visual.mesh as BoxMesh).size.x - expected_width) < 0.001, "mezzanine spans the section wall profile: " + room)
-		for slab_name: String in ["MezzanineSlab", "MezzanineForwardSlab", "MezzaninePortLip", "MezzanineStarboardLip"]:
-			var slab_visual: MeshInstance3D = deck.get_node_or_null(slab_name + "Mesh") as MeshInstance3D
-			var slab_collision: CollisionShape3D = deck.get_node_or_null(slab_name + "Shape") as CollisionShape3D
-			_check(slab_visual != null and slab_collision != null, "mezzanine opening piece has visual and collision: %s / %s" % [room, slab_name])
-			if slab_visual != null and slab_collision != null and slab_visual.mesh is BoxMesh and slab_collision.shape is BoxShape3D:
-				_check((slab_visual.mesh as BoxMesh).size.is_equal_approx((slab_collision.shape as BoxShape3D).size), "mezzanine opening piece matches collision: %s / %s" % [room, slab_name])
-		var lower_probe_z: float = ladder.global_position.z + 0.5
-		query.transform = Transform3D(Basis(), Vector3(0.0, 0.925, lower_probe_z))
-		var lower_clear: bool = _geometry.get_world_3d().direct_space_state.intersect_shape(query, 1).is_empty()
-		_check(lower_clear, "standing capsule clears the underside: " + room)
-		var shaft: CapsuleShape3D = CapsuleShape3D.new()
-		shaft.radius = 0.12
-		shaft.height = ladder.deck_height - 0.18
-		query.shape = shaft
-		query.transform = Transform3D(Basis(), Vector3(ladder.global_position.x, ladder.deck_height * 0.5 + 0.09, ladder.global_position.z))
-		var shaft_clear: bool = _geometry.get_world_3d().direct_space_state.intersect_shape(query, 1).is_empty()
-		_check(shaft_clear, "ladder has a physical opening through the mezzanine: " + room)
-		query.shape = capsule
-		var upper_exit: Vector3 = ladder.call(&"get_upper_exit_position")
-		query.transform = Transform3D(Basis(), upper_exit + Vector3.UP * 0.925)
-		var upper_clear: bool = _geometry.get_world_3d().direct_space_state.intersect_shape(query, 1).is_empty()
-		_check(upper_clear, "standing capsule clears the upper ceiling: " + room)
-		_check(is_equal_approx(ladder.deck_height, 2.2), "ladder reaches mezzanine height: " + room)
-		var lower_section: Dictionary = TubeLayout.section_at(ladder.global_position.z)
-		var upper_section: Dictionary = TubeLayout.section_at(upper_exit.z)
-		_check(not lower_section.is_empty() and lower_section == upper_section, "ladder and landing share a section: " + room)
-
-
-func _expected_mezzanine_width(room: String, height: float) -> float:
-	var index: int = -1
-	match room:
-		"Quarters": index = TubeLayout.index_of("quarters")
-		"Storage": index = TubeLayout.index_of("storage")
-		"EngineBayA": index = TubeLayout.index_of("engine_bay_a")
-		"EngineBayB": index = TubeLayout.index_of("engine_bay_b")
-	if index < 0:
-		return 0.0
-	var section: Dictionary = TubeLayout.sections()[index]
-	return SectionHull.tube_half_width(
-		float(section["radius"]),
-		height,
-		SectionHull.section_ceiling_lift(section),
-		SectionHull.section_wall_top(section)
-	) * 2.0
 
 
 ## The cupola keeps its sealed viewport without the old decorative desk blocks.

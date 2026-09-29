@@ -126,65 +126,7 @@ func _run() -> void:
 		await physics_frame
 
 	_check(reached_cockpit, "player walked stern-to-cockpit from z=5.0 to the pilot station (reached z=%.2f in %d frames)" % [player.global_position.z, steps])
-	await _test_ring_decks(player, main)
 
 	main.queue_free()
 	await process_frame
 	_finish()
-
-
-func _test_ring_decks(player: CharacterBody3D, main: Node) -> void:
-	for room: String in ["Quarters", "Storage", "EngineBayA", "EngineBayB"]:
-		var ladder: ShipLadder = main.get_node_or_null("ShipGeometry/ShipLadder_" + room) as ShipLadder
-		_check(ladder != null, "ring-deck ladder exists: " + room)
-		if ladder == null:
-			continue
-		var ray: RayCast3D = player.get_node(^"Head/Camera3D/InteractRay") as RayCast3D
-		_set_ladder_approach(player, ladder, false, room == "EngineBayB")
-		await physics_frame
-		ray.force_raycast_update()
-		_check(ray.get_collider() == ladder, "standing interact ray targets ladder: " + room)
-		player.call(&"_try_interact")
-		_check(bool(player.call(&"is_climbing_ladder")), "interacting through the standing ray starts the climb: " + room)
-		Input.action_press(&"move_forward")
-		var frames: int = 0
-		while bool(player.call(&"is_climbing_ladder")) and frames < 180:
-			await physics_frame
-			frames += 1
-		Input.action_release(&"move_forward")
-		_check(not bool(player.call(&"is_climbing_ladder")), "operator climbs to the upper deck: " + room)
-		_check(absf(player.global_position.y - 2.2) < 0.03, "upper landing is at standing height: " + room)
-		var upper_x: float = player.global_position.x
-		player.rotation.y = 0.0
-		Input.action_press(&"move_right")
-		for frame: int in 20:
-			await physics_frame
-		Input.action_release(&"move_right")
-		_check(player.global_position.x > upper_x + 0.3 and absf(player.global_position.y - 2.2) < 0.05, "operator walks across the upper deck: %s (x=%.2f from %.2f)" % [room, player.global_position.x, upper_x])
-		_set_ladder_approach(player, ladder, true)
-		await physics_frame
-		ray.force_raycast_update()
-		_check(ray.get_collider() == ladder, "upper interact ray targets ladder: " + room)
-		player.call(&"_try_interact")
-		_check(bool(player.call(&"is_climbing_ladder")), "upper interact ray re-enters the ladder: " + room)
-		Input.action_press(&"move_back")
-		frames = 0
-		while bool(player.call(&"is_climbing_ladder")) and frames < 180:
-			await physics_frame
-			frames += 1
-		Input.action_release(&"move_back")
-		_check(not bool(player.call(&"is_climbing_ladder")) and absf(player.global_position.y) < 0.03, "operator descends to the lower deck: " + room)
-
-
-func _set_ladder_approach(player: CharacterBody3D, ladder: ShipLadder, from_upper: bool, aft_approach: bool = false) -> void:
-	var target_y: float = ladder.deck_height - 0.05 if from_upper else ladder.deck_height * 0.5
-	var target: Vector3 = ladder.global_position + Vector3.UP * target_y
-	var approach_z: float = 0.75 if aft_approach else -0.75
-	var origin: Vector3 = ladder.call(&"get_upper_exit_position") if from_upper else ladder.global_position + Vector3(0.0, 0.05, approach_z)
-	if not from_upper:
-		origin.y = 0.05
-	player.global_position = origin
-	var offset: Vector3 = target - (origin + Vector3.UP * 1.55)
-	player.rotation.y = atan2(-offset.x, -offset.z)
-	player.get_node(^"Head").rotation.x = atan2(offset.y, Vector2(offset.x, offset.z).length())
-	player.velocity = Vector3.ZERO

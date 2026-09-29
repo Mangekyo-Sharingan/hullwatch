@@ -19,8 +19,6 @@ const SEATED_RAY_LENGTH: float = 3.6
 const SEAT_MOTION_SPEED: float = 2.4
 const SEAT_MOTION_MIN_SECONDS: float = 0.38
 const SEAT_MOTION_MAX_SECONDS: float = 0.72
-const LADDER_CLIMB_SPEED: float = 1.5
-const LADDER_APPROACH_RADIUS: float = 0.85
 
 @export var walk_speed: float = 3.0
 @export var crouch_speed: float = 1.5
@@ -58,7 +56,6 @@ var _seated: bool = false
 var _standing_ray_target: Vector3 = Vector3.ZERO
 var _standing_ray_enabled: bool = true
 var _seat_tween: Tween
-var _climbing_ladder: Node3D = null
 
 
 func _ready() -> void:
@@ -77,9 +74,6 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	if _seat_transitioning or is_pilot_seated():
 		velocity = Vector3.ZERO
-		return
-	if _climbing_ladder != null:
-		_process_ladder(delta)
 		return
 	_set_crouched(Input.is_action_pressed(&"crouch"))
 	if _boots_engaged:
@@ -135,53 +129,6 @@ func get_seated_target() -> CollisionObject3D:
 		return null
 	_interact_ray.force_raycast_update()
 	return _interact_ray.get_collider() as CollisionObject3D if _interact_ray.is_colliding() else null
-
-
-func begin_ladder_climb(ladder: Node3D) -> bool:
-	if ladder == null or not is_instance_valid(ladder) or _climbing_ladder != null or _seat_transitioning or is_pilot_seated():
-		return false
-	if not ladder.has_method(&"get_upper_exit_position"):
-		return false
-	var offset: Vector3 = global_position - ladder.global_position
-	var distance_xz: float = Vector2(offset.x, offset.z).length()
-	var deck_height: float = float(ladder.get(&"deck_height"))
-	if distance_xz > LADDER_APPROACH_RADIUS or (absf(offset.y) > 0.35 and absf(offset.y - deck_height) > 0.35):
-		return false
-	_climbing_ladder = ladder
-	velocity = Vector3.ZERO
-	return true
-
-
-func is_climbing_ladder() -> bool:
-	return _climbing_ladder != null and is_instance_valid(_climbing_ladder)
-
-
-func _process_ladder(delta: float) -> void:
-	if not is_instance_valid(_climbing_ladder):
-		_climbing_ladder = null
-		return
-	var direction: float = 0.0
-	if Input.is_action_pressed(&"move_forward"):
-		direction += 1.0
-	if Input.is_action_pressed(&"move_back"):
-		direction -= 1.0
-	if is_zero_approx(direction):
-		velocity = Vector3.ZERO
-		return
-	var ladder: Node3D = _climbing_ladder
-	var bottom_y: float = ladder.global_position.y
-	var top_y: float = bottom_y + float(ladder.get(&"deck_height"))
-	var next_y: float = clampf(global_position.y + direction * LADDER_CLIMB_SPEED * delta, bottom_y, top_y)
-	velocity = Vector3.ZERO
-	if next_y >= top_y - NORMAL_EPSILON:
-		var upper_exit: Vector3 = ladder.call(&"get_upper_exit_position")
-		global_position = upper_exit
-		_climbing_ladder = null
-	elif next_y <= bottom_y + NORMAL_EPSILON:
-		global_position.y = bottom_y
-		_climbing_ladder = null
-	else:
-		global_position.y = next_y
 
 
 func enter_pilot_seat(chair: PilotChair) -> bool:
@@ -385,7 +332,7 @@ func consume_carried() -> bool:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if _seat_transitioning or _climbing_ladder != null:
+	if _seat_transitioning:
 		return
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		var motion: InputEventMouseMotion = event as InputEventMouseMotion

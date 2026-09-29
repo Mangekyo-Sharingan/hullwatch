@@ -93,6 +93,7 @@ func _run() -> void:
 	_check(_props.get_child_count() == expected_total, "Props holds all %d named nodes (%d)" % [expected_total, _props.get_child_count()])
 
 	_test_props_carry()
+	_test_prefab_clearance()
 	_test_cockpit_instruments()
 	_test_pilot_chair_clearance()
 	_test_doors()
@@ -138,6 +139,27 @@ func _test_props_carry() -> void:
 		var airlock: int = TubeLayout.index_of("airlock")
 		var face: float = float(TubeLayout.sections()[airlock]["radius"]) + SectionHull.TUBE_BAND
 		_check(prop.position.x < -face, "platform prop stands off the airlock's drum face: " + prop_name)
+
+
+func _test_prefab_clearance() -> void:
+	var names: Array[String] = []
+	var bounds: Array[AABB] = []
+	for child: Node in _props.get_children():
+		var prop: Node3D = child as Node3D
+		if prop == null:
+			continue
+		var box: AABB = _world_bounds(prop)
+		if box.size == Vector3.ZERO:
+			continue
+		names.append(String(prop.name))
+		bounds.append(box)
+	var overlaps: PackedStringArray = PackedStringArray()
+	# ponytail: pairwise AABBs are cheap for this layout; add spatial partitioning only if prop count grows significantly.
+	for first: int in bounds.size():
+		for second: int in range(first + 1, bounds.size()):
+			if bounds[first].intersects(bounds[second]):
+				overlaps.append("%s / %s" % [names[first], names[second]])
+	_check(overlaps.is_empty(), "prop prefab bounds do not overlap%s" % (": " + ", ".join(overlaps) if not overlaps.is_empty() else ""))
 
 
 func _test_cockpit_instruments() -> void:
@@ -242,7 +264,7 @@ func _airlock_outer_door_ok() -> bool:
 	return absf(position.x + radius + 0.08) <= POSITION_TOLERANCE and absf(position.z - center_z) <= POSITION_TOLERANCE
 
 
-## One zone per unique room: it spans all sections, including both engine-bay levels.
+## One zone per unique room: it spans all sections, including both engine-bay sections.
 func _test_zones() -> void:
 	var expected_zones: int = 0
 	for room_value: Variant in TubeLayout.ROOM_COMPARTMENTS:
@@ -268,9 +290,7 @@ func _test_zones() -> void:
 		_check(absf(box.size.z - (bounds.y - bounds.x)) <= 0.05, "zone spans every section in the room: " + zone_name)
 		_check(absf((zone as Node3D).position.z - (bounds.x + bounds.y) * 0.5) <= POSITION_TOLERANCE, "zone is centred on the room: " + zone_name)
 		var ceiling: float = SectionHull.TUBE_CEILING
-		for index: int in sections:
-			ceiling = maxf(ceiling, float(TubeLayout.sections()[index].get("ceiling", SectionHull.TUBE_CEILING)))
-		_check(absf(box.size.y - ceiling) <= POSITION_TOLERANCE, "zone covers both vertical levels: " + zone_name)
+		_check(absf(box.size.y - ceiling) <= POSITION_TOLERANCE, "zone covers the slim room height: " + zone_name)
 		_check(absf((zone as Node3D).position.y - ceiling * 0.5) <= POSITION_TOLERANCE, "zone is centred across room height: " + zone_name)
 	_check(_zones.get_child_count() == expected_zones, "Zones holds one zone per room (%d)" % expected_zones)
 

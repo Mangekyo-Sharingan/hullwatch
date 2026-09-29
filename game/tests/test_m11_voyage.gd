@@ -37,6 +37,7 @@ func _run() -> void:
 	var console: Node = _main.find_child("NavConsole", true, false)
 	_check(console is NavConsole, "generated cockpit contains the star chart console")
 	_check(StringName(nav.get_status()["current_destination_id"]) == &"", "voyage begins in the drift corridor")
+	_test_ion_drive_state(nav)
 	_test_planet_arrival(nav, sector, cargo, stores)
 	_test_star_arrival_and_round_trip(nav, sector, cargo, stores)
 	if is_instance_valid(_main):
@@ -50,7 +51,12 @@ func _test_planet_arrival(nav: Node, sector: Node, cargo: Node, stores: Node) ->
 	var clock_before: float = float(clock.call("get_total_hours")) if clock != null else 0.0
 	var starting_rations: int = int(stores.call("get_count", &"food_ration"))
 	_check(bool(nav.call("plot_course", &"arden_ii")), "planet: course plots")
+	_test_ion_plumes(false, "course plotted")
 	_check(bool(nav.call("begin_transit")), "planet: transit starts")
+	_test_ion_plumes(true, "transit starts")
+	var status_panel: Node = _main.get_node_or_null("WorldLayout/Props/StatusPanel")
+	var underway: String = "\n".join(status_panel.call("build_readout")) if status_panel != null else ""
+	_check(underway.contains("ION DRIVE PAIR FIRING") and underway.contains("XENON"), "status panel reports active ion propulsion and xenon reserve")
 	if clock != null:
 		clock.call("fast_forward", 48.0)
 		_check(is_equal_approx(float(clock.call("get_total_hours")) - clock_before, 49.0), "planet: plotting and transit advance shared simulation time")
@@ -58,6 +64,7 @@ func _test_planet_arrival(nav: Node, sector: Node, cargo: Node, stores: Node) ->
 		nav.call("sim_tick", 48.0)
 	var status: Dictionary = nav.call("get_status")
 	_check(not bool(status["transit_active"]), "planet: autopilot arrives after two days")
+	_test_ion_plumes(false, "planet arrival")
 	_check(StringName(status["current_destination_id"]) == &"arden_ii", "planet: destination becomes current")
 	_check(is_equal_approx(float(status["fuel_mass_kg"]), 1015.0), "planet: plotting and transit fuel costs are applied")
 	_check(int(sector.get("field_seed")) == 73019, "planet: sector is reseeded")
@@ -72,6 +79,9 @@ func _test_planet_arrival(nav: Node, sector: Node, cargo: Node, stores: Node) ->
 	_check(sky_material.get_shader_parameter(&"planet_color") == arden.planet_color, "planet: destination palette reaches the sky")
 	var window_pane: MeshInstance3D = _main.find_child("DressingWindowPane", true, false) as MeshInstance3D
 	_check(window_pane != null and window_pane.material_override is StandardMaterial3D, "planet: cockpit glass shows the destination sky")
+	status_panel = _main.get_node_or_null("WorldLayout/Props/StatusPanel")
+	var arrived: String = "\n".join(status_panel.call("build_readout")) if status_panel != null else ""
+	_check(arrived.contains("ION DRIVE IDLE") and arrived.contains("XENON"), "status panel reports the drive idle after arrival")
 	var overlay: Node = _main.get_node("UI/LegCompleteOverlay")
 	_check(bool(overlay.call("is_visible_overlay")), "planet: quiet arrival overlay appears")
 	_check(String(overlay.call("get_overlay_text")).contains("ARDEN II"), "planet: arrival overlay names the destination")
@@ -87,6 +97,7 @@ func _test_star_arrival_and_round_trip(nav: Node, sector: Node, cargo: Node, sto
 	_check(int(saved_at_planet.get("save_version", 0)) == 3, "save: new voyage data writes save version 3")
 	_check(bool(nav.call("plot_course", &"kestrel_system")), "star: course plots from planet")
 	_check(bool(nav.call("begin_transit")), "star: longer transit starts")
+	_test_ion_plumes(true, "star transit starts")
 	var clock: Node = root.get_node_or_null(^"SimClock")
 	var star_transit_start: float = float(clock.call("get_total_hours")) if clock != null else 0.0
 	if clock != null:
@@ -95,6 +106,7 @@ func _test_star_arrival_and_round_trip(nav: Node, sector: Node, cargo: Node, sto
 		nav.call("sim_tick", 96.0)
 	var status: Dictionary = nav.call("get_status")
 	_check(not bool(status["transit_active"]), "star: autopilot arrives after four days")
+	_test_ion_plumes(false, "star arrival")
 	_check(StringName(status["current_destination_id"]) == &"kestrel_system", "star: current destination updates")
 	_check(int(sector.get("field_seed")) == 158407, "star: field uses its own sector seed")
 	_check(is_equal_approx(float(cargo.call("get_units", &"metal")), 3.0), "star: metal cache is transferred")
@@ -120,19 +132,49 @@ func _test_star_arrival_and_round_trip(nav: Node, sector: Node, cargo: Node, sto
 		_check(bool(save_manager.call("load_from_dict", saved_midflight)), "save: active return transit loads")
 		status = nav.call("get_status")
 		_check(bool(status["transit_active"]), "save: transit resumes in flight")
+		_test_ion_plumes(true, "midflight save restored")
 		_check(is_equal_approx(float(status["transit_elapsed_hours"]), 24.0), "save: midflight progress is retained")
 		_check(int(sector.get("field_seed")) == 158407, "save: sector restores to the last destination")
 		_check(star_material.get_shader_parameter(&"sun_color") == kestrel.sun_color, "save: sky restores to the saved destination")
 		_check(bool(save_manager.call("load_from_dict", saved_at_star)), "save: star arrival round trips")
 		_check(StringName(nav.get_status()["current_destination_id"]) == &"kestrel_system", "save: current destination round trips")
+		_test_ion_plumes(false, "arrival save restored")
 		_check(is_equal_approx(float(cargo.call("get_units", &"metal")), 3.0), "save: destination cargo round trips")
 		_check(bool(save_manager.call("load_from_dict", saved_at_planet)), "save: planet arrival round trips")
 		_check(StringName(nav.get_status()["current_destination_id"]) == &"arden_ii", "save: planet position round trips")
 	_check(int(stores.call("get_count", &"food_ration")) == _planet_ration_count, "save: cache supplies are not granted again")
+	_test_fuel_exhaustion_stops_the_wake(nav)
 
 
 func _get_system(group_name: StringName) -> Node:
 	return get_first_node_in_group(group_name)
+
+
+func _test_ion_drive_state(nav: Node) -> void:
+	var port: Node = _main.find_child("IonDrivePort", true, false)
+	var starboard: Node = _main.find_child("IonDriveStarboard", true, false)
+	_check(port is IonDriveFx and starboard is IonDriveFx and nav != null, "live ship has both ion-drive cassettes")
+	_test_ion_plumes(false, "initial idle")
+
+
+func _test_ion_plumes(expected_visible: bool, phase: String) -> void:
+	for drive_name: String in ["IonDrivePort", "IonDriveStarboard"]:
+		var drive: Node = _main.find_child(drive_name, true, false)
+		var plume: MeshInstance3D = drive.find_child("IonPlume", true, false) as MeshInstance3D if drive != null else null
+		_check(plume != null and plume.visible == expected_visible, "%s wake %s" % [drive_name, phase])
+
+
+func _test_fuel_exhaustion_stops_the_wake(nav: Node) -> void:
+	_check(bool(nav.call("plot_course", &"kestrel_system")), "fuel exhaustion: a route can be plotted")
+	_check(bool(nav.call("begin_transit")), "fuel exhaustion: transit begins")
+	for drive_name: String in ["IonDrivePort", "IonDriveStarboard"]:
+		var drive: Node = _main.find_child(drive_name, true, false)
+		var plume: MeshInstance3D = drive.find_child("IonPlume", true, false) as MeshInstance3D if drive != null else null
+		_check(plume != null and plume.visible, "%s wake lights before exhaustion" % drive_name)
+	nav.set("fuel_mass_kg", 0.01)
+	nav.call("sim_tick", 24.0)
+	_check(not bool(nav.get_status()["transit_active"]), "fuel exhaustion: the burn halts")
+	_test_ion_plumes(false, "fuel exhausted")
 
 
 func _finish() -> void:

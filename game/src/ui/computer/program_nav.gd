@@ -39,7 +39,7 @@ func get_action_label(terminal: Node, action: StringName) -> String:
 		var destination: VoyageDestination = nav.call("get_destination", action)
 		if destination != null:
 			var visited: String = "  [VISITED]" if bool(nav.call("has_visited", destination.destination_id)) else ""
-			return "%s  %d DAYS  %d KG%s" % [
+			return "%s  %d DAYS  XENON %d KG%s" % [
 				destination.display_name.to_upper(),
 				destination.transit_days,
 				int(roundf(destination.fuel_cost_kg)),
@@ -63,7 +63,7 @@ func build_readout(terminal: Node) -> PackedStringArray:
 		lines.append("NAVIGATION COMPUTER OFFLINE")
 		return lines
 	var status: Dictionary = nav.call("get_status")
-	lines.append("FUEL RESERVE  %d KG" % int(roundf(float(status["fuel_mass_kg"]))))
+	lines.append("XENON RESERVE  %d KG" % int(roundf(float(status["fuel_mass_kg"]))))
 	if bool(status["transit_active"]):
 		var destination: VoyageDestination = nav.call("get_destination", status["plotted_destination_id"])
 		if destination != null:
@@ -77,8 +77,8 @@ func build_readout(terminal: Node) -> PackedStringArray:
 		if plotted != null:
 			lines.append("COURSE LOCKED  %s" % plotted.display_name.to_upper())
 			lines.append("TRANSIT  %d DAYS" % plotted.transit_days)
-			lines.append("PLOT  %.0f H  %d KG" % [plotted.course_plot_hours, int(roundf(plotted.course_plot_fuel_kg))])
-			lines.append("TRANSIT FUEL  %d KG" % int(roundf(plotted.fuel_cost_kg)))
+			lines.append("PLOT  %.0f H  XENON %d KG" % [plotted.course_plot_hours, int(roundf(plotted.course_plot_fuel_kg))])
+			lines.append("TRANSIT XENON  %d KG" % int(roundf(plotted.fuel_cost_kg)))
 			lines.append("DRIFT ERROR  %d%%" % int(roundf(float(status["course_error"]) * 100.0)))
 			lines.append("SELECT BEGIN TRANSIT WHEN READY")
 		return lines
@@ -95,7 +95,7 @@ func build_readout(terminal: Node) -> PackedStringArray:
 			lines.append("")
 			lines.append("CLASS  %s" % selected.kind.to_upper())
 			lines.append("TRANSIT  %d DAYS" % selected.transit_days)
-			lines.append("FUEL  %d KG" % int(roundf(selected.fuel_cost_kg)))
+			lines.append("XENON  %d KG" % int(roundf(selected.fuel_cost_kg)))
 	return lines
 
 

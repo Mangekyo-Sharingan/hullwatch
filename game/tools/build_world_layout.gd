@@ -399,6 +399,7 @@ const PROPS: Array[Dictionary] = [
 	{
 		"name": "SampleCanister1",
 		"tube_platform": true,
+		"tube_position": Vector3(-3.7, 0.123, 0.15),
 		"script": "res://src/interactables/sample_canister.gd",
 		"position": Vector3(-6.7, 0.123, -1.9),
 		"size": Vector3(0.152, 0.246, 0.154),
@@ -510,7 +511,7 @@ const DOORS: Array[Dictionary] = [
 
 ## Kit-scene decorations: visual only, no collision added by this generator.
 const KIT_PROPS: Array[Dictionary] = [
-	{"name": "ContainerProp", "scene": KIT_CONTAINER, "position": Vector3(-3.0, 0.0, -0.2), "size": Vector3(0.575, 0.6, 0.575)},
+	{"name": "ContainerProp", "scene": KIT_CONTAINER, "position": Vector3(-3.0, 0.0, -0.2), "tube_position": Vector3(-0.42, 0.0, -2.922222), "size": Vector3(0.575, 0.6, 0.575)},
 	{"name": "ComputerProp", "scene": KIT_COMPUTER, "position": Vector3(2.6, 0.75, -7.0), "size": Vector3(0.9, 0.6, 0.7)},
 ]
 
@@ -720,15 +721,13 @@ func _build_tube_chain() -> void:
 		var indices: Vector2i = room_indices[room]
 		var bounds: Vector2 = Vector2(TubeLayout.span(indices.x).x, TubeLayout.span(indices.y).y)
 		var radius: float = 0.0
-		var ceiling: float = 0.0
 		for index: int in range(indices.x, indices.y + 1):
 			var section: Dictionary = TubeLayout.sections()[index]
 			radius = maxf(radius, float(section["radius"]))
-			ceiling = maxf(ceiling, float(section.get("ceiling", SectionHull.TUBE_CEILING)))
 		_build_zone({
 			"name": "ZoneRoom_" + String(room).replace("_", " ").capitalize().replace(" ", ""),
-			"size": Vector3(2.0 * radius * SectionHull.TUBE_WALL_HALF, ceiling, bounds.y - bounds.x),
-			"position": Vector3(0.0, ceiling * 0.5, (bounds.x + bounds.y) * 0.5),
+			"size": Vector3(2.0 * radius * SectionHull.TUBE_WALL_HALF, SectionHull.TUBE_CEILING, bounds.y - bounds.x),
+			"position": Vector3(0.0, SectionHull.TUBE_CEILING * 0.5, (bounds.x + bounds.y) * 0.5),
 			"exports": {"compartment_id": TubeLayout.ROOM_COMPARTMENTS[room]},
 		})
 	if TubeLayout.sections().size() < 2:

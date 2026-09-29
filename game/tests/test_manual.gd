@@ -45,9 +45,6 @@ func _test_manual_book() -> void:
 	_check(book.pages[8].title == "EVA", "eva page is ninth")
 	_check(book.pages[9].title == "FIELD WORK", "field work page is tenth")
 	_check(book.pages[10].title == "DOCK PODS AND MACHINES", "modules page is last")
-	var module_text: String = book.pages[10].body
-	_check(module_text.contains("RING DECKS") and module_text.contains("Quarters, storage, and the engine bay"), "modules page covers the three ring-deck rooms")
-	_check(module_text.contains("press E to climb") and module_text.contains("W to go up") and module_text.contains("S to go down"), "modules page explains ladder controls")
 	var total_chars: int = 0
 	for page: ManualPage in book.pages:
 		_check(not page.title.is_empty() and page.body.length() > 80, "page '%s' has substance" % page.title)

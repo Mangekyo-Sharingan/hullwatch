@@ -1,5 +1,5 @@
 ## SENSOR CONTACTS: list nearby field objects and command a close approach or resume drift.
-## The maneuver belongs to SectorSystem, the fuel to NavSystem.
+## The maneuver belongs to SectorSystem, the propellant cost to NavSystem.
 class_name ApproachProgram
 extends ComputerProgram
 
@@ -45,7 +45,7 @@ func build_readout(terminal: Node) -> PackedStringArray:
 		return lines
 	var nav: Node = terminal.call("system", &"nav_system")
 	if nav != null:
-		lines.append("FUEL %d KG" % int(roundf(float(nav.call("get_status")["fuel_mass_kg"]))))
+		lines.append("PROPELLANT %d KG" % int(roundf(float(nav.call("get_status")["fuel_mass_kg"]))))
 	if bool(sector.call("is_holding")):
 		lines.append("HOLDING NEAR %s" % String(sector.call("get_approach_target_id")))
 	else:

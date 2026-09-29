@@ -204,6 +204,8 @@ func load_state(state: Dictionary) -> void:
 	else:
 		transit_elapsed_hours = 0.0
 	var event_bus: Node = _get_autoload(&"EventBus")
+	if event_bus != null:
+		event_bus.emit_signal(&"navigation_state_restored", transit_active)
 	if event_bus != null and current_destination_id != &"":
 		event_bus.emit_signal(&"destination_state_restored", current_destination_id)
 

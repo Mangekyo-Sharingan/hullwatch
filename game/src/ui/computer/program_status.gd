@@ -154,10 +154,10 @@ func _nav_lines(terminal: Node) -> PackedStringArray:
 				destination_name = destination.display_name.to_upper()
 				transit_days = destination.transit_days
 			lines.append("NAV  IN TRANSIT TO %s" % destination_name)
-			lines.append("  DAY %d / %d  FUEL %d KG  %d%% COMPLETE" % [
+			lines.append("  ION DRIVE PAIR FIRING  XENON %d KG" % int(roundf(float(status["fuel_mass_kg"]))))
+			lines.append("  DAY %d / %d  %d%% COMPLETE" % [
 				transit_day,
 				transit_days,
-				int(roundf(float(status["fuel_mass_kg"]))),
 				int(roundf(float(status["transit_progress"]) * 100.0)),
 			])
 		elif StringName(status["plotted_destination_id"]) != &"":
@@ -168,7 +168,7 @@ func _nav_lines(terminal: Node) -> PackedStringArray:
 				destination_name = destination.display_name.to_upper()
 				travel_days = destination.transit_days
 			lines.append("NAV  COURSE SET TO %s  %d DAYS" % [destination_name, travel_days])
-			lines.append("  FUEL %d KG  DRIFT %d%%" % [
+			lines.append("  ION DRIVE STANDBY  XENON %d KG  DRIFT %d%%" % [
 				int(roundf(float(status["fuel_mass_kg"]))),
 				int(roundf(float(status["course_error"]) * 100.0)),
 			])
@@ -180,7 +180,7 @@ func _nav_lines(terminal: Node) -> PackedStringArray:
 				if current != null:
 					position = current.display_name.to_upper()
 			lines.append("NAV  POSITION %s" % position)
-			lines.append("  FUEL %d KG  DRIFT %d%%" % [
+			lines.append("  ION DRIVE IDLE  XENON %d KG  DRIFT %d%%" % [
 				int(roundf(float(status["fuel_mass_kg"]))),
 				int(roundf(float(status["course_error"]) * 100.0)),
 			])

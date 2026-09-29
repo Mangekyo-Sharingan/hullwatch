@@ -265,11 +265,8 @@ func _test_determinism() -> void:
 func _test_data() -> void:
 	var main_config: CompartmentConfig = load("res://src/data/atmosphere/compartment_main.tres") as CompartmentConfig
 	var storage_config: CompartmentConfig = load("res://src/data/atmosphere/compartment_storage.tres") as CompartmentConfig
-	var quarters_config: CompartmentConfig = load("res://src/data/atmosphere/compartment_quarters.tres") as CompartmentConfig
-	var engine_config: CompartmentConfig = load("res://src/data/atmosphere/compartment_engine_bay.tres") as CompartmentConfig
 	_check(main_config != null, "data: main compartment loads")
 	_check(storage_config != null, "data: storage compartment loads")
-	_check(quarters_config != null and engine_config != null, "data: raised rooms load")
 	if main_config != null:
 		_check(main_config.compartment_id == &"main", "data: main id")
 		_check(is_equal_approx(main_config.volume_m3, 28.0), "data: main volume")
@@ -278,11 +275,18 @@ func _test_data() -> void:
 	if storage_config != null:
 		_check(storage_config.compartment_id == &"storage", "data: storage id")
 		_check(storage_config.o2_candles_stocked == 0, "data: storage candle stock")
-		_check(absf(storage_config.volume_m3 - 42.820552) < 0.001, "data: storage volume accounts for its full-width mezzanine and ladder opening")
-	if quarters_config != null:
-		_check(absf(quarters_config.volume_m3 - 54.121344) < 0.001, "data: quarters volume accounts for its full-width mezzanine and ladder opening")
-	if engine_config != null:
-		_check(absf(engine_config.volume_m3 - 112.248032) < 0.001, "data: engine-bay volume covers both sections, mezzanines and ladder openings")
+	for room: StringName in [&"quarters", &"storage", &"engine_bay"]:
+		var config_path: String = "res://src/data/atmosphere/compartment_%s.tres" % String(room)
+		var config: CompartmentConfig = load(config_path) as CompartmentConfig
+		_check(config != null, "data: %s compartment loads" % String(room))
+		if config == null:
+			continue
+		var expected_volume: float = 0.0
+		for section_index: int in TubeLayout.sections_for_room(room):
+			var section: Dictionary = TubeLayout.sections()[section_index]
+			var cross_section: PackedVector2Array = SectionHull.tube_section(float(section["radius"]))
+			expected_volume += absf(HullProfile.signed_area(cross_section)) * float(section["length"])
+		_check(is_equal_approx(config.volume_m3, expected_volume), "data: %s volume matches slim tube profile" % String(room))
 
 
 func _test_invalid_inputs() -> void:

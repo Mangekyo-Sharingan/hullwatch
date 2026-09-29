@@ -204,19 +204,58 @@ Open sub-questions for the next sitting (answer while reviewing the study):
    one-line change to the table in `game/tools/build_hull_study.gd`.
 3. **Section sizes.** Deck areas are 8–21 m² per section against today's room areas (cockpit
    31 m², engine bay 45 m², corridor 54 m²). The corridor's 54 m² disappears into the chain,
-   and the engine bay needs both sections. Confirm the deck sizes feel right, or say which
-   rooms deserve a second deck in M13.4.
+   and the engine bay needs both sections. The double-height trial was reverted after review;
+   the current cabin plan uses one slim deck per section.
 
 ---
 
-## Q8 — Ring deck profile (RESOLVED 2026-09-29)
+## Q8 — Ring deck profile (REVISED 2026-09-29)
 
-The operator chose **double-height sections for all three**: quarters, storage and engine bay
-(both engine-bay sections). The confirmed profile is a **4.4 m ceiling**, **3.4 m wall top**,
-and a **partial aft-half mezzanine at 2.2 m**, reached by a ladder. This replaces the former
-2.5 m ceiling, which could not provide standing room on both levels.
+The earlier double-height choice for quarters, storage and the engine bay was superseded after
+review. Keep the standard **2.5 m single-height cabin profile** in every room, with no
+mezzanines or ladders. This is the current operator-approved layout and is verified under
+M13.4 in `docs/EXPANSION_SPEC.md`.
 
-Study renders: `docs/design/study_deck_section.png` and
-`docs/design/study_deck_three_quarter.png` (built by `game/tools/build_deck_study.gd`, captured
-by `capture_deck_study.gd`). Implementation and verification status is tracked under M13.4/M13.5
-in `docs/EXPANSION_SPEC.md`.
+The earlier study renders remain design-history references only: `docs/design/study_deck_section.png`
+and `docs/design/study_deck_three_quarter.png`.
+
+## Propulsion modules — ion drive selected (2026-09-30)
+
+The operator selected a **pure electric xenon ion drive**: Xenonite forms the highly efficient
+ion-accelerator lattice; xenon gas is the working propellant; no gravitic propulsion or
+reactionless thrust. The existing `NavSystem.fuel_mass_kg` is the working xenon reserve for the
+current voyage loop. The working visual is two replaceable, aft-facing cassettes mounted
+symmetrically on the centered stern drum. Existing small thruster clusters remain maneuvering
+RCS units.
+
+The Xenonite performance advantage is fictional. Keep the visible engine grounded in electrical
+power, xenon feed, long low-thrust burns, heat rejection and serviceable cathode/grid hardware.
+See `docs/design/propulsion_module_narrative.md` for the visual and game-system direction.
+
+M14.1/M14.2 visuals and transit-linked readouts are implemented for review. The paired cassette
+mount is the current working layout; M14.3 remains open. The existing ship has a 500 W RTG,
+4 kWh battery and five nominal circuit loads totaling 610 W, before adding drive power. The
+thermal simulator models cabin compartments, heaters and hull losses; it has no engine/radiator
+thermal network. These limits make the power and radiator choices material to route balance.
+The present circuit loads are life support 120 W (priority 0), scrubber 150 W (2), airlock 60 W
+(3), fabricator 80 W (4) and lighting 200 W (5); the power simulator sheds the highest numbered
+priority first, so the actual fallback order is visible and testable.
+
+Open questions for the next simulation pass:
+
+- Should propulsion draw from the shared electrical bus during transit, with priority shedding, or
+  should the RTG/battery capacity be rebalanced first? The power simulator already has a
+  `set_circuit_source_load` hook for live hardware loads.
+- Should drive heat use the existing engine-bay compartment heat input, or does the fictional
+  radiator need a separate external heat-rejection model?
+- Can one surviving cassette sustain slower travel? If so, should its route take longer, consume
+  more xenon, or both?
+- Should maintenance diagnose faults and replace a whole cassette, or let the operator service
+  grid/cathode components during EVA?
+- How much of the Xenonite lattice can the operator understand? Its origin remains deliberately
+  unresolved.
+
+Visual review: the revised aft captures clearly separate both cassettes and their wakes, but the
+port cassette remains much darker than starboard under the current exterior lighting. Decide after
+review whether this lighting contrast fits the ship or whether both housings need a shared neutral
+reflective edge accent; do not add a dedicated powered engine light without a gameplay reason.

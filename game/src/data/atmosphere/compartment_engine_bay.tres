@@ -6,7 +6,7 @@
 script = ExtResource("1")
 compartment_id = &"engine_bay"
 display_name = "Engine Bay"
-volume_m3 = 112.248032
+volume_m3 = 63.62944
 initial_pressure_kpa = 101.325
 initial_o2_fraction = 0.21
 initial_co2_ppm = 400.0

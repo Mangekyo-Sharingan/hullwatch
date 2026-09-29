@@ -78,13 +78,13 @@
 [ext_resource type="Resource" path="res://src/data/machines/machine_scrubber_spare.tres" id="97_machine_scrubber_spare"]
 [ext_resource type="Script" uid="uid://catrwpbk3xnvw" path="res://src/systems/voice_guide.gd" id="98_voice_guide"]
 [ext_resource type="Script" uid="uid://0t82o4vlx6f3" path="res://src/ui/guide_overlay.gd" id="99_guide_overlay"]
-[ext_resource type="Script" path="res://src/systems/nav.gd" id="100_nav"]
-[ext_resource type="Script" path="res://src/components/voyage_destination.gd" id="101_destination_script"]
+[ext_resource type="Script" uid="uid://dtvv85pwxipmw" path="res://src/systems/nav.gd" id="100_nav"]
+[ext_resource type="Script" uid="uid://cainl6kmvcqbc" path="res://src/components/voyage_destination.gd" id="101_destination_script"]
 [ext_resource type="Resource" path="res://src/data/destinations/destination_arden_ii.tres" id="102_destination_arden"]
 [ext_resource type="Resource" path="res://src/data/destinations/destination_kestrel_system.tres" id="103_destination_kestrel"]
-[ext_resource type="Script" path="res://src/world/destination_backdrop.gd" id="104_destination_backdrop"]
-[ext_resource type="Script" path="res://src/systems/computer.gd" id="105_computer"]
-[ext_resource type="Script" path="res://src/components/log_entry.gd" id="106_log_entry"]
+[ext_resource type="Script" uid="uid://hsvpyfc31kho" path="res://src/world/destination_backdrop.gd" id="104_destination_backdrop"]
+[ext_resource type="Script" uid="uid://bqjd0uhr73g2c" path="res://src/systems/computer.gd" id="105_computer"]
+[ext_resource type="Script" uid="uid://cprpcqglmw1a6" path="res://src/components/log_entry.gd" id="106_log_entry"]
 [ext_resource type="Resource" path="res://src/data/logs/log_01.tres" id="107_log_01"]
 [ext_resource type="Resource" path="res://src/data/logs/log_02.tres" id="108_log_02"]
 
@@ -186,7 +186,7 @@ script = ExtResource("70_airlock")
 [node name="SectorSystem" type="Node" parent="Systems" unique_id=62577210]
 script = ExtResource("72_sector")
 
-[node name="NavSystem" type="Node" parent="Systems"]
+[node name="NavSystem" type="Node" parent="Systems" unique_id=1269415405]
 script = ExtResource("100_nav")
 destinations = Array[ExtResource("101_destination_script")]([ExtResource("102_destination_arden"), ExtResource("103_destination_kestrel")])
 
