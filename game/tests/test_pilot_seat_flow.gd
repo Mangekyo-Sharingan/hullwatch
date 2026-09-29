@@ -30,9 +30,21 @@ func _run() -> void:
 		return
 
 	player.global_position = chair.global_position + Vector3(0.0, 0.0, 1.15)
+	var approach_position: Vector3 = player.global_position
 	chair.interact(player)
 	await physics_frame
+	_check(bool(player.get("_seat_transitioning")), "boarding waits through the chair preparation")
+	_check(player.global_position.distance_to(approach_position) < 0.01, "operator remains at the approach point until the chair is ready")
+	var seat_distance: float = player.global_position.distance_to(chair.get_seat_world_position())
+	var saw_sit_motion: bool = false
+	var timeout: SceneTreeTimer = create_timer(8.0)
+	while timeout.time_left > 0.0 and not bool(player.call("is_pilot_seated")):
+		await physics_frame
+		var remaining_distance: float = player.global_position.distance_to(chair.get_seat_world_position())
+		if remaining_distance > 0.05 and remaining_distance < seat_distance - 0.02:
+			saw_sit_motion = true
 	_check(bool(player.call("is_pilot_seated")) and chair.is_occupied(), "E seats the operator and locks the chair forward")
+	_check(saw_sit_motion, "camera body travels into the seat instead of snapping there")
 	_check(player.global_position.distance_to(chair.get_seat_world_position()) < 0.05, "camera body moves to the pilot eye anchor")
 	var shape: CollisionShape3D = player.get_node(^"CollisionShape3D") as CollisionShape3D
 	_check(shape != null and shape.disabled, "seated body does not collide with its own chair")
@@ -62,9 +74,18 @@ func _run() -> void:
 	var leave: InputEventAction = InputEventAction.new()
 	leave.action = &"leave_seat"
 	leave.pressed = true
+	var exit_distance: float = player.global_position.distance_to(chair.get_exit_world_position())
+	var saw_exit_motion: bool = false
 	player.call("_unhandled_input", leave)
 	await physics_frame
 	_check(not bool(player.call("is_pilot_seated")) and not chair.is_occupied(), "X leaves the pilot seat")
+	timeout = create_timer(2.0)
+	while timeout.time_left > 0.0 and bool(player.get("_seat_transitioning")):
+		await physics_frame
+		var remaining_exit_distance: float = player.global_position.distance_to(chair.get_exit_world_position())
+		if remaining_exit_distance > 0.05 and remaining_exit_distance < exit_distance - 0.02:
+			saw_exit_motion = true
+	_check(saw_exit_motion, "operator rises and moves into the side aisle")
 	_check(shape != null and not shape.disabled and ray.target_position.length() < 3.0, "standing collision and interaction reach restore")
 	_check(player.global_position.distance_to(chair.get_exit_world_position()) < 0.05, "operator exits into the side aisle")
 

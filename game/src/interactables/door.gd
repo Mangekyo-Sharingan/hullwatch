@@ -2,6 +2,9 @@
 class_name Door
 extends Interactable
 
+const SLIDE_DURATION_SECONDS: float = 0.58
+const MIN_SLIDE_DURATION_SECONDS: float = 0.12
+
 @export var compartment_a: StringName = &""
 @export var compartment_b: StringName = &""
 @export var open_offset: Vector3 = Vector3(0, 2.1, 0)
@@ -17,6 +20,7 @@ var _slab: Node3D
 var _slab_shape: CollisionShape3D
 var _slab_base_position: Vector3 = Vector3.ZERO
 var _slab_shape_base_position: Vector3 = Vector3.ZERO
+var _motion_tween: Tween
 
 
 func _ready() -> void:
@@ -28,7 +32,7 @@ func _ready() -> void:
 	if _slab_shape != null:
 		_slab_shape_base_position = _slab_shape.position
 	_open = starts_open
-	_apply_open_state()
+	_apply_open_state(false)
 
 
 func is_open() -> bool:
@@ -80,19 +84,65 @@ func _emit_airlock_refusal(airlock: Node, open: bool) -> void:
 
 func _set_open(open: bool) -> void:
 	_open = open
-	_apply_open_state()
+	_apply_open_state(true)
 
 
-func _apply_open_state() -> void:
-	var offset: Vector3 = open_offset if _open else Vector3.ZERO
+func _apply_open_state(animate: bool) -> void:
+	var target_offset: Vector3 = open_offset if _open else Vector3.ZERO
+	if _motion_tween != null and _motion_tween.is_valid():
+		_motion_tween.kill()
+	_motion_tween = null
+	if animate and not _door_offset().is_equal_approx(target_offset):
+		if _slab != null:
+			_slab.visible = true
+		if _slab_shape != null and not _open:
+			_slab_shape.disabled = false
+		var start_offset: Vector3 = _door_offset()
+		var travel_fraction: float = clampf(start_offset.distance_to(target_offset) / maxf(open_offset.length(), 0.001), 0.0, 1.0)
+		var duration: float = maxf(MIN_SLIDE_DURATION_SECONDS, SLIDE_DURATION_SECONDS * travel_fraction)
+		_motion_tween = create_tween().set_process_mode(Tween.TWEEN_PROCESS_PHYSICS)
+		_motion_tween.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+		_motion_tween.tween_method(_set_motion_progress.bind(start_offset, target_offset), 0.0, 1.0, duration)
+		_motion_tween.finished.connect(_finish_motion.bind(_open))
+	else:
+		_set_door_offset(target_offset)
+		_finish_open_state()
+	_sync_connection()
+	_sync_airlock_state()
+
+
+func _door_offset() -> Vector3:
 	if _slab != null:
-		_slab.visible = not _open or not hide_when_open
+		return _slab.position - _slab_base_position
+	if _slab_shape != null:
+		return _slab_shape.position - _slab_shape_base_position
+	return Vector3.ZERO
+
+
+func _set_motion_progress(progress: float, start_offset: Vector3, target_offset: Vector3) -> void:
+	_set_door_offset(start_offset.lerp(target_offset, progress))
+
+
+func _set_door_offset(offset: Vector3) -> void:
+	if _slab != null:
 		_slab.position = _slab_base_position + offset
 	if _slab_shape != null:
 		_slab_shape.position = _slab_shape_base_position + offset
+
+
+func _finish_motion(open: bool) -> void:
+	if open != _open:
+		return
+	_set_door_offset(open_offset if open else Vector3.ZERO)
+	_finish_open_state()
+	_motion_tween = null
+
+
+func _finish_open_state() -> void:
+	if _slab != null:
+		_slab.visible = not _open or not hide_when_open
+	if _slab_shape != null:
 		_slab_shape.disabled = _open
-	_sync_connection()
-	_sync_airlock_state()
 
 
 func _sync_connection() -> void:
@@ -129,4 +179,5 @@ func save_state() -> Dictionary:
 
 func load_state(state: Dictionary) -> void:
 	super.load_state(state)
-	_set_open(bool(state.get("open", _open)))
+	_open = bool(state.get("open", _open))
+	_apply_open_state(false)

@@ -2,10 +2,25 @@
 class_name FabricatorUnit
 extends Interactable
 
+const ANIMATION_FABRICATE: StringName = &"fabricate"
+
 var _menu: ScrollMenu
 var _content: Label
 var _root: HBoxContainer
 var _actions: Array[StringName] = []
+var _event_bus: Node
+
+
+func _ready() -> void:
+	_event_bus = _get_autoload(&"EventBus")
+	if _event_bus != null and not _event_bus.is_connected(&"sim_event", _on_sim_event):
+		_event_bus.connect(&"sim_event", _on_sim_event)
+	call_deferred(&"_refresh_machine_animation")
+
+
+func _exit_tree() -> void:
+	if _event_bus != null and _event_bus.is_connected(&"sim_event", _on_sim_event):
+		_event_bus.disconnect(&"sim_event", _on_sim_event)
 
 
 func get_interaction_prompt() -> String:
@@ -123,6 +138,37 @@ func _refresh_menu() -> void:
 func _refresh_content() -> void:
 	if _content != null:
 		_content.text = "\n".join(build_readout())
+
+
+func _on_sim_event(event_name: StringName, payload: Dictionary) -> void:
+	if event_name in [&"fabrication_started", &"fabrication_completed", &"fabricator_state_restored"]:
+		_refresh_machine_animation()
+	elif event_name in [&"breaker_toggled", &"circuit_shed", &"circuit_restored"]:
+		var fabricator: Node = _get_system(&"fabricator_system")
+		if fabricator == null:
+			return
+		var circuit_id: StringName = StringName(String(fabricator.get(&"circuit_id")))
+		if StringName(String(payload.get("circuit_id", ""))) == circuit_id:
+			_refresh_machine_animation()
+
+
+func _refresh_machine_animation() -> void:
+	var animator: AnimationPlayer = find_child("AnimationPlayer", true, false) as AnimationPlayer
+	if animator == null or not animator.has_animation(ANIMATION_FABRICATE):
+		return
+	var fabricator: Node = _get_system(&"fabricator_system")
+	var running: bool = false
+	if fabricator != null and fabricator.has_method(&"get_status"):
+		var status: Variant = fabricator.call(&"get_status")
+		if status is Dictionary:
+			running = bool((status as Dictionary).get("busy", false)) and bool((status as Dictionary).get("powered", false))
+	if running:
+		if animator.current_animation != ANIMATION_FABRICATE or not animator.is_playing():
+			animator.play(ANIMATION_FABRICATE)
+	else:
+		animator.play(ANIMATION_FABRICATE)
+		animator.seek(0.0, true)
+		animator.pause()
 
 
 func _ensure_ui() -> void:

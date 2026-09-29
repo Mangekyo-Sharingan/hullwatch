@@ -37,7 +37,7 @@ func _run() -> void:
 	var seat: CollisionShape3D = chair.get_node_or_null(^"SeatShape") as CollisionShape3D
 	_check(animator != null and animator.has_animation(&"deploy") and animator.has_animation(&"stow"), "chair keeps authored fold clips")
 	_check(base != null and not base.disabled, "floor pedestal has collision")
-	_check(back != null and seat != null and not seat.disabled, "back and seat have collision")
+	_check(back != null and not back.disabled and seat != null and seat.disabled, "folded seat clears its collision before the first turn")
 	_check(chair.get_interaction_prompt() == "Take pilot seat", "chair invites boarding")
 	_check(chair.is_deployed(), "pilot seat starts deployed")
 
@@ -45,13 +45,23 @@ func _run() -> void:
 	player.add_to_group(&"player")
 	player.position = Vector3(0.0, 0.0, 1.2)
 	root.add_child(player)
-	chair._process(2.0)
-	_check(absf(model.rotation.y - PI) < 0.01, "chair swivels toward nearby operator")
+	var saw_folded_turn: bool = false
+	var timeout: SceneTreeTimer = create_timer(6.0)
+	while timeout.time_left > 0.0 and not _chair_ready_at(chair, model, PI):
+		await process_frame
+		if bool(chair.get("_seat_stowed")) and absf(model.rotation.y) > 0.01:
+			saw_folded_turn = true
+	_check(saw_folded_turn, "seat stays withdrawn while the chair turns")
+	_check(_chair_ready_at(chair, model, PI), "chair swivels and deploys toward nearby operator")
 	_check(seat != null and seat.position.z < 0.0, "seat collider follows swivel")
+	_check(seat != null and not seat.disabled, "deployed seat collider returns after the turn")
 	chair.interact(player)
 	_check(player.entered, "chair requests player seated mode")
 	chair.set_occupied(true)
-	_check(chair.is_occupied() and absf(model.rotation.y) < 0.01, "occupied chair faces the forward window")
+	timeout = create_timer(6.0)
+	while timeout.time_left > 0.0 and not _chair_ready_at(chair, model, 0.0):
+		await process_frame
+	_check(chair.is_occupied() and _chair_ready_at(chair, model, 0.0), "occupied chair folds, returns forward, and deploys")
 	chair.set_occupied(false)
 
 	chair.load_state({"enabled": true, "deployed": false})
@@ -61,6 +71,15 @@ func _run() -> void:
 	player.free()
 	chair.free()
 	_finish()
+
+
+func _chair_ready_at(chair: PilotChair, model: Node3D, angle: float) -> bool:
+	return (
+		not bool(chair.get("_seat_animating"))
+		and not bool(chair.get("_boarding"))
+		and not bool(chair.get("_seat_stowed"))
+		and absf(wrapf(angle - model.rotation.y, -PI, PI)) < 0.02
+	)
 
 
 func _finish() -> void:

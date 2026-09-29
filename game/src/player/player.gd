@@ -16,6 +16,9 @@ const DROP_FALLBACK_LIFT_M: float = 0.3
 const TETHER_ATTACH_RANGE: float = 6.0
 const SEATED_HEAD_Y: float = 1.18
 const SEATED_RAY_LENGTH: float = 3.6
+const SEAT_MOTION_SPEED: float = 2.4
+const SEAT_MOTION_MIN_SECONDS: float = 0.38
+const SEAT_MOTION_MAX_SECONDS: float = 0.72
 
 @export var walk_speed: float = 3.0
 @export var crouch_speed: float = 1.5
@@ -48,7 +51,11 @@ var _tether_anchor: Node3D = null
 var _tethered: bool = false
 var _tether_strain_armed: bool = true
 var _pilot_seat: PilotChair = null
+var _seat_transitioning: bool = false
+var _seated: bool = false
 var _standing_ray_target: Vector3 = Vector3.ZERO
+var _standing_ray_enabled: bool = true
+var _seat_tween: Tween
 
 
 func _ready() -> void:
@@ -65,7 +72,7 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
-	if is_pilot_seated():
+	if _seat_transitioning or is_pilot_seated():
 		velocity = Vector3.ZERO
 		return
 	_set_crouched(Input.is_action_pressed(&"crouch"))
@@ -110,7 +117,7 @@ func get_planar_speed() -> float:
 
 
 func is_pilot_seated() -> bool:
-	return _pilot_seat != null and is_instance_valid(_pilot_seat)
+	return _seated and _pilot_seat != null and is_instance_valid(_pilot_seat)
 
 
 func get_pilot_seat() -> PilotChair:
@@ -125,23 +132,22 @@ func get_seated_target() -> CollisionObject3D:
 
 
 func enter_pilot_seat(chair: PilotChair) -> bool:
-	if is_pilot_seated() or chair == null or not is_instance_valid(chair):
+	if is_pilot_seated() or _seat_transitioning or chair == null or not is_instance_valid(chair):
 		return false
 	if global_position.distance_to(chair.global_position) > PilotChair.APPROACH_RADIUS + 0.3:
 		return false
-	_set_crouched(false)
 	_pilot_seat = chair
-	chair.set_occupied(true)
-	velocity = Vector3.ZERO
-	global_position = chair.get_seat_world_position()
-	rotation.y = chair.global_rotation.y + PI
-	_pitch = 0.0
-	_head.rotation.x = 0.0
-	_head.position.y = SEATED_HEAD_Y
-	_collision_shape.set_deferred(&"disabled", true)
+	_seat_transitioning = true
+	_seated = false
 	_standing_ray_target = _interact_ray.target_position
-	_interact_ray.target_position = Vector3(0.0, 0.0, -SEATED_RAY_LENGTH)
+	_standing_ray_enabled = _interact_ray.enabled
+	_interact_ray.enabled = false
+	velocity = Vector3.ZERO
+	_collision_shape.set_deferred(&"disabled", true)
 	_interact_ray.add_exception(chair)
+	if not chair.boarding_ready.is_connected(_on_pilot_chair_ready):
+		chair.boarding_ready.connect(_on_pilot_chair_ready, CONNECT_ONE_SHOT)
+	chair.set_occupied(true)
 	return true
 
 
@@ -149,13 +155,63 @@ func exit_pilot_seat() -> void:
 	if not is_pilot_seated():
 		return
 	var chair: PilotChair = _pilot_seat
+	_seated = false
+	_seat_transitioning = true
+	_interact_ray.enabled = false
+	chair.set_occupied(false)
+	_start_seat_motion(chair.get_exit_world_position(), rotation.y, STAND_HEAD_Y, _finish_seat_exit)
+
+
+func _on_pilot_chair_ready(chair: PilotChair) -> void:
+	if not _seat_transitioning or chair != _pilot_seat or not is_instance_valid(chair):
+		return
+	var start_head_y: float = _head.position.y
+	_set_crouched(false)
+	_head.position.y = start_head_y
+	var seated_yaw: float = chair.get_seated_yaw()
+	_start_seat_motion(chair.get_seat_world_position(), seated_yaw, SEATED_HEAD_Y, _finish_seat_entry)
+
+
+func _start_seat_motion(target_position: Vector3, target_yaw: float, target_head_y: float, finished: Callable) -> void:
+	if _seat_tween != null and _seat_tween.is_valid():
+		_seat_tween.kill()
+	var duration: float = clampf(global_position.distance_to(target_position) / SEAT_MOTION_SPEED, SEAT_MOTION_MIN_SECONDS, SEAT_MOTION_MAX_SECONDS)
+	var start_yaw: float = rotation.y
+	var start_pitch: float = _head.rotation.x
+	_seat_tween = create_tween().set_parallel(true)
+	_seat_tween.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+	_seat_tween.tween_property(self, ^"global_position", target_position, duration)
+	_seat_tween.tween_method(_set_yaw_between.bind(start_yaw, target_yaw), 0.0, 1.0, duration)
+	_seat_tween.tween_property(_head, ^"position:y", target_head_y, duration)
+	_seat_tween.tween_property(_head, ^"rotation:x", 0.0 if target_head_y == SEATED_HEAD_Y else start_pitch, duration)
+	_seat_tween.finished.connect(finished)
+
+
+func _set_yaw_between(progress: float, start_yaw: float, target_yaw: float) -> void:
+	rotation.y = lerp_angle(start_yaw, target_yaw, progress)
+
+
+func _finish_seat_entry() -> void:
+	if _pilot_seat == null or not is_instance_valid(_pilot_seat):
+		_finish_seat_exit()
+		return
+	_seat_transitioning = false
+	_seated = true
+	_pitch = 0.0
+	_head.rotation.x = 0.0
+	_interact_ray.target_position = Vector3(0.0, 0.0, -SEATED_RAY_LENGTH)
+	_interact_ray.enabled = true
+
+
+func _finish_seat_exit() -> void:
+	var chair: PilotChair = _pilot_seat
 	_pilot_seat = null
-	global_position = chair.get_exit_world_position()
-	_head.position.y = STAND_HEAD_Y
+	_seat_transitioning = false
 	_collision_shape.set_deferred(&"disabled", false)
 	_interact_ray.target_position = _standing_ray_target
-	_interact_ray.remove_exception(chair)
-	chair.set_occupied(false)
+	_interact_ray.enabled = _standing_ray_enabled
+	if is_instance_valid(chair):
+		_interact_ray.remove_exception(chair)
 
 
 func engage_boots() -> bool:
@@ -276,6 +332,8 @@ func consume_carried() -> bool:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if _seat_transitioning:
+		return
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		var motion: InputEventMouseMotion = event as InputEventMouseMotion
 		_apply_look_motion(motion.relative)

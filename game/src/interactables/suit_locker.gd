@@ -7,11 +7,18 @@ const ACTION_LABELS: Dictionary = {
 	&"store": "Stow the EVA suit",
 	&"refill": "Refill the O2 tank from ship air",
 }
+const ANIMATION_OPEN: StringName = &"open_locker"
+const ANIMATION_CLOSE: StringName = &"close_locker"
 
 var _menu: ScrollMenu
 var _content: Label
 var _root: HBoxContainer
 var _actions: Array[StringName] = []
+var _animator: AnimationPlayer
+
+
+func _ready() -> void:
+	_animator = find_child("AnimationPlayer", true, false) as AnimationPlayer
 
 
 func get_interaction_prompt() -> String:
@@ -23,10 +30,13 @@ func is_open() -> bool:
 
 
 func close() -> void:
+	var was_open: bool = is_open()
 	if _menu != null:
 		_menu.close()
 	if _root != null:
 		_root.visible = false
+	if was_open:
+		_play_locker_animation(ANIMATION_CLOSE)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -93,6 +103,7 @@ func _handle_interact(_player: Node) -> void:
 		return
 	_refresh_menu()
 	_menu.open()
+	_play_locker_animation(ANIMATION_OPEN)
 	if _root != null:
 		_root.visible = true
 	_refresh_content()
@@ -126,6 +137,11 @@ func _refresh_menu() -> void:
 func _refresh_content() -> void:
 	if _content != null:
 		_content.text = "\n".join(build_readout())
+
+
+func _play_locker_animation(animation_name: StringName) -> void:
+	if _animator != null and _animator.has_animation(animation_name):
+		_animator.play(animation_name)
 
 
 func _refusal(action: StringName) -> StringName:

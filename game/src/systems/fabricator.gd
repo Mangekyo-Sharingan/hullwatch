@@ -110,6 +110,7 @@ func load_state(state: Dictionary) -> void:
 	_job_remaining_hours = maxf(float(state.get("job_remaining_hours", 0.0)), 0.0)
 	if _job_recipe == null:
 		_job_remaining_hours = 0.0
+	emit_sim_event(&"fabricator_state_restored", {"busy": is_busy()})
 
 
 func _power_available() -> bool:

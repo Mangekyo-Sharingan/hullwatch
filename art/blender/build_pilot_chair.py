@@ -74,24 +74,34 @@ def pivot(parent: bpy.types.Object, name: str, location: tuple) -> bpy.types.Obj
 
 
 def orient_children_for_stow(part: bpy.types.Object) -> None:
-    fold = Matrix.Rotation(math.pi / 2.0, 4, "X")
+    fold = Matrix.Rotation(-math.pi / 2.0, 4, "X")
     for child in part.children:
-        child.matrix_local = fold @ child.matrix_local
+        child.matrix_basis = fold @ child.matrix_basis
 
 
-def animate_fold(part: bpy.types.Object, deployed_angle: float) -> None:
+def animate_fold(part: bpy.types.Object, deployed_angle: float,
+                 stowed_location: tuple | None = None,
+                 deployed_location: tuple | None = None) -> None:
     part.animation_data_create()
     scene = bpy.context.scene
-    for clip, start_angle, end_angle in (
-        ("deploy", 0.0, deployed_angle),
-        ("stow", deployed_angle, 0.0),
+    stowed_location = stowed_location or tuple(part.location)
+    deployed_location = deployed_location or tuple(part.location)
+    for clip, start_angle, end_angle, start_location, end_location in (
+        ("deploy", 0.0, deployed_angle, stowed_location, deployed_location),
+        ("stow", deployed_angle, 0.0, deployed_location, stowed_location),
     ):
         action = bpy.data.actions.new(name=f"{clip}_{part.name}")
         part.animation_data.action = action
         scene.frame_set(1)
+        part.location = Vector(start_location)
+        if start_location != end_location:
+            part.keyframe_insert("location", frame=1)
         part.rotation_euler.x = start_angle
         part.keyframe_insert("rotation_euler", index=0, frame=1)
         scene.frame_set(25)
+        part.location = Vector(end_location)
+        if start_location != end_location:
+            part.keyframe_insert("location", frame=25)
         part.rotation_euler.x = end_angle
         part.keyframe_insert("rotation_euler", index=0, frame=25)
         slot = part.animation_data.action_slot
@@ -149,7 +159,7 @@ def main() -> None:
     cylinder(chair, "FootRim", 0.31, 0.025, (0.0, 0.02, 0.092), (0.0, 0.0, 0.0), metal)
     cylinder(chair, "SwivelBearing", 0.17, 0.11, (0.0, 0.02, 0.16), (0.0, 0.0, 0.0), amber)
     cylinder(chair, "PedestalColumn", 0.10, 0.43, (0.0, 0.02, 0.39), (0.0, 0.0, 0.0), metal)
-    box(chair, "SeatSupport", (0.54, 0.37, 0.09), (0.0, -0.06, 0.60), dark, 0.02)
+    box(chair, "SeatSupport", (0.54, 0.16, 0.09), (0.0, -0.08, 0.60), dark, 0.02)
     box(chair, "BackSpine", (0.16, 0.12, 0.91), (0.0, 0.08, 0.99), dark, 0.025)
     for side in (-1.0, 1.0):
         box(chair, f"BackRail_{side}", (0.045, 0.08, 0.75), (side * 0.31, 0.075, 1.0), metal, 0.01)
@@ -157,33 +167,35 @@ def main() -> None:
     box(chair, "BackHingeBar", (0.68, 0.09, 0.075), (0.0, -0.01, 0.56), dark)
     cylinder(chair, "SeatAxle", 0.035, 0.73, (0.0, -0.055, 0.56), (0.0, math.pi / 2.0, 0.0), metal)
 
-    # Fixed upholstered back; the pan and arms hinge down from below it.
+    # The fixed back doubles as a narrow storage panel for the folded seat.
     back = pivot(chair, "SeatBack", (0.0, -0.095, 0.98))
-    box(back, "BackShell", (0.61, 0.12, 0.64), (0.0, 0.0, 0.0), beige, 0.025)
-    box(back, "BackCushion", (0.52, 0.055, 0.51), (0.0, -0.083, -0.005), fabric, 0.035)
+    box(back, "BackShell", (0.74, 0.12, 0.64), (0.0, 0.0, 0.0), beige, 0.025)
+    box(back, "BackCushion", (0.60, 0.055, 0.51), (0.0, -0.083, -0.005), fabric, 0.035)
     box(back, "HeadPad", (0.43, 0.065, 0.13), (0.0, -0.087, 0.225), fabric, 0.03)
     box(back, "LumbarPad", (0.43, 0.065, 0.14), (0.0, -0.087, -0.19), fabric, 0.03)
+    for side in (-1.0, 1.0):
+        box(back, f"StowGuide_{side}", (0.045, 0.055, 0.58), (side * 0.325, -0.083, 0.0), metal, 0.008)
 
-    seat = pivot(chair, "SeatPan", (0.0, -0.12, 0.56))
+    seat = pivot(chair, "SeatPan", (0.0, -0.12, 0.72))
     box(seat, "PanShell", (0.60, 0.46, 0.085), (0.0, -0.22, 0.0), beige, 0.022)
     box(seat, "PanCushion", (0.53, 0.39, 0.055), (0.0, -0.225, 0.052), fabric, 0.025)
     box(seat, "FrontWarningBand", (0.49, 0.025, 0.025), (0.0, -0.442, -0.01), amber, 0.004)
     orient_children_for_stow(seat)
-    animate_fold(seat, -math.pi / 2.0)
+    animate_fold(seat, math.pi / 2.0, (0.0, -0.12, 0.72), (0.0, -0.12, 0.56))
 
-    arm_l = pivot(chair, "ArmrestL", (-0.365, -0.12, 0.70))
+    arm_l = pivot(chair, "ArmrestL", (-0.32, -0.12, 0.70))
     box(arm_l, "ArmLFrame", (0.085, 0.38, 0.06), (0.0, -0.18, 0.0), metal, 0.018)
     box(arm_l, "ArmLPadding", (0.072, 0.31, 0.035), (0.0, -0.18, 0.043), dark, 0.015)
     orient_children_for_stow(arm_l)
-    cylinder(chair, "ArmHingeL", 0.027, 0.10, (-0.365, -0.12, 0.70), (0.0, math.pi / 2.0, 0.0), amber)
-    animate_fold(arm_l, -math.pi / 2.0)
+    cylinder(chair, "ArmHingeL", 0.027, 0.10, (-0.32, -0.12, 0.70), (0.0, math.pi / 2.0, 0.0), amber)
+    animate_fold(arm_l, math.pi / 2.0)
 
-    arm_r = pivot(chair, "ArmrestR", (0.365, -0.12, 0.70))
+    arm_r = pivot(chair, "ArmrestR", (0.32, -0.12, 0.70))
     box(arm_r, "ArmRFrame", (0.085, 0.38, 0.06), (0.0, -0.18, 0.0), metal, 0.018)
     box(arm_r, "ArmRPadding", (0.072, 0.31, 0.035), (0.0, -0.18, 0.043), dark, 0.015)
     orient_children_for_stow(arm_r)
-    cylinder(chair, "ArmHingeR", 0.027, 0.10, (0.365, -0.12, 0.70), (0.0, math.pi / 2.0, 0.0), amber)
-    animate_fold(arm_r, -math.pi / 2.0)
+    cylinder(chair, "ArmHingeR", 0.027, 0.10, (0.32, -0.12, 0.70), (0.0, math.pi / 2.0, 0.0), amber)
+    animate_fold(arm_r, math.pi / 2.0)
 
     box(chair, "SwivelRelease", (0.16, 0.12, 0.045), (0.21, -0.07, 0.24), amber, 0.008)
     box(chair, "ReleaseGrip", (0.18, 0.035, 0.035), (0.28, -0.14, 0.24), metal, 0.006)

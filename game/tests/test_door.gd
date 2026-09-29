@@ -38,6 +38,7 @@ func _test_door_toggle() -> void:
 	pressure_gap = _pressure_difference(atmosphere)
 	atmosphere.sim_tick(1.0)
 	_check(_pressure_difference(atmosphere) < pressure_gap, "open door mixes its direct gas path")
+	await _wait_for_door_motion()
 	_check(slab_shape.disabled, "open slab collision is disabled")
 	_check(slab.position.is_equal_approx(door.open_offset), "open slab moved by open_offset")
 
@@ -50,6 +51,7 @@ func _test_door_toggle() -> void:
 		_check(not door.is_open(), "interacting with the frame closes the open door")
 
 	_check(not door.is_open(), "door stays closed after the frame interaction")
+	await _wait_for_door_motion()
 	_check(not slab_shape.disabled, "closed slab collision is re-enabled")
 	_check(slab.position.is_equal_approx(Vector3.ZERO), "closed slab returned to its base position")
 
@@ -114,6 +116,7 @@ func _test_generated_slab() -> void:
 	_check(not slab.visible, "open generated slab is stowed")
 	door.interact(null)
 	_check(slab.visible, "closed generated slab shows again")
+	await _wait_for_door_motion()
 	_check(slab.position.is_equal_approx(Vector3.ZERO), "closed generated slab sits in its doorway")
 	_despawn_all()
 
@@ -169,6 +172,10 @@ func _pressure_difference(atmosphere: AtmosphereSystem) -> float:
 	var main_pressure: float = float(atmosphere.get_compartment_status(&"main")["pressure_kpa"])
 	var corridor_pressure: float = float(atmosphere.get_compartment_status(&"corridor")["pressure_kpa"])
 	return absf(main_pressure - corridor_pressure)
+
+
+func _wait_for_door_motion() -> void:
+	await create_timer(Door.SLIDE_DURATION_SECONDS + 0.05).timeout
 
 
 func _spawn(node: Node) -> void:

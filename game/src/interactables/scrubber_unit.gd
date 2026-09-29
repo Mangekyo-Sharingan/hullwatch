@@ -5,6 +5,12 @@ extends Interactable
 
 enum Stage { CLOSED, FILTER_IN, FILTER_OUT, SEAT, READY }
 
+const ANIMATION_OPEN: StringName = &"open_housing"
+const ANIMATION_CLOSE: StringName = &"close_housing"
+const ANIMATION_REMOVE_FILTER: StringName = &"remove_filter"
+const ANIMATION_INSTALL_FILTER: StringName = &"install_filter"
+const ANIMATION_SEAT_SEAL: StringName = &"seat_seal"
+
 @export var compartment_id: StringName = &"main"
 @export var part_id: StringName = &"filter_co2"
 @export var circuit_id: StringName = &"scrubber"
@@ -124,18 +130,21 @@ func _on_sim_event(event_name: StringName, payload: Dictionary) -> void:
 func _open_housing() -> void:
 	_stage = Stage.FILTER_IN
 	_ready_to_power = false
+	_play_animation(ANIMATION_OPEN)
 	_emit_sim_event(&"scrubber_housing_opened", {"compartment_id": compartment_id})
 
 
 func _close_housing() -> void:
 	_stage = Stage.CLOSED
 	_ready_to_power = true
+	_play_animation(ANIMATION_CLOSE)
 	_emit_sim_event(&"scrubber_housing_closed", {"compartment_id": compartment_id})
 
 
 func _remove_filter() -> void:
 	_stage = Stage.FILTER_OUT
 	_seal_seated = false
+	_play_animation(ANIMATION_REMOVE_FILTER)
 	var atmosphere: Node = _get_system(&"atmosphere_system")
 	if atmosphere != null:
 		atmosphere.call("set_filter_installed", compartment_id, false)
@@ -148,6 +157,7 @@ func _install_filter() -> void:
 		_emit_sim_event(&"procedure_error", {"reason": &"no_filter_stock", "part_id": part_id})
 		return
 	_stage = Stage.SEAT
+	_play_animation(ANIMATION_INSTALL_FILTER)
 	var atmosphere: Node = _get_system(&"atmosphere_system")
 	if atmosphere != null:
 		atmosphere.call("set_filter_condition", compartment_id, 1.0)
@@ -158,6 +168,7 @@ func _install_filter() -> void:
 func _seat_seal() -> void:
 	_stage = Stage.READY
 	_seal_seated = true
+	_play_animation(ANIMATION_SEAT_SEAL)
 	_emit_sim_event(&"seal_seated", {"compartment_id": compartment_id})
 
 
@@ -179,11 +190,57 @@ func save_state() -> Dictionary:
 
 func load_state(state: Dictionary) -> void:
 	super.load_state(state)
-	_stage = int(state.get("stage", int(_stage)))
+	_stage = clampi(int(state.get("stage", int(_stage))), int(Stage.CLOSED), int(Stage.READY))
 	_powered = bool(state.get("powered", _powered))
 	_seal_seated = bool(state.get("seal_seated", _seal_seated))
 	_ready_to_power = bool(state.get("ready_to_power", _ready_to_power))
+	_restore_visual_state()
 	_push_power()
 	var atmosphere: Node = _get_system(&"atmosphere_system")
 	if atmosphere != null:
 		atmosphere.call("set_filter_installed", compartment_id, _stage != Stage.FILTER_OUT)
+
+
+func _restore_visual_state() -> void:
+	var animator: AnimationPlayer = _get_animator()
+	if animator == null:
+		return
+	if _stage == Stage.CLOSED:
+		_seek_animation_end(animator, ANIMATION_CLOSE)
+	else:
+		_seek_animation_end(animator, ANIMATION_OPEN)
+	if _stage == Stage.FILTER_OUT:
+		_seek_animation_end(animator, ANIMATION_REMOVE_FILTER)
+	else:
+		_seek_animation_end(animator, ANIMATION_INSTALL_FILTER)
+	if _seal_seated:
+		_seek_animation_end(animator, ANIMATION_SEAT_SEAL)
+	else:
+		_seek_animation_start(animator, ANIMATION_SEAT_SEAL)
+
+
+func _play_animation(animation_name: StringName) -> void:
+	var animator: AnimationPlayer = _get_animator()
+	if animator != null and animator.has_animation(animation_name):
+		animator.play(animation_name)
+
+
+func _seek_animation_end(animator: AnimationPlayer, animation_name: StringName) -> void:
+	if not animator.has_animation(animation_name):
+		return
+	animator.play(animation_name)
+	var animation: Animation = animator.get_animation(animation_name)
+	animator.seek(animation.length, true)
+	animator.pause()
+
+
+func _seek_animation_start(animator: AnimationPlayer, animation_name: StringName) -> void:
+	if not animator.has_animation(animation_name):
+		return
+	animator.play(animation_name)
+	animator.seek(0.0, true)
+	animator.pause()
+
+
+func _get_animator() -> AnimationPlayer:
+	return find_child("AnimationPlayer", true, false) as AnimationPlayer
