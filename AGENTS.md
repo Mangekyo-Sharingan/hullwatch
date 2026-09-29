@@ -43,7 +43,7 @@ Run from repo root. The engine binary is local, so no PATH setup is needed.
 # Headless smoke test — run after every change that touches scripts/scenes
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --quit
 
-# Headless script tests (exit code 0 = pass) — run all before considering work done
+# Headless script tests (require exit code 0 and `PASS: <suite>`) — run all before considering work done
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/smoke_test.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_stores.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_wear_model.gd
@@ -56,6 +56,7 @@ Run from repo root. The engine binary is local, so no PATH setup is needed.
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_audio.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_footsteps.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_carry.gd
+& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_cabin_light.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_rations.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_day_loop.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_ui.gd
@@ -72,6 +73,7 @@ Run from repo root. The engine binary is local, so no PATH setup is needed.
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_vitals.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_manual.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_nav.gd
+& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_m11_voyage.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_component_breadth.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_water.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_humidity.gd
@@ -84,8 +86,10 @@ Run from repo root. The engine binary is local, so no PATH setup is needed.
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_localization.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_analogue_filter.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_crt_panels.gd
+& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_cockpit_instrument_panel.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_diagnostics.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_diagnostics_api.gd
+& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_destination_data.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_comms.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_airlock.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_airlock_scene.gd
@@ -113,6 +117,9 @@ Run from repo root. The engine binary is local, so no PATH setup is needed.
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_interior_kit.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_scene_loop.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_player_traversal.gd
+& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_pilot_chair.gd
+& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_pilot_seat_flow.gd
+& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_seated_hud.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_voice_guide.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_computer_log.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_computer_terminal.gd

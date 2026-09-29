@@ -39,6 +39,25 @@ func _run() -> void:
 	_check(engine_bay_inner.is_open() and engine_bay_inner.get(&"airlock_id") == &"airlock_main" and engine_bay_inner.get(&"airlock_side") == &"inner", "open engine-bay hatch is registered as a second inner door")
 	_check(bool(airlock.call("get_status")["inner_open"]), "airlock summary includes every open inner door")
 	_check(float(airlock.call("get_status")["pressure_kpa"]) > 90.0, "lock ships pressurized")
+	var locker_animator: AnimationPlayer = locker.find_child("AnimationPlayer", true, false) as AnimationPlayer
+	_check(locker.get_node_or_null(^"Model") != null, "suit locker uses its authored glTF model")
+	_check(
+		locker_animator != null and locker_animator.has_animation(&"open_locker")
+			and locker_animator.has_animation(&"close_locker"),
+		"suit locker exposes the imported open and close clips"
+	)
+	locker.interact(null)
+	_check(
+		locker.is_open() and locker_animator != null and locker_animator.current_animation == &"open_locker"
+			and locker_animator.is_playing(),
+		"opening the locker UI plays its authored clip"
+	)
+	locker.close()
+	_check(
+		not locker.is_open() and locker_animator != null and locker_animator.current_animation == &"close_locker"
+			and locker_animator.is_playing(),
+		"closing the locker UI plays its authored clip"
+	)
 
 	inner.interact(null)
 	_check(inner.is_open(), "inner door opens while pressurized")

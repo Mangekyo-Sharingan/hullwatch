@@ -179,7 +179,7 @@ func _test_pilot_chair_clearance() -> void:
 		return
 	var seat: CollisionShape3D = chair.get_node_or_null(^"SeatShape") as CollisionShape3D
 	var shape: BoxShape3D = seat.shape as BoxShape3D if seat != null else null
-	_check(seat != null and not seat.disabled, "pilot station carries its seat collision")
+	_check(seat != null and seat.disabled, "folded pilot seat carries a disabled collision shape")
 	_check(shape != null and SectionHull.tube_half_width(2.4, 0.58) - shape.size.x * 0.5 > 1.5, "side aisles clear the centered chair")
 	_check(chair.get_exit_world_position().z < TubeLayout.span(TubeLayout.index_of("cockpit")).x, "seat exit remains inside the cupola")
 

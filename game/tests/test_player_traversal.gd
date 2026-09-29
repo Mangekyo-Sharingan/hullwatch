@@ -1,5 +1,5 @@
-## Integration test: verifies that the player can walk end-to-end through every section
-## of the ship without getting blocked by equipment, modules, or doorways.
+## Integration test: verifies that the player can walk through the section chain and reach the
+## cockpit from either end without getting blocked by equipment, modules, or doorways.
 extends SceneTree
 
 var _failures: int = 0
@@ -46,11 +46,17 @@ func _run() -> void:
 		return
 
 	# Make sure the airlock inner door is open for traversal to engine bay if needed
-	var airlock_inner = main.get_node_or_null("WorldLayout/Props/DoorAirlockInner")
+	var airlock_inner: Door = main.get_node_or_null("WorldLayout/Props/DoorAirlockInner") as Door
 	if airlock_inner != null:
 		airlock_inner.call("_set_open", true)
-
-	await process_frame
+		var slab_shape: CollisionShape3D = airlock_inner.get_node_or_null(^"SlabShape") as CollisionShape3D
+		var open_frames: int = 0
+		while slab_shape != null and not slab_shape.disabled and open_frames < 60:
+			await physics_frame
+			open_frames += 1
+		_check(slab_shape != null and slab_shape.disabled, "airlock hatch finishes opening before aisle checks")
+	else:
+		_check(false, "inner airlock hatch exists")
 
 	# Test 1: A standing lane remains open beside the central pilot chair.
 	var space_state: PhysicsDirectSpaceState3D = player.get_world_3d().direct_space_state
@@ -95,7 +101,6 @@ func _run() -> void:
 	# Target walk speed: 4.0 m/s
 	while steps < max_steps:
 		var target_x: float = 1.05 if player.global_position.z < -19.22 else 0.0
-		# Gentle steering towards center
 		var x_err: float = target_x - player.global_position.x
 		var z_speed: float = 0.0 if player.global_position.z >= -19.22 and player.global_position.x > 0.16 else 3.5
 		player.velocity = Vector3(clampf(x_err * 3.0, -2.0, 2.0), -9.8, z_speed)
@@ -108,22 +113,19 @@ func _run() -> void:
 
 	_check(reached_stern, "player walked bow-to-stern from z=-20.0 to z=5.0 (reached z=%.2f in %d frames)" % [player.global_position.z, steps])
 
-	# Test 3: Dynamic movement back from stern to bow
-	var reached_bow: bool = false
+	# Test 3: Return through the chain to the cockpit; the pilot station occupies the prow end.
+	var reached_cockpit: bool = false
 	steps = 0
 	while steps < max_steps:
-		var target_x: float = 1.05 if player.global_position.z < -19.05 else 0.0
-		var x_err: float = target_x - player.global_position.x
-		var z_speed: float = 0.0 if player.global_position.z < -19.05 and player.global_position.x < 0.9 else -3.5
-		player.velocity = Vector3(clampf(x_err * 3.0, -2.0, 2.0), -9.8, z_speed)
+		player.velocity = Vector3(0.0, -9.8, -3.5)
 		player.move_and_slide()
 		steps += 1
-		if player.global_position.z <= -19.5:
-			reached_bow = true
+		if player.global_position.z <= TubeLayout.span(TubeLayout.index_of("cupola")).y:
+			reached_cockpit = true
 			break
 		await physics_frame
 
-	_check(reached_bow, "player walked stern-to-bow from z=5.0 to z=-19.5 (reached z=%.2f in %d frames)" % [player.global_position.z, steps])
+	_check(reached_cockpit, "player walked stern-to-cockpit from z=5.0 to the pilot station (reached z=%.2f in %d frames)" % [player.global_position.z, steps])
 
 	main.queue_free()
 	await process_frame

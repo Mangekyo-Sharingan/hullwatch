@@ -1,5 +1,7 @@
 extends SceneTree
 
+const RECLAIMER_MODEL_PATH: String = "res://assets/models/hullwatch/machinery/hw_water_reclaimer.glb"
+
 var _failures: int = 0
 var _harness: SimHarness
 var _spawned: Array[Node] = []
@@ -156,18 +158,29 @@ func _test_reclaimer_procedure() -> void:
 	var water: WaterSystem = _spawn_water(100.0, 20.0)
 	water.contamination = 0.8
 	var reclaimer := WaterReclaimer.new()
+	var model_scene: PackedScene = load(RECLAIMER_MODEL_PATH) as PackedScene
+	_check(model_scene != null, "water reclaimer glTF model loads")
+	if model_scene != null:
+		reclaimer.add_child(model_scene.instantiate())
 	root.add_child(reclaimer)
 	_spawned.append(reclaimer)
+	var animator: AnimationPlayer = _animation_player(reclaimer)
+	_check(animator != null, "water reclaimer glTF animation player is present")
 
 	_check(reclaimer.get_interaction_prompt() == "Drain loop", "procedure: starts idle and asks to drain")
 	reclaimer.interact(null)
+	_check_animation(animator, &"drain", "draining the loop plays its authored clip")
+	var drain_state: Dictionary = reclaimer.save_state()
 	_check(reclaimer.get_interaction_prompt() == "Replace cartridge", "procedure: drain advances to cartridge")
 	reclaimer.interact(null)
+	_check_animation(animator, &"replace_cartridge", "replacing the cartridge plays its authored clip")
 	_check(stores.get_count(&"water_filter") == 0, "procedure: cartridge taken from stores")
 	_check(reclaimer.get_interaction_prompt() == "Prime loop", "procedure: cartridge advances to prime")
 	reclaimer.interact(null)
+	_check_animation(animator, &"prime", "priming the loop plays its authored clip")
 	_check(reclaimer.get_interaction_prompt() == "Run inspection", "procedure: prime advances to inspection")
 	reclaimer.interact(null)
+	_check_animation(animator, &"run_inspection", "inspection plays its authored clip")
 	_check(reclaimer.get_interaction_prompt() == "Drain loop", "procedure: inspection returns to idle")
 	_check(is_equal_approx(water.contamination, 0.0), "procedure: loop contamination cleared")
 	_check(_harness.events_named(&"reclaimer_serviced").size() == 1, "procedure: service event emitted")
@@ -177,9 +190,15 @@ func _test_reclaimer_procedure() -> void:
 	_check(int(saved["state_version"]) == 1, "procedure: save version")
 	var parsed: Variant = JSON.parse_string(JSON.stringify(saved))
 	_check(parsed is Dictionary, "procedure: save state is JSON-safe")
+	var idle_state: Dictionary = saved
 	if parsed is Dictionary:
-		reclaimer.load_state(parsed)
+		idle_state = parsed
+		reclaimer.load_state(idle_state)
 	_check(reclaimer.get_interaction_prompt() == "Drain loop", "procedure: stage restored from JSON")
+	reclaimer.load_state(drain_state)
+	_check(reclaimer.get_interaction_prompt() == "Replace cartridge", "procedure: saved drain stage is restored")
+	_check_animation(animator, &"drain", "restoring an in-progress drain resumes its loop")
+	reclaimer.load_state(idle_state)
 
 	reclaimer.interact(null)
 	var errors: Array[Dictionary] = _harness.events_named(&"procedure_error")
@@ -248,6 +267,18 @@ func _spawn_water(potable_l: float = 120.0, greywater_l: float = 40.0) -> WaterS
 	root.add_child(water)
 	_spawned.append(water)
 	return water
+
+
+func _animation_player(node: Node) -> AnimationPlayer:
+	return node.find_child("AnimationPlayer", true, false) as AnimationPlayer
+
+
+func _check_animation(animator: AnimationPlayer, animation_name: StringName, label: String) -> void:
+	_check(
+		animator != null and animator.has_animation(animation_name)
+			and animator.current_animation == animation_name and animator.is_playing(),
+		label
+	)
 
 
 func _despawn_all() -> void:

@@ -1,5 +1,8 @@
 extends SceneTree
 
+const SCRUBBER_MODEL_PATH: String = "res://assets/models/hullwatch/machinery/hw_scrubber_unit.glb"
+const BREAKER_MODEL_PATH: String = "res://assets/models/hullwatch/machinery/hw_breaker_cabinet.glb"
+
 var _failures: int = 0
 var _procedure_errors: int = 0
 var _last_error_reason: StringName = &""
@@ -29,7 +32,7 @@ func _run() -> void:
 
 	_test_scrubber_procedure()
 	_test_scrubber_no_stock()
-	_test_breaker_panel()
+	await _test_breaker_panel()
 	_test_bunk()
 
 	_finish()
@@ -40,6 +43,8 @@ func _test_scrubber_procedure() -> void:
 	var atmosphere: AtmosphereSystem = _make_atmosphere()
 	var stores: Stores = _make_stores(1)
 	var unit: ScrubberUnit = _make_scrubber()
+	var animator: AnimationPlayer = _animation_player(unit)
+	_check(animator != null, "scrubber glTF animation player is present")
 
 	_check(unit.is_powered() and not unit.is_housing_open() and unit.has_filter(), "scrubber starts powered with filter")
 	var status: Dictionary = atmosphere.get_compartment_status(&"main")
@@ -52,25 +57,30 @@ func _test_scrubber_procedure() -> void:
 
 	unit.interact(null)
 	_check(unit.is_housing_open(), "second step opens housing")
+	_check_animation(animator, &"open_housing", "opening the housing plays its authored clip")
 	_check(unit.get_interaction_prompt() == "Remove filter", "prompt asks for filter removal")
 
 	unit.interact(null)
 	_check(not unit.has_filter(), "third step removes filter")
+	_check_animation(animator, &"remove_filter", "removing the filter plays its authored clip")
 	status = atmosphere.get_compartment_status(&"main")
 	_check(not bool(status["filter_installed"]), "filter removal reaches sim")
 
 	unit.interact(null)
 	_check(unit.has_filter() and stores.get_count(&"filter_co2") == 0, "install consumes a filter from stores")
+	_check_animation(animator, &"install_filter", "installing the filter plays its authored clip")
 	_check(not unit.is_seal_seated(), "seal is unseated after install")
 	status = atmosphere.get_compartment_status(&"main")
 	_check(bool(status["filter_installed"]) and absf(float(status["filter_condition"]) - 1.0) < 1e-9, "installed filter is fresh in sim")
 
 	unit.interact(null)
 	_check(unit.is_seal_seated(), "seal seated")
+	_check_animation(animator, &"seat_seal", "seating the seal plays its authored clip")
 	_check(unit.get_interaction_prompt() == "Close housing", "prompt asks to close")
 
 	unit.interact(null)
 	_check(not unit.is_housing_open(), "housing closed")
+	_check_animation(animator, &"close_housing", "closing the housing plays its authored clip")
 	_check(unit.get_interaction_prompt() == "Power up", "prompt asks to power up")
 
 	unit.interact(null)
@@ -107,13 +117,22 @@ func _test_breaker_panel() -> void:
 	var power: PowerSystem = _make_power()
 	var panel := BreakerPanel.new()
 	panel.circuit_id = &"lighting"
+	var model_scene: PackedScene = load(BREAKER_MODEL_PATH) as PackedScene
+	_check(model_scene != null, "breaker cabinet glTF model loads")
+	if model_scene != null:
+		panel.add_child(model_scene.instantiate())
 	root.add_child(panel)
+	await process_frame
+	var animator: AnimationPlayer = _animation_player(panel)
+	_check(animator != null, "breaker cabinet glTF animation player is present")
 
 	_check(power.is_breaker_on(&"lighting"), "breaker starts on")
 	panel.interact(null)
 	_check(not power.is_breaker_on(&"lighting"), "panel toggles breaker off")
+	_check_animation(animator, &"toggle_off", "opening the breaker plays its authored off clip")
 	panel.interact(null)
 	_check(power.is_breaker_on(&"lighting"), "panel toggles breaker on")
+	_check_animation(animator, &"toggle_on", "closing the breaker plays its authored on clip")
 
 	power.free()
 	panel.free()
@@ -173,8 +192,24 @@ func _make_stores(filter_count: int) -> Stores:
 
 func _make_scrubber() -> ScrubberUnit:
 	var unit := ScrubberUnit.new()
+	var model_scene: PackedScene = load(SCRUBBER_MODEL_PATH) as PackedScene
+	_check(model_scene != null, "scrubber glTF model loads")
+	if model_scene != null:
+		unit.add_child(model_scene.instantiate())
 	root.add_child(unit)
 	return unit
+
+
+func _animation_player(node: Node) -> AnimationPlayer:
+	return node.find_child("AnimationPlayer", true, false) as AnimationPlayer
+
+
+func _check_animation(animator: AnimationPlayer, animation_name: StringName, label: String) -> void:
+	_check(
+		animator != null and animator.has_animation(animation_name)
+			and animator.current_animation == animation_name and animator.is_playing(),
+		label
+	)
 
 
 func _find_root_child(node_name: StringName) -> Node:

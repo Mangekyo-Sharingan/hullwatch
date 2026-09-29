@@ -2,6 +2,8 @@
 ## and mid-job save/load.
 extends SceneTree
 
+const FABRICATOR_MODEL_PATH: String = "res://assets/models/hullwatch/machinery/hw_fabricator.glb"
+
 var _failures: int = 0
 var _completed: Array[Dictionary] = []
 var _errors: Array[Dictionary] = []
@@ -36,6 +38,15 @@ func _run() -> void:
 	fabricator.recipes = _recipes()
 	root.add_child(fabricator)
 	await process_frame
+	var unit := FabricatorUnit.new()
+	var model_scene: PackedScene = load(FABRICATOR_MODEL_PATH) as PackedScene
+	_check(model_scene != null, "fabricator glTF model loads")
+	if model_scene != null:
+		unit.add_child(model_scene.instantiate())
+	root.add_child(unit)
+	await process_frame
+	var animator: AnimationPlayer = _animation_player(unit)
+	_check(animator != null and animator.has_animation(&"fabricate"), "fabricator glTF exposes the runtime fabricate clip")
 
 	var water_filter: Resource = fabricator.get_recipe(&"water_filter")
 	_check(water_filter != null, "water filter recipe is loaded")
@@ -52,14 +63,20 @@ func _run() -> void:
 	_check(refusal == &"", "with power and ice the job starts")
 	_check(is_equal_approx(cargo.get_units(&"ice"), 6.0), "materials are consumed up front")
 	_check(bool(fabricator.call("is_busy")), "the fabricator reports busy")
+	_check_animation(animator, &"fabricate", "powered fabrication runs its authored loop")
 	refusal = StringName(String(fabricator.call("start", &"gasket")))
 	_check(refusal == &"fabricator_busy", "a second job refuses while running")
+	power.set_breaker(&"fabricator", false)
+	_check(animator != null and not animator.is_playing(), "the fabrication animation stops when its circuit loses power")
+	power.set_breaker(&"fabricator", true)
+	_check_animation(animator, &"fabricate", "the fabrication animation resumes when power returns")
 	fabricator.sim_tick(1.0)
 	_check(int(stores.get_count(&"water_filter")) == 0, "output waits for the full duration")
 	fabricator.sim_tick(1.0)
 	_check(int(stores.get_count(&"water_filter")) == 1, "the finished part lands in stores")
 	_check(_completed.size() == 1, "fabrication_completed fires once")
 	_check(not bool(fabricator.call("is_busy")), "the fabricator is idle again")
+	_check(animator != null and not animator.is_playing(), "the fabrication animation stops when the job completes")
 
 	cargo.add_material(&"metal", 3.0)
 	var gasket_start: StringName = StringName(String(fabricator.call("start", &"gasket")))
@@ -73,6 +90,7 @@ func _run() -> void:
 	restored.sim_tick(2.0)
 	_check(int(stores.get_count(&"gasket")) == 2, "the restored job finishes into stores")
 
+	unit.free()
 	cargo.free()
 	stores.free()
 	power.free()
@@ -101,6 +119,18 @@ func _on_sim_event(event_name: StringName, payload: Dictionary) -> void:
 		_completed.append(payload)
 	elif event_name == &"procedure_error":
 		_errors.append(payload)
+
+
+func _animation_player(node: Node) -> AnimationPlayer:
+	return node.find_child("AnimationPlayer", true, false) as AnimationPlayer
+
+
+func _check_animation(animator: AnimationPlayer, animation_name: StringName, label: String) -> void:
+	_check(
+		animator != null and animator.has_animation(animation_name)
+			and animator.current_animation == animation_name and animator.is_playing(),
+		label
+	)
 
 
 func _finish() -> void:
