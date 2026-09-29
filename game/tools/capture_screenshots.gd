@@ -31,9 +31,18 @@ func _run() -> void:
 	if _tube_preview():
 		if player.has_method("release_tether"):
 			player.call("release_tether")
-		await _capture(player, Vector3(0.0, 0.1, -19.6), 0.0, "shot_tube_cockpit.png")
-		await _capture(player, Vector3(0.0, 0.1, -16.85), -PI * 0.5, "shot_tube_cockpit_starboard_bank.png")
-		await _capture(player, Vector3(0.0, 0.1, -16.85), PI * 0.5, "shot_tube_cockpit_port_bank.png")
+		await _capture(player, Vector3(0.95, 0.1, -18.95), 0.0, "shot_tube_cockpit.png")
+		var pilot_chair: PilotChair = _main.get_node_or_null("WorldLayout/Props/PilotChair") as PilotChair
+		if pilot_chair != null and player.has_method("enter_pilot_seat"):
+			player.global_position = pilot_chair.global_position + Vector3(0.0, 0.0, 1.0)
+			player.call("enter_pilot_seat", pilot_chair)
+			player.rotation.y = 0.0
+			await _capture_current("shot_tube_pilot_view.png")
+			player.rotation.y = -PI * 0.5
+			await _capture_current("shot_tube_cockpit_starboard_bank.png")
+			player.rotation.y = PI * 0.5
+			await _capture_current("shot_tube_cockpit_port_bank.png")
+			player.call("exit_pilot_seat")
 		await _capture(player, Vector3(0.0, 0.1, -4.5), PI, "shot_tube_storage.png")
 		await _capture(player, Vector3(0.0, 0.1, -13.9), 0.0, "shot_tube_quarters.png")
 		await _capture(player, Vector3(-0.8, 0.1, -13.9), -PI * 0.5, "shot_tube_quarters_locker.png")
@@ -247,6 +256,22 @@ func _capture(player: Node3D, position: Vector3, yaw: float, file_name: String) 
 	image.save_png(OUTPUT_DIR + "/" + file_name)
 	if work_light != null:
 		work_light.queue_free()
+
+
+func _capture_current(file_name: String) -> void:
+	var player: Node3D = _main.get_node("Player") as Node3D
+	var work_light: OmniLight3D = OmniLight3D.new()
+	work_light.light_energy = 4.0
+	work_light.omni_range = 10.0
+	work_light.position = Vector3(0.8, -0.3, -0.8)
+	player.add_child(work_light)
+	await process_frame
+	await physics_frame
+	await RenderingServer.frame_post_draw
+	var image: Image = root.get_texture().get_image()
+	DirAccess.make_dir_recursive_absolute(OUTPUT_DIR)
+	image.save_png(OUTPUT_DIR + "/" + file_name)
+	work_light.queue_free()
 
 
 ## True when the scene was generated with the M13.2 tube interior (preview run).

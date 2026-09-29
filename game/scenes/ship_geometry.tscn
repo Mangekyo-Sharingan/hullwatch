@@ -7843,7 +7843,7 @@ mesh = SubResource("ArrayMesh_t0rtr")
 mesh = SubResource("ArrayMesh_ic57t")
 
 [node name="ThrusterCluster0" type="Node3D" parent="HullExterior"]
-transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -1.958, 1.2, -20.2)
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -2.696, 1.2, -20.2)
 
 [node name="Model" type="Node3D" parent="HullExterior/ThrusterCluster0" instance=ExtResource("13_u6msh")]
 
@@ -7936,7 +7936,7 @@ mesh = SubResource("ArrayMesh_hlw2a")
 mesh = SubResource("ArrayMesh_75esl")
 
 [node name="ThrusterCluster1" type="Node3D" parent="HullExterior"]
-transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 1.958, 1.2, -20.2)
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 2.696, 1.2, -20.2)
 
 [node name="Model" type="Node3D" parent="HullExterior/ThrusterCluster1" instance=ExtResource("13_u6msh")]
 
@@ -8029,7 +8029,7 @@ mesh = SubResource("ArrayMesh_hlw2a")
 mesh = SubResource("ArrayMesh_75esl")
 
 [node name="ThrusterCluster2" type="Node3D" parent="HullExterior"]
-transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -2.103, 1.2, 8.4)
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -2.872, 1.2, 8.4)
 
 [node name="Model" type="Node3D" parent="HullExterior/ThrusterCluster2" instance=ExtResource("13_u6msh")]
 
@@ -8122,7 +8122,7 @@ mesh = SubResource("ArrayMesh_hlw2a")
 mesh = SubResource("ArrayMesh_75esl")
 
 [node name="ThrusterCluster3" type="Node3D" parent="HullExterior"]
-transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 2.103, 1.2, 8.4)
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 2.872, 1.2, 8.4)
 
 [node name="Model" type="Node3D" parent="HullExterior/ThrusterCluster3" instance=ExtResource("13_u6msh")]
 

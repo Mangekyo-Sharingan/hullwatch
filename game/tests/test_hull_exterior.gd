@@ -33,6 +33,7 @@ func _run() -> void:
 	_test_joint_collars()
 	_test_bow_and_stern()
 	_test_solar_arrays()
+	_test_thrusters_outside_skin()
 	_test_floodlights()
 	_test_airlock_opens_onto_the_platform()
 	_test_platform_railing()
@@ -359,6 +360,17 @@ func _test_solar_arrays() -> void:
 		_check(parts.size() >= 30 and authored, "solar array is the authored model: %.0f (%d parts)" % [side, parts.size()])
 		_check(absf(absf(node.position.x) - shoulder) <= 0.01, "solar array seats at the shoulder: %.0f" % side)
 		_check(absf(node.position.y - SectionHull.ARRAY_BOOM_Y) <= 0.01, "solar array sits at boom height: %.0f" % side)
+
+
+func _test_thrusters_outside_skin() -> void:
+	for index: int in 4:
+		var fitting: Node3D = _geometry.get_node_or_null(NodePath("HullExterior/ThrusterCluster%d" % index)) as Node3D
+		_check(fitting != null, "thruster cluster exists: %d" % index)
+		if fitting == null:
+			continue
+		var section: Dictionary = TubeLayout.section_at(fitting.position.z)
+		var wall: float = SectionHull.tube_drum_half_width(float(section["radius"]), fitting.position.y)
+		_check(absf(fitting.position.x) >= wall + 0.30, "thruster stays outside the pressure wall: %d" % index)
 
 
 func _test_floodlights() -> void:

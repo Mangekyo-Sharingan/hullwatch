@@ -52,9 +52,7 @@ func _run() -> void:
 
 	await process_frame
 
-	# Test 1: Shape cast / intersect check along center aisle from bow to stern
-	# Every 0.25 m from z = -20.2 to z = 5.5, the player must be able to stand
-	# at some x in [-0.25, 0.25] on the deck (y = 0.05).
+	# Test 1: A standing lane remains open beside the central pilot chair.
 	var space_state: PhysicsDirectSpaceState3D = player.get_world_3d().direct_space_state
 	var shape: CapsuleShape3D = CapsuleShape3D.new()
 	shape.radius = 0.24
@@ -71,8 +69,7 @@ func _run() -> void:
 
 	while test_z <= z_end:
 		var clear_at_z: bool = false
-		# Try x = 0.0, -0.15, 0.15, -0.25, 0.25
-		for x_offset: float in [0.0, -0.15, 0.15, -0.25, 0.25]:
+		for x_offset: float in [0.0, -0.15, 0.15, -0.25, 0.25, -1.05, 1.05]:
 			shape_query.transform = Transform3D(Basis(), Vector3(x_offset, 0.875 + 0.05, test_z))
 			var hits: Array[Dictionary] = space_state.intersect_shape(shape_query, 1)
 			if hits.is_empty():
@@ -85,8 +82,8 @@ func _run() -> void:
 	_check(blocked_points.is_empty(), "aisle is clear of blocking geometry at all z stations (blocked: %s)" % [str(blocked_points)])
 
 	# Test 2: Dynamic movement from bow to stern using move_and_slide
-	# Start at cupola / cockpit bow: z = -20.0
-	player.global_position = Vector3(0.0, 0.05, -20.0)
+	# Start on the starboard lane beside the pilot chair.
+	player.global_position = Vector3(1.05, 0.05, -20.0)
 	player.velocity = Vector3.ZERO
 	await process_frame
 
@@ -97,11 +94,11 @@ func _run() -> void:
 
 	# Target walk speed: 4.0 m/s
 	while steps < max_steps:
-		# Steer along aisle towards z = 5.5
-		var target_x: float = 0.0
+		var target_x: float = 1.05 if player.global_position.z < -19.22 else 0.0
 		# Gentle steering towards center
 		var x_err: float = target_x - player.global_position.x
-		player.velocity = Vector3(clampf(x_err * 3.0, -2.0, 2.0), -9.8, 3.5)
+		var z_speed: float = 0.0 if player.global_position.z >= -19.22 and player.global_position.x > 0.16 else 3.5
+		player.velocity = Vector3(clampf(x_err * 3.0, -2.0, 2.0), -9.8, z_speed)
 		player.move_and_slide()
 		steps += 1
 		if player.global_position.z >= 5.0:
@@ -115,9 +112,10 @@ func _run() -> void:
 	var reached_bow: bool = false
 	steps = 0
 	while steps < max_steps:
-		var target_x: float = 0.0
+		var target_x: float = 1.05 if player.global_position.z < -19.05 else 0.0
 		var x_err: float = target_x - player.global_position.x
-		player.velocity = Vector3(clampf(x_err * 3.0, -2.0, 2.0), -9.8, -3.5)
+		var z_speed: float = 0.0 if player.global_position.z < -19.05 and player.global_position.x < 0.9 else -3.5
+		player.velocity = Vector3(clampf(x_err * 3.0, -2.0, 2.0), -9.8, z_speed)
 		player.move_and_slide()
 		steps += 1
 		if player.global_position.z <= -19.5:

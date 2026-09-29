@@ -166,26 +166,22 @@ func _test_cockpit_instruments() -> void:
 			var box: AABB = _world_bounds(station)
 			var outer: float = box.end.x if side == 0 else -box.position.x
 			_check(absf(SectionHull.tube_half_width(2.4, box.position.y) - outer) < 0.12, "%s mounts flush to the cockpit wall" % station_name)
-			_check(absf(station.position.y - 1.25) < 0.01 and station.position.z > previous_z, "%s follows the cockpit station grid" % station_name)
+			_check(absf(station.position.y - 1.25) < 0.01 and station.position.z > previous_z and station.position.z >= cupola.x and station.position.z <= cupola.y, "%s follows the cupola station grid" % station_name)
 			previous_z = station.position.z
 	var chair: PilotChair = _props.get_node_or_null(^"PilotChair") as PilotChair
 	_check(chair != null and chair.position.z >= cupola.x and chair.position.z < cupola.y, "pilot chair mounts inside the cupola")
-	_check(chair != null and chair.position.x < -TubeLayout.HATCH_HALF_WIDTH - 0.2, "pilot chair sits beside the cupola hatch")
+	_check(chair != null and absf(chair.position.x) < 0.02 and absf(chair.position.z - (cupola.x + cupola.y) * 0.5) < 0.2, "pilot chair is centered between cockpit stations")
 
 
 func _test_pilot_chair_clearance() -> void:
 	var chair: PilotChair = _props.get_node_or_null(^"PilotChair") as PilotChair
 	if chair == null:
 		return
-	chair.interact(null)
-	var animator: AnimationPlayer = chair.find_child("AnimationPlayer", true, false) as AnimationPlayer
-	if animator != null:
-		animator.advance(animator.get_current_animation_length() + 0.1)
 	var seat: CollisionShape3D = chair.get_node_or_null(^"SeatShape") as CollisionShape3D
 	var shape: BoxShape3D = seat.shape as BoxShape3D if seat != null else null
-	var inboard_edge: float = seat.global_position.x + shape.size.x * 0.5 if seat != null and shape != null else 0.0
-	_check(seat != null and not seat.disabled, "deployed chair enables its seat collision")
-	_check(inboard_edge <= -TubeLayout.HATCH_HALF_WIDTH - 0.2, "deployed chair clears the cupola hatch")
+	_check(seat != null and not seat.disabled, "pilot station carries its seat collision")
+	_check(shape != null and SectionHull.tube_half_width(2.4, 0.58) - shape.size.x * 0.5 > 1.5, "side aisles clear the centered chair")
+	_check(chair.get_exit_world_position().z < TubeLayout.span(TubeLayout.index_of("cockpit")).x, "seat exit remains inside the cupola")
 
 
 ## One door per hatched joint - open with the slab stowed, except the storage/airlock joint

@@ -1296,9 +1296,11 @@ func _build_tube_fittings(hull: StaticBody3D, decks: Dictionary, collision: Arra
 func _add_tube_exterior_kit(hull: StaticBody3D) -> void:
 	var base: String = "res://assets/models/hullwatch/exterior/"
 	_add_hull_model(hull, base + "hw_antenna_dish.glb", "AntennaDish", Vector3(0.5, 2.80, -19.9), Vector3.ZERO)
+	var bow_mount: float = SectionHull.tube_drum_half_width(float(TubeLayout.section_at(-20.2)["radius"]), 1.2) + 0.32
+	var stern_mount: float = SectionHull.tube_drum_half_width(float(TubeLayout.section_at(8.4)["radius"]), 1.2) + 0.32
 	var thruster_spots: Array[Vector3] = [
-		Vector3(-1.958, 1.2, -20.2), Vector3(1.958, 1.2, -20.2),
-		Vector3(-2.103, 1.2, 8.4), Vector3(2.103, 1.2, 8.4),
+		Vector3(-bow_mount, 1.2, -20.2), Vector3(bow_mount, 1.2, -20.2),
+		Vector3(-stern_mount, 1.2, 8.4), Vector3(stern_mount, 1.2, 8.4),
 	]
 	for i: int in thruster_spots.size():
 		var yaw: float = -90.0 if thruster_spots[i].x < 0.0 else 90.0

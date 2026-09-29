@@ -12,6 +12,7 @@ const KEY_BINDINGS: Dictionary = {
 	&"jump": [KEY_SPACE],
 	&"crouch": [KEY_CTRL],
 	&"interact": [KEY_E],
+	&"leave_seat": [KEY_X],
 	&"flashlight": [KEY_F],
 	&"toggle_boots": [KEY_Q],
 	&"toggle_tether": [KEY_T],

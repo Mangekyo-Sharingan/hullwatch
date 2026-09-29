@@ -1,4 +1,4 @@
-"""Build Hullwatch's wall-mounted pilot chair and export its deploy/stow clips."""
+"""Build Hullwatch's floor-mounted pilot chair and export its deploy/stow clips."""
 
 import math
 import json
@@ -144,11 +144,16 @@ def main() -> None:
     chair = bpy.data.objects.new("PilotChair", None)
     scene.collection.objects.link(chair)
 
-    # The shallow mounting frame stays against the wall when the seat folds away.
-    box(chair, "MountPanel", (0.84, 0.075, 1.32), (0.0, 0.105, 0.82), dark, 0.02)
-    box(chair, "PanelFace", (0.76, 0.025, 1.23), (0.0, 0.058, 0.82), beige, 0.015)
-    box(chair, "RailL", (0.045, 0.06, 0.98), (-0.355, 0.018, 0.81), metal, 0.01)
-    box(chair, "RailR", (0.045, 0.06, 0.98), (0.355, 0.018, 0.81), metal, 0.01)
+    # A weighted swivel pedestal anchors the chair at the centre of the cupola.
+    cylinder(chair, "FloorFoot", 0.39, 0.08, (0.0, 0.02, 0.04), (0.0, 0.0, 0.0), dark)
+    cylinder(chair, "FootRim", 0.31, 0.025, (0.0, 0.02, 0.092), (0.0, 0.0, 0.0), metal)
+    cylinder(chair, "SwivelBearing", 0.17, 0.11, (0.0, 0.02, 0.16), (0.0, 0.0, 0.0), amber)
+    cylinder(chair, "PedestalColumn", 0.10, 0.43, (0.0, 0.02, 0.39), (0.0, 0.0, 0.0), metal)
+    box(chair, "SeatSupport", (0.54, 0.37, 0.09), (0.0, -0.06, 0.60), dark, 0.02)
+    box(chair, "BackSpine", (0.16, 0.12, 0.91), (0.0, 0.08, 0.99), dark, 0.025)
+    for side in (-1.0, 1.0):
+        box(chair, f"BackRail_{side}", (0.045, 0.08, 0.75), (side * 0.31, 0.075, 1.0), metal, 0.01)
+        box(chair, f"FootClamp_{side}", (0.09, 0.12, 0.055), (side * 0.31, 0.02, 0.085), beige, 0.008)
     box(chair, "BackHingeBar", (0.68, 0.09, 0.075), (0.0, -0.01, 0.56), dark)
     cylinder(chair, "SeatAxle", 0.035, 0.73, (0.0, -0.055, 0.56), (0.0, math.pi / 2.0, 0.0), metal)
 
@@ -180,12 +185,8 @@ def main() -> None:
     cylinder(chair, "ArmHingeR", 0.027, 0.10, (0.365, -0.12, 0.70), (0.0, math.pi / 2.0, 0.0), amber)
     animate_fold(arm_r, -math.pi / 2.0)
 
-    # Recessed fasteners and a small mechanical release keep the wall unit readable.
-    for x in (-0.33, 0.33):
-        for z in (0.28, 1.34):
-            cylinder(chair, f"Fastener_{x}_{z}", 0.018, 0.012, (x, 0.041, z), (math.pi / 2.0, 0.0, 0.0), metal)
-    box(chair, "ReleaseLatch", (0.13, 0.055, 0.055), (0.0, -0.025, 0.49), amber, 0.012)
-    box(chair, "LatchGrip", (0.08, 0.035, 0.02), (0.0, -0.063, 0.49), metal, 0.006)
+    box(chair, "SwivelRelease", (0.16, 0.12, 0.045), (0.21, -0.07, 0.24), amber, 0.008)
+    box(chair, "ReleaseGrip", (0.18, 0.035, 0.035), (0.28, -0.14, 0.24), metal, 0.006)
 
     os.makedirs(os.path.dirname(GLB_PATH), exist_ok=True)
     for obj in scene.objects:

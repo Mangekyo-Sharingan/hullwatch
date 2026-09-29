@@ -1,7 +1,14 @@
-## Pilot chair folds between a wall stowed pose and a usable seat, and restores its saved pose.
+## Center pilot station: floor support, proximity swivel, seat interaction, and legacy save load.
 extends SceneTree
 
 const CHAIR_SCENE: String = "res://assets/models/hullwatch/cockpit/hw_pilot_chair.glb"
+
+class MockPlayer extends Node3D:
+	var entered: bool = false
+
+	func enter_pilot_seat(chair: PilotChair) -> bool:
+		entered = chair != null
+		return entered
 
 var _failures: int = 0
 
@@ -18,43 +25,40 @@ func _run() -> void:
 	if model_scene == null:
 		_finish()
 		return
-	chair.add_child(model_scene.instantiate())
+	var model: Node3D = model_scene.instantiate() as Node3D
+	model.name = "Model"
+	chair.add_child(model)
 	root.add_child(chair)
 	await process_frame
 
 	var animator: AnimationPlayer = chair.find_child("AnimationPlayer", true, false) as AnimationPlayer
-	var frame: CollisionShape3D = chair.get_node_or_null(^"FrameShape") as CollisionShape3D
+	var base: CollisionShape3D = chair.get_node_or_null(^"BaseShape") as CollisionShape3D
+	var back: CollisionShape3D = chair.get_node_or_null(^"BackShape") as CollisionShape3D
 	var seat: CollisionShape3D = chair.get_node_or_null(^"SeatShape") as CollisionShape3D
-	_check(animator != null and animator.has_animation(&"deploy") and animator.has_animation(&"stow"), "chair imports deploy and stow clips")
-	_check(frame != null and not frame.disabled, "wall frame remains solid while stowed")
-	_check(seat != null and seat.disabled, "seat collision stays clear while stowed")
-	_check(chair.get_interaction_prompt() == "Deploy pilot chair", "stowed chair offers deployment")
+	_check(animator != null and animator.has_animation(&"deploy") and animator.has_animation(&"stow"), "chair keeps authored fold clips")
+	_check(base != null and not base.disabled, "floor pedestal has collision")
+	_check(back != null and seat != null and not seat.disabled, "back and seat have collision")
+	_check(chair.get_interaction_prompt() == "Take pilot seat", "chair invites boarding")
+	_check(chair.is_deployed(), "pilot seat starts deployed")
 
-	chair.interact(null)
-	_check(chair.is_deployed(), "interaction requests deployment")
-	_check(animator != null and animator.current_animation == &"deploy", "deployment plays the authored clip")
-	if animator != null:
-		animator.advance(animator.get_current_animation_length() + 0.1)
-	_check(seat != null and not seat.disabled, "seat collider enables after deployment")
-	_check(chair.get_interaction_prompt() == "Stow pilot chair", "deployed chair offers stowing")
-	var deployed_state: Dictionary = chair.save_state()
+	var player: MockPlayer = MockPlayer.new()
+	player.add_to_group(&"player")
+	player.position = Vector3(0.0, 0.0, 1.2)
+	root.add_child(player)
+	chair._process(2.0)
+	_check(absf(model.rotation.y - PI) < 0.01, "chair swivels toward nearby operator")
+	_check(seat != null and seat.position.z < 0.0, "seat collider follows swivel")
+	chair.interact(player)
+	_check(player.entered, "chair requests player seated mode")
+	chair.set_occupied(true)
+	_check(chair.is_occupied() and absf(model.rotation.y) < 0.01, "occupied chair faces the forward window")
+	chair.set_occupied(false)
 
-	chair.interact(null)
-	_check(not chair.is_deployed(), "interaction requests stowing")
-	_check(animator != null and animator.current_animation == &"stow", "stowing plays its authored clip")
-	if animator != null:
-		animator.advance(animator.get_current_animation_length() + 0.1)
-	_check(seat != null and seat.disabled, "seat collider clears after stowing")
+	chair.load_state({"enabled": true, "deployed": false})
+	_check(chair.is_deployed() and not chair.is_occupied(), "legacy folded save restores usable station")
+	_check(bool(chair.save_state().get("deployed", false)), "new save keeps pilot station deployed")
 
-	chair.load_state(deployed_state)
-	_check(chair.is_deployed(), "save restore recovers deployed state")
-	_check(seat != null and not seat.disabled, "restored deployed pose has its seat collider")
-	var restored_at_endpoint: bool = animator != null and is_equal_approx(
-		animator.current_animation_position,
-		animator.get_animation(&"deploy").length
-	)
-	_check(restored_at_endpoint, "restored pose seeks to the clip endpoint")
-
+	player.free()
 	chair.free()
 	_finish()
 

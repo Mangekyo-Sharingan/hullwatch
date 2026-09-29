@@ -14,6 +14,8 @@ const DROP_DISTANCE_M: float = 1.1
 const DROP_FALLBACK_DISTANCE_M: float = 1.0
 const DROP_FALLBACK_LIFT_M: float = 0.3
 const TETHER_ATTACH_RANGE: float = 6.0
+const SEATED_HEAD_Y: float = 1.18
+const SEATED_RAY_LENGTH: float = 3.6
 
 @export var walk_speed: float = 3.0
 @export var crouch_speed: float = 1.5
@@ -45,6 +47,8 @@ var _suit_cutter: bool = false
 var _tether_anchor: Node3D = null
 var _tethered: bool = false
 var _tether_strain_armed: bool = true
+var _pilot_seat: PilotChair = null
+var _standing_ray_target: Vector3 = Vector3.ZERO
 
 
 func _ready() -> void:
@@ -61,6 +65,9 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if is_pilot_seated():
+		velocity = Vector3.ZERO
+		return
 	_set_crouched(Input.is_action_pressed(&"crouch"))
 	if _boots_engaged:
 		_process_engaged(delta)
@@ -100,6 +107,55 @@ func get_step_count() -> int:
 func get_planar_speed() -> float:
 	var vertical_speed: float = velocity.dot(up_direction)
 	return (velocity - up_direction * vertical_speed).length()
+
+
+func is_pilot_seated() -> bool:
+	return _pilot_seat != null and is_instance_valid(_pilot_seat)
+
+
+func get_pilot_seat() -> PilotChair:
+	return _pilot_seat if is_pilot_seated() else null
+
+
+func get_seated_target() -> CollisionObject3D:
+	if not is_pilot_seated():
+		return null
+	_interact_ray.force_raycast_update()
+	return _interact_ray.get_collider() as CollisionObject3D if _interact_ray.is_colliding() else null
+
+
+func enter_pilot_seat(chair: PilotChair) -> bool:
+	if is_pilot_seated() or chair == null or not is_instance_valid(chair):
+		return false
+	if global_position.distance_to(chair.global_position) > PilotChair.APPROACH_RADIUS + 0.3:
+		return false
+	_set_crouched(false)
+	_pilot_seat = chair
+	chair.set_occupied(true)
+	velocity = Vector3.ZERO
+	global_position = chair.get_seat_world_position()
+	rotation.y = chair.global_rotation.y + PI
+	_pitch = 0.0
+	_head.rotation.x = 0.0
+	_head.position.y = SEATED_HEAD_Y
+	_collision_shape.set_deferred(&"disabled", true)
+	_standing_ray_target = _interact_ray.target_position
+	_interact_ray.target_position = Vector3(0.0, 0.0, -SEATED_RAY_LENGTH)
+	_interact_ray.add_exception(chair)
+	return true
+
+
+func exit_pilot_seat() -> void:
+	if not is_pilot_seated():
+		return
+	var chair: PilotChair = _pilot_seat
+	_pilot_seat = null
+	global_position = chair.get_exit_world_position()
+	_head.position.y = STAND_HEAD_Y
+	_collision_shape.set_deferred(&"disabled", false)
+	_interact_ray.target_position = _standing_ray_target
+	_interact_ray.remove_exception(chair)
+	chair.set_occupied(false)
 
 
 func engage_boots() -> bool:
@@ -222,11 +278,14 @@ func consume_carried() -> bool:
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		var motion: InputEventMouseMotion = event as InputEventMouseMotion
-		rotate_object_local(Vector3.UP, -motion.relative.x * mouse_sensitivity)
-		var pitch_limit: float = deg_to_rad(pitch_limit_deg)
-		var direction: float = 1.0 if not _invert_y else -1.0
-		_pitch = clampf(_pitch - motion.relative.y * mouse_sensitivity * direction, -pitch_limit, pitch_limit)
-		_head.rotation.x = _pitch
+		_apply_look_motion(motion.relative)
+	elif is_pilot_seated():
+		if event.is_action_pressed(&"leave_seat"):
+			exit_pilot_seat()
+		elif event.is_action_pressed(&"interact"):
+			_try_interact()
+		elif event.is_action_pressed(&"flashlight"):
+			_flashlight.visible = not _flashlight.visible
 	elif event.is_action_pressed(&"toggle_boots"):
 		if _boots_engaged:
 			disengage_boots()
@@ -248,6 +307,14 @@ func _unhandled_input(event: InputEvent) -> void:
 		_scan_ping()
 	elif event.is_action_pressed(&"toggle_tether"):
 		_toggle_tether()
+
+
+func _apply_look_motion(relative: Vector2) -> void:
+	rotate_object_local(Vector3.UP, -relative.x * mouse_sensitivity)
+	var pitch_limit: float = deg_to_rad(pitch_limit_deg)
+	var direction: float = 1.0 if not _invert_y else -1.0
+	_pitch = clampf(_pitch - relative.y * mouse_sensitivity * direction, -pitch_limit, pitch_limit)
+	_head.rotation.x = _pitch
 
 
 func attach_tether(anchor: Node3D) -> bool:

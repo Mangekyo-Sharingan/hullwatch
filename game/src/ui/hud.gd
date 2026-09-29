@@ -7,6 +7,15 @@ const EVENT_BUS_PATH: NodePath = ^"/root/EventBus"
 const BASE_FONT_SIZE: int = 18
 const BASE_MESSAGE_FONT_SIZE: int = 17
 const MESSAGE_HOLD_SECONDS: float = 4.0
+const SEATED_MARKER_HEIGHT: float = 0.60
+const SEATED_STATIONS: Dictionary = {
+	"LogTerminal": "LOG",
+	"ContactConsole": "CONTACTS",
+	"NavConsole": "NAVIGATION",
+	"CommsTerminal": "COMMS",
+	"ArchiveTerminal": "ARCHIVE",
+	"WallComputer": "SHIP COMPUTER",
+}
 const PROCEDURE_ERROR_TEXT: Dictionary = {
 	&"no_tool": "NO DIAGNOSTIC TOOL CARRIED",
 	&"no_wrench": "A WRENCH IS REQUIRED",
@@ -52,6 +61,7 @@ func _process(delta: float) -> void:
 	_update_carry()
 	_update_message(delta)
 	_update_eva(delta)
+	_update_seated_overlay()
 
 
 func get_prompt_text() -> String:
@@ -97,6 +107,10 @@ var _eva: Label
 var _eva_accumulator: float = 0.0
 var _message_hold_seconds: float = MESSAGE_HOLD_SECONDS
 var _message_remaining: float = 0.0
+var _seat_overlay: Control
+var _seat_hint: Label
+var _seat_labels: Dictionary = {}
+var _seat_stations: Dictionary = {}
 
 
 func _update_message(delta: float) -> void:
@@ -245,6 +259,38 @@ func _find_interact_ray() -> RayCast3D:
 	return player.get_node_or_null(INTERACT_RAY_PATH) as RayCast3D
 
 
+func _update_seated_overlay() -> void:
+	var player: Node = _find_player()
+	var seated: bool = player != null and player.has_method(&"is_pilot_seated") and bool(player.call(&"is_pilot_seated"))
+	if seated and not _seat_overlay.visible:
+		for station_name: String in SEATED_STATIONS:
+			_seat_stations[station_name] = player.get_parent().get_node_or_null(NodePath("WorldLayout/Props/" + station_name)) as Node3D
+	_seat_overlay.visible = seated
+	if not seated:
+		return
+	var camera: Camera3D = get_viewport().get_camera_3d()
+	var target: CollisionObject3D = player.call(&"get_seated_target") as CollisionObject3D
+	var viewport_size: Vector2 = get_viewport().get_visible_rect().size
+	for station_name: String in SEATED_STATIONS:
+		var label: Label = _seat_labels[station_name]
+		var station: Node3D = _seat_stations.get(station_name) as Node3D
+		if camera == null or not is_instance_valid(station):
+			label.visible = false
+			continue
+		var marker_position: Vector3 = station.global_position + Vector3.UP * SEATED_MARKER_HEIGHT
+		if camera.is_position_behind(marker_position):
+			label.visible = false
+			continue
+		var screen: Vector2 = camera.unproject_position(marker_position)
+		label.visible = screen.x >= 24.0 and screen.x <= viewport_size.x - 24.0 and screen.y >= 24.0 and screen.y <= viewport_size.y - 24.0
+		if not label.visible:
+			continue
+		var focused: bool = station == target
+		label.text = ("[E] " if focused else "[ ") + String(SEATED_STATIONS[station_name]) + (" ]" if not focused else "")
+		label.add_theme_color_override(&"font_color", Color(0.95, 0.87, 0.57) if focused else Color(0.54, 0.78, 0.72, 0.82))
+		label.position = screen + Vector2(-label.size.x * 0.5, -24.0)
+
+
 func _build_ui() -> void:
 	_crosshair = ColorRect.new()
 	_crosshair.name = "Crosshair"
@@ -294,6 +340,33 @@ func _build_ui() -> void:
 	_eva.add_theme_constant_override("outline_size", 4)
 	_eva.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_eva)
+	_seat_overlay = Control.new()
+	_seat_overlay.name = "PilotVisor"
+	_seat_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_seat_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_seat_overlay.visible = false
+	add_child(_seat_overlay)
+	_seat_hint = Label.new()
+	_seat_hint.name = "SeatHint"
+	_seat_hint.text = "PILOT STATION    [X] LEAVE SEAT"
+	_seat_hint.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
+	_seat_hint.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_seat_hint.offset_top = -166.0
+	_seat_hint.offset_bottom = -136.0
+	_seat_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_seat_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_seat_hint.add_theme_color_override(&"font_color", Color(0.54, 0.78, 0.72))
+	_seat_hint.add_theme_color_override(&"font_outline_color", Color.BLACK)
+	_seat_hint.add_theme_constant_override(&"outline_size", 4)
+	_seat_overlay.add_child(_seat_hint)
+	for station_name: String in SEATED_STATIONS:
+		var label: Label = Label.new()
+		label.name = "SeatMarker_" + station_name
+		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		label.add_theme_color_override(&"font_outline_color", Color.BLACK)
+		label.add_theme_constant_override(&"outline_size", 4)
+		_seat_overlay.add_child(label)
+		_seat_labels[station_name] = label
 	var message_layer := CanvasLayer.new()
 	message_layer.name = "Messages"
 	message_layer.layer = 16
@@ -322,6 +395,10 @@ func _apply_ui_scale() -> void:
 		_message.add_theme_font_size_override("font_size", UiScale.size(self, BASE_MESSAGE_FONT_SIZE))
 	if _eva != null:
 		_eva.add_theme_font_size_override("font_size", UiScale.size(self, BASE_FONT_SIZE))
+	if _seat_hint != null:
+		_seat_hint.add_theme_font_size_override("font_size", UiScale.size(self, BASE_MESSAGE_FONT_SIZE))
+	for label: Label in _seat_labels.values():
+		label.add_theme_font_size_override("font_size", UiScale.size(self, 14))
 
 
 func _on_ui_scale_changed(key: StringName, _value: Variant) -> void:
