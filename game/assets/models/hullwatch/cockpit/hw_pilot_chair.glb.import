@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://bf0j0uuv3sav3"
-path="res://.godot/imported/hw_display.glb-c57613f7bf07ab536768c2b7907827af.scn"
+uid="uid://cadsk66ndwtvk"
+path="res://.godot/imported/hw_pilot_chair.glb-9ef4a94b000e33ce3f149aa2a06d1322.scn"
 
 [deps]
 
-source_file="res://assets/models/hullwatch/interior/hw_display.glb"
-dest_files=["res://.godot/imported/hw_display.glb-c57613f7bf07ab536768c2b7907827af.scn"]
+source_file="res://assets/models/hullwatch/cockpit/hw_pilot_chair.glb"
+dest_files=["res://.godot/imported/hw_pilot_chair.glb-9ef4a94b000e33ce3f149aa2a06d1322.scn"]
 
 [params]
 

@@ -35,6 +35,7 @@ var _root: HBoxContainer
 var _ui: CanvasLayer
 var _open: bool = false
 var _refresh_accumulator: float = 0.0
+var _physical_screen: CrtScreen
 
 
 func _ready() -> void:
@@ -44,6 +45,8 @@ func _ready() -> void:
 	if not _program_instances.has(default_program):
 		default_program = programs[0]
 	_current = default_program
+	_physical_screen = find_child("ScreenTint", true, false) as CrtScreen
+	call_deferred("_refresh_physical_display")
 	UiScale.connect_settings(self, _on_ui_scale_changed)
 	_apply_ui_scale()
 
@@ -175,12 +178,14 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _process(delta: float) -> void:
-	if not _open:
-		return
 	_refresh_accumulator += delta
-	if _refresh_accumulator >= REFRESH_SECONDS:
-		_refresh_accumulator = 0.0
+	if _refresh_accumulator < REFRESH_SECONDS:
+		return
+	_refresh_accumulator = 0.0
+	if _open:
 		_refresh_content()
+	else:
+		_refresh_physical_display()
 
 
 func _on_terminal_opened() -> void:
@@ -276,6 +281,12 @@ func _on_highlighted(index: int) -> void:
 func _refresh_content() -> void:
 	if _content != null:
 		_content.text = "\n".join(build_readout())
+	_refresh_physical_display()
+
+
+func _refresh_physical_display() -> void:
+	if _physical_screen != null and is_instance_valid(_physical_screen):
+		_physical_screen.present_readout(build_readout(), phosphor)
 
 
 func _apply_ui_scale() -> void:

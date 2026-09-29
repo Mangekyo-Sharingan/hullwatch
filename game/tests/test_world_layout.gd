@@ -9,6 +9,12 @@ extends SceneTree
 const LAYOUT_PATH: String = "res://scenes/world_layout.tscn"
 const POSITION_TOLERANCE: float = 0.02
 
+class MockPowerSystem extends Node:
+	var battery_fraction: float = 0.2
+
+	func get_status() -> Dictionary:
+		return {"battery_fraction": battery_fraction, "brownout": false, "circuits": {}}
+
 ## The carried furniture (names are the contract; the tube derives their positions).
 const CARRIED_PROPS: Array[String] = [
 	"ScrubberUnit", "WaterReclaimer", "BreakerPanel", "StatusPanel", "MaintenanceBoard",
@@ -17,7 +23,7 @@ const CARRIED_PROPS: Array[String] = [
 	"ScannerTool", "ProbePower", "ProbeAtmosphere", "ProbeThermal", "ProbeHull",
 	"ProbeWater", "SealantCartridge1", "SealantCartridge2", "SealantCartridge3",
 	"Fabricator", "CutterTool", "SampleCanister2", "SampleCanister3", "AirlockPanel",
-	"SuitLocker", "ContainerProp", "ComputerProp", "DisplayProp",
+	"SuitLocker", "ContainerProp", "ComputerProp", "PilotChair",
 	"SwitchBank", "GaugeCluster", "SevenSegment", "WallComputer",
 	"CrewLocker", "MessTable", "FilterRack", "ToolCart",
 	"CrateStack", "ShelfUnit", "GalleyUnit",
@@ -35,6 +41,7 @@ var _failures: int = 0
 var _props: Node3D
 var _zones: Node3D
 var _links: Node3D
+var _power: MockPowerSystem
 
 
 func _initialize() -> void:
@@ -51,6 +58,10 @@ func _run() -> void:
 	var sim_clock: Node = load("res://src/autoload/sim_clock.gd").new()
 	sim_clock.name = &"SimClock"
 	root.add_child(sim_clock)
+	_power = MockPowerSystem.new()
+	_power.name = &"TestPowerSystem"
+	_power.add_to_group(&"power_system")
+	root.add_child(_power)
 
 	var packed: PackedScene = load(LAYOUT_PATH) as PackedScene
 	_check(packed != null, "world layout scene loads")
@@ -83,10 +94,11 @@ func _run() -> void:
 
 	_test_props_carry()
 	_test_cockpit_instruments()
+	_test_pilot_chair_clearance()
 	_test_doors()
 	_test_zones()
 	_test_links()
-	_test_crt_props()
+	await _test_crt_props()
 
 	layout.free()
 	_finish()
@@ -131,9 +143,28 @@ func _test_props_carry() -> void:
 func _test_cockpit_instruments() -> void:
 	var cupola: Vector2 = TubeLayout.span(TubeLayout.index_of("cupola"))
 	var cockpit: Vector2 = TubeLayout.span(TubeLayout.index_of("cockpit"))
-	for prop_name: String in ["GaugeCluster", "SevenSegment"]:
+	for prop_name: String in ["GaugeCluster", "SevenSegment", "SwitchBank"]:
 		var prop: Node3D = _props.get_node_or_null(NodePath(prop_name)) as Node3D
 		_check(prop != null and prop.position.z >= cupola.x and prop.position.z <= cockpit.y, "%s belongs to the cockpit" % prop_name)
+		_check(prop is CockpitInstrumentPanel, "%s drives its authored live instrument" % prop_name)
+	var chair: PilotChair = _props.get_node_or_null(^"PilotChair") as PilotChair
+	_check(chair != null and chair.position.z >= cupola.x and chair.position.z < cupola.y, "pilot chair mounts inside the cupola")
+	_check(chair != null and chair.position.x < -TubeLayout.HATCH_HALF_WIDTH - 0.2, "pilot chair sits beside the cupola hatch")
+
+
+func _test_pilot_chair_clearance() -> void:
+	var chair: PilotChair = _props.get_node_or_null(^"PilotChair") as PilotChair
+	if chair == null:
+		return
+	chair.interact(null)
+	var animator: AnimationPlayer = chair.find_child("AnimationPlayer", true, false) as AnimationPlayer
+	if animator != null:
+		animator.advance(animator.get_current_animation_length() + 0.1)
+	var seat: CollisionShape3D = chair.get_node_or_null(^"SeatShape") as CollisionShape3D
+	var shape: BoxShape3D = seat.shape as BoxShape3D if seat != null else null
+	var inboard_edge: float = seat.global_position.x + shape.size.x * 0.5 if seat != null and shape != null else 0.0
+	_check(seat != null and not seat.disabled, "deployed chair enables its seat collision")
+	_check(inboard_edge <= -TubeLayout.HATCH_HALF_WIDTH - 0.2, "deployed chair clears the cupola hatch")
 
 
 ## One door per hatched joint - open with the slab stowed, except the storage/airlock joint
@@ -246,6 +277,7 @@ func _test_links() -> void:
 
 
 func _test_crt_props() -> void:
+	await process_frame
 	for prop_name: String in CRT_PROPS:
 		var prop: Node3D = _props.get_node_or_null(NodePath(prop_name)) as Node3D
 		if prop == null:
@@ -253,11 +285,28 @@ func _test_crt_props() -> void:
 			continue
 		var screen: MeshInstance3D = prop.find_child("Screen", true, false) as MeshInstance3D
 		var model: Node3D = prop.get_node_or_null(^"Crt/Model") as Node3D
+		var display: CrtScreen = prop.find_child("ScreenTint", true, false) as CrtScreen
+		var terminal: ComputerTerminal = prop as ComputerTerminal
 		_check(screen != null and screen.material_override != null, "crt screen mesh: " + prop_name)
+		_check(display != null and display.is_bound(), "crt has a live physical readout: " + prop_name)
+		_check(terminal != null and display != null and display.get_presented_lines() == terminal.build_readout(), "crt shows the current simulator readout: " + prop_name)
 		_check(
 			model != null and model.find_children("*", "MeshInstance3D", true, false).size() > 0,
 			"crt uses the authored console: " + prop_name
 		)
+	var status_panel: StatusPanel = _props.get_node_or_null(^"StatusPanel") as StatusPanel
+	var display: CrtScreen = status_panel.find_child("ScreenTint", true, false) as CrtScreen if status_panel != null else null
+	_check(display != null and _contains_line(display.get_presented_lines(), "BATTERY 20%"), "cockpit status CRT starts with live power data")
+	_power.battery_fraction = 0.47
+	await create_timer(0.3).timeout
+	_check(display != null and _contains_line(display.get_presented_lines(), "BATTERY 47%"), "display refresh cadence updates the physical status CRT")
+
+
+func _contains_line(lines: PackedStringArray, needle: String) -> bool:
+	for line: String in lines:
+		if line.contains(needle):
+			return true
+	return false
 
 
 func _expected_doors() -> Array[String]:

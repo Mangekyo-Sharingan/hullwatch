@@ -106,6 +106,31 @@ func _on_terminal_opened() -> void:
 
 func _on_terminal_closed() -> void:
 	_set_deployed(false)
+	if _root != null:
+		_root.visible = true
+	_refresh_stowed_readout()
+
+
+func _refresh_physical_display() -> void:
+	super._refresh_physical_display()
+	if not is_open():
+		_refresh_stowed_readout()
+
+
+func _refresh_content() -> void:
+	super._refresh_content()
+	if _screen_view != null:
+		_screen_view.render_target_update_mode = SubViewport.UPDATE_ONCE
+
+
+func _refresh_stowed_readout() -> void:
+	if _content == null:
+		return
+	var lines: PackedStringArray = build_readout()
+	if not lines.is_empty():
+		lines[lines.size() - 1] = "E: DEPLOY TERMINAL"
+	_content.text = "\n".join(lines)
+	_screen_view.render_target_update_mode = SubViewport.UPDATE_ONCE
 
 
 func _set_deployed(deploy: bool) -> void:
@@ -158,7 +183,7 @@ func _ensure_ui() -> void:
 	_screen_view = SubViewport.new()
 	_screen_view.name = "BladeDisplay"
 	_screen_view.size = VIEW_SIZE
-	_screen_view.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	_screen_view.render_target_update_mode = SubViewport.UPDATE_DISABLED
 	add_child(_screen_view)
 	var screen := PanelContainer.new()
 	screen.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -206,7 +231,8 @@ func _ensure_ui() -> void:
 	scroll.add_child(_content)
 	CrtPanel.add_overlay(screen)
 	_root = row
-	_root.visible = false
+	_root.visible = true
+	_refresh_stowed_readout()
 	var screen_mesh: MeshInstance3D = find_child("Screen", true, false) as MeshInstance3D
 	if screen_mesh != null:
 		var display := MeshInstance3D.new()

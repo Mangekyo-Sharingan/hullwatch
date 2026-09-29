@@ -16,7 +16,6 @@ const MODELS: Dictionary = {
 	"hw_door_interior": "res://assets/models/hullwatch/interior/hw_door_interior.glb",
 	"hw_container": "res://assets/models/hullwatch/interior/hw_container.glb",
 	"hw_computer": "res://assets/models/hullwatch/interior/hw_computer.glb",
-	"hw_display": "res://assets/models/hullwatch/interior/hw_display.glb",
 }
 
 ## Layout prop -> model root it must mount (probes share one model).
@@ -35,7 +34,6 @@ const PROP_MODELS: Dictionary = {
 	"SuitLocker": "hw_locker",
 	"ContainerProp": "hw_container",
 	"ComputerProp": "hw_computer",
-	"DisplayProp": "hw_display",
 }
 
 var _failures: int = 0
@@ -108,6 +106,7 @@ func _test_layout_props() -> void:
 		return
 	var layout: Node3D = packed.instantiate() as Node3D
 	root.add_child(layout)
+	_check(layout.get_node_or_null(^"Props/DisplayProp") == null, "static placeholder display is not generated")
 	for prop_name: String in PROP_MODELS:
 		var prop: Node3D = layout.get_node_or_null(NodePath("Props/" + prop_name)) as Node3D
 		if prop == null:

@@ -23,6 +23,14 @@ func build_readout(terminal: Node) -> PackedStringArray:
 	if not water.is_empty():
 		lines.append("")
 		lines.append_array(water)
+	var thermal: PackedStringArray = _thermal_lines(terminal)
+	if not thermal.is_empty():
+		lines.append("")
+		lines.append_array(thermal)
+	var hull: PackedStringArray = _hull_lines(terminal)
+	if not hull.is_empty():
+		lines.append("")
+		lines.append_array(hull)
 	var components: PackedStringArray = _components_lines(terminal)
 	if not components.is_empty():
 		lines.append("")
@@ -83,6 +91,51 @@ func _water_lines(terminal: Node) -> PackedStringArray:
 		reclaimer,
 		int(roundf(float(status["contamination"]) * 100.0)),
 		int(roundf(float(status["efficiency"]) * 100.0)),
+	])
+	return lines
+
+
+func _thermal_lines(terminal: Node) -> PackedStringArray:
+	var lines: PackedStringArray = PackedStringArray()
+	var thermal: Node = terminal.call("system", &"thermal_system") as Node
+	if thermal == null:
+		lines.append("THERMAL -- OFFLINE")
+		return lines
+	var compartment_id: StringName = StringName(terminal.call("get_status_compartment_id"))
+	if not bool(thermal.call("has_compartment", compartment_id)):
+		lines.append("THERMAL -- NO %s COMPARTMENT" % String(compartment_id).to_upper())
+		return lines
+	var status: Dictionary = thermal.call("get_compartment_status", compartment_id)
+	var heater_state: String = "OFF"
+	if bool(status["heater_powered"]):
+		heater_state = "HEATING" if bool(status["heater_active"]) else "STANDBY"
+	lines.append("THERMAL  %s %+.1f C  HEATER %s" % [
+		String(compartment_id).to_upper(),
+		float(status["temperature_c"]),
+		heater_state,
+	])
+	if bool(status["freeze_risk"]):
+		lines.append("  FREEZE RISK")
+	return lines
+
+
+func _hull_lines(terminal: Node) -> PackedStringArray:
+	var lines: PackedStringArray = PackedStringArray()
+	var hull: Node = terminal.call("system", &"hull_system") as Node
+	if hull == null:
+		lines.append("HULL -- OFFLINE")
+		return lines
+	var compartment_id: StringName = StringName(terminal.call("get_status_compartment_id"))
+	var status: Dictionary = hull.call("get_status")
+	var compartments: Dictionary = status["compartments"]
+	if not compartments.has(compartment_id):
+		lines.append("HULL -- NO %s COMPARTMENT" % String(compartment_id).to_upper())
+		return lines
+	var compartment: Dictionary = compartments[compartment_id]
+	lines.append("HULL  %s  PUNCTURES %d  LEAK %.3f/H" % [
+		String(compartment_id).to_upper(),
+		int(compartment["puncture_count"]),
+		float(compartment["total_leak_rate_per_hour"]),
 	])
 	return lines
 

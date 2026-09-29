@@ -3,6 +3,12 @@ extends SceneTree
 
 const LAYOUT_PATH: String = "res://scenes/world_layout.tscn"
 
+class MockPowerSystem extends Node:
+	var battery_fraction: float = 0.2
+
+	func get_status() -> Dictionary:
+		return {"battery_fraction": battery_fraction, "brownout": false, "circuits": {}}
+
 var _failures: int = 0
 
 
@@ -23,6 +29,10 @@ func _run() -> void:
 	var sim_clock: Node = load("res://src/autoload/sim_clock.gd").new()
 	sim_clock.name = &"SimClock"
 	root.add_child(sim_clock)
+	var power: MockPowerSystem = MockPowerSystem.new()
+	power.name = &"TestPowerSystem"
+	power.add_to_group(&"power_system")
+	root.add_child(power)
 
 	var layout: Node3D = (load(LAYOUT_PATH) as PackedScene).instantiate() as Node3D
 	root.add_child(layout)
@@ -35,6 +45,12 @@ func _run() -> void:
 		layout.free()
 		_finish()
 		return
+
+	var idle_readout: Label = terminal.find_child("ComputerReadout", true, false) as Label
+	_check(idle_readout != null and idle_readout.text.contains("BATTERY 20%"), "stowed blade shows a live status report")
+	power.battery_fraction = 0.47
+	await create_timer(0.3).timeout
+	_check(idle_readout != null and idle_readout.text.contains("BATTERY 47%"), "stowed blade refreshes on the display cadence")
 
 	var animator: AnimationPlayer = terminal.find_child("AnimationPlayer", true, false) as AnimationPlayer
 	_check(animator != null, "wall computer carries the authored animator")

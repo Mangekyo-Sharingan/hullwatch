@@ -34,7 +34,6 @@ const LOG_ENTRY_2: String = "res://src/data/logs/log_02.tres"
 ## for the old third-party kit props. Visual only, no collision added by this generator.
 const KIT_CONTAINER: String = "res://assets/models/hullwatch/interior/hw_container.glb"
 const KIT_COMPUTER: String = "res://assets/models/hullwatch/interior/hw_computer.glb"
-const KIT_DISPLAY: String = "res://assets/models/hullwatch/interior/hw_display.glb"
 ## Door leaves: the default is the authored interior slider (original Blender work,
 ## `art/blender/interior_kit.blend`) - a single joined mesh, so its own palette materials
 ## stay. The CC0 prefabs (credits in `docs/ASSET_CREDITS.md`) remain as `--door-style=`
@@ -98,7 +97,7 @@ const MATERIAL_PATHS: Array[String] = [
 
 const RESOURCE_PATHS: Array[String] = [MANUAL_BOOK, LOG_ENTRY, LOG_ENTRY_2]
 
-const KIT_PATHS: Array[String] = [KIT_CONTAINER, KIT_COMPUTER, KIT_DISPLAY]
+const KIT_PATHS: Array[String] = [KIT_CONTAINER, KIT_COMPUTER]
 
 ## Furnished props: StaticBody3D + Shape (CollisionShape3D/BoxShape3D) + Mesh (MeshInstance3D/BoxMesh).
 ## "exports" are sim-facing script properties, "resources" are resource exports resolved by path.
@@ -513,7 +512,6 @@ const DOORS: Array[Dictionary] = [
 const KIT_PROPS: Array[Dictionary] = [
 	{"name": "ContainerProp", "scene": KIT_CONTAINER, "position": Vector3(-3.0, 0.0, -0.2), "size": Vector3(0.575, 0.6, 0.575)},
 	{"name": "ComputerProp", "scene": KIT_COMPUTER, "position": Vector3(2.6, 0.75, -7.0), "size": Vector3(0.9, 0.6, 0.7)},
-	{"name": "DisplayProp", "scene": KIT_DISPLAY, "position": Vector3(-2.5, 1.6, -18.45), "size": Vector3(0.4, 0.46, 0.38)},
 ]
 
 ## Authored model dressing (M13.3): original Blender glTF pieces, carried into the tube like
@@ -521,9 +519,10 @@ const KIT_PROPS: Array[Dictionary] = [
 ## their yaw (the model front is glTF +Z, the export of Blender -Y), floor pieces keep their
 ## origin at the floor. The collision comes from the model's own bounds.
 const MODEL_PROPS: Array[Dictionary] = [
-	{"name": "SwitchBank", "model": "res://assets/models/hullwatch/cockpit/hw_switch_bank.glb", "position": Vector3(-2.8, 1.6, -16.5), "rotation": Vector3(0, 90, 0), "size": Vector3(0.12, 0.25, 0.35)},
-	{"name": "GaugeCluster", "model": "res://assets/models/hullwatch/cockpit/hw_gauge_cluster.glb", "position": Vector3(2.4, 1.3, -17.4), "rotation": Vector3(0, -90, 0), "size": Vector3(0.16, 0.3, 0.45)},
-	{"name": "SevenSegment", "model": "res://assets/models/hullwatch/cockpit/hw_seven_segment.glb", "position": Vector3(2.4, 1.5, -16.9), "rotation": Vector3(0, -90, 0), "size": Vector3(0.1, 0.1, 0.25)},
+	{"name": "SwitchBank", "model": "res://assets/models/hullwatch/cockpit/hw_switch_bank.glb", "script": "res://src/world/cockpit_instrument_panel.gd", "position": Vector3(-2.8, 1.6, -16.5), "rotation": Vector3(0, 90, 0), "size": Vector3(0.12, 0.25, 0.35), "exports": {"instrument_id": &"switch_bank"}},
+	{"name": "GaugeCluster", "model": "res://assets/models/hullwatch/cockpit/hw_gauge_cluster.glb", "script": "res://src/world/cockpit_instrument_panel.gd", "position": Vector3(2.4, 1.3, -17.4), "rotation": Vector3(0, -90, 0), "size": Vector3(0.16, 0.3, 0.45), "exports": {"instrument_id": &"gauge_cluster"}},
+	{"name": "SevenSegment", "model": "res://assets/models/hullwatch/cockpit/hw_seven_segment.glb", "script": "res://src/world/cockpit_instrument_panel.gd", "position": Vector3(2.4, 1.5, -16.9), "rotation": Vector3(0, -90, 0), "size": Vector3(0.1, 0.1, 0.25), "exports": {"instrument_id": &"seven_segment"}},
+	{"name": "PilotChair", "model": "res://assets/models/hullwatch/cockpit/hw_pilot_chair.glb", "script": "res://src/interactables/pilot_chair.gd", "tube_position": Vector3(-1.15, 0.0, -18.95), "rotation": Vector3(0.0, 180.0, 0.0), "size": Vector3(0.9, 1.55, 0.18), "collision": false},
 	# The dressing kit's pieces sit at hand-picked tube spots: the carry compresses a short
 	# section's props into its middle, where the room's own gear already stands.
 	{"name": "CrewLocker", "model": "res://assets/models/hullwatch/props/hw_locker.glb", "position": Vector3(-3.0, 0.0, -10.5), "tube_position": Vector3(0.962, 0.0, -13.5), "rotation": Vector3(0, -90, 0), "size": Vector3(0.5, 1.9, 0.6)},
@@ -1189,6 +1188,9 @@ func _build_model_prop(spec: Dictionary) -> void:
 	prop.position = spec["position"]
 	if spec.has("rotation"):
 		prop.rotation_degrees = spec["rotation"]
+	if spec.has("script"):
+		prop.set_script(load(String(spec["script"])) as Script)
+		_apply_exports(prop, spec)
 	var scene: PackedScene = load(String(spec["model"])) as PackedScene
 	if scene == null:
 		print("FAIL: missing model prop ", spec["model"])
@@ -1201,13 +1203,14 @@ func _build_model_prop(spec: Dictionary) -> void:
 	var box: AABB = _local_bounds(prop)
 	if box.size == Vector3.ZERO:
 		return
-	var shape: BoxShape3D = BoxShape3D.new()
-	shape.size = box.size
-	var collider: CollisionShape3D = CollisionShape3D.new()
-	collider.name = "Shape"
-	collider.shape = shape
-	collider.position = box.get_center()
-	prop.add_child(collider)
+	if bool(spec.get("collision", true)):
+		var shape: BoxShape3D = BoxShape3D.new()
+		shape.size = box.size
+		var collider: CollisionShape3D = CollisionShape3D.new()
+		collider.name = "Shape"
+		collider.shape = shape
+		collider.position = box.get_center()
+		prop.add_child(collider)
 	_settle_against_wall(prop)
 
 

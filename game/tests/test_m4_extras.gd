@@ -1,4 +1,4 @@
-## M4 extras: O2 candle procedure, leg-completion overlay, nav leg_completed chain.
+## M4 extras: O2 candle procedure, destination overlay, multi-destination nav chain.
 extends SceneTree
 
 var _failures: int = 0
@@ -21,7 +21,7 @@ func _run() -> void:
 	event_bus.connect(&"sim_event", _on_sim_event)
 
 	_test_o2_candle()
-	_test_leg_overlay()
+	await _test_leg_overlay()
 	_test_nav_leg_completed()
 
 	_finish()
@@ -61,9 +61,13 @@ func _test_leg_overlay() -> void:
 	_check(not overlay.call("is_visible_overlay"), "leg overlay starts hidden")
 
 	var event_bus: Node = _find_root_child(&"EventBus")
-	event_bus.call("emit_event", &"leg_completed", {"waypoint_id": &"leg_end", "day": 4})
+	event_bus.call("emit_event", &"destination_arrived", {
+		"destination_id": &"leg_end",
+		"display_name": "Leg End",
+		"arrival_report": "Reference confirmed.",
+	})
 	_check(overlay.call("is_visible_overlay"), "leg overlay appears on completion")
-	_check(String(overlay.call("get_overlay_text")).contains("LEG_END"), "leg overlay names the waypoint")
+	_check(String(overlay.call("get_overlay_text")).contains("LEG END"), "leg overlay names the destination")
 
 	overlay.call("dismiss")
 	_check(not overlay.call("is_visible_overlay"), "leg overlay dismisses")
@@ -75,18 +79,26 @@ func _test_nav_leg_completed() -> void:
 	var harness := SimHarness.new(self)
 	harness.setup_clock()
 	var nav := NavSystem.new()
-	var waypoint_list: Array[StringName] = [&"relay_cache", &"drift_marker"]
-	nav.waypoints = waypoint_list
+	var destinations: Array[VoyageDestination] = [
+		load("res://src/data/destinations/destination_arden_ii.tres"),
+		load("res://src/data/destinations/destination_kestrel_system.tres"),
+	]
+	nav.destinations = destinations
 	root.add_child(nav)
 
-	_check(nav.plot_course(&"relay_cache") and nav.begin_burn(), "first leg burns")
-	_check(harness.events_named(&"leg_completed").is_empty(), "no completion before the final leg")
-	_check(nav.plot_course(&"drift_marker") and nav.begin_burn(), "final leg burns")
-	var completed: Array[Dictionary] = harness.events_named(&"leg_completed")
-	_check(completed.size() == 1, "final burn emits leg_completed once")
-	if completed.size() == 1:
-		_check(StringName(completed[0]["payload"]["waypoint_id"]) == &"drift_marker", "completion names the final waypoint")
-	_check(bool(nav.get_status()["arrived"]), "nav reports arrival")
+	_check(nav.plot_course(&"arden_ii") and nav.begin_burn(), "first destination transit starts")
+	nav.sim_tick(48.0)
+	var arrivals: Array[Dictionary] = harness.events_named(&"destination_arrived")
+	_check(arrivals.size() == 1, "first arrival is emitted once")
+	if arrivals.size() == 1:
+		_check(StringName(arrivals[0]["payload"]["destination_id"]) == &"arden_ii", "first arrival names its destination")
+	_check(nav.plot_course(&"kestrel_system") and nav.begin_burn(), "second destination transit starts")
+	nav.sim_tick(96.0)
+	arrivals = harness.events_named(&"destination_arrived")
+	_check(arrivals.size() == 2, "second arrival extends the route once")
+	if arrivals.size() == 2:
+		_check(StringName(arrivals[1]["payload"]["destination_id"]) == &"kestrel_system", "second arrival names the final destination")
+	_check(bool(nav.get_status()["arrived"]), "nav reports arrival at the final destination")
 
 	nav.free()
 
