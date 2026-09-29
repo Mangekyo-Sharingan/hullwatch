@@ -61,6 +61,7 @@ func _test_rooms_are_closed() -> void:
 			continue
 		var index: int = TubeLayout.index_of(String(section["name"]))
 		var center_z: float = (TubeLayout.span(index).x + TubeLayout.span(index).y) * 0.5
+		var ceiling: float = float(section.get("ceiling", SectionHull.TUBE_CEILING))
 		var docked: bool = TubeLayout.port_of(index) != &""
 		var port_west: bool = docked and _tube_port_is_west(index)
 		var gaps: Array[Array] = []
@@ -68,7 +69,7 @@ func _test_rooms_are_closed() -> void:
 			gaps.append(["west" if port_west or bool(section.get("outer_hatch", false)) else "east", center_z - 0.5, center_z + 0.5])
 		for probe: Array in [
 			[Vector3(0.0, 1.4, z), Vector3(0.0, -0.6, z), "down", false],
-			[Vector3(0.0, 1.4, z), Vector3(0.0, 3.6, z), "up", false],
+			[Vector3(0.0, 1.4, z), Vector3(0.0, ceiling + 0.2, z), "up", false],
 			[Vector3(0.0, 1.4, z), Vector3(-3.6, 1.4, z), "west", true],
 			[Vector3(0.0, 1.4, z), Vector3(3.6, 1.4, z), "east", true],
 		]:
@@ -118,6 +119,23 @@ func _test_no_sightlines_out() -> void:
 					escapes.append("%s from x=%.1f to (%.2f,%.2f,%.2f)" % [String(section["name"]), x, dir.x, dir.y, dir.z])
 					break
 	_check(escapes.is_empty(), "no sightline escapes a room (%s)" % ("sealed" if escapes.is_empty() else ", ".join(escapes)))
+	var upper_escapes: PackedStringArray = PackedStringArray()
+	for room: String in ["Quarters", "Storage", "EngineBayA", "EngineBayB"]:
+		var ladder: Node3D = _geometry.get_node_or_null("ShipLadder_" + room) as Node3D
+		if ladder == null:
+			upper_escapes.append(room + " has no ladder")
+			continue
+		var z: float = ladder.global_position.z + 0.65
+		for x: float in [-0.35, 0.0, 0.35]:
+			var from: Vector3 = Vector3(x, 3.75, z)
+			for dir: Vector3 in dirs:
+				var params: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(from, from + dir * 40.0)
+				params.collide_with_areas = false
+				params.hit_back_faces = true
+				if root.world_3d.direct_space_state.intersect_ray(params).is_empty():
+					upper_escapes.append("%s upper deck from x=%.1f to (%.2f,%.2f,%.2f)" % [room, x, dir.x, dir.y, dir.z])
+					break
+	_check(upper_escapes.is_empty(), "no upper-deck sightline escapes the hull (%s)" % ("sealed" if upper_escapes.is_empty() else ", ".join(upper_escapes)))
 	if _layout != null:
 		_layout.free()
 		_layout = null
@@ -137,7 +155,7 @@ func _tube_port_is_west(index: int) -> bool:
 func _test_no_outboard_geometry() -> void:
 	var reach: float = 0.0
 	for drum: Dictionary in SectionHull.tube_drums():
-		reach = maxf(reach, SectionHull.tube_drum_half_width(float(drum["radius"]), SectionHull.TUBE_WALL_TOP))
+		reach = maxf(reach, SectionHull.tube_drum_half_width(float(drum["radius"]), SectionHull.TUBE_WALL_TOP, float(drum["ceiling_lift"])))
 	var limit: float = reach + 2.0
 	var platform: Array[String] = ["TubeRailing0", "TubeRailing1", "TubeRailing2", "TetherAnchor0", "TetherAnchor1", "TetherZone"]
 	var strays: PackedStringArray = PackedStringArray()
@@ -174,8 +192,10 @@ func _test_drums() -> void:
 		var out: Dictionary = _ray_result(Vector3(0.0, 1.2, beside_z), Vector3(radius + 2.5, 1.2, beside_z))
 		var hit_x: float = absf(float((out["position"] as Vector3).x)) if not out.is_empty() else 999.0
 		_check(not out.is_empty() and hit_x < radius + 0.35, "drum wall encloses the room: %s (x=%.3f)" % [String(TubeLayout.sections()[index]["name"]), hit_x])
-		var roof: Dictionary = _ray_result(Vector3(0.0, 4.0, center_z), Vector3(0.0, 0.0, center_z))
-		_check(not roof.is_empty() and float((roof["position"] as Vector3).y) > 1.9, "drum ceiling closes overhead: %s" % String(TubeLayout.sections()[index]["name"]))
+		var ceiling: float = float(TubeLayout.sections()[index].get("ceiling", SectionHull.TUBE_CEILING))
+		var shell_roof: float = ceiling + SectionHull.TUBE_CEILING_LIFT
+		var roof: Dictionary = _ray_result(Vector3(0.0, shell_roof + 0.5, center_z), Vector3(0.0, 0.0, center_z))
+		_check(not roof.is_empty() and absf(float((roof["position"] as Vector3).y) - shell_roof) < 0.03, "drum ceiling closes overhead: %s" % String(TubeLayout.sections()[index]["name"]))
 
 
 ## Where two sections' radii differ the joint gets a step band and a collar proud of the
@@ -193,11 +213,13 @@ func _test_joint_collars() -> void:
 
 func _test_octagonal_cross_section() -> void:
 	var index: int = TubeLayout.index_of("storage")
-	var radius: float = float(TubeLayout.sections()[index]["radius"])
+	var section: Dictionary = TubeLayout.sections()[index]
+	var radius: float = float(section["radius"])
+	var ceiling_lift: float = SectionHull.section_ceiling_lift(section)
 	var span: Vector2 = TubeLayout.span(index)
 	var z: float = (span.x + span.y) * 0.5
-	for y: float in [2.15, 2.5]:
-		var expected: float = SectionHull.tube_drum_half_width(radius, y)
+	for y: float in [2.5, 3.6]:
+		var expected: float = SectionHull.tube_drum_half_width(radius, y, ceiling_lift)
 		for side: float in [-1.0, 1.0]:
 			var out: Dictionary = _ray_result(Vector3(side * (radius + SectionHull.TUBE_BAND + 2.0), y, z), Vector3(0.0, y, z))
 			var hit_x: float = absf(float((out["position"] as Vector3).x)) if not out.is_empty() else -1.0

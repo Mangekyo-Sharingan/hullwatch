@@ -6,7 +6,7 @@
 script = ExtResource("1")
 compartment_id = &"storage"
 display_name = "Storage Hold"
-volume_m3 = 41.0
+volume_m3 = 42.820552
 initial_pressure_kpa = 101.325
 initial_o2_fraction = 0.21
 initial_co2_ppm = 400.0

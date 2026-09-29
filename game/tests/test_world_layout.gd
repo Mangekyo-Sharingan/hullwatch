@@ -2,8 +2,8 @@
 ## all made it onto the chain. Props sit inside their own tunnel section hugged to its
 ## canted wall (never embedded, never across the centre line), the EVA platform kit stands
 ## off the airlock, joint doors ship open with their slabs stowed while the airlock's two
-## hatches stay shut, one zone covers every walkable section with its compartment id, and
-## one atmosphere link crosses every hatched joint.
+## hatches stay shut, each room has one occupancy volume across all its sections, and one
+## atmosphere link crosses every hatched joint.
 extends SceneTree
 
 const LAYOUT_PATH: String = "res://scenes/world_layout.tscn"
@@ -242,30 +242,37 @@ func _airlock_outer_door_ok() -> bool:
 	return absf(position.x + radius + 0.08) <= POSITION_TOLERANCE and absf(position.z - center_z) <= POSITION_TOLERANCE
 
 
-## One zone per walkable section: the section's compartment id, a box spanning its span.
+## One zone per unique room: it spans all sections, including both engine-bay levels.
 func _test_zones() -> void:
-	var walkable: int = 0
-	for index: int in TubeLayout.sections().size():
-		if not TubeLayout.is_walkable(index):
+	var expected_zones: int = 0
+	for room_value: Variant in TubeLayout.ROOM_COMPARTMENTS:
+		var room: StringName = StringName(room_value)
+		var sections: Array[int] = TubeLayout.sections_for_room(room)
+		if sections.is_empty():
 			continue
-		walkable += 1
-		var section: Dictionary = TubeLayout.sections()[index]
-		var zone_name: String = "ZoneSection_" + String(section["name"])
+		expected_zones += 1
+		var first: int = sections[0]
+		var last: int = sections[-1]
+		var zone_name: String = "ZoneRoom_" + String(room).replace("_", " ").capitalize().replace(" ", "")
 		var zone: Node = _zones.get_node_or_null(NodePath(zone_name))
 		if zone == null:
 			_check(false, "zone exists: " + zone_name)
 			continue
-		var room: StringName = StringName(section.get("room", &""))
 		_check(zone.get("compartment_id") == TubeLayout.ROOM_COMPARTMENTS[room], "zone compartment_id: " + zone_name)
 		var shape: CollisionShape3D = zone.get_node_or_null(^"Shape") as CollisionShape3D
 		if shape == null or not (shape.shape is BoxShape3D):
 			_check(false, "zone has a box shape: " + zone_name)
 			continue
-		var bounds: Vector2 = TubeLayout.span(index)
+		var bounds: Vector2 = Vector2(TubeLayout.span(first).x, TubeLayout.span(last).y)
 		var box: BoxShape3D = shape.shape as BoxShape3D
-		_check(absf(box.size.z - (bounds.y - bounds.x - 0.2)) <= 0.05, "zone spans its section: " + zone_name)
-		_check(absf((zone as Node3D).position.z - (bounds.x + bounds.y) * 0.5) <= POSITION_TOLERANCE, "zone is centred on its section: " + zone_name)
-	_check(_zones.get_child_count() == walkable, "Zones holds one zone per walkable section (%d)" % walkable)
+		_check(absf(box.size.z - (bounds.y - bounds.x)) <= 0.05, "zone spans every section in the room: " + zone_name)
+		_check(absf((zone as Node3D).position.z - (bounds.x + bounds.y) * 0.5) <= POSITION_TOLERANCE, "zone is centred on the room: " + zone_name)
+		var ceiling: float = SectionHull.TUBE_CEILING
+		for index: int in sections:
+			ceiling = maxf(ceiling, float(TubeLayout.sections()[index].get("ceiling", SectionHull.TUBE_CEILING)))
+		_check(absf(box.size.y - ceiling) <= POSITION_TOLERANCE, "zone covers both vertical levels: " + zone_name)
+		_check(absf((zone as Node3D).position.y - ceiling * 0.5) <= POSITION_TOLERANCE, "zone is centred across room height: " + zone_name)
+	_check(_zones.get_child_count() == expected_zones, "Zones holds one zone per room (%d)" % expected_zones)
 
 
 ## One atmosphere link per hatched joint, across the two rooms' compartments.

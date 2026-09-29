@@ -704,17 +704,31 @@ func _tube_position(flat: Vector3, size: Vector3) -> Vector3:
 ## Ties two sections together: the bulkhead door at the joint between them, the zone in each,
 ## and the atmosphere link across the hatch.
 func _build_tube_chain() -> void:
+	var room_indices: Dictionary = {}
 	for index: int in TubeLayout.sections().size():
 		var section: Dictionary = TubeLayout.sections()[index]
 		var room: StringName = StringName(section.get("room", &""))
 		if room == &"":
 			continue
-		var bounds: Vector2 = TubeLayout.span(index)
-		var radius: float = float(section["radius"])
+		if not room_indices.has(room):
+			room_indices[room] = Vector2i(index, index)
+		else:
+			var indices: Vector2i = room_indices[room]
+			room_indices[room] = Vector2i(indices.x, index)
+	for room_value: Variant in room_indices:
+		var room: StringName = StringName(room_value)
+		var indices: Vector2i = room_indices[room]
+		var bounds: Vector2 = Vector2(TubeLayout.span(indices.x).x, TubeLayout.span(indices.y).y)
+		var radius: float = 0.0
+		var ceiling: float = 0.0
+		for index: int in range(indices.x, indices.y + 1):
+			var section: Dictionary = TubeLayout.sections()[index]
+			radius = maxf(radius, float(section["radius"]))
+			ceiling = maxf(ceiling, float(section.get("ceiling", SectionHull.TUBE_CEILING)))
 		_build_zone({
-			"name": "ZoneSection_" + String(section["name"]),
-			"size": Vector3(2.0 * (radius - 0.25), TubeLayout.DECK_HEIGHT, bounds.y - bounds.x - 0.2),
-			"position": Vector3(0.0, TubeLayout.DECK_HEIGHT * 0.5, (bounds.x + bounds.y) * 0.5),
+			"name": "ZoneRoom_" + String(room).replace("_", " ").capitalize().replace(" ", ""),
+			"size": Vector3(2.0 * radius * SectionHull.TUBE_WALL_HALF, ceiling, bounds.y - bounds.x),
+			"position": Vector3(0.0, ceiling * 0.5, (bounds.x + bounds.y) * 0.5),
 			"exports": {"compartment_id": TubeLayout.ROOM_COMPARTMENTS[room]},
 		})
 	if TubeLayout.sections().size() < 2:

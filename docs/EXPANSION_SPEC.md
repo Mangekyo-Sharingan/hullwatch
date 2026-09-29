@@ -138,8 +138,9 @@ wasted either way.
 | Sub-step | Deliverable | Exit criteria |
 |---|---|---|
 | **M13.1 — Section hull generator** | `SectionHull` helpers in `src/world/` (lathe rings, drums, domes, ribs, flanges, radial ports) + the section table + collision generated from the same table; replaces the offset-polygon shell in `build_ship_geometry.gd` | Tool output deterministic; hull collides exactly where it renders; no room interior clips the shell; `test_hull_profile`/`test_hull_exterior` re-baselined and green |
-| **M13.2 — Tube interior** | Each room becomes a section: circular deck plate, curved wall, bulkhead doorway at the flange, ladderway or crawl to the next section; corridor retires into the section chain (train layout) | Every room reachable on foot; doors at bulkheads; atmosphere/thermal/hull compartment defs follow the section volumes; layout suites green || **M13.3 — Radial docks & exterior fittings** | Four docks as radial ports on their sections (pods hang perpendicular to the hull axis); airlock outer hatch, EVA platform, truss walkway with railings, tether anchors, cargo port re-mounted on the curved shell | Build → EVA → enter a pod on foot; tether clips; hull-exterior rays green |
-| **M13.4 — Ring decks** | Second deck inside the larger sections (mezzanine ring, ladder between decks) for the rooms that need the area (engine bay, storage, quarters) | Decks walkable, no headroom clash, compartments re-measured |
+| **M13.2 — Tube interior** | Each room becomes a section: circular deck plate, curved wall, bulkhead doorway at the flange, ladderway or crawl to the next section; corridor retires into the section chain (train layout) | Every room reachable on foot; doors at bulkheads; atmosphere/thermal/hull compartment defs follow the section volumes; layout suites green |
+| **M13.3 — Radial docks & exterior fittings** | Four docks as radial ports on their sections (pods hang perpendicular to the hull axis); airlock outer hatch, EVA platform, truss walkway with railings, tether anchors, cargo port re-mounted on the curved shell | Build → EVA → enter a pod on foot; tether clips; hull-exterior rays green |
+| **M13.4 — Ring decks** | Partial aft-half mezzanine decks and ladders in the quarters, storage and both engine-bay sections; these three section types rise to a 4.4 m ceiling with 3.4 m wall tops and a deck at 2.2 m | Both levels are walkable with standing clearance; shell and ladder collisions enclose the decks; compartment volumes account for deck structure; traversal and hull/layout suites green |
 | **M13.5 — Verification** | Captures, `test_scene_loop` with the new geometry, manual/manual-binder text, docs | Full loop headless; captures reviewed; docs consistent |
 
 **Status: M13.1 landed (2026-09-20).** `SectionHull` (`game/src/world/section_hull.gd`) owns the
@@ -206,6 +207,20 @@ on the drum walls. The build -> EVA -> enter-a-pod-on-foot loop is asserted end 
 contract lives in `test_hull_exterior` (deck, headroom, rails, posts, plate reach, bay
 clearance), and `test_ship_layout` probes moved clear of the wider bore and the joint hatch
 jambs. Captures: `docs/design/shot_tube_walkway.png` plus the refreshed tube set.
+
+**M13.4 Ring decks and M13.5 verification complete (2026-09-29).** Per Q8, quarters, storage
+and both engine-bay sections have a 4.4 m ceiling, 3.4 m wall top and partial aft-half deck at
+2.2 m. Each deck follows its section's full width and has a physical ladder opening, matching
+collision, guard rails and an interactive ladder; W climbs and S descends after targeting it
+with the standing interact ray. Both engine-bay sections have their own decks and ladders.
+Upper-deck clearance, opening collision and traversal are checked in `test_ship_layout` and
+`test_player_traversal`. Compartment volumes now use each room's raised cross-section less the
+full-width mezzanine slabs, and one room-wide occupancy zone spans the engine-bay section seam
+(`test_atmosphere`, `test_scene_loop`).
+The geometry and world-layout generators reproduce byte-for-byte. The four rendered upper-deck
+captures were reviewed and are in `docs/design/shot_tube_*_mezzanine.png`. The headless smoke
+test and all 79 `game/tests/test_*.gd` suites pass; the manual describes the ladder controls.
+This closes the M13 milestone.
 
 **Solar arrays authored (2026-09-28).** The stern arrays are the authored Blender piece now:
 `game/assets/models/hullwatch/exterior/hw_solar_array.glb` (32 parts) carries the canted mount

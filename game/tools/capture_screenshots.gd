@@ -43,13 +43,18 @@ func _run() -> void:
 			player.rotation.y = PI * 0.5
 			await _capture_current("shot_tube_cockpit_port_bank.png")
 			player.call("exit_pilot_seat")
+			await create_timer(0.75).timeout
 		await _capture(player, Vector3(0.0, 0.1, -4.5), PI, "shot_tube_storage.png")
 		await _capture(player, Vector3(0.0, 0.1, -13.9), 0.0, "shot_tube_quarters.png")
+		await _capture(player, Vector3(0.0, 2.3, -13.2), PI * 0.5, "shot_tube_quarters_mezzanine.png", -0.24)
+		await _capture(player, Vector3(0.0, 2.3, -2.5), PI * 0.5, "shot_tube_storage_mezzanine.png", -0.24)
 		await _capture(player, Vector3(-0.8, 0.1, -13.9), -PI * 0.5, "shot_tube_quarters_locker.png")
 		await _capture(player, Vector3(0.6, 0.1, -8.3), PI * 0.5, "shot_tube_galley.png")
 		await _capture(player, Vector3(0.8, 0.1, -11.05), PI * 0.5, "shot_tube_life_support.png")
 		await _capture(player, Vector3(0.6, 1.3, -10.3), PI * 0.5, "shot_tube_filter_rack.png")
 		await _capture(player, Vector3(1.0, 0.1, 2.0), PI * 0.5, "shot_tube_engine_bay.png")
+		await _capture(player, Vector3(0.0, 2.3, 2.7), PI * 0.5, "shot_tube_engine_bay_a_mezzanine.png", -0.24)
+		await _capture(player, Vector3(0.0, 2.3, 5.8), PI * 0.5, "shot_tube_engine_bay_mezzanine.png", -0.24)
 		await _capture(player, Vector3(-1.0, 0.1, 2.0), -PI * 0.5, "shot_tube_tool_cart.png")
 		var wall_computer: WallComputer = _main.get_node_or_null("WorldLayout/Props/WallComputer") as WallComputer
 		if wall_computer != null:
@@ -236,9 +241,10 @@ func _hull_shot(position: Vector3, target: Vector3, file_name: String) -> void:
 	await _capture(player, player.global_position, player.rotation.y, file_name)
 
 
-func _capture(player: Node3D, position: Vector3, yaw: float, file_name: String) -> void:
+func _capture(player: Node3D, position: Vector3, yaw: float, file_name: String, pitch: float = 0.0) -> void:
 	player.global_position = position
 	player.rotation.y = yaw
+	(player.get_node(^"Head") as Node3D).rotation.x = pitch
 	var work_light: OmniLight3D = null
 	if _needs_work_light(position):
 		work_light = OmniLight3D.new()

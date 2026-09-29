@@ -43,6 +43,20 @@ func _run() -> void:
 		_check(rooms.has(room), "every room has sections: " + String(room))
 	_check(int(rooms.get(&"engine_bay", 0)) == 2, "the engine bay spans two sections")
 	_check(TubeLayout.sections_for_room(&"engine_bay") == ([8, 9] as Array[int]), "engine sections are adjacent")
+	var expected_mezzanine_sections: Array[StringName] = [&"quarters", &"storage", &"engine_bay_a", &"engine_bay_b"]
+	var mezzanine_sections: Array[StringName] = []
+	for section: Dictionary in TubeLayout.sections():
+		var name: StringName = StringName(section["name"])
+		if SectionHull.section_mezzanine_y(section) > 0.0:
+			mezzanine_sections.append(name)
+			_check(is_equal_approx(float(section["wall_top"]), 3.4), "double-height wall top: " + String(name))
+			_check(is_equal_approx(float(section["ceiling"]), 4.4), "double-height ceiling: " + String(name))
+			_check(is_equal_approx(SectionHull.section_mezzanine_y(section), 2.2), "mezzanine height: " + String(name))
+			_check(SectionHull.section_mezzanine_y(section) - TubeLayout.MEZZANINE_THICKNESS >= 1.85, "lower deck has standing clearance: " + String(name))
+			_check(float(section["ceiling"]) - SectionHull.section_mezzanine_y(section) >= 1.85, "upper deck has standing clearance: " + String(name))
+		else:
+			_check(is_equal_approx(float(section.get("ceiling", SectionHull.TUBE_CEILING)), SectionHull.TUBE_CEILING), "standard section ceiling stays unchanged: " + String(name))
+	_check(mezzanine_sections == expected_mezzanine_sections, "only quarters, storage, and both engine-bay sections receive ring decks")
 
 	_check(TubeLayout.deck_area(0) > 14.0 and TubeLayout.deck_area(0) < 18.0, "a 2.3 m section decks about 16 m2")
 	_check(TubeLayout.room_deck_area(&"cockpit") >= 31.3, "the cockpit keeps its floor area across its sections")

@@ -46,6 +46,7 @@ func _run() -> void:
 		_check(player.collision_mask == 1, "player body ignores the door sensor layer")
 
 	_test_world_wiring(main, atmosphere)
+	await _test_shared_compartment_occupancy(main, atmosphere, player)
 	_test_space_backdrop(main)
 
 	transition.fade_out_seconds = 0.05
@@ -89,8 +90,10 @@ func _run() -> void:
 func _test_world_wiring(main: Node, atmosphere: Node) -> void:
 	var missing: PackedStringArray = PackedStringArray()
 	var zones: Node = main.get_node("WorldLayout/Zones")
+	var zone_ids: Dictionary = {}
 	for zone: Node in zones.get_children():
 		var compartment_id: StringName = zone.get(&"compartment_id")
+		zone_ids[compartment_id] = int(zone_ids.get(compartment_id, 0)) + 1
 		if bool(atmosphere.call("has_compartment", compartment_id)):
 			zone.call("push_occupancy")
 		else:
@@ -115,7 +118,38 @@ func _test_world_wiring(main: Node, atmosphere: Node) -> void:
 				missing.append("link:" + String(id))
 	_check(door_count == 10, "all ten doors are wired")
 	_check(link_count == 9, "all nine compartment links are wired")
+	var duplicate_zones: PackedStringArray = PackedStringArray()
+	for compartment_id: StringName in zone_ids:
+		if int(zone_ids[compartment_id]) != 1:
+			duplicate_zones.append(String(compartment_id))
+	_check(duplicate_zones.is_empty(), "one occupancy zone owns each compartment (%s)" % ", ".join(duplicate_zones))
 	_check(missing.is_empty(), "every zone, door and link maps to a registered compartment (%s)" % ", ".join(missing))
+
+
+func _test_shared_compartment_occupancy(main: Node, atmosphere: Node, player: CharacterBody3D) -> void:
+	var zone: CompartmentZone = main.get_node_or_null(^"WorldLayout/Zones/ZoneRoom_EngineBay") as CompartmentZone
+	_check(zone != null, "engine bay has one room-wide occupancy zone")
+	if zone == null or player == null:
+		return
+	var original_position: Vector3 = player.global_position
+	var sections: Array[int] = TubeLayout.sections_for_room(&"engine_bay")
+	var first_position: Vector3 = Vector3(1.0, 0.05, (TubeLayout.span(sections[0]).x + TubeLayout.span(sections[0]).y) * 0.5)
+	player.global_position = first_position
+	await physics_frame
+	await physics_frame
+	await physics_frame
+	zone.push_occupancy()
+	var in_first: int = int(atmosphere.call("get_compartment_status", &"engine_bay")["occupants"])
+	player.global_position = Vector3(1.0, 0.05, (TubeLayout.span(sections[1]).x + TubeLayout.span(sections[1]).y) * 0.5)
+	await physics_frame
+	await physics_frame
+	zone.push_occupancy()
+	var in_second: int = int(atmosphere.call("get_compartment_status", &"engine_bay")["occupants"])
+	_check(in_first == 1 and in_second == 1, "crossing the engine-bay section seam keeps its occupant")
+	player.global_position = original_position
+	await physics_frame
+	for room_zone: Node in main.get_node("WorldLayout/Zones").get_children():
+		room_zone.call("push_occupancy")
 
 
 func _test_space_backdrop(main: Node) -> void:

@@ -122,24 +122,30 @@ const PROW_DEPTH: float = 0.45
 const TUBE_WINDOW_MIN: Vector2 = Vector2(-1.20, 1.25)
 const TUBE_WINDOW_MAX: Vector2 = Vector2(1.20, 2.25)
 
-static func tube_section(radius: float, ceiling_lift: float = 0.0) -> PackedVector2Array:
+static func tube_section(radius: float, ceiling_lift: float = 0.0, wall_top: float = TUBE_WALL_TOP) -> PackedVector2Array:
+	return tube_profile(radius, ceiling_lift, wall_top)
+
+
+static func tube_profile(radius: float, ceiling_lift: float, wall_top: float) -> PackedVector2Array:
+	var ceiling: float = TUBE_CEILING + ceiling_lift
 	return PackedVector2Array([
 		Vector2(-radius * TUBE_DECK_HALF, 0.0),
 		Vector2(radius * TUBE_DECK_HALF, 0.0),
 		Vector2(radius * TUBE_WALL_HALF, TUBE_WALL_BASE),
-		Vector2(radius * TUBE_WALL_HALF, TUBE_WALL_TOP),
-		Vector2(radius * TUBE_CEIL_HALF, TUBE_CEILING + ceiling_lift),
-		Vector2(-radius * TUBE_CEIL_HALF, TUBE_CEILING + ceiling_lift),
-		Vector2(-radius * TUBE_WALL_HALF, TUBE_WALL_TOP),
+		Vector2(radius * TUBE_WALL_HALF, wall_top),
+		Vector2(radius * TUBE_CEIL_HALF, ceiling),
+		Vector2(-radius * TUBE_CEIL_HALF, ceiling),
+		Vector2(-radius * TUBE_WALL_HALF, wall_top),
 		Vector2(-radius * TUBE_WALL_HALF, TUBE_WALL_BASE),
 	])
 
 
 ## The outer drum follows the same octagonal section with a clearance band around it.
-static func tube_drum_section(radius: float) -> PackedVector2Array:
+static func tube_drum_section(radius: float, ceiling_lift: float = 0.0) -> PackedVector2Array:
 	var outer_radius: float = radius + TUBE_BAND
 	var deck_y: float = -TUBE_DRUM_DECK_DROP
-	var roof_y: float = TUBE_CEILING + TUBE_CEILING_LIFT
+	var roof_y: float = TUBE_CEILING + TUBE_CEILING_LIFT + ceiling_lift
+	var shoulder_y: float = TUBE_DRUM_SHOULDER_Y + ceiling_lift
 	var deck_half: float = outer_radius * TUBE_DECK_HALF
 	var wall_half: float = outer_radius * TUBE_WALL_HALF
 	var ceiling_half: float = outer_radius * TUBE_CEIL_HALF
@@ -147,60 +153,76 @@ static func tube_drum_section(radius: float) -> PackedVector2Array:
 		Vector2(-deck_half, deck_y),
 		Vector2(deck_half, deck_y),
 		Vector2(wall_half, TUBE_WALL_BASE),
-		Vector2(wall_half, TUBE_DRUM_SHOULDER_Y),
+		Vector2(wall_half, shoulder_y),
 		Vector2(ceiling_half, roof_y),
 		Vector2(-ceiling_half, roof_y),
-		Vector2(-wall_half, TUBE_DRUM_SHOULDER_Y),
+		Vector2(-wall_half, shoulder_y),
 		Vector2(-wall_half, TUBE_WALL_BASE),
 	])
 
 
 ## The collar ring around a joint: the drum ring plus the flange width, lifted again so its
 ## ceiling plane clears the drum's.
-static func tube_collar_section(radius: float) -> PackedVector2Array:
+static func tube_collar_section(radius: float, ceiling_lift: float = 0.0) -> PackedVector2Array:
 	var collar_radius: float = radius + TUBE_BAND + TUBE_FLANGE_WIDTH
 	var deck_half: float = collar_radius * TUBE_DECK_HALF
 	var wall_half: float = collar_radius * TUBE_WALL_HALF
 	var ceiling_half: float = collar_radius * TUBE_CEIL_HALF
-	var roof_y: float = TUBE_CEILING + TUBE_COLLAR_LIFT
+	var roof_y: float = TUBE_CEILING + TUBE_COLLAR_LIFT + ceiling_lift
+	var shoulder_y: float = TUBE_DRUM_SHOULDER_Y + ceiling_lift
 	return PackedVector2Array([
 		Vector2(-deck_half, -TUBE_DRUM_DECK_DROP),
 		Vector2(deck_half, -TUBE_DRUM_DECK_DROP),
 		Vector2(wall_half, TUBE_WALL_BASE),
-		Vector2(wall_half, TUBE_DRUM_SHOULDER_Y),
+		Vector2(wall_half, shoulder_y),
 		Vector2(ceiling_half, roof_y),
 		Vector2(-ceiling_half, roof_y),
-		Vector2(-wall_half, TUBE_DRUM_SHOULDER_Y),
+		Vector2(-wall_half, shoulder_y),
 		Vector2(-wall_half, TUBE_WALL_BASE),
 	])
 
 
 ## The section's half-width at height y, following the deck, the wall line and the cove.
 ## Used for placing faces and consoles against a canted wall.
-static func tube_half_width(radius: float, y: float) -> float:
+static func tube_half_width(radius: float, y: float, ceiling_lift: float = 0.0, wall_top: float = TUBE_WALL_TOP) -> float:
 	var deck: float = radius * TUBE_DECK_HALF
 	var wall: float = radius * TUBE_WALL_HALF
 	var ceiling: float = radius * TUBE_CEIL_HALF
+	var ceiling_y: float = TUBE_CEILING + ceiling_lift
 	if y <= 0.0:
 		return deck
 	if y <= TUBE_WALL_BASE:
 		return lerpf(deck, wall, y / TUBE_WALL_BASE)
-	if y <= TUBE_WALL_TOP:
+	if y <= wall_top:
 		return wall
-	return lerpf(wall, ceiling, clampf((y - TUBE_WALL_TOP) / (TUBE_CEILING - TUBE_WALL_TOP), 0.0, 1.0))
+	return lerpf(wall, ceiling, clampf((y - wall_top) / (ceiling_y - wall_top), 0.0, 1.0))
 
 
 ## The outer drum's half-width: the vertical dock face below a chamfered roof shoulder.
-static func tube_drum_half_width(section_radius: float, y: float) -> float:
+static func tube_drum_half_width(section_radius: float, y: float, ceiling_lift: float = 0.0) -> float:
 	var outer_radius: float = section_radius + TUBE_BAND
 	var deck: float = outer_radius * TUBE_DECK_HALF
 	var wall: float = outer_radius * TUBE_WALL_HALF
 	var ceiling: float = outer_radius * TUBE_CEIL_HALF
+	var ceiling_y: float = TUBE_CEILING + TUBE_CEILING_LIFT + ceiling_lift
+	var shoulder_y: float = TUBE_DRUM_SHOULDER_Y + ceiling_lift
 	if y <= TUBE_WALL_BASE:
 		return lerpf(deck, wall, clampf((y + TUBE_DRUM_DECK_DROP) / (TUBE_WALL_BASE + TUBE_DRUM_DECK_DROP), 0.0, 1.0))
-	if y <= TUBE_DRUM_SHOULDER_Y:
+	if y <= shoulder_y:
 		return wall
-	return lerpf(wall, ceiling, clampf((y - TUBE_DRUM_SHOULDER_Y) / (TUBE_CEILING + TUBE_CEILING_LIFT - TUBE_DRUM_SHOULDER_Y), 0.0, 1.0))
+	return lerpf(wall, ceiling, clampf((y - shoulder_y) / (ceiling_y - shoulder_y), 0.0, 1.0))
+
+
+static func section_ceiling_lift(section: Dictionary) -> float:
+	return float(section.get("ceiling", TUBE_CEILING)) - TUBE_CEILING
+
+
+static func section_wall_top(section: Dictionary) -> float:
+	return float(section.get("wall_top", TUBE_WALL_TOP))
+
+
+static func section_mezzanine_y(section: Dictionary) -> float:
+	return float(section.get("mezzanine_y", 0.0))
 
 ## Tube-mode shell (M13.2): the hull that wraps the tube interior is one constant-radius drum
 ## per TubeLayout section, since the section polygons already carry the shape. Drums meet at
@@ -231,6 +253,8 @@ static func tube_drums() -> Array[Dictionary]:
 			"z0": z0,
 			"z1": z1,
 			"radius": float(sections[index]["radius"]),
+			"ceiling_lift": section_ceiling_lift(sections[index]),
+			"wall_top": section_wall_top(sections[index]),
 		})
 	return drums
 
@@ -240,12 +264,20 @@ static func tube_joints() -> Array[Dictionary]:
 	var drums: Array[Dictionary] = tube_drums()
 	var joints: Array[Dictionary] = []
 	for index: int in drums.size() - 1:
-		if absf(float(drums[index]["radius"]) - float(drums[index + 1]["radius"])) <= EPSILON:
+		var drum_a: Dictionary = drums[index]
+		var drum_b: Dictionary = drums[index + 1]
+		if absf(float(drum_a["radius"]) - float(drum_b["radius"])) <= EPSILON \
+			and absf(float(drum_a["ceiling_lift"]) - float(drum_b["ceiling_lift"])) <= EPSILON \
+			and absf(float(drum_a["wall_top"]) - float(drum_b["wall_top"])) <= EPSILON:
 			continue
 		joints.append({
 			"z": (float(drums[index]["z1"]) + float(drums[index + 1]["z0"])) * 0.5,
 			"radius_a": float(drums[index]["radius"]),
 			"radius_b": float(drums[index + 1]["radius"]),
+			"ceiling_lift_a": float(drum_a["ceiling_lift"]),
+			"ceiling_lift_b": float(drum_b["ceiling_lift"]),
+			"wall_top_a": float(drum_a["wall_top"]),
+			"wall_top_b": float(drum_b["wall_top"]),
 		})
 	return joints
 
@@ -262,10 +294,17 @@ static func validate_tube() -> PackedStringArray:
 		if index > 0 and absf(float(drums[index - 1]["z1"]) - float(drum["z0"])) > EPSILON:
 			problems.append("drum %s does not meet its forward neighbour" % String(drum["name"]))
 		var section: Dictionary = TubeLayout.sections()[index]
-		if absf(float(drum["radius"]) - float(section["radius"])) > EPSILON:
-			problems.append("drum %s radius does not follow its section" % String(drum["name"]))
-		var inner_ring: PackedVector2Array = tube_section(float(drum["radius"]))
-		var outer_ring: PackedVector2Array = tube_drum_section(float(drum["radius"]))
+		var lift: float = section_ceiling_lift(section)
+		var wall_top: float = section_wall_top(section)
+		var ceiling: float = TUBE_CEILING + lift
+		if absf(float(drum["radius"]) - float(section["radius"])) > EPSILON \
+			or absf(float(drum["ceiling_lift"]) - lift) > EPSILON \
+			or absf(float(drum["wall_top"]) - wall_top) > EPSILON:
+			problems.append("drum %s profile does not follow its section" % String(drum["name"]))
+		var inner_ring: PackedVector2Array = tube_profile(float(drum["radius"]), lift, wall_top)
+		var outer_ring: PackedVector2Array = tube_drum_section(float(drum["radius"]), lift)
+		if wall_top <= TUBE_WALL_BASE or ceiling <= wall_top:
+			problems.append("drum %s has an invalid vertical profile" % String(drum["name"]))
 		if HullProfile.signed_area(outer_ring) <= HullProfile.signed_area(inner_ring) + EPSILON:
 			problems.append("drum %s ring does not enclose its section" % String(drum["name"]))
 		for point: Vector2 in inner_ring:
@@ -275,6 +314,15 @@ static func validate_tube() -> PackedStringArray:
 	for joint: Dictionary in tube_joints():
 		if float(joint["z"]) < float(drums[0]["z0"]) or float(joint["z"]) > float(drums[-1]["z1"]):
 			problems.append("a step joint lands outside the chain")
+	for section: Dictionary in TubeLayout.sections():
+		var mezzanine_y: float = section_mezzanine_y(section)
+		if mezzanine_y <= 0.0:
+			continue
+		var ceiling: float = float(section.get("ceiling", TUBE_CEILING))
+		if mezzanine_y - TubeLayout.MEZZANINE_THICKNESS < 1.85:
+			problems.append("ring deck leaves no standing room below: " + String(section["name"]))
+		if ceiling - mezzanine_y < 1.85:
+			problems.append("ring deck leaves no standing room above: " + String(section["name"]))
 	return problems
 
 ## The section whose z span contains z; empty dictionary when z is outside the stack.

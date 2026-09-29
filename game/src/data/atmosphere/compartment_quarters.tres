@@ -6,7 +6,7 @@
 script = ExtResource("1")
 compartment_id = &"quarters"
 display_name = "Quarters"
-volume_m3 = 44.0
+volume_m3 = 54.121344
 initial_pressure_kpa = 101.325
 initial_o2_fraction = 0.21
 initial_co2_ppm = 400.0

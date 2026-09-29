@@ -47,13 +47,27 @@ func _test_section_hull() -> void:
 	var tube_drums: Array[Dictionary] = SectionHull.tube_drums()
 	_check(tube_drums.size() == TubeLayout.sections().size(), "every tube section gets one hull drum")
 	var meets: bool = true
+	var profile_joints: int = 0
 	for i2: int in tube_drums.size():
 		if i2 > 0 and absf(float(tube_drums[i2 - 1]["z1"]) - float(tube_drums[i2]["z0"])) > 0.001:
 			meets = false
 		var tube_section: Dictionary = TubeLayout.sections()[i2]
 		if absf(float(tube_drums[i2]["radius"]) - float(tube_section["radius"])) > 0.001:
 			meets = false
+		var lift: float = SectionHull.section_ceiling_lift(tube_section)
+		var wall_top: float = SectionHull.section_wall_top(tube_section)
+		if absf(float(tube_drums[i2]["ceiling_lift"]) - lift) > 0.001 or absf(float(tube_drums[i2]["wall_top"]) - wall_top) > 0.001:
+			meets = false
+		var inner: PackedVector2Array = SectionHull.tube_section(float(tube_section["radius"]), lift, wall_top)
+		var outer: PackedVector2Array = SectionHull.tube_drum_section(float(tube_section["radius"]), lift)
+		for point: Vector2 in inner:
+			if not SectionHull.contains_point(outer, point):
+				meets = false
 	_check(meets, "tube drums meet at every joint and follow their sections")
+	for joint: Dictionary in SectionHull.tube_joints():
+		if absf(float(joint["ceiling_lift_a"]) - float(joint["ceiling_lift_b"])) > TOLERANCE:
+			profile_joints += 1
+	_check(profile_joints == 6, "profile changes create collars at each height transition")
 	_check(absf(float(tube_drums[0]["z0"]) - TubeLayout.span(0).x) < 0.001 and absf(float(tube_drums[-1]["z1"]) - TubeLayout.span(TubeLayout.sections().size() - 1).y) < 0.001, "the drum chain spans the interior exactly")
 	_check(SectionHull.tube_joints().size() > 0, "the varying radii leave step joints for the collars")
 	_check(SectionHull.validate_tube().is_empty(), "the tube drum tables validate cleanly")
