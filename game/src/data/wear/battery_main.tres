@@ -27,8 +27,14 @@ severity = 3
 symptoms = Array[StringName]([&"self_discharge", &"hot_cell"])
 
 [resource]
+resource_local_to_scene = true
 script = ExtResource("1")
 component_id = &"battery_main"
 display_name = "Main Battery"
 wear_rate_per_hour = 0.0002
 failure_modes = Array[ExtResource("2")]([SubResource("FailureMode_cell_fade"), SubResource("FailureMode_cell_short")])
+
+service_circuit = &"all_bus"
+service_part = &"gasket"
+service_hours = 0.25
+service_quality = 0.75

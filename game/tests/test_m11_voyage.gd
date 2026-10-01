@@ -56,7 +56,7 @@ func _test_planet_arrival(nav: Node, sector: Node, cargo: Node, stores: Node) ->
 	_test_ion_plumes(true, "transit starts")
 	var status_panel: Node = _main.get_node_or_null("WorldLayout/Props/StatusPanel")
 	var underway: String = "\n".join(status_panel.call("build_readout")) if status_panel != null else ""
-	_check(underway.contains("ION DRIVE PAIR FIRING") and underway.contains("XENON"), "status panel reports active ion propulsion and xenon reserve")
+	_check(underway.contains("ION DRIVE  2/2 CASSETTES FUNCTIONAL") and underway.contains("PORT  FIRING") and underway.contains("STARBOARD  FIRING") and underway.contains("XENON"), "status panel reports both cassettes firing and xenon reserve")
 	if clock != null:
 		clock.call("fast_forward", 48.0)
 		_check(is_equal_approx(float(clock.call("get_total_hours")) - clock_before, 49.0), "planet: plotting and transit advance shared simulation time")
@@ -81,7 +81,7 @@ func _test_planet_arrival(nav: Node, sector: Node, cargo: Node, stores: Node) ->
 	_check(window_pane != null and window_pane.material_override is StandardMaterial3D, "planet: cockpit glass shows the destination sky")
 	status_panel = _main.get_node_or_null("WorldLayout/Props/StatusPanel")
 	var arrived: String = "\n".join(status_panel.call("build_readout")) if status_panel != null else ""
-	_check(arrived.contains("ION DRIVE IDLE") and arrived.contains("XENON"), "status panel reports the drive idle after arrival")
+	_check(arrived.contains("STANDBY") and not arrived.contains("FIRING") and arrived.contains("XENON"), "status panel reports the drive on standby after arrival")
 	var overlay: Node = _main.get_node("UI/LegCompleteOverlay")
 	_check(bool(overlay.call("is_visible_overlay")), "planet: quiet arrival overlay appears")
 	_check(String(overlay.call("get_overlay_text")).contains("ARDEN II"), "planet: arrival overlay names the destination")
@@ -94,7 +94,7 @@ func _test_planet_arrival(nav: Node, sector: Node, cargo: Node, stores: Node) ->
 func _test_star_arrival_and_round_trip(nav: Node, sector: Node, cargo: Node, stores: Node) -> void:
 	var save_manager: Node = root.get_node_or_null(^"SaveManager")
 	var saved_at_planet: Dictionary = save_manager.call("save_to_dict") if save_manager != null else {}
-	_check(int(saved_at_planet.get("save_version", 0)) == 3, "save: new voyage data writes save version 3")
+	_check(int(saved_at_planet.get("save_version", 0)) == 4, "save: new voyage data writes save version 4")
 	_check(bool(nav.call("plot_course", &"kestrel_system")), "star: course plots from planet")
 	_check(bool(nav.call("begin_transit")), "star: longer transit starts")
 	_test_ion_plumes(true, "star transit starts")

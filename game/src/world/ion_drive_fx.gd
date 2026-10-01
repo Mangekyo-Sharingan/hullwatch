@@ -2,6 +2,8 @@
 class_name IonDriveFx
 extends Node3D
 
+@export var cassette_id: StringName = &"port"
+
 var _plumes: Array[MeshInstance3D] = []
 
 
@@ -20,22 +22,22 @@ func _ready() -> void:
 	call_deferred("_sync_with_nav")
 
 
-func _on_sim_event(event_name: StringName, _payload: Dictionary) -> void:
-	if event_name == &"transit_started":
-		_set_burning(true)
-	elif event_name in [&"destination_arrived", &"transit_fuel_exhausted"]:
-		_set_burning(false)
+func _on_sim_event(event_name: StringName, payload: Dictionary) -> void:
+	if event_name == &"drive_state_changed":
+		_set_burning(bool((payload.get("cassette_firing", {}) as Dictionary).get(String(cassette_id), false)))
+	elif event_name in [&"transit_started", &"destination_arrived", &"transit_fuel_exhausted"]:
+		_sync_with_nav()
 
 
-func _on_navigation_state_restored(in_transit: bool) -> void:
-	_set_burning(in_transit)
+func _on_navigation_state_restored(_in_transit: bool) -> void:
+	_sync_with_nav()
 
 
 func _sync_with_nav() -> void:
 	var nav: Node = get_tree().get_first_node_in_group(&"nav_system")
 	if nav != null and nav.has_method(&"get_status"):
 		var status: Dictionary = nav.call("get_status")
-		_set_burning(bool(status.get("transit_active", false)))
+		_set_burning(bool((status.get("cassette_firing", {}) as Dictionary).get(String(cassette_id), false)))
 
 
 func _set_burning(burning: bool) -> void:

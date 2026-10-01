@@ -14,6 +14,7 @@ const MAX_STEP_HOURS: float = 1.0 / 600.0
 @export var wear_seed: int = 20260921
 
 var _compartments: Dictionary = {}
+var _heat_sources: Dictionary = {}
 var _rng: RandomNumberGenerator
 var _condition_bucket: Dictionary = {}
 var _failure_restore: Dictionary = {}
@@ -102,6 +103,18 @@ func set_heat_gain(compartment_id: StringName, watts: float) -> void:
 		push_error("ThermalSystem.set_heat_gain: watts must be finite and non-negative.")
 		return
 	state["constant_gain_w"] = watts
+
+
+func set_heat_source_gain(compartment_id: StringName, source_id: StringName, watts: float) -> void:
+	if not _compartments.has(compartment_id) or not is_finite(watts) or watts < 0.0 or source_id == &"":
+		return
+	if not _heat_sources.has(compartment_id):
+		_heat_sources[compartment_id] = {}
+	var sources: Dictionary = _heat_sources[compartment_id]
+	if watts == 0.0:
+		sources.erase(source_id)
+	else:
+		sources[source_id] = watts
 
 
 func add_compartment(config: CompartmentConfig) -> bool:
@@ -202,6 +215,7 @@ func save_state() -> Dictionary:
 			"constant_gain_w": float(state["constant_gain_w"]),
 		}
 	return {
+		"maintenance_covers": maintenance_covers.duplicate(),
 		"system_id": "thermal",
 		"state_version": 1,
 		"compartments": compartments,
@@ -212,6 +226,7 @@ func save_state() -> Dictionary:
 
 
 func load_state(state: Dictionary) -> void:
+	restore_maintenance_covers(state)
 	var compartments: Variant = state.get("compartments", {})
 	if compartments is Dictionary:
 		for key: Variant in (compartments as Dictionary):
@@ -285,7 +300,10 @@ func _update_heater(state: Dictionary, config: CompartmentConfig, heater_availab
 
 func _heat_input_w(state: Dictionary, config: CompartmentConfig) -> float:
 	var heater_w: float = config.heater_watts * _heater_output_factor if bool(state["heater_on"]) else 0.0
-	return heater_w + float(state["occupants"]) * config.occupant_heat_w + float(state["constant_gain_w"])
+	var source_w: float = 0.0
+	for watts: Variant in (_heat_sources.get(config.compartment_id, {}) as Dictionary).values():
+		source_w += float(watts)
+	return heater_w + float(state["occupants"]) * config.occupant_heat_w + float(state["constant_gain_w"]) + source_w
 
 
 func _emit_changes(compartment_id: StringName) -> void:

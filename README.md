@@ -18,8 +18,9 @@ A first-person ship-maintenance simulation about keeping a decaying long-haul ve
 .\build.ps1 -Debug     # debug build
 ```
 
-Controls: WASD move, Space push-off/jump, Ctrl crouch, Q magnetic boots, E interact,
-F flashlight, Esc settings/pause.
+Controls: WASD move/thrust, Space push-off/upward thrust, Ctrl crouch/downward thrust,
+Shift brake drift, Z/C roll in zero-g, Q release boots/land, E interact,
+F flashlight, T tether, X leave pilot seat, Esc pause.
 
 ## Test it
 

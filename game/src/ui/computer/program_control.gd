@@ -133,7 +133,7 @@ func _power_lines(terminal: Node) -> PackedStringArray:
 		"BROWNOUT" if bool(status.get("brownout", false)) else "OK",
 	])
 	for circuit_id: String in _circuit_ids(terminal):
-		lines.append("  %-11s %s" % [circuit_id.to_upper(), _breaker_state(terminal, circuit_id)])
+		lines.append("  %-11s %s" % [_circuit_label(circuit_id), _breaker_state(terminal, circuit_id)])
 	return lines
 
 
@@ -239,8 +239,8 @@ func _emit_procedure_error(terminal: Node, reason: StringName) -> void:
 func _breaker_label(terminal: Node, circuit_id: String) -> String:
 	var state: String = _breaker_state(terminal, circuit_id)
 	if state.is_empty():
-		return circuit_id.to_upper()
-	return "%s  %s" % [circuit_id.to_upper(), state]
+		return _circuit_label(circuit_id)
+	return "%s  %s" % [_circuit_label(circuit_id), state]
 
 
 func _isolation_label(terminal: Node, compartment_id: String) -> String:
@@ -388,3 +388,7 @@ func _airlock_status(terminal: Node) -> Dictionary:
 		return {}
 	var status: Dictionary = airlock.call("get_status")
 	return status
+
+
+func _circuit_label(circuit_id: String) -> String:
+	return "DRIVE FEED UV" if circuit_id == "xenonite_uv" else circuit_id.to_upper()

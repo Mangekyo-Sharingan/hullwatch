@@ -7,6 +7,7 @@
 [ext_resource type="Resource" path="res://src/data/power/circuit_scrubber.tres" id="5_circuit_scrubber"]
 [ext_resource type="Script" uid="uid://lqj23qugwwwv" path="res://src/components/power_circuit.gd" id="5_dgi5k"]
 [ext_resource type="Resource" path="res://src/data/power/circuit_lighting.tres" id="6_circuit_lighting"]
+[ext_resource type="Resource" path="res://src/data/power/circuit_xenonite_uv.tres" id="110_circuit_uv"]
 [ext_resource type="Resource" path="res://src/data/atmosphere/compartment_main.tres" id="7_compartment_main"]
 [ext_resource type="Resource" path="res://src/data/atmosphere/compartment_storage.tres" id="8_compartment_storage"]
 [ext_resource type="Script" uid="uid://ng7r2qk1dktu" path="res://src/components/wear_component.gd" id="9_j8jky"]
@@ -32,7 +33,7 @@
 [ext_resource type="Resource" path="res://src/data/atmosphere/compartment_corridor.tres" id="50_compartment_corridor"]
 [ext_resource type="Resource" path="res://src/data/atmosphere/compartment_engine_bay.tres" id="51_compartment_engine_bay"]
 [ext_resource type="Resource" path="res://src/data/atmosphere/compartment_water_closet.tres" id="52_compartment_water_closet"]
-[ext_resource type="Script" uid="uid://b8hke5ndh3r06" path="res://src/ui/settings_menu.gd" id="53_settings_menu"]
+[ext_resource type="Script" path="res://src/ui/session_menu.gd" id="53_settings_menu"]
 [ext_resource type="Resource" path="res://src/data/atmosphere/compartment_quarters.tres" id="55_compartment_quarters"]
 [ext_resource type="Resource" path="res://src/data/atmosphere/compartment_galley.tres" id="56_compartment_galley"]
 [ext_resource type="Script" uid="uid://cdhsyp8louqru" path="res://src/world/analogue_filter.gd" id="57_analogue_filter"]
@@ -88,6 +89,8 @@
 [ext_resource type="Resource" path="res://src/data/logs/log_01.tres" id="107_log_01"]
 [ext_resource type="Resource" path="res://src/data/logs/log_02.tres" id="108_log_02"]
 
+[ext_resource type="Script" path="res://src/world/ship_scene.gd" id="112_ship_scene"]
+
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_sky"]
 shader = ExtResource("71_space_sky")
 shader_parameter/top_color = Color(0.004, 0.006, 0.012, 1)
@@ -115,6 +118,7 @@ ambient_light_energy = 0.16
 tonemap_mode = 2
 
 [node name="Main" type="Node3D" unique_id=1518276301]
+script = ExtResource("112_ship_scene")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=409178157]
 environment = SubResource("Environment_1")
@@ -143,7 +147,7 @@ script = ExtResource("2_power")
 generators = {
 &"rtg_main": 500.0
 }
-circuit_defs = Array[ExtResource("5_dgi5k")]([ExtResource("4_circuit_life_support"), ExtResource("5_circuit_scrubber"), ExtResource("6_circuit_lighting"), ExtResource("68_circuit_airlock"), ExtResource("75_circuit_fabricator")])
+circuit_defs = Array[ExtResource("5_dgi5k")]([ExtResource("4_circuit_life_support"), ExtResource("5_circuit_scrubber"), ExtResource("6_circuit_lighting"), ExtResource("68_circuit_airlock"), ExtResource("75_circuit_fabricator"), ExtResource("110_circuit_uv")])
 wear_components = Array[ExtResource("9_j8jky")]([ExtResource("18_rtg_main"), ExtResource("19_battery_main"), ExtResource("58_lighting_ballast")])
 
 [node name="AtmosphereSystem" type="Node" parent="Systems" unique_id=166534954]
@@ -232,8 +236,9 @@ script = ExtResource("28_loss_overlay")
 [node name="LegCompleteOverlay" type="CanvasLayer" parent="UI" unique_id=579742285]
 script = ExtResource("48_leg_overlay")
 
-[node name="SettingsMenu" type="CanvasLayer" parent="UI" unique_id=1622688253]
+[node name="PauseMenu" type="CanvasLayer" parent="UI" unique_id=1622688253]
 script = ExtResource("53_settings_menu")
+pause_mode = true
 
 [node name="WorldLayout" parent="." unique_id=60594604 instance=ExtResource("34_dgi5k")]
 

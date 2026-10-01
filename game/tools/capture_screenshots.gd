@@ -22,6 +22,53 @@ func _run() -> void:
 
 	var player: Node3D = _main.get_node("Player")
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	if OS.get_cmdline_user_args().has("--movement-only"):
+		await _capture(player, Vector3(0.0, 0.1, -14.4), 0.0, "shot_movement_boots.png")
+		player.call("disengage_boots")
+		player.global_position.y = 0.35
+		player.rotate_object_local(Vector3.FORWARD, 0.25)
+		for i: int in 20:
+			await physics_frame
+		await _capture_current("shot_movement_drift.png")
+		player.call("engage_boots")
+		for i: int in 60:
+			await physics_frame
+		await _capture_current("shot_movement_landed.png")
+		print("PASS: movement captures -> ", ProjectSettings.globalize_path(OUTPUT_DIR))
+		quit(0)
+		return
+	if OS.get_cmdline_user_args().has("--watch-loop-only"):
+		await _capture(player, Vector3(0.0, 0.1, -4.0), 0.0, "shot_watch_hatch_fore.png")
+		await _capture(player, Vector3(0.0, 0.1, -8.3), PI, "shot_watch_hatch_aft.png")
+		var board: Node = _main.get_node_or_null("WorldLayout/Props/MaintenanceBoard")
+		if board != null:
+			_stand_and_face(player, (board as Node3D).global_position, 1.1)
+			board.call("interact", player)
+			await _capture_current("shot_watch_report.png")
+			board.call("close")
+		var pause_menu: Node = _main.get_node_or_null("UI/PauseMenu")
+		if pause_menu != null:
+			pause_menu.call("open")
+			await _capture_current("shot_watch_pause.png")
+			pause_menu.call("close")
+		var menu: Node = (load("res://scenes/main_menu.tscn") as PackedScene).instantiate()
+		root.add_child(menu)
+		await _capture_current("shot_watch_main_menu.png")
+		print("PASS: watch loop captures -> ", ProjectSettings.globalize_path(OUTPUT_DIR))
+		quit(0)
+		return
+	if OS.get_cmdline_user_args().has("--watch-interior-only"):
+		await _capture(player, Vector3(0.0, 0.1, -4.0), 0.0, "shot_watch_hatch_fore.png")
+		await _capture(player, Vector3(0.0, 0.1, -8.3), PI, "shot_watch_hatch_aft.png")
+		await _capture(player, Vector3(0.0, 0.1, -14.4), 0.0, "shot_watch_quarters.png")
+		print("PASS: watch interior captures -> ", ProjectSettings.globalize_path(OUTPUT_DIR))
+		quit(0)
+		return
+	if OS.get_cmdline_user_args().has("--propulsion-only"):
+		await _ion_drive_shots()
+		print("PASS: propulsion captures -> ", ProjectSettings.globalize_path(OUTPUT_DIR))
+		quit(0)
+		return
 	if OS.get_cmdline_user_args().has("--voyage-only"):
 		await _voyage_shots(player)
 		print("PASS: voyage captures -> ", ProjectSettings.globalize_path(OUTPUT_DIR))
@@ -254,8 +301,29 @@ func _ion_drive_shots() -> void:
 	await _hull_shot(Vector3(0.0, 1.8, 14.8), Vector3(0.0, 1.55, 10.5), "shot_tube_ion_drives_idle.png", true)
 	await _hull_shot(Vector3(-1.9, 2.25, 10.6), Vector3(-0.72, 1.55, 10.5), "shot_tube_ion_drive_service.png", true)
 	await _hull_shot(Vector3(2.5, 1.8, 12.6), Vector3(0.72, 1.55, 10.5), "shot_tube_ion_drive_eva.png", true)
+	for target: StringName in [&"port", &"starboard", &"tank"]:
+		nav.call("service_action", target, &"isolate", &"")
+		nav.call("service_action", target, &"open", &"wrench")
+		await create_timer(0.85).timeout
+		var side: float = -1.0 if target == &"port" else 1.0
+		var position: Vector3 = Vector3(side * 1.9, 2.25, 11.9) if target != &"tank" else Vector3(0.0, 1.8, 12.0)
+		var look_target: Vector3 = Vector3(side * 0.72, 2.0, 10.65) if target != &"tank" else Vector3(0.0, 1.55, 10.7)
+		await _hull_shot(position, look_target, "shot_tube_drive_%s_service_open.png" % String(target), true)
+		nav.call("service_action", target, &"close", &"wrench")
+		nav.call("service_action", target, &"restore", &"multimeter")
+		await create_timer(0.85).timeout
 	if bool(nav.call("plot_course", &"arden_ii")) and bool(nav.call("begin_transit")):
 		await _hull_shot(Vector3(3.2, 1.8, 14.4), Vector3(0.0, 1.55, 10.7), "shot_tube_ion_drives_burning.png", true)
+		nav.call("force_failure", &"port_grid", &"grid_fouled")
+		await _hull_shot(Vector3(3.2, 1.8, 14.4), Vector3(0.0, 1.55, 10.7), "shot_tube_ion_drive_single.png", true)
+		var service: Node = _main.get_node_or_null("ShipGeometry/HullExterior/IonDrivePort/DriveService")
+		if service != null:
+			nav.call("service_action", &"port", &"isolate", &"")
+			nav.call("service_action", &"port", &"open", &"wrench")
+			nav.call("service_action", &"port", &"diagnose", &"multimeter")
+			service.call("interact", null)
+			await _hull_shot(Vector3(-1.9, 2.25, 11.9), Vector3(-0.72, 2.0, 10.65), "shot_tube_drive_diagnostics.png")
+			service.call("close")
 		nav.call("sim_tick", 48.0)
 
 

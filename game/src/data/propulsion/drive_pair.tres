@@ -1,0 +1,86 @@
+[gd_resource type="Resource" script_class="PropulsionConfig" load_steps=12 format=3]
+
+[ext_resource type="Script" path="res://src/components/propulsion_config.gd" id="1_config"]
+[ext_resource type="Script" path="res://src/components/wear_component.gd" id="2_wear"]
+[ext_resource type="Script" path="res://src/components/failure_mode.gd" id="3_fault"]
+
+[sub_resource type="Resource" id="GridFault"]
+script = ExtResource("3_fault")
+id = &"grid_fouled"
+display_name = "Grid deposit bridging"
+max_condition = 0.6
+base_mtbf_hours = 350.0
+environmental_factors = {"heat": 2.0, "load": 1.5}
+symptoms = Array[StringName]([&"discharge_unstable"])
+
+[sub_resource type="Resource" id="CathodeFault"]
+script = ExtResource("3_fault")
+id = &"cathode_lead_open"
+display_name = "Cathode lead discontinuity"
+max_condition = 0.6
+base_mtbf_hours = 400.0
+environmental_factors = {"heat": 2.0}
+symptoms = Array[StringName]([&"neutralizer_offline"])
+
+[sub_resource type="Resource" id="UvFault"]
+script = ExtResource("3_fault")
+id = &"uv_connector_open"
+display_name = "UV assembly connector discontinuity"
+max_condition = 0.6
+base_mtbf_hours = 500.0
+symptoms = Array[StringName]([&"feed_recovery_stopped"])
+
+[sub_resource type="Resource" id="PortGrid"]
+script = ExtResource("2_wear")
+component_id = &"port_grid"
+display_name = "Port service grid"
+wear_rate_per_hour = 0.0004
+failure_modes = Array[ExtResource("3_fault")]([SubResource("GridFault")])
+
+[sub_resource type="Resource" id="PortCathode"]
+script = ExtResource("2_wear")
+component_id = &"port_cathode"
+display_name = "Port cathode lead"
+wear_rate_per_hour = 0.0003
+failure_modes = Array[ExtResource("3_fault")]([SubResource("CathodeFault")])
+
+[sub_resource type="Resource" id="StarboardGrid"]
+script = ExtResource("2_wear")
+component_id = &"starboard_grid"
+display_name = "Starboard service grid"
+wear_rate_per_hour = 0.0004
+failure_modes = Array[ExtResource("3_fault")]([SubResource("GridFault")])
+
+[sub_resource type="Resource" id="StarboardCathode"]
+script = ExtResource("2_wear")
+component_id = &"starboard_cathode"
+display_name = "Starboard cathode lead"
+wear_rate_per_hour = 0.0003
+failure_modes = Array[ExtResource("3_fault")]([SubResource("CathodeFault")])
+
+[sub_resource type="Resource" id="TankUv"]
+script = ExtResource("2_wear")
+component_id = &"tank_uv"
+display_name = "Feed UV assembly"
+wear_rate_per_hour = 0.0002
+failure_modes = Array[ExtResource("3_fault")]([SubResource("UvFault")])
+
+[resource]
+script = ExtResource("1_config")
+tank_capacity_kg = 40.0
+initial_mass_kg = 30.0
+seed_mass_kg = 1.0
+restart_mass_kg = 0.1
+replication_kg_per_hour = 0.05
+output_wh_per_kg = 1000.0
+uv_watts = 30.0
+pair_output_w = 200.0
+single_output_w = 150.0
+single_progress_rate = 0.5
+heat_fraction = 0.5
+overheat_c = 45.0
+resume_c = 38.0
+repair_hours = 0.25
+repair_quality = 0.8
+wear_seed = 20260930
+components = Array[ExtResource("2_wear")]([SubResource("PortGrid"), SubResource("PortCathode"), SubResource("StarboardGrid"), SubResource("StarboardCathode"), SubResource("TankUv")])

@@ -11,8 +11,14 @@ func get_interaction_prompt() -> String:
 
 func _handle_interact(_player: Node) -> void:
 	var atmosphere: Node = _get_system(&"atmosphere_system")
-	if atmosphere == null:
+	if atmosphere == null or not bool(atmosphere.call("has_compartment", compartment_id)):
 		return
+	var status: Dictionary = atmosphere.call("get_compartment_status", compartment_id)
+	if int(status["candles_remaining"]) <= 0:
+		var stores: Node = _get_system(&"stores_system")
+		if stores != null and bool(stores.call("has_part", &"o2_candle")) and atmosphere.has_method(&"add_o2_candle"):
+			if bool(atmosphere.call("add_o2_candle", compartment_id)):
+				stores.call("consume_part", &"o2_candle")
 	if not bool(atmosphere.call("light_o2_candle", compartment_id)):
 		_emit_sim_event(&"procedure_error", {"reason": &"no_candles", "compartment_id": compartment_id})
 
@@ -22,4 +28,6 @@ func _candles_remaining() -> int:
 	if atmosphere == null or not bool(atmosphere.call("has_compartment", compartment_id)):
 		return 0
 	var status: Dictionary = atmosphere.call("get_compartment_status", compartment_id)
-	return int(status["candles_remaining"])
+	var stores: Node = _get_system(&"stores_system")
+	var stored: int = int(stores.call("get_count", &"o2_candle")) if stores != null else 0
+	return int(status["candles_remaining"]) + stored

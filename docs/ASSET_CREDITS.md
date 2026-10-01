@@ -50,6 +50,7 @@ Previews: `docs/design/asset_*.png`. Style rules in `docs/ASSET_SOURCES.md` / sp
 | Pressure hatch | Airlock outer hatch leaf (fitted through `DOOR_STYLES["hullwatch"]`) | `game/assets/models/hullwatch/machinery/` |
 | Interior dressing kit | Crew locker, mess table, filter rack, tool cart | `game/assets/models/hullwatch/props/` |
 | Storage & galley kit | Crate stack, shelf unit, galley counter, pod service panel | `game/assets/models/hullwatch/props/` |
+| Ion-drive service kit (2026-09-30) | Segmented sealed cassette housing, discharge grille, collars, brackets, diagnostics and animated service cover; separate opaque tank with exterior UV service assembly and animated cover. Original geometry; reference images inform proportions only. Source: `art/blender/build_ion_drive.py` → `ion_drive_kit.blend`; both face glTF +Z aft, with `open_service` / `close_service` clips | `game/assets/models/hullwatch/exterior/hw_ion_drive.glb`, `hw_xenonite_tank.glb` |
 | Exterior fittings kit | Antenna dish, thruster cluster, hull vent, floodlight, handrail, solar array (boom, conduit, mount shoe and framed cell panel) | `game/assets/models/hullwatch/exterior/` |
 | Lighting kit | Ceiling lamp (one per cabin light), wall conduit run | `game/assets/models/hullwatch/exterior/` |
 | Hand tool kit | Multimeter, wrench, wear scanner, sealant cartridge, hull cutter, sample canister — each with a node-animated "use" action (dial sweep, emitter pulse, plunger push, cap twist) | `game/assets/models/hullwatch/tools/` |

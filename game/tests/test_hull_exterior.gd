@@ -390,9 +390,9 @@ func _test_ion_drives() -> void:
 	_check(absf(port.position.z - stern_z - 0.06) < 0.01, "mount shoes meet the stern cap and stay visible")
 	for drive: Node3D in [port, starboard]:
 		var model: Node3D = drive.get_node_or_null(^"Model") as Node3D
-		var core: MeshInstance3D = model.find_child("XenoniteCore", true, false) as MeshInstance3D if model != null else null
+		var chamber: MeshInstance3D = model.find_child("SealedChamber", true, false) as MeshInstance3D if model != null else null
 		var plume: MeshInstance3D = model.find_child("IonPlume", true, false) as MeshInstance3D if model != null else null
-		_check(core != null and plume != null, "%s contains its Xenonite core and ion wake" % String(drive.name))
+		_check(chamber != null and plume != null and model.find_child("XenoniteCore", true, false) == null, "%s conceals its core behind a sealed chamber and carries an ion wake" % String(drive.name))
 		_check(plume != null and not plume.visible, "%s wake starts off at idle" % String(drive.name))
 		if plume != null and plume.mesh != null:
 			var plume_size: Vector3 = plume.mesh.get_aabb().size

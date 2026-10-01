@@ -30,6 +30,7 @@ func _run() -> void:
 		return
 
 	player.global_position = chair.global_position + Vector3(0.0, 0.0, 1.15)
+	player.global_rotation.z = 0.4
 	var approach_position: Vector3 = player.global_position
 	chair.interact(player)
 	await physics_frame
@@ -44,6 +45,7 @@ func _run() -> void:
 		if remaining_distance > 0.05 and remaining_distance < seat_distance - 0.02:
 			saw_sit_motion = true
 	_check(bool(player.call("is_pilot_seated")) and chair.is_occupied(), "E seats the operator and locks the chair forward")
+	_check(absf(player.global_rotation.z) < 0.01 and absf(player.global_rotation.x) < 0.01, "boarding levels prior drift roll and pitch")
 	_check(saw_sit_motion, "camera body travels into the seat instead of snapping there")
 	_check(player.global_position.distance_to(chair.get_seat_world_position()) < 0.05, "camera body moves to the pilot eye anchor")
 	var shape: CollisionShape3D = player.get_node(^"CollisionShape3D") as CollisionShape3D

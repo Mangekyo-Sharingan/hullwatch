@@ -3,11 +3,14 @@
 ## Reads/writes through the GameSettings autoload (null-safe: renders without it too).
 extends CanvasLayer
 
+signal closed
+
 const SETTINGS_PATH: NodePath = ^"/root/GameSettings"
 const SENSITIVITY_STEP: float = 0.25
 const VOLUME_STEP_DB: float = 5.0
 const UI_SCALE_STEP: float = 0.05
 const FILTER_INTENSITY_STEP: float = 0.1
+const ENCOUNTER_FREQUENCY_STEP: float = 0.25
 const MENU_HINT: String = "WHEEL: BROWSE   CLICK: SELECT / +   RIGHT CLICK: -   ESC: CLOSE"
 
 const ROW_SENSITIVITY: int = 0
@@ -16,10 +19,14 @@ const ROW_VOLUME: int = 2
 const ROW_UI_SCALE: int = 3
 const ROW_ANALOGUE_FILTER: int = 4
 const ROW_FILTER_INTENSITY: int = 5
-const ROW_RESET: int = 6
-const ROW_CLOSE: int = 7
+const ROW_ASTEROID_FREQUENCY: int = 6
+const ROW_ANOMALY_FREQUENCY: int = 7
+const ROW_RESET: int = 8
+const ROW_CLOSE: int = 9
 
 var _open: bool = false
+var managed_by_controller: bool = false
+var capture_mouse_when_closed: bool = true
 var _menu: ScrollMenu
 
 
@@ -34,14 +41,25 @@ func _ready() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if managed_by_controller:
+		return
 	if event.is_action_pressed(&"pause"):
 		toggle()
+		get_viewport().set_input_as_handled()
 	elif _open and event.is_action_pressed(&"secondary"):
 		_decrease_highlighted()
 
 
 func toggle() -> void:
 	_set_open(not _open)
+
+
+func open() -> void:
+	_set_open(true)
+
+
+func close() -> void:
+	_set_open(false)
 
 
 func is_menu_open() -> bool:
@@ -68,10 +86,13 @@ func get_row_value_text(key: StringName) -> String:
 			text = "ON" if _setting_bool(key, true) else "OFF"
 		&"analogue_filter_intensity":
 			text = "%d%%" % int(roundf(_setting_float(key, 1.0) * 100.0))
+		&"asteroid_frequency", &"anomaly_frequency":
+			text = "x%.2f" % _option_float(key, 1.0)
 	return text
 
 
 func _set_open(open: bool) -> void:
+	var was_open: bool = _open
 	_open = open
 	visible = open
 	if _menu != null:
@@ -80,7 +101,12 @@ func _set_open(open: bool) -> void:
 		else:
 			_menu.close()
 	if DisplayServer.get_name() != "headless":
-		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE if open else Input.MOUSE_MODE_CAPTURED
+		if open:
+			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+		elif capture_mouse_when_closed:
+			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	if was_open and not open:
+		closed.emit()
 
 
 func _connect_settings() -> void:
@@ -119,6 +145,10 @@ func _on_option_selected(index: int) -> void:
 			_toggle_analogue_filter()
 		ROW_FILTER_INTENSITY:
 			_step(&"analogue_filter_intensity", 1.0)
+		ROW_ASTEROID_FREQUENCY:
+			_step(&"asteroid_frequency", 1.0)
+		ROW_ANOMALY_FREQUENCY:
+			_step(&"anomaly_frequency", 1.0)
 		ROW_RESET:
 			_reset()
 		ROW_CLOSE:
@@ -137,6 +167,10 @@ func _decrease_highlighted() -> void:
 			_step(&"ui_scale", -1.0)
 		ROW_FILTER_INTENSITY:
 			_step(&"analogue_filter_intensity", -1.0)
+		ROW_ASTEROID_FREQUENCY:
+			_step(&"asteroid_frequency", -1.0)
+		ROW_ANOMALY_FREQUENCY:
+			_step(&"anomaly_frequency", -1.0)
 
 
 func _step(key: StringName, direction: float) -> void:
@@ -144,7 +178,8 @@ func _step(key: StringName, direction: float) -> void:
 	if settings == null or not settings.has_method(&"set_value"):
 		return
 	var step: float = _step_for(key)
-	settings.call(&"set_value", key, _setting_float(key, 0.0) + step * direction)
+	settings.call(&"set_value", key, _option_float(key, 0.0) + step * direction)
+	settings.call(&"save_settings")
 
 
 func _toggle_invert() -> void:
@@ -152,6 +187,7 @@ func _toggle_invert() -> void:
 	if settings == null or not settings.has_method(&"set_value"):
 		return
 	settings.call(&"set_value", &"invert_y", not _setting_bool(&"invert_y", false))
+	settings.call(&"save_settings")
 
 
 func _toggle_analogue_filter() -> void:
@@ -159,6 +195,7 @@ func _toggle_analogue_filter() -> void:
 	if settings == null or not settings.has_method(&"set_value"):
 		return
 	settings.call(&"set_value", &"analogue_filter_enabled", not _setting_bool(&"analogue_filter_enabled", true))
+	settings.call(&"save_settings")
 
 
 func _reset() -> void:
@@ -166,6 +203,7 @@ func _reset() -> void:
 	if settings == null or not settings.has_method(&"reset_to_defaults"):
 		return
 	settings.call(&"reset_to_defaults")
+	settings.call(&"save_settings")
 	_refresh_labels()
 
 
@@ -183,6 +221,8 @@ func _menu_items() -> PackedStringArray:
 	items.append("UI SCALE             %s" % get_row_value_text(&"ui_scale"))
 	items.append("ANALOGUE FILTER      %s" % get_row_value_text(&"analogue_filter_enabled"))
 	items.append("FILTER INTENSITY     %s" % get_row_value_text(&"analogue_filter_intensity"))
+	items.append("ASTEROID FIELD RATE  %s" % get_row_value_text(&"asteroid_frequency"))
+	items.append("ANOMALY FREQUENCY    %s" % get_row_value_text(&"anomaly_frequency"))
 	items.append("RESET DEFAULTS")
 	items.append("CLOSE (ESC)")
 	return items
@@ -221,6 +261,8 @@ func _step_for(key: StringName) -> float:
 			return UI_SCALE_STEP
 		&"analogue_filter_intensity":
 			return FILTER_INTENSITY_STEP
+		&"asteroid_frequency", &"anomaly_frequency":
+			return ENCOUNTER_FREQUENCY_STEP
 	return 0.0
 
 
@@ -236,6 +278,14 @@ func _setting_float(key: StringName, fallback: float) -> float:
 	if not (value is float or value is int):
 		return fallback
 	return float(value)
+
+
+func _option_float(key: StringName, fallback: float) -> float:
+	if key == &"asteroid_frequency" or key == &"anomaly_frequency":
+		var sector: Node = get_tree().get_first_node_in_group(&"sector_system")
+		if sector != null and sector.has_method(&"get_encounter_frequency"):
+			return float(sector.call(&"get_encounter_frequency", key))
+	return _setting_float(key, fallback)
 
 
 func _setting_bool(key: StringName, fallback: bool) -> bool:

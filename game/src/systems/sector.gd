@@ -28,6 +28,8 @@ var _offset: Vector3 = Vector3.ZERO
 var _holding: bool = false
 var _approach_target_id: String = ""
 var _mined: Dictionary = {}
+var asteroid_frequency: float = 1.0
+var anomaly_frequency: float = 1.0
 
 
 func _ready() -> void:
@@ -37,6 +39,12 @@ func _ready() -> void:
 	var event_bus: Node = _get_autoload(&"EventBus")
 	if event_bus != null and not event_bus.is_connected(&"destination_arrived", _on_destination_arrived):
 		event_bus.connect(&"destination_arrived", _on_destination_arrived)
+	var settings: Node = _get_autoload(&"GameSettings")
+	if settings != null:
+		asteroid_frequency = float(settings.call(&"get_value", &"asteroid_frequency"))
+		anomaly_frequency = float(settings.call(&"get_value", &"anomaly_frequency"))
+		if settings.has_signal(&"settings_changed") and not settings.is_connected(&"settings_changed", _on_settings_changed):
+			settings.connect(&"settings_changed", _on_settings_changed)
 	_rebuild_active()
 
 
@@ -115,6 +123,15 @@ func get_chunk_size() -> float:
 	return CHUNK_SIZE_M
 
 
+func get_encounter_frequency(key: StringName) -> float:
+	match key:
+		&"asteroid_frequency":
+			return asteroid_frequency
+		&"anomaly_frequency":
+			return anomaly_frequency
+	return 1.0
+
+
 ## Nearest active contact, or an empty dictionary when nothing is in range.
 func get_nearest_contact() -> Dictionary:
 	var contacts: Array[Dictionary] = get_contacts()
@@ -177,7 +194,8 @@ func _rebuild_active() -> void:
 		for cy: int in range(-LATERAL_CHUNKS, LATERAL_CHUNKS + 1):
 			for cz: int in range(-LATERAL_CHUNKS, LATERAL_CHUNKS + 1):
 				var content: int = chunk_hash(cx, cy, cz) % 10000
-				if content >= CONTENT_PER_TEN_THOUSAND:
+				var content_limit: int = roundi(float(CONTENT_PER_TEN_THOUSAND) * asteroid_frequency)
+				if content >= content_limit:
 					continue
 				var entry: Dictionary = _make_object(cx, cy, cz, axis, right, up)
 				_active.append(entry)
@@ -196,16 +214,26 @@ func _on_destination_arrived(_destination_id: StringName, _kind: StringName, nex
 	_update_contacts()
 
 
+func _on_settings_changed(key: StringName, value: Variant) -> void:
+	if key == &"asteroid_frequency":
+		asteroid_frequency = clampf(float(value), 0.0, 3.0)
+	elif key == &"anomaly_frequency":
+		anomaly_frequency = clampf(float(value), 0.0, 3.0)
+	else:
+		return
+	_rebuild_active()
+
+
 func _make_object(cx: int, cy: int, cz: int, axis: Vector3, right: Vector3, up: Vector3) -> Dictionary:
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 	rng.seed = chunk_hash(cx, cy, cz)
 	var chunk_center: Vector3 = axis * (float(cx) * CHUNK_SIZE_M) + right * (float(cy) * CHUNK_SIZE_M) + up * (float(cz) * CHUNK_SIZE_M)
 	var offset: Vector3 = right * rng.randf_range(-CHUNK_SIZE_M * 0.4, CHUNK_SIZE_M * 0.4) + up * rng.randf_range(-CHUNK_SIZE_M * 0.4, CHUNK_SIZE_M * 0.4) + axis * rng.randf_range(-CHUNK_SIZE_M * 0.4, CHUNK_SIZE_M * 0.4)
-	var roll: float = rng.randf()
+	var roll: float = rng.randf() * (9.0 + anomaly_frequency)
 	var kind: StringName = KIND_ASTEROID
-	if roll > 0.90:
+	if roll >= 9.0:
 		kind = KIND_ANOMALY
-	elif roll > 0.70:
+	elif roll >= 7.0:
 		kind = KIND_DEBRIS
 	var radius: float = 6.0
 	var resource: StringName = &"ore"
@@ -282,6 +310,8 @@ func save_state() -> Dictionary:
 		"offset": {"x": _offset.x, "y": _offset.y, "z": _offset.z},
 		"holding": _holding,
 		"approach_target_id": _approach_target_id,
+		"asteroid_frequency": asteroid_frequency,
+		"anomaly_frequency": anomaly_frequency,
 		"mined": _mined.duplicate(),
 	}
 
@@ -297,6 +327,8 @@ func load_state(state: Dictionary) -> void:
 	)
 	_holding = bool(state.get("holding", false))
 	_approach_target_id = String(state.get("approach_target_id", ""))
+	asteroid_frequency = clampf(float(state.get("asteroid_frequency", asteroid_frequency)), 0.0, 3.0)
+	anomaly_frequency = clampf(float(state.get("anomaly_frequency", anomaly_frequency)), 0.0, 3.0)
 	_mined.clear()
 	var mined: Dictionary = state.get("mined", {})
 	for key: Variant in mined:

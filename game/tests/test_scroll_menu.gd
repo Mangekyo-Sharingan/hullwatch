@@ -17,6 +17,7 @@ func _run() -> void:
 	_test_set_items()
 	_test_empty_items()
 	_test_dismiss_rule()
+	await _test_row_click()
 	_finish()
 
 
@@ -110,6 +111,51 @@ func _test_dismiss_rule() -> void:
 	_check(PanelDismiss.should_dismiss(press_pause, true), "dismiss: pause closes an open panel")
 	_check(not PanelDismiss.should_dismiss(release, true), "dismiss: releases do not close")
 	_check(ScrollMenu.HINT_TEXT.contains("CLOSE"), "menu hint names the close key")
+
+
+func _test_row_click() -> void:
+	var menu: ScrollMenu = ScrollMenu.new()
+	root.add_child(menu)
+	menu.option_selected.connect(_on_selected)
+	menu.option_highlighted.connect(_on_highlighted)
+	menu.setup("CLICK", PackedStringArray(["FIRST", "SECOND", "THIRD"]))
+	menu.open()
+	await process_frame
+	await process_frame
+	var previous_mode: Input.MouseMode = Input.mouse_mode
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	var row: Label = menu.get_node(^"Column/Options/Option2") as Label
+	var click: InputEventMouseButton = InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.pressed = true
+	click.position = menu.get_global_transform_with_canvas().affine_inverse() * row.get_global_rect().get_center()
+	_selected.clear()
+	_highlighted.clear()
+	menu.call("_gui_input", click)
+	_check(_selected == [2] and _highlighted == [2], "visible cursor selects clicked row, including highlight signal")
+	click.pressed = false
+	menu.call("_gui_input", click)
+	_check(_selected == [2], "left button release does not select again")
+	click.pressed = true
+	click.position = Vector2(2, 2)
+	menu.call("_gui_input", click)
+	_check(_selected == [2], "menu border click does not select")
+	menu.close()
+	click.position = menu.get_global_transform_with_canvas().affine_inverse() * row.get_global_rect().get_center()
+	menu.call("_gui_input", click)
+	_check(_selected == [2], "closed menu ignores row clicks")
+	menu.open()
+	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	menu.call("_unhandled_input", click)
+	_check(_selected == [2], "captured mouse ignores primary clicks")
+	var select: InputEventAction = InputEventAction.new()
+	select.action = &"menu_select"
+	select.pressed = true
+	menu.move_selection(-1)
+	menu.call("_unhandled_input", select)
+	_check(_selected == [2, 1], "captured mouse keeps wheel selection")
+	Input.mouse_mode = previous_mode
+	menu.free()
 
 
 func _on_selected(index: int) -> void:

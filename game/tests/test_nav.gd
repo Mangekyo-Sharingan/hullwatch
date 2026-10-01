@@ -92,7 +92,7 @@ func _test_save_load_and_legacy_state() -> void:
 	_check(nav.begin_transit(), "save: transit started")
 	nav.sim_tick(24.0)
 	var saved: Dictionary = nav.save_state()
-	_check(int(saved["state_version"]) == 2, "save: current state version recorded")
+	_check(int(saved["state_version"]) == 3, "save: current state version recorded")
 	nav.sim_tick(12.0)
 	nav.load_state(saved)
 	_check(nav.transit_active, "load: active transit restored")

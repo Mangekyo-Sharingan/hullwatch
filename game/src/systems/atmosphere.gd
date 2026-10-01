@@ -130,6 +130,14 @@ func set_leak_rate(compartment_id: StringName, rate_per_hour: float) -> void:
 	state["leak_rate_per_hour"] = rate_per_hour
 
 
+func add_o2_candle(compartment_id: StringName, count: int = 1) -> bool:
+	if count <= 0 or not _compartments.has(compartment_id):
+		return false
+	var state: Dictionary = _compartments[compartment_id]
+	state["candles_remaining"] = int(state["candles_remaining"]) + count
+	return true
+
+
 func light_o2_candle(compartment_id: StringName) -> bool:
 	var state: Dictionary = _require_state(compartment_id, "light_o2_candle")
 	if state.is_empty():
@@ -583,6 +591,7 @@ func save_state() -> Dictionary:
 			"last_humidity_fraction": float(state["last_humidity_fraction"]),
 		}
 	return {
+		"maintenance_covers": maintenance_covers.duplicate(),
 		"system_id": String(system_id),
 		"state_version": 1,
 		"compartments": compartments,
@@ -593,6 +602,7 @@ func save_state() -> Dictionary:
 
 
 func load_state(state: Dictionary) -> void:
+	restore_maintenance_covers(state)
 	var compartments: Dictionary = state.get("compartments", {})
 	for compartment_id: StringName in _compartments:
 		var key: String = String(compartment_id)

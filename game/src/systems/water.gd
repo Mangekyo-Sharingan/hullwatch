@@ -167,6 +167,7 @@ func get_wear_environment() -> Dictionary:
 
 func save_state() -> Dictionary:
 	return {
+		"maintenance_covers": maintenance_covers.duplicate(),
 		"system_id": "water",
 		"state_version": 1,
 		"potable_l": potable_l,
@@ -183,6 +184,7 @@ func save_state() -> Dictionary:
 
 
 func load_state(state: Dictionary) -> void:
+	restore_maintenance_covers(state)
 	potable_l = clampf(float(state.get("potable_l", potable_l)), 0.0, maxf(potable_capacity_l, 0.0))
 	greywater_l = maxf(float(state.get("greywater_l", greywater_l)), 0.0)
 	contamination = clampf(float(state.get("contamination", contamination)), 0.0, 1.0)

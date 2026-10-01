@@ -52,13 +52,26 @@ func _run() -> void:
 	_check(absf(player.velocity.y - 2.0) < 0.3, "zero-g keeps upward drift")
 	player.velocity = Vector3.ZERO
 	var head: Node3D = player.get_node(^"Head") as Node3D
-	head.rotation.x = deg_to_rad(-45.0)
-	var free_start_y: float = player.global_position.y
+	head.rotation.x = deg_to_rad(45.0)
+	var free_start: Vector3 = player.global_position
 	Input.action_press(&"move_forward")
 	for i: int in 30:
 		await physics_frame
 	Input.action_release(&"move_forward")
-	_check(player.global_position.y > free_start_y + 0.05, "free-flight thrust follows the camera pitch")
+	_check(player.global_position.y > free_start.y + 0.05, "free-flight thrust follows the camera pitch")
+
+	_check(player.global_position.z < free_start.z - 0.05, "free-flight W thrust moves forward, not backward")
+	Input.action_press(&"brake")
+	for i: int in 30:
+		await physics_frame
+	Input.action_release(&"brake")
+	_check(player.velocity.length() < 0.01, "brake cancels drift without aiming against momentum")
+	Input.action_press(&"crouch")
+	for i: int in 20:
+		await physics_frame
+	Input.action_release(&"crouch")
+	_check(player.velocity.y < -0.1, "Ctrl supplies downward thrust without changing camera aim")
+	_check(not player.get("_crouched"), "drift thrust does not crouch or snap the camera")
 
 	player.global_position = Vector3(0.0, 1.0, 0.0)
 	player.velocity = Vector3.ZERO
@@ -66,10 +79,88 @@ func _run() -> void:
 	_check(player.engage_boots(), "boots re-engage near surface")
 	_check(player.is_boots_engaged(), "boots report engaged")
 
+	for i: int in 40:
+		await physics_frame
 	var velocity_before: Vector3 = player.velocity
 	var pushed: bool = player.push_off()
 	_check(pushed, "push_off finds a surface while engaged")
 	_check(player.velocity.y > velocity_before.y, "push_off adds upward velocity")
+	player.disengage_boots()
+	var wall: StaticBody3D = StaticBody3D.new()
+	var wall_shape: CollisionShape3D = CollisionShape3D.new()
+	var wall_box: BoxShape3D = BoxShape3D.new()
+	wall_box.size = Vector3(0.2, 6.0, 6.0)
+	wall_shape.shape = wall_box
+	wall.add_child(wall_shape)
+	wall.position = Vector3(1.0, 3.0, 0.0)
+	root.add_child(wall)
+	player.global_position = Vector3(0.35, 1.0, 0.0)
+	player.velocity = Vector3.ZERO
+	await physics_frame
+	player.velocity = Vector3(3.0, 0.0, 0.0)
+	_check(player.push_off(), "push finds a side wall before collision, with boots facing away")
+	_check(player.velocity.x < -1.5, "push reverses incoming wall drift instead of adding an ineffective impulse")
+	var outgoing: float = player.velocity.x
+	player.push_off()
+	_check(player.velocity.x < outgoing, "another reachable push preserves and adds to outgoing momentum")
+	player.velocity = Vector3.ZERO
+	player.global_rotation.z = deg_to_rad(30.0)
+	_check(player.engage_boots(), "boots recover the deck after rolling, without looking down")
+	_check(player.up_direction.dot(Vector3.UP) > 0.99, "deck takes priority over adjacent wall")
+	for i: int in 60:
+		await physics_frame
+	_check(player.is_on_floor(), "recovered boots land on the deck through collision movement")
+	_check((player.get_node(^"Head/Camera3D") as Camera3D).position.length() < 0.01, "eased boot view returns to its normal eye anchor")
+	_check(player.global_position.x < 0.66, "deck recovery does not move through the side wall")
+	player.disengage_boots()
+	player.global_position = Vector3(0.35, 1.0, 0.0)
+	player.global_rotation = Vector3.ZERO
+	Input.action_press(&"roll_right")
+	for i: int in 20:
+		await physics_frame
+	Input.action_release(&"roll_right")
+	_check(absf(player.global_rotation.z) > 0.1, "roll supplies a third rotation axis in free flight")
+	floor_body.collision_layer = 0
+	player.global_rotation = Vector3.ZERO
+	player.global_position = Vector3(0.35, 1.0, 0.0)
+	player.velocity = Vector3.ZERO
+	await physics_frame
+	await physics_frame
+	_check(player.engage_boots(), "EVA boots can align away from a close wall when there is no deck")
+	_check(player.up_direction.dot(Vector3.LEFT) > 0.99, "wall attachment uses the physical outward normal")
+	_check(player.global_position.x < 0.66, "wall attachment stays on the near side of the hull")
+	player.disengage_boots()
+	floor_body.collision_layer = 1
+	wall.free()
+	var ceiling: StaticBody3D = StaticBody3D.new()
+	var ceiling_shape: CollisionShape3D = CollisionShape3D.new()
+	var ceiling_box: BoxShape3D = BoxShape3D.new()
+	ceiling_box.size = Vector3(6.0, 0.2, 6.0)
+	ceiling_shape.shape = ceiling_box
+	ceiling.add_child(ceiling_shape)
+	ceiling.position = Vector3(0.0, 4.0, 0.0)
+	root.add_child(ceiling)
+	ceiling.position.y = 2.6
+	player.global_position = Vector3(0.0, 1.0, 0.0)
+	player.global_rotation.z = PI * 0.5
+	player.velocity = Vector3.ZERO
+	await physics_frame
+	_check(player.engage_boots(), "sideways recovery fits under a 2.5 m cabin ceiling")
+	for i: int in 60:
+		await physics_frame
+	_check(player.is_on_floor(), "sideways recovery reaches the floor without ceiling collision")
+	player.disengage_boots()
+	ceiling.position.y = 4.0
+	await physics_frame
+	await physics_frame
+	player.global_rotation = Vector3.ZERO
+	player.global_position = Vector3(0.0, 2.0, 0.0)
+	player.velocity = Vector3.ZERO
+	await physics_frame
+	player.velocity = Vector3(0.0, 3.0, 0.0)
+	_check(player.push_off(), "push finds an overhead surface without a slide contact")
+	_check(player.velocity.y < -1.5, "overhead push supplies a usable downward impulse")
+	ceiling.free()
 	floor_body.collision_layer = 0
 	var sensor: StaticBody3D = StaticBody3D.new()
 	sensor.collision_layer = 2

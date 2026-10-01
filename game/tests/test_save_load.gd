@@ -58,7 +58,7 @@ func _test_round_trip() -> void:
 	if save_manager == null:
 		return
 	var data: Dictionary = save_manager.call("save_to_dict")
-	_check(int(data["save_version"]) == 3, "save dict carries the current version")
+	_check(int(data["save_version"]) == 4, "save dict carries the current version")
 	_check(data["systems"].has("stores") and data["systems"].has("atmosphere"), "systems serialize into the save")
 	var unit_path: String = String(unit.get_path())
 	_check(data["interactables"].has(unit_path), "interactables serialize by node path")
@@ -92,6 +92,12 @@ func _test_version_refusal() -> void:
 		return
 	_check(not bool(save_manager.call("load_from_dict", {"save_version": 999})), "future save version is refused")
 	_check(String(save_manager.call("get_last_error")) == "save_version_unsupported", "refusal reports the reason")
+	var before: Dictionary = save_manager.call("save_to_dict")
+	for malformed: Dictionary in [{"save_version": 4, "systems": []}, {"save_version": 4, "systems": {"nav": []}}, {"save_version": 4, "clock": {"sim_seconds": "bad"}}, {"save_version": 4, "meta": {"day": []}}]:
+		_check(not bool(save_manager.call("load_from_dict", malformed)), "malformed save refused before state mutation")
+		_check(String(save_manager.call("get_last_error")) == "invalid_save_data", "malformed save reports data error")
+	var after: Dictionary = save_manager.call("save_to_dict")
+	_check(before["clock"] == after["clock"] and before["systems"] == after["systems"], "malformed input preserves current watch")
 
 
 func _test_slot_round_trip() -> void:

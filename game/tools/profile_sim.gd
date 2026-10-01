@@ -19,7 +19,8 @@ func _run() -> void:
 	var life_support: PowerCircuit = load("res://src/data/power/circuit_life_support.tres")
 	var scrubber_circuit: PowerCircuit = load("res://src/data/power/circuit_scrubber.tres")
 	var lighting: PowerCircuit = load("res://src/data/power/circuit_lighting.tres")
-	var circuits: Array[PowerCircuit] = [life_support, scrubber_circuit, lighting]
+	var uv: PowerCircuit = load("res://src/data/power/circuit_xenonite_uv.tres")
+	var circuits: Array[PowerCircuit] = [life_support, scrubber_circuit, lighting, uv]
 	harness.add_power(circuits, 4000.0, {&"rtg_main": 500.0})
 
 	var main_config: CompartmentConfig = load("res://src/data/atmosphere/compartment_main.tres")
@@ -27,6 +28,11 @@ func _run() -> void:
 	var defs: Array[CompartmentConfig] = [main_config, storage_config]
 	harness.add_atmosphere(defs)
 	harness.add_thermal(defs)
+	var nav: NavSystem = NavSystem.new()
+	# Reuse the existing thermal workload while exercising the real UV load and tank wear.
+	nav.propulsion = load("res://src/data/propulsion/drive_pair.tres").duplicate(true) as PropulsionConfig
+	nav.propulsion.compartment_id = &"main"
+	root.add_child(nav)
 	harness.add_stores({&"food_ration": 12})
 
 	var hull := HullSystem.new()

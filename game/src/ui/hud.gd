@@ -218,6 +218,11 @@ func _update_eva(delta: float) -> void:
 		return
 	var parts: PackedStringArray = PackedStringArray()
 	var player: Node = _find_player()
+	if player != null and player.has_method(&"is_boots_engaged") and not bool(player.call(&"is_pilot_seated")):
+		if bool(player.call(&"is_boots_engaged")):
+			parts.append("MAG BOOTS  [Q: RELEASE / SPACE: PUSH]")
+		else:
+			parts.append("DRIFT %.1f m/s  [Q: LAND  SPACE/CTRL: UP/DOWN  SHIFT: BRAKE  Z/C: ROLL]" % (player as CharacterBody3D).velocity.length())
 	if player != null and player.has_method(&"is_tethered") and bool(player.call(&"is_tethered")):
 		var tether_label: String = "TETHER %.1f m  [T: RELEASE]" % float(player.call(&"get_tether_distance"))
 		if player.has_method(&"get_tether_extension_ratio") and float(player.call(&"get_tether_extension_ratio")) >= 0.9:

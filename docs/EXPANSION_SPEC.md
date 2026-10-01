@@ -220,31 +220,74 @@ The headless smoke test and all `game/tests/test_*.gd` suites pass. This closes 
 
 ### M14 — Xenonite ion propulsion (operator-requested 2026-09-29)
 
-The main drive is a pair of replaceable electric ion-drive cassettes mounted symmetrically on
-the centered stern drum. Xenonite provides a fictional high-efficiency accelerator lattice;
-xenon gas remains the reaction mass. The exhaust is a restrained blue ion wake during existing
-waypoint transit, never a chemical flame or gravitic effect. The existing route and fuel-mass
-simulator stays authoritative while the physical engine is integrated.
+The main drive is a pair of electric ion-drive cassettes mounted symmetrically on the centered
+stern drum. Expelled xenon gas remains the independent route reaction mass; a dedicated
+Xenonite tank supplies drive output. Developer-only fiction: UV induces perfect biological
+cell division in the tank. Its origin, use and internal technology are secret from the player.
+Player-facing text/art must never explain biology, division, energy density, conversion or
+lattice principles. Show operational feed reserve/output and UV service only, plus external
+hardware status and tool-gated diagnostics. Exhaust remains a restrained blue ion wake.
 
 | Sub-step | Deliverable | Exit criteria |
 |---|---|---|
-| **M14.1 — Drive hardware** | Authored Blender cassette source and mirrored aft-facing units on the stern drum; maneuvering RCS remains distinct | Regenerate the scene; cassettes are symmetric, clear of arrays/anchor/ramp/RCS, and visible in aft capture |
-| **M14.2 — Live drive readout** | Xenon reserve shown as propellant; ion wake follows the actual NavSystem transit state | Transit turns both wakes on, arrival/fuel exhaustion turns them off; headless readout and event tests pass |
-| **M14.3 — System coupling** | Data-driven grid/cathode condition, power and thermal load, service interaction | A deterministic route scenario proves wear, fault consequences, reduced operation and repair/save-load without soft-locking the ship |
-| **M14.4 — Review** | Aft/side EVA captures, manual update, balance and open questions | Operator review confirms silhouette, service access, and failure behavior before broader propulsion work |
+| **M14.1 — Drive hardware** | Authored paired aft cassettes on stern drum; maneuvering RCS distinct | Generated symmetric mounts clear arrays/anchor/ramp/RCS; visible in aft capture |
+| **M14.2 — Live drive readout** | Independent xenon propellant and operational drive status; wakes follow actual cassette firing | Start, arrival, fuel exhaustion, unavailable output and restored saves yield correct wakes/readouts |
+| **M14.3 — System coupling** | Data-driven dedicated tank output, UV bus load, existing engine-bay heat, degraded travel and operator service of external hardware | Parent validates deterministic wear/fault/diagnosis/repair, power shedding, thermal/feed holds, reduced travel and save/load without soft locks; UI/manual checks pass |
+| **M14.4 — Review** | Updated aft/side EVA captures, operational manual and closed simulation decisions | Operator reviews silhouette, sealed tank, external service access, reference fit and failure behavior after M14.3 validation |
 
-**Current pass (2026-09-30):** M14.1 and M14.2 are implemented. The authored cassette pair is
-mounted symmetrically on the centered stern drum; the Xenonite/xenon status readout and blue
-transit wake follow live navigation state, including save restoration and fuel exhaustion.
-`test_hull_exterior` and `test_m11_voyage` cover geometry, status, start/arrival/exhaustion and
-in-flight saves; all 79 headless suites and the smoke test pass. The final aft and service captures are in
-`docs/design/shot_ion_drive_stern_idle.png` and
-`docs/design/shot_ion_drive_stern_burning.png`, plus `docs/design/shot_ion_drive_service.png`.
-An EVA-side fit view is also in `docs/design/shot_ion_drive_eva.png`.
-The mount spacing and wake width were refined against the captures; the geometry and voyage suites
-pass again. M14.3 power, thermal, degraded-drive and repair
-choices remain open in `docs/OPEN_QUESTIONS.md`; do not bypass the existing power system with an
-unmodeled energy source.
+**Current pass (2026-09-30):** M14.1/M14.2's paired hardware and transit-linked wake were
+implemented and validated before this coupling pass. Their 79-suite result and existing
+captures describe that earlier state, not the new integration. Existing captures:
+`docs/design/shot_ion_drive_stern_idle.png`, `shot_ion_drive_stern_burning.png`,
+`shot_ion_drive_service.png` and `shot_ion_drive_eva.png` (all under `docs/design/`).
+
+All five simulation questions are now **closed by exact operator answers** in
+[OPEN_QUESTIONS.md](OPEN_QUESTIONS.md#propulsion-modules--decisions-closed-2026-09-30).
+Energy comes from the dedicated tank; heat uses existing engine-bay thermal input; a surviving
+cassette travels slower and uses more Xenonite; the operator diagnoses/services all external
+hardware; the computer automatically knows cassette functionality only. The knowledge boundary
+is binding for manual, readouts, logs, visible labels and authored art.
+
+**M14.3 engine integration is verified by the final 88/88 headless suites (2026-10-01).** Paired operation retains nominal
+route duration and xenon cost. Single operation halves route progress speed with unchanged xenon
+cost and greater Xenonite use. Feed recovery, cassette availability and engine-bay heat can hold
+transit. ETA uses `transit_remaining_hours` (infinite during holds); actual elapsed time uses
+`transit_actual_hours`. Legacy `transit_elapsed_hours` remains nominal route-progress hours.
+External port/starboard/tank actions are isolate/open/scan/diagnose/service/close/restore;
+wrench opens/repairs/closes, scanner logs wear and multimeter diagnoses/restores. Housing must
+be isolated and open for diagnosis/repair; sealed core internals remain inaccessible.
+
+The 30 W priority-3 UV load raises demand to 640 W. With lighting shed, 440 W remains served
+(life support 120, scrubber 150, airlock 60, fabricator 80, UV 30) against the existing 500 W
+RTG; the battery remains 4 kWh. The manual recommends proactively switching lighting/fabricator
+off for charge margin. Dedicated propulsion output cannot power the hotel bus. Tank/output,
+heat thresholds and repair tuning are recorded in the decision/design notes and owned by
+simulation configs. No mandatory irreplaceable service stocks may block recovery.
+
+**M14.4 has nine rendered captures; operator review is pending.** The set adds port, starboard,
+tank, single-cassette and diagnostics views to the existing stern/service/EVA views; all are
+linked in the propulsion design notes. Capture existence does not close the operator review
+gate. Broader style and gameplay-loop work is independently authorized to continue. Use
+`Reference/station_design.jpg` for segmented pressure hardware, ribs/collars and brackets;
+Preserve sealed opaque housings and leave the darker port-side cassette as an operator review
+item. Player text uses DRIVE FEED or RESTRICTED FEED, never the technology name. See
+[the propulsion design notes](design/propulsion_module_narrative.md).
+
+
+M14.3 uses global **save v4** and **NavSystem state v3**, with migration for older saves. Ship history records cassette function loss (or unavailable tank UV),
+external service actions and drive hold transitions. It never records automatic grid/cathode
+fault identities: external component rows appear only after scanning or diagnosis, with failure
+modes exposed only after diagnosis.
+
+**Validation accounting (2026-10-01):** all **88/88 headless suites pass** on the final source,
+including settings persistence, real new/save/menu/load flow, external service, oxygen recipe
+usage, active-room consistency and fresh-watch wear isolation. The subsequent `test_operator_maintenance` passes for tool/diagnosis/scanned
+checks, cover isolation, gasket/time/quality costs and saved open covers. WATCH REPORT and
+its manual/board checks pass. Generic external refit tuning is 0.25 h / quality 0.75 / one
+gasket, separate from the propulsion procedure. Wear assets are local to each scene instance;
+cover containers/flags are validated before loading. Generated scenes reproduce byte-for-byte.
+The expanded sim profiler passes at 199.7 us/tick against its unchanged 200 us budget;
+this local result leaves little timing margin and is not a rendered FPS measurement.
 
 **Solar arrays authored (2026-09-28).** The stern arrays are the authored Blender piece now:
 `game/assets/models/hullwatch/exterior/hw_solar_array.glb` (32 parts) carries the canted mount
@@ -428,9 +471,11 @@ the docks into radial ports the bore goes to 1.2 m to match interior doors, at n
 
 ## Save format
 
-The current format is **v3**. v1 saves migrate through the v2 metadata shape; v2 saves keep
-loading and map legacy navigation progress to the available destination data. Migration tests
-cover both paths, and in-flight M11 transit is part of the saved navigation state.
+The M14.3 integration format is **v4**, with **NavSystem state v3**. Earlier v1/v2 metadata
+and legacy route progress continue through the migration chain; v3 saves gain the propulsion
+state defaults through the parent migration. Tank, external service and in-flight degraded/held
+travel round-trip with deterministic state in the affected engine suites. Final integrated
+full-suite confirmation passes all 88 suites on 2026-10-01.
 
 **M11 landed (2026-09-28):** destination resources drive course plotting, plot time/fuel,
 multi-day fixed-tick transit, daily transit events, and finite first-visit caches. The cockpit

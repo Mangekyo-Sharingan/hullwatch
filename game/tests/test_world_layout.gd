@@ -89,7 +89,11 @@ func _run() -> void:
 		_finish()
 		return
 
-	var expected_total: int = CARRIED_PROPS.size() + PLATFORM_PROPS.size() + _expected_doors().size()
+	var surround_count: int = 0
+	for index: int in TubeLayout.sections().size() - 1:
+		if TubeLayout.has_hatch(index):
+			surround_count += 2
+	var expected_total: int = CARRIED_PROPS.size() + PLATFORM_PROPS.size() + _expected_doors().size() + surround_count + 7
 	_check(_props.get_child_count() == expected_total, "Props holds all %d named nodes (%d)" % [expected_total, _props.get_child_count()])
 
 	_test_props_carry()
@@ -99,6 +103,7 @@ func _run() -> void:
 	_test_doors()
 	_test_zones()
 	_test_links()
+	_test_hatch_surrounds()
 	await _test_crt_props()
 
 	layout.free()
@@ -408,6 +413,25 @@ func _remove_root_child(node_name: StringName) -> void:
 			root.remove_child(child)
 			child.free()
 			return
+
+
+func _test_hatch_surrounds() -> void:
+	for room: StringName in TubeLayout.ROOM_COMPARTMENTS:
+		var compartment: StringName = TubeLayout.ROOM_COMPARTMENTS[room]
+		var patch: HullPatch = _props.get_node_or_null("HullPatch" if compartment == &"engine_bay" else "HullPatch_" + String(compartment)) as HullPatch
+		_check(patch != null and patch.compartment_id == compartment, "physical patch point serves " + String(compartment))
+	for index: int in TubeLayout.sections().size() - 1:
+		if not TubeLayout.has_hatch(index):
+			continue
+		for side: String in ["fore", "aft"]:
+			var surround: Node3D = _props.get_node_or_null("HatchSurround_%d_%s" % [index, side]) as Node3D
+			_check(surround != null, "hatch destination surround generated on " + side)
+			if surround == null:
+				continue
+			var label: Label3D = surround.get_node_or_null("Destination") as Label3D
+			_check(label != null and not label.text.is_empty() and not label.no_depth_test, "physical hatch destination remains occluded by geometry")
+			var jamb: MeshInstance3D = surround.get_node_or_null("Jamb_1") as MeshInstance3D
+			_check(jamb != null and jamb.position.x - (jamb.mesh as BoxMesh).size.x * 0.5 >= TubeLayout.HATCH_HALF_WIDTH - 0.001, "hatch surround preserves full passage width")
 
 
 func _finish() -> void:

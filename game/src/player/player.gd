@@ -22,12 +22,15 @@ const SEAT_MOTION_MAX_SECONDS: float = 0.72
 
 @export var walk_speed: float = 3.0
 @export var crouch_speed: float = 1.5
-@export var acceleration: float = 12.0
-@export var deceleration: float = 16.0
+@export var acceleration: float = 18.0
+@export var deceleration: float = 22.0
 @export var boots_gravity: float = 12.0
 @export var boots_range: float = 2.2
 @export var push_off_speed: float = 1.6
-@export var thruster_accel: float = 1.2
+@export var thruster_accel: float = 2.4
+@export var brake_accel: float = 4.0
+@export var surface_reach: float = 0.65
+@export var roll_speed: float = 1.2
 @export var free_damping: float = 0.05
 @export var mouse_sensitivity: float = BASE_MOUSE_SENSITIVITY
 @export var pitch_limit_deg: float = 89.0
@@ -75,7 +78,8 @@ func _physics_process(delta: float) -> void:
 	if _seat_transitioning or is_pilot_seated():
 		velocity = Vector3.ZERO
 		return
-	_set_crouched(Input.is_action_pressed(&"crouch"))
+	_set_crouched(_boots_engaged and Input.is_action_pressed(&"crouch"))
+	_head.position.y = lerpf(_head.position.y, CROUCH_HEAD_Y if _crouched else STAND_HEAD_Y, minf(delta * 12.0, 1.0))
 	if _boots_engaged:
 		_process_engaged(delta)
 	else:
@@ -181,6 +185,8 @@ func _start_seat_motion(target_position: Vector3, target_yaw: float, target_head
 	_seat_tween = create_tween().set_parallel(true)
 	_seat_tween.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
 	_seat_tween.tween_property(self, ^"global_position", target_position, duration)
+	_seat_tween.tween_property(self, ^"rotation:x", 0.0, duration)
+	_seat_tween.tween_property(self, ^"rotation:z", 0.0, duration)
 	_seat_tween.tween_method(_set_yaw_between.bind(start_yaw, target_yaw), 0.0, 1.0, duration)
 	_seat_tween.tween_property(_head, ^"position:y", target_head_y, duration)
 	_seat_tween.tween_property(_head, ^"rotation:x", 0.0 if target_head_y == SEATED_HEAD_Y else start_pitch, duration)
@@ -218,7 +224,8 @@ func engage_boots() -> bool:
 	var normal: Vector3 = _find_anchor_normal()
 	if normal == Vector3.ZERO:
 		return false
-	_align_up(normal)
+	if not _align_up(normal):
+		return false
 	up_direction = normal
 	motion_mode = CharacterBody3D.MOTION_MODE_GROUNDED
 	velocity -= normal * velocity.dot(normal)
@@ -235,17 +242,11 @@ func disengage_boots() -> void:
 
 
 func push_off() -> bool:
-	var normal: Vector3 = Vector3.ZERO
-	for i: int in get_slide_collision_count():
-		var collision: KinematicCollision3D = get_slide_collision(i)
-		if collision != null and collision.get_normal().length_squared() > NORMAL_EPSILON:
-			normal = collision.get_normal()
-			break
-	if normal == Vector3.ZERO:
-		normal = _find_anchor_normal()
+	var normal: Vector3 = _nearby_surface_normal()
 	if normal == Vector3.ZERO:
 		return false
-	velocity += normal * push_off_speed
+	# Remove incoming momentum so a push always carries us away from the surface.
+	velocity += normal * (push_off_speed - minf(velocity.dot(normal), 0.0))
 	return true
 
 
@@ -517,6 +518,14 @@ func _process_engaged(delta: float) -> void:
 
 
 func _process_free(delta: float) -> void:
+	var roll: float = Input.get_axis(&"roll_left", &"roll_right")
+	if roll != 0.0:
+		var center: Vector3 = global_transform * _collision_shape.position
+		rotate_object_local(Vector3.FORWARD, roll * roll_speed * delta)
+		global_position = center - global_basis * _collision_shape.position
+	if Input.is_action_pressed(&"brake"):
+		velocity = velocity.move_toward(Vector3.ZERO, brake_accel * delta)
+		return
 	velocity *= maxf(0.0, 1.0 - free_damping * delta)
 	var wish_direction: Vector3 = _free_wish_direction()
 	if wish_direction != Vector3.ZERO:
@@ -554,41 +563,92 @@ func _wish_direction(plane_normal: Vector3) -> Vector3:
 
 func _free_wish_direction() -> Vector3:
 	var input_vector: Vector2 = Input.get_vector(&"move_left", &"move_right", &"move_forward", &"move_back")
-	if input_vector == Vector2.ZERO:
-		return Vector3.ZERO
-	var wish: Vector3 = _camera.global_transform.basis.x * input_vector.x - _camera.global_transform.basis.z * input_vector.y
-	if wish.length_squared() <= NORMAL_EPSILON:
-		return Vector3.ZERO
-	return wish.normalized()
+	var vertical: float = Input.get_action_strength(&"jump") - Input.get_action_strength(&"crouch")
+	var wish: Vector3 = _camera.global_transform.basis.x * input_vector.x + _camera.global_transform.basis.z * input_vector.y
+	wish += global_transform.basis.y * vertical
+	return wish.limit_length(1.0)
+
+
+func _surface_ray(origin: Vector3, direction: Vector3, reach: float) -> Dictionary:
+	var query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(origin, origin + direction * reach)
+	query.collision_mask = collision_mask
+	query.exclude = [get_rid()]
+	return get_world_3d().direct_space_state.intersect_ray(query)
 
 
 func _find_anchor_normal() -> Vector3:
-	if is_on_floor():
-		return get_floor_normal()
-	if is_on_wall():
-		return get_wall_normal()
-	var space_state: PhysicsDirectSpaceState3D = get_world_3d().direct_space_state
-	if space_state == null:
-		return Vector3.ZERO
-	var query: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(
-		global_position, global_position - global_transform.basis.y * boots_range
-	)
-	query.collision_mask = collision_mask
-	query.exclude = [get_rid()]
-	var result: Dictionary = space_state.intersect_ray(query)
-	if result.is_empty():
-		return Vector3.ZERO
-	return result["normal"]
+	# Prefer the deck even when drift has left a wall contact cached by move_and_slide.
+	for direction: Vector3 in [Vector3.DOWN, -global_basis.y]:
+		var hit: Dictionary = _surface_ray(global_position + global_basis.y * 0.05, direction, boots_range)
+		if not hit.is_empty():
+			return hit["normal"]
+	return _nearby_surface_normal()
 
 
-func _align_up(normal: Vector3) -> void:
-	var current_up: Vector3 = global_transform.basis.y.normalized()
+func _nearby_surface_normal() -> Vector3:
+	var best_distance: float = INF
+	var normal: Vector3 = Vector3.ZERO
+	var capsule: CapsuleShape3D = _collision_shape.shape as CapsuleShape3D
+	for height: float in [capsule.radius, capsule.height * 0.5, capsule.height - capsule.radius]:
+		var origin: Vector3 = global_position + global_basis.y * height
+		for x: int in range(-1, 2):
+			for y: int in range(-1, 2):
+				for z: int in range(-1, 2):
+					var direction: Vector3 = Vector3(x, y, z).normalized()
+					if direction == Vector3.ZERO:
+						continue
+					var hit: Dictionary = _surface_ray(origin, direction, surface_reach + capsule.radius)
+					if hit.is_empty():
+						continue
+					var distance: float = origin.distance_to(hit["position"])
+					if distance < best_distance:
+						best_distance = distance
+						normal = hit["normal"]
+	return normal
+
+
+func _align_up(normal: Vector3) -> bool:
+	var current_up: Vector3 = global_basis.y.normalized()
+	if current_up.dot(normal) > 0.9999:
+		return true
 	var axis: Vector3 = current_up.cross(normal)
 	if axis.length_squared() <= NORMAL_EPSILON:
-		return
-	var angle: float = current_up.angle_to(normal)
-	global_transform.basis = Basis(axis.normalized(), angle) * global_transform.basis
-	global_transform = global_transform.orthonormalized()
+		axis = global_basis.x
+	var target: Transform3D = global_transform
+	target.basis = (Basis(axis.normalized(), current_up.angle_to(normal)) * target.basis).orthonormalized()
+	var query: PhysicsShapeQueryParameters3D = PhysicsShapeQueryParameters3D.new()
+	var clearance: CapsuleShape3D = _collision_shape.shape.duplicate() as CapsuleShape3D
+	clearance.radius -= 0.02
+	clearance.height -= 0.04
+	query.shape = clearance
+	query.collision_mask = collision_mask
+	query.exclude = [get_rid()]
+	# Center rotation fits low cabins; the feet pivot lets an EVA operator turn away from a close hull.
+	var fitted: bool = false
+	for pivot: Vector3 in [_collision_shape.position, Vector3.ZERO]:
+		var center: Vector3 = global_transform * pivot
+		var clear: bool = true
+		for step: int in range(1, 9):
+			var pose: Transform3D = global_transform
+			pose.basis = global_basis.slerp(target.basis, float(step) / 8.0).orthonormalized()
+			pose.origin = center - pose.basis * pivot
+			query.transform = pose * _collision_shape.transform
+			if not get_world_3d().direct_space_state.intersect_shape(query, 1).is_empty():
+				clear = false
+				break
+		if clear:
+			target.origin = center - target.basis * pivot
+			fitted = true
+			break
+	if not fitted:
+		return false
+	var view: Transform3D = _camera.global_transform
+	global_transform = target
+	_camera.global_transform = view
+	var alignment: Tween = create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE)
+	alignment.tween_property(_camera, ^"quaternion", Quaternion.IDENTITY, 0.25)
+	alignment.tween_property(_camera, ^"position", Vector3.ZERO, 0.25)
+	return true
 
 
 func _set_crouched(crouched: bool) -> void:
@@ -602,7 +662,6 @@ func _set_crouched(crouched: bool) -> void:
 		return
 	capsule.height = CROUCH_HEIGHT if crouched else STAND_HEIGHT
 	_collision_shape.position.y = capsule.height * 0.5
-	_head.position.y = CROUCH_HEAD_Y if crouched else STAND_HEAD_Y
 
 
 func _is_blocked_above() -> bool:

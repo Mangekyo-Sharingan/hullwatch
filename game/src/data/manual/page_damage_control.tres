@@ -7,7 +7,7 @@ script = ExtResource("1_page")
 title = "DAMAGE CONTROL"
 body = "THE HULL is xenon-metal: a grown lattice, seamless and load-bearing. No weld, rivet or fastener exists anywhere on the primary structure, and no yard in service can manufacture or duplicate it. Repair what you can reach; do not cut into the frame.
 
-MICRO-PUNCTURES are normal on a hull this age. Each one raises the compartment leak rate; pressure falls, and the leak keeps working while you sleep.
+MICRO-PUNCTURES are normal on a hull this age. Each one raises the compartment leak rate; pressure falls, and the leak keeps working while you sleep. Each of the eight main compartments has a wall-mounted patch point. Use the patch point in the leaking compartment; a patch elsewhere does not seal that room.
 
 PATCH PROCEDURE
   1  CLEAN the breach

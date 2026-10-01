@@ -1374,16 +1374,35 @@ func _add_tube_ion_drives(hull: StaticBody3D) -> void:
 			continue
 		drive.scale.x = side
 		drive.set_script(load(SCRIPT_ION_DRIVE_FX) as Script)
+		drive.set("cassette_id", StringName(side_name.to_lower()))
+		_add_drive_service(drive, StringName(side_name.to_lower()), Vector3(0.39, 0.0, 0.70), Vector3(0.18, 0.40, 0.60))
 		var model: Node3D = drive.get_node_or_null(^"Model") as Node3D
 		if model == null:
 			continue
-		var core: MeshInstance3D = model.find_child("XenoniteCore", true, false) as MeshInstance3D
-		if core != null:
-			core.material_override = _materials[MATERIAL_XENON] as Material
 		var plume: MeshInstance3D = model.find_child("IonPlume", true, false) as MeshInstance3D
 		if plume != null:
 			plume.visible = false
 			plume.material_override = plume_material
+	var tank: Node3D = _add_hull_model(hull, "res://assets/models/hullwatch/exterior/hw_xenonite_tank.glb", "XenoniteTank", Vector3(0.0, 1.55, stern_z + 0.06), Vector3.ZERO)
+	if tank != null:
+		_add_drive_service(tank, &"tank", Vector3(0.0, 0.0, 0.54), Vector3(0.34, 0.62, 0.12))
+
+
+func _add_drive_service(parent: Node3D, target: StringName, center: Vector3, size: Vector3) -> void:
+	var service: StaticBody3D = StaticBody3D.new()
+	service.name = "DriveService"
+	service.set_script(load("res://src/interactables/drive_service.gd") as Script)
+	service.set("cassette_id", target)
+	service.collision_layer = 2
+	service.collision_mask = 0
+	service.position = center
+	var shape: CollisionShape3D = CollisionShape3D.new()
+	shape.name = "ServiceShape"
+	var box: BoxShape3D = BoxShape3D.new()
+	box.size = size
+	shape.shape = box
+	service.add_child(shape)
+	parent.add_child(service)
 
 
 ## Attaches an authored model fitting to the hull at a fixed spot (the hull generator's

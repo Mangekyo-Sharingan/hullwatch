@@ -740,6 +740,7 @@ func _build_tube_chain() -> void:
 		if aft_room == &"" or fore_room == &"":
 			continue
 		var joint_z: float = (TubeLayout.span(index).y + TubeLayout.span(index + 1).x) * 0.5
+		_build_hatch_surround(index, aft_room, fore_room)
 		var exports: Dictionary = {
 			"compartment_a": TubeLayout.ROOM_COMPARTMENTS[aft_room],
 			"compartment_b": TubeLayout.ROOM_COMPARTMENTS[fore_room],
@@ -764,6 +765,34 @@ func _build_tube_chain() -> void:
 			"exports": exports.duplicate(),
 		})
 	_build_airlock_hatch()
+
+
+func _build_hatch_surround(index: int, aft_room: StringName, fore_room: StringName) -> void:
+	for side: int in [-1, 1]:
+		var surround: Node3D = Node3D.new()
+		surround.name = "HatchSurround_%d_%s" % [index, "fore" if side < 0 else "aft"]
+		var mouth_z: float = TubeLayout.span(index).y if side < 0 else TubeLayout.span(index + 1).x
+		surround.position.z = mouth_z + float(side) * 0.028
+		_props.add_child(surround)
+		var half_width: float = TubeLayout.HATCH_HALF_WIDTH
+		var height: float = TubeLayout.HATCH_HEIGHT
+		for x_side: int in [-1, 1]:
+			_add_crt_part(surround, "Jamb_%d" % x_side, Vector3(float(x_side) * (half_width + 0.035), height - 0.425, 0.0), Vector3(0.07, 0.85, 0.04), MATERIAL_PLASTIC_BEIGE)
+			_add_crt_part(surround, "LatchMark_%d" % x_side, Vector3(float(x_side) * (half_width + 0.035), 1.15, float(side) * 0.025), Vector3(0.035, 0.16, 0.012), MATERIAL_PHOSPHOR_AMBER)
+		_add_crt_part(surround, "Header", Vector3(0.0, height + 0.065, 0.0), Vector3(half_width * 2.0 + 0.14, 0.13, 0.04), MATERIAL_PLASTIC_BEIGE)
+		_add_crt_part(surround, "DestinationPlate", Vector3(0.0, height + 0.065, float(side) * 0.025), Vector3(half_width * 1.7, 0.105, 0.012), MATERIAL_DARK_PLASTIC)
+		var label: Label3D = Label3D.new()
+		label.name = "Destination"
+		label.text = String(fore_room if side < 0 else aft_room).replace("_", " ").to_upper()
+		label.font_size = 44
+		label.pixel_size = 0.0012
+		label.modulate = Color(0.85, 0.79, 0.61)
+		label.outline_size = 0
+		label.no_depth_test = false
+		label.shaded = true
+		label.position = Vector3(0.0, height + 0.065, float(side) * 0.034)
+		label.rotation.y = PI if side < 0 else 0.0
+		surround.add_child(label)
 
 
 ## The airlock's outer hatch, radial on its section: the door the suit goes out of, and the
@@ -841,11 +870,30 @@ func _build() -> void:
 		_build_model_prop(_carried(spec) if tube else spec)
 	if tube:
 		_build_tube_chain()
+		_build_room_patch_points()
 	else:
 		for spec: Dictionary in ZONES:
 			_build_zone(spec)
 		for spec: Dictionary in LINKS:
 			_build_link(spec)
+
+
+func _build_room_patch_points() -> void:
+	var original: Node = _props.get_node_or_null("HullPatch")
+	if original != null:
+		original.set("compartment_id", &"engine_bay")
+	var seen: Dictionary = {&"engine_bay": true}
+	for index: int in TubeLayout.sections().size():
+		var section: Dictionary = TubeLayout.sections()[index]
+		var room: StringName = StringName(section.get("room", &""))
+		if room == &"":
+			continue
+		var compartment: StringName = TubeLayout.ROOM_COMPARTMENTS[room]
+		if seen.has(compartment):
+			continue
+		seen[compartment] = true
+		var wall: float = SectionHull.tube_half_width(float(section["radius"]), 1.5)
+		_build_prop({"name": "HullPatch_" + String(compartment), "script": "res://src/interactables/hull_patch.gd", "position": Vector3(-wall + 0.05, 1.6, TubeLayout.span(index).y - 0.28), "size": Vector3(0.08, 0.22, 0.22), "model": "res://assets/models/hullwatch/interior/hw_hull_patch.glb", "model_scale": Vector3.ONE * 0.35, "model_mount": "wall", "material": MATERIAL_METAL_RUSTED, "exports": {"compartment_id": compartment}})
 
 
 func _make_group(group_name: String) -> Node3D:

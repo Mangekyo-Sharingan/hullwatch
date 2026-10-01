@@ -219,43 +219,78 @@ M13.4 in `docs/EXPANSION_SPEC.md`.
 The earlier study renders remain design-history references only: `docs/design/study_deck_section.png`
 and `docs/design/study_deck_three_quarter.png`.
 
-## Propulsion modules — ion drive selected (2026-09-30)
+## Propulsion modules — decisions CLOSED (2026-09-30)
 
-The operator selected a **pure electric xenon ion drive**: Xenonite forms the highly efficient
-ion-accelerator lattice; xenon gas is the working propellant; no gravitic propulsion or
-reactionless thrust. The existing `NavSystem.fuel_mass_kg` is the working xenon reserve for the
-current voyage loop. The working visual is two replaceable, aft-facing cassettes mounted
-symmetrically on the centered stern drum. Existing small thruster clusters remain maneuvering
-RCS units.
+These are the operator's exact answers to the five simulation questions. This is a
+**developer decision record**, not material for the player manual or computer.
 
-The Xenonite performance advantage is fictional. Keep the visible engine grounded in electrical
-power, xenon feed, long low-thrust burns, heat rejection and serviceable cathode/grid hardware.
-See `docs/design/propulsion_module_narrative.md` for the visual and game-system direction.
+1. **Energy source:** “The propulsion should draw power from a bio-replicating xenonite tank that by blasting it with UV-light forces the xenonite cells to replicate by perfect cell division.”
+2. **Thermal model:** “Use the existing one”
+3. **Single-cassette travel:** “Yes, it should take longer and consume more xenonite”
+4. **Maintenance and diagnosis:** “Let the operator perform all maintenance and diagnostics. The system can however detect if the cassettes are functional or not”
+5. **Knowledge boundary:** “Dont let the operator understand the inner working at all, keep the xenonite origin, usage and technology under a tight lid.”
 
-M14.1/M14.2 visuals and transit-linked readouts are implemented for review. The paired cassette
-mount is the current working layout; M14.3 remains open. The existing ship has a 500 W RTG,
-4 kWh battery and five nominal circuit loads totaling 610 W, before adding drive power. The
-thermal simulator models cabin compartments, heaters and hull losses; it has no engine/radiator
-thermal network. These limits make the power and radiator choices material to route balance.
-The present circuit loads are life support 120 W (priority 0), scrubber 150 W (2), airlock 60 W
-(3), fabricator 80 W (4) and lighting 200 W (5); the power simulator sheds the highest numbered
-priority first, so the actual fallback order is visible and testable.
+The existing electric ion-drive direction, expelled xenon reaction mass and paired stern
+mount remain. Xenon route fuel and Xenonite feed are independent reserves. A single working
+cassette extends travel and consumes more Xenonite; it does not increase route xenon cost.
+Dedicated tank output supplies propulsion and cannot supply the hotel bus or recharge its battery.
 
-Open questions for the next simulation pass:
+### M14.3 implementation contract — provisional until parent validation
 
-- Should propulsion draw from the shared electrical bus during transit, with priority shedding, or
-  should the RTG/battery capacity be rebalanced first? The power simulator already has a
-  `set_circuit_source_load` hook for live hardware loads.
-- Should drive heat use the existing engine-bay compartment heat input, or does the fictional
-  radiator need a separate external heat-rejection model?
-- Can one surviving cassette sustain slower travel? If so, should its route take longer, consume
-  more xenon, or both?
-- Should maintenance diagnose faults and replace a whole cassette, or let the operator service
-  grid/cathode components during EVA?
-- How much of the Xenonite lattice can the operator understand? Its origin remains deliberately
-  unresolved.
+`NavSystem` owns the tank, cassette availability/firing, holds, route progress and external
+service state. UI nodes only render simulator status and submit tool-gated actions. Pair operation
+preserves nominal route time and xenon cost. One cassette advances the route at half speed.
+`transit_elapsed_hours` remains nominal route-progress hours; displays use
+`transit_actual_hours` for elapsed clock time and `transit_remaining_hours` for ETA (infinite
+while held). The hold reasons are cassette unavailable, feed reserve recovering and engine-bay cooling.
 
-Visual review: the revised aft captures clearly separate both cassettes and their wakes, but the
-port cassette remains much darker than starboard under the current exterior lighting. Decide after
-review whether this lighting contrast fits the ship or whether both housings need a shared neutral
-reflective edge accent; do not add a dedicated powered engine light without a gameplay reason.
+Initial tuning, subject to deterministic scenario validation:
+
+| Item | Value |
+|---|---|
+| Tank capacity / initial feed / protected seed | 40 / 30 / 1 kg |
+| UV service load | 30 W, `xenonite_uv`, priority 3 |
+| Hidden replication / energy budget | 0.05 kg/h / 1000 Wh/kg |
+| Pair / single tank output | 200 / 150 W |
+| Single route progress | Half speed; 1.5 times gross Xenonite per route, greater net drain |
+| Engine-bay heat | Existing thermal input; heat fraction 0.5 |
+| Thermal hold / resume | 45 / 38 C |
+| External repair | 0.25 h, quality 0.8; no mandatory irreplaceable stocks |
+
+The 500 W RTG and 4 kWh battery remain. Existing demand plus UV is 640 W; shedding the
+200 W lighting circuit leaves 440 W served: life support 120, scrubber 150, airlock 60,
+fabricator 80 and UV 30 W. The operator can switch lighting and the fabricator off proactively
+for charge margin. Do not treat propulsion output as extra bus generation.
+
+Port, starboard and tank each expose `isolate`, `open`, `scan`, `diagnose`,
+`service:<component_id>`, `close`, `restore`. Wrench opens, repairs and closes; scanner logs
+wear; multimeter diagnoses and verifies restoration. Diagnosis and repair require isolation
+and an open external housing. These are serviceable external parts, not an invitation to open
+the sealed core. Automatic knowledge is cassette functionality only; wear and fault details
+use the same scan/diagnosis gates as existing systems.
+
+### Player knowledge boundary
+
+Player manuals, readouts, logs and visible labels may show operational feed reserve/usage,
+output, heat, UV service, cassette availability/firing, ETA/holds and diagnosed external hardware.
+They must never expose biology, cell division, energy density, conversion or lattice principles,
+or explain Xenonite origin, use or internals. Sealed opaque art must preserve this boundary.
+The external UV assembly is service hardware; its presence does not explain the hidden mechanism.
+
+### Reference notes and review
+
+The operator also asked: “Also, look over the reference pictures and work on making the ship a bit more like it. Get back to me for more details when the engine pass is done”.
+`Reference/station_design.jpg` supplies the segmented pressure-hardware, rib/collar and bracket
+language. Existing aft/service/EVA captures and propulsion reference notes are in
+[the propulsion design document](design/propulsion_module_narrative.md).
+
+The five simulation decisions are closed. **M14.3 implementation remains provisional until the
+parent validates the integrated simulation, service, save/load and UI/manual tests. M14.4 updated
+captures and review await the operator after that pass.** The darker port-side housing remains
+an art-review item; do not add a powered engine light without a gameplay reason.
+
+M14.3 save integration targets global **save v4** and **NavSystem state v3**, with older saves
+migrated by the parent. Ship history records cassette function loss (or unavailable tank UV),
+external service actions and drive hold transitions. It never records automatic grid/cathode
+fault identities: external component rows appear only after scanning or diagnosis, with failure
+modes exposed only after diagnosis.
