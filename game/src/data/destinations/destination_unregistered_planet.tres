@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="VoyageDestination" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/components/voyage_destination.gd" id="1_destination"]
+
+[resource]
+script = ExtResource("1_destination")
+destination_id = &"survey_orbit_template"
+display_name = "Unregistered Survey Orbit"
+kind = &"planet"
+transit_days = 3
+course_plot_hours = 1.0
+course_plot_fuel_kg = 5.0
+fuel_cost_kg = 210.0
+sector_seed = 1
+arrival_resource = &"ice"
+arrival_resource_units = 3.0
+arrival_stores = {&"food_ration": 1}
+arrival_report = "Long-range readings identify an unregistered planetary orbit. A service cache holds three units of ice and one food ration."
+sun_direction = Vector3(0.2, 0.5, -0.84)
+sun_color = Color(0.78, 0.86, 1, 1)
+sun_size = 0.02
+planet_direction = Vector3(-0.55, 0.28, 0.62)
+planet_color = Color(0.52, 0.58, 0.72, 1)
+planet_band_color = Color(0.3, 0.34, 0.4, 1)
+planet_size = 0.06

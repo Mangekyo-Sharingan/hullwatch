@@ -113,10 +113,18 @@ func _test_save_load() -> void:
 	for i: int in 100:
 		a.sim_tick(1.0)
 	var saved: Dictionary = a.save_state()
+	var settings: Node = root.get_node_or_null(^"/root/GameSettings")
+	var expected_asteroid_frequency: float = float(settings.call("get_value", &"asteroid_frequency")) if settings != null else a.get_encounter_frequency(&"asteroid_frequency")
+	var expected_anomaly_frequency: float = float(settings.call("get_value", &"anomaly_frequency")) if settings != null else a.get_encounter_frequency(&"anomaly_frequency")
+	saved["asteroid_frequency"] = 0.0 if expected_asteroid_frequency > 0.0 else 3.0
+	saved["anomaly_frequency"] = 0.0 if expected_anomaly_frequency > 0.0 else 3.0
 	var b: SectorSystem = _make_sector(1)
 	b.load_state(saved)
 	_check(_ids(a) == _ids(b), "save/load reproduces the active field")
 	_check(is_equal_approx(b.get_drift_distance(), a.get_drift_distance()), "save/load restores the drift distance")
+	_check(is_equal_approx(b.get_encounter_frequency(&"asteroid_frequency"), expected_asteroid_frequency), "save/load keeps current player field-rate preference over legacy slot data")
+	_check(is_equal_approx(b.get_encounter_frequency(&"anomaly_frequency"), expected_anomaly_frequency), "save/load keeps current player anomaly preference over legacy slot data")
+	_check(not a.save_state().has("asteroid_frequency") and not a.save_state().has("anomaly_frequency"), "new sector saves leave global encounter preferences in settings")
 	a.free()
 	b.free()
 

@@ -204,19 +204,115 @@ Open sub-questions for the next sitting (answer while reviewing the study):
    one-line change to the table in `game/tools/build_hull_study.gd`.
 3. **Section sizes.** Deck areas are 8–21 m² per section against today's room areas (cockpit
    31 m², engine bay 45 m², corridor 54 m²). The corridor's 54 m² disappears into the chain,
-   and the engine bay needs both sections. Confirm the deck sizes feel right, or say which
-   rooms deserve a second deck in M13.4.
+   and the engine bay needs both sections. The double-height trial was reverted after review;
+   the current cabin plan uses one slim deck per section.
 
 ---
 
-## Q8 — Ring deck profile (RESOLVED 2026-09-29)
+## Q8 — Ring deck profile (REVISED 2026-09-29)
 
-The operator chose **double-height sections for all three**: quarters, storage and engine bay
-(both engine-bay sections). The confirmed profile is a **4.4 m ceiling**, **3.4 m wall top**,
-and a **partial aft-half mezzanine at 2.2 m**, reached by a ladder. This replaces the former
-2.5 m ceiling, which could not provide standing room on both levels.
+The earlier double-height choice for quarters, storage and the engine bay was superseded after
+review. Keep the standard **2.5 m single-height cabin profile** in every room, with no
+mezzanines or ladders. This is the current operator-approved layout and is verified under
+M13.4 in `docs/EXPANSION_SPEC.md`.
 
-Study renders: `docs/design/study_deck_section.png` and
-`docs/design/study_deck_three_quarter.png` (built by `game/tools/build_deck_study.gd`, captured
-by `capture_deck_study.gd`). Implementation and verification status is tracked under M13.4/M13.5
-in `docs/EXPANSION_SPEC.md`.
+The earlier study renders remain design-history references only: `docs/design/study_deck_section.png`
+and `docs/design/study_deck_three_quarter.png`.
+
+## Propulsion modules — decisions CLOSED (2026-09-30)
+
+These are the operator's exact answers to the five simulation questions. This is a
+**developer decision record**, not material for the player manual or computer.
+
+1. **Energy source:** “The propulsion should draw power from a bio-replicating xenonite tank that by blasting it with UV-light forces the xenonite cells to replicate by perfect cell division.”
+2. **Thermal model:** “Use the existing one”
+3. **Single-cassette travel:** “Yes, it should take longer and consume more xenonite”
+4. **Maintenance and diagnosis:** “Let the operator perform all maintenance and diagnostics. The system can however detect if the cassettes are functional or not”
+5. **Knowledge boundary:** “Dont let the operator understand the inner working at all, keep the xenonite origin, usage and technology under a tight lid.”
+
+The existing electric ion-drive direction, expelled xenon reaction mass and paired stern
+mount remain. Xenon route fuel and Xenonite feed are independent reserves. A single working
+cassette extends travel and consumes more Xenonite; it does not increase route xenon cost.
+Dedicated tank output supplies propulsion and cannot supply the hotel bus or recharge its battery.
+
+### M14.3 implementation contract — provisional until parent validation
+
+`NavSystem` owns the tank, cassette availability/firing, holds, route progress and external
+service state. UI nodes only render simulator status and submit tool-gated actions. Pair operation
+preserves nominal route time and xenon cost. One cassette advances the route at half speed.
+`transit_elapsed_hours` remains nominal route-progress hours; displays use
+`transit_actual_hours` for elapsed clock time and `transit_remaining_hours` for ETA (infinite
+while held). The hold reasons are cassette unavailable, feed reserve recovering and engine-bay cooling.
+
+Initial tuning, subject to deterministic scenario validation:
+
+| Item | Value |
+|---|---|
+| Tank capacity / initial feed / protected seed | 40 / 30 / 1 kg |
+| UV service load | 30 W, `xenonite_uv`, priority 3 |
+| Hidden replication / energy budget | 0.05 kg/h / 1000 Wh/kg |
+| Pair / single tank output | 200 / 150 W |
+| Single route progress | Half speed; 1.5 times gross Xenonite per route, greater net drain |
+| Engine-bay heat | Existing thermal input; heat fraction 0.5 |
+| Thermal hold / resume | 45 / 38 C |
+| External repair | 0.25 h, quality 0.8; no mandatory irreplaceable stocks |
+
+The 500 W RTG and 4 kWh battery remain. Existing demand plus UV is 640 W; shedding the
+200 W lighting circuit leaves 440 W served: life support 120, scrubber 150, airlock 60,
+fabricator 80 and UV 30 W. The operator can switch lighting and the fabricator off proactively
+for charge margin. Do not treat propulsion output as extra bus generation.
+
+Port, starboard and tank each expose `isolate`, `open`, `scan`, `diagnose`,
+`service:<component_id>`, `close`, `restore`. Wrench opens, repairs and closes; scanner logs
+wear; multimeter diagnoses and verifies restoration. Diagnosis and repair require isolation
+and an open external housing. These are serviceable external parts, not an invitation to open
+the sealed core. Automatic knowledge is cassette functionality only; wear and fault details
+use the same scan/diagnosis gates as existing systems.
+
+### Player knowledge boundary
+
+Player manuals, readouts, logs and visible labels may show operational feed reserve/usage,
+output, heat, UV service, cassette availability/firing, ETA/holds and diagnosed external hardware.
+They must never expose biology, cell division, energy density, conversion or lattice principles,
+or explain Xenonite origin, use or internals. Sealed opaque art must preserve this boundary.
+The external UV assembly is service hardware; its presence does not explain the hidden mechanism.
+
+### Reference notes and review
+
+The operator also asked: “Also, look over the reference pictures and work on making the ship a bit more like it. Get back to me for more details when the engine pass is done”.
+`Reference/station_design.jpg` supplies the segmented pressure-hardware, rib/collar and bracket
+language. Existing aft/service/EVA captures and propulsion reference notes are in
+[the propulsion design document](design/propulsion_module_narrative.md).
+
+The five simulation decisions are closed. **M14.3 implementation remains provisional until the
+parent validates the integrated simulation, service, save/load and UI/manual tests. M14.4 updated
+captures and review await the operator after that pass.** The darker port-side housing remains
+an art-review item; do not add a powered engine light without a gameplay reason.
+
+M14.3 save integration targets global **save v4** and **NavSystem state v3**, with older saves
+migrated by the parent. Ship history records cassette function loss (or unavailable tank UV),
+external service actions and drive hold transitions. It never records automatic grid/cathode
+fault identities: external component rows appear only after scanning or diagnosis, with failure
+modes exposed only after diagnosis.
+
+## Q9 — Planet occurrence setting (RESOLVED 2026-10-09)
+
+Planet occurrence controls optional, resource-bearing survey-orbit waypoints. On each waypoint
+arrival, the nav simulator makes a deterministic discovery roll from the origin's sector seed and
+arrival ordinal. At `x1.00` the chance is 35%; `x2.00` gives 70%; `x3.00` guarantees one offer.
+At most one route appears per arrival. Generated routes use the existing waypoint/travel model,
+provide a smaller finite first-visit cache, and persist in nav state v4 / save v6. Changing the
+global preference affects later arrivals only; already charted routes stay available. This keeps
+planets out of the local asteroid stream, where the game has no planetary approach or landing loop.
+
+The settings row is a player preference, not watch state. Route discoveries are stable through
+save/load and generated route IDs/seeds derive from the saved arrival history. Playtest feedback
+should tune the 35% baseline/cache values; the mechanic does not add landing or probe gameplay.
+
+## Q10 — When do encounter-rate changes take effect? (OPEN)
+
+Field-object and anomaly rates are global player preferences. Changing either
+currently rebuilds the active streamed field immediately, and the chosen values
+also apply when loading a watch. Should players be able to reshape the current
+field at any time, or should new rates apply only after entering a new sector?
+Keep the current live behavior until playtest feedback gives a reason to change it.

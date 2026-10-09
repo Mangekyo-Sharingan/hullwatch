@@ -6,6 +6,8 @@ const CONFIG_PATH: String = "user://settings.cfg"
 var _failures: int = 0
 var _events: Array[Dictionary] = []
 var _spawned: Array[Node] = []
+var _had_settings: bool = false
+var _settings_backup: PackedByteArray = PackedByteArray()
 
 
 func _initialize() -> void:
@@ -15,6 +17,15 @@ func _initialize() -> void:
 func _run() -> void:
 	await process_frame
 
+	_had_settings = FileAccess.file_exists(CONFIG_PATH)
+	if _had_settings:
+		var original: FileAccess = FileAccess.open(CONFIG_PATH, FileAccess.READ)
+		if original == null:
+			_check(false, "backup: existing settings can be read before test writes")
+			_finish()
+			return
+		_settings_backup = original.get_buffer(original.get_length())
+		original.close()
 	_delete_settings_file()
 
 	var existing: Node = _find_root_child(&"GameSettings")
@@ -39,6 +50,13 @@ func _run() -> void:
 	_despawn_all()
 	_delete_settings_file()
 	_check(not FileAccess.file_exists(CONFIG_PATH), "cleanup: settings.cfg removed after the test")
+	if _had_settings:
+		var restored: FileAccess = FileAccess.open(CONFIG_PATH, FileAccess.WRITE)
+		_check(restored != null, "cleanup: original settings file can be restored")
+		if restored != null:
+			restored.store_buffer(_settings_backup)
+			restored.close()
+			_check(FileAccess.get_file_as_bytes(CONFIG_PATH) == _settings_backup, "cleanup: original settings restored byte for byte")
 
 	_finish()
 
@@ -52,6 +70,8 @@ func _test_defaults(settings: Node) -> void:
 	_check(is_equal_approx(float(settings.call(&"get_value", &"ui_scale")), 1.0), "defaults: ui_scale is 1.0")
 	_check(bool(settings.call(&"get_value", &"analogue_filter_enabled")), "defaults: analogue_filter_enabled is true")
 	_check(is_equal_approx(float(settings.call(&"get_value", &"analogue_filter_intensity")), 1.0), "defaults: analogue_filter_intensity is 1.0")
+	for key: StringName in [&"asteroid_frequency", &"anomaly_frequency", &"planet_frequency"]:
+		_check(is_equal_approx(float(settings.call(&"get_value", key)), 1.0), "defaults: %s is 1.0" % key)
 
 
 func _test_clamps_and_events(settings: Node) -> void:
@@ -91,6 +111,11 @@ func _test_clamps_and_events(settings: Node) -> void:
 	_check(bool(settings.call(&"set_value", &"analogue_filter_enabled", false)), "event: filter toggle accepted")
 	_check(_has_event(&"analogue_filter_enabled", false), "event: filter toggle emitted the applied value")
 	settings.call(&"set_value", &"analogue_filter_enabled", true)
+	for key: StringName in [&"asteroid_frequency", &"anomaly_frequency", &"planet_frequency"]:
+		_check(bool(settings.call(&"set_value", key, 99.0)), "clamp: %s accepts numeric input" % key)
+		_check(is_equal_approx(float(settings.call(&"get_value", key)), 3.0) and _has_event(key, 3.0), "clamp/event: %s maximum is 3.0" % key)
+		settings.call(&"set_value", key, -1.0)
+		_check(is_equal_approx(float(settings.call(&"get_value", key)), 0.0) and _has_event(key, 0.0), "clamp/event: %s can be disabled at zero" % key)
 
 	settings.call(&"set_value", &"master_volume_db", -12.0)
 	var bus_index: int = AudioServer.get_bus_index(&"Master")
@@ -108,6 +133,10 @@ func _test_rejections(settings: Node) -> void:
 	_check(not bool(settings.call(&"set_value", &"analogue_filter_enabled", "yes")), "reject: string for analogue_filter_enabled returns false")
 	_check(not bool(settings.call(&"set_value", &"analogue_filter_intensity", "loud")), "reject: string for analogue_filter_intensity returns false")
 	_check(not bool(settings.call(&"set_value", &"unknown_key", 1.0)), "reject: unknown key returns false")
+	for key: StringName in [&"asteroid_frequency", &"anomaly_frequency", &"planet_frequency"]:
+		var before: float = float(settings.call(&"get_value", key))
+		_check(not bool(settings.call(&"set_value", key, "many")), "reject: %s rejects strings" % key)
+		_check(is_equal_approx(float(settings.call(&"get_value", key)), before), "reject: %s unchanged" % key)
 
 
 func _test_corrupt_file(settings: Node) -> void:
@@ -126,6 +155,8 @@ func _test_corrupt_file(settings: Node) -> void:
 	_check(is_equal_approx(float(settings.call(&"get_value", &"ui_scale")), 1.0), "corrupt: ui_scale falls back to default")
 	_check(bool(settings.call(&"get_value", &"analogue_filter_enabled")), "corrupt: filter enabled falls back to default")
 	_check(is_equal_approx(float(settings.call(&"get_value", &"analogue_filter_intensity")), 1.0), "corrupt: filter intensity falls back to default")
+	for key: StringName in [&"asteroid_frequency", &"anomaly_frequency", &"planet_frequency"]:
+		_check(is_equal_approx(float(settings.call(&"get_value", key)), 1.0), "corrupt: %s falls back to default" % key)
 
 
 func _test_persistence(settings: Node) -> void:
@@ -135,15 +166,18 @@ func _test_persistence(settings: Node) -> void:
 	settings.call(&"set_value", &"ui_scale", 1.2)
 	settings.call(&"set_value", &"analogue_filter_enabled", false)
 	settings.call(&"set_value", &"analogue_filter_intensity", 0.35)
+	settings.call(&"set_value", &"asteroid_frequency", 2.25)
+	settings.call(&"set_value", &"anomaly_frequency", 0.5)
+	settings.call(&"set_value", &"planet_frequency", 2.5)
 	settings.call(&"save_settings")
 	_check(FileAccess.file_exists(CONFIG_PATH), "save: settings.cfg written")
 
 	var config: ConfigFile = ConfigFile.new()
 	_check(config.load(CONFIG_PATH) == OK, "save: written file parses as ConfigFile")
 	var keys_present: bool = true
-	for key: String in ["mouse_sensitivity_multiplier", "invert_y", "master_volume_db", "ui_scale", "analogue_filter_enabled", "analogue_filter_intensity"]:
+	for key: String in ["mouse_sensitivity_multiplier", "invert_y", "master_volume_db", "ui_scale", "analogue_filter_enabled", "analogue_filter_intensity", "asteroid_frequency", "anomaly_frequency", "planet_frequency"]:
 		keys_present = keys_present and config.has_section_key("settings", key)
-	_check(keys_present, "save: all six keys persisted under [settings]")
+	_check(keys_present, "save: all nine keys persisted under [settings]")
 
 	settings.call(&"reset_to_defaults")
 	_check(is_equal_approx(float(settings.call(&"get_value", &"mouse_sensitivity_multiplier")), 1.0), "reset: sensitivity returns to default")
@@ -152,6 +186,9 @@ func _test_persistence(settings: Node) -> void:
 	_check(is_equal_approx(float(settings.call(&"get_value", &"ui_scale")), 1.0), "reset: ui_scale returns to default")
 	_check(bool(settings.call(&"get_value", &"analogue_filter_enabled")), "reset: filter enabled returns to default")
 	_check(is_equal_approx(float(settings.call(&"get_value", &"analogue_filter_intensity")), 1.0), "reset: filter intensity returns to default")
+	for key: StringName in [&"asteroid_frequency", &"anomaly_frequency", &"planet_frequency"]:
+		_check(is_equal_approx(float(settings.call(&"get_value", key)), 1.0), "reset: %s returns to default" % key)
+	_check(config.load(CONFIG_PATH) == OK and is_equal_approx(float(config.get_value("settings", "mouse_sensitivity_multiplier")), 2.5), "reset: in-memory defaults do not overwrite saved preferences")
 
 	_events.clear()
 	settings.call(&"load_settings")
@@ -162,6 +199,17 @@ func _test_persistence(settings: Node) -> void:
 	_check(is_equal_approx(float(settings.call(&"get_value", &"ui_scale")), 1.2), "load: saved ui_scale restored")
 	_check(not bool(settings.call(&"get_value", &"analogue_filter_enabled")), "load: saved filter enabled flag restored")
 	_check(is_equal_approx(float(settings.call(&"get_value", &"analogue_filter_intensity")), 0.35), "load: saved filter intensity restored")
+	_check(is_equal_approx(float(settings.call(&"get_value", &"asteroid_frequency")), 2.25), "load: saved asteroid frequency restored")
+	_check(is_equal_approx(float(settings.call(&"get_value", &"anomaly_frequency")), 0.5), "load: saved anomaly frequency restored")
+	_check(is_equal_approx(float(settings.call(&"get_value", &"planet_frequency")), 2.5), "load: saved planet frequency restored")
+	config.erase_section_key("settings", "asteroid_frequency")
+	config.erase_section_key("settings", "anomaly_frequency")
+	config.erase_section_key("settings", "planet_frequency")
+	_check(config.save(CONFIG_PATH) == OK, "legacy: settings without encounter keys written")
+	settings.call(&"load_settings")
+	_check(is_equal_approx(float(settings.call(&"get_value", &"mouse_sensitivity_multiplier")), 2.5), "legacy: existing preferences survive missing encounter keys")
+	for key: StringName in [&"asteroid_frequency", &"anomaly_frequency", &"planet_frequency"]:
+		_check(is_equal_approx(float(settings.call(&"get_value", key)), 1.0), "legacy: %s defaults to 1.0" % key)
 
 
 func _test_player_integration(settings: Node) -> void:
@@ -196,6 +244,12 @@ func _test_menu(settings: Node) -> void:
 	settings.call(&"set_value", &"ui_scale", 1.05)
 	settings.call(&"set_value", &"analogue_filter_enabled", true)
 	settings.call(&"set_value", &"analogue_filter_intensity", 1.0)
+	settings.call(&"set_value", &"asteroid_frequency", 1.0)
+	settings.call(&"set_value", &"anomaly_frequency", 1.0)
+	settings.call(&"set_value", &"planet_frequency", 1.0)
+	var sector: SectorSystem = SectorSystem.new()
+	root.add_child(sector)
+	_spawned.append(sector)
 	var menu: CanvasLayer = load("res://src/ui/settings_menu.gd").new()
 	root.add_child(menu)
 	_spawned.append(menu)
@@ -219,20 +273,22 @@ func _test_menu(settings: Node) -> void:
 	_check(String(menu.call(&"get_row_value_text", &"unknown_key")) == "", "menu: unknown row text is empty")
 
 	var scroll: ScrollMenu = menu.call(&"get_menu")
-	_check(scroll != null and scroll.get_items().size() == 8, "menu: scroll menu lists eight rows")
+	_check(scroll != null and scroll.get_items().size() == 11, "menu: scroll menu lists eleven rows")
 	_check(scroll.get_items()[0].contains("1.25x"), "menu: first row carries the sensitivity value")
 	scroll.move_selection(2)
 	_check(scroll.get_highlighted_index() == 2, "menu: browsing moves the highlight")
 	scroll.confirm()
 	_check(String(menu.call(&"get_row_value_text", &"master_volume_db")) == "-5 dB", "menu: wheel click steps the highlighted setting")
 
-	scroll.move_selection(4)
+	scroll.move_selection(7)
 	_check(scroll.get_highlighted_text() == "RESET DEFAULTS", "menu: reset row is reachable")
 	scroll.confirm()
 	_check(String(menu.call(&"get_row_value_text", &"ui_scale")) == "100%", "menu: wheel click on reset restores defaults")
+	var saved_defaults: ConfigFile = ConfigFile.new()
+	_check(saved_defaults.load(CONFIG_PATH) == OK and is_equal_approx(float(saved_defaults.get_value("settings", "ui_scale")), 1.0), "menu: reset saves defaults to disk")
 
 	settings.call(&"set_value", &"analogue_filter_intensity", 0.5)
-	scroll.move_selection(-2)
+	scroll.move_selection(-5)
 	_check(scroll.get_highlighted_index() == 4, "menu: filter row is reachable")
 	scroll.confirm()
 	_check(String(menu.call(&"get_row_value_text", &"analogue_filter_enabled")) == "OFF", "menu: wheel click toggles the filter off")
@@ -241,6 +297,28 @@ func _test_menu(settings: Node) -> void:
 	_check(String(menu.call(&"get_row_value_text", &"analogue_filter_intensity")) == "60%", "menu: wheel click steps the filter intensity")
 	menu.call(&"_decrease_highlighted")
 	_check(String(menu.call(&"get_row_value_text", &"analogue_filter_intensity")) == "50%", "menu: right click decreases the filter intensity")
+	scroll.move_selection(1)
+	scroll.confirm()
+	_check(is_equal_approx(sector.get_encounter_frequency(&"asteroid_frequency"), 1.25), "menu: asteroid increment updates the live sector")
+	_check(String(menu.call(&"get_row_value_text", &"asteroid_frequency")) == "x1.25", "menu: asteroid row reflects the live sector")
+	menu.call(&"_decrease_highlighted")
+	_check(is_equal_approx(sector.get_encounter_frequency(&"asteroid_frequency"), 1.0), "menu: asteroid decrement updates the live sector")
+	scroll.confirm()
+	scroll.move_selection(1)
+	menu.call(&"_decrease_highlighted")
+	_check(is_equal_approx(sector.get_encounter_frequency(&"anomaly_frequency"), 0.75), "menu: anomaly decrement updates the live sector")
+	_check(String(menu.call(&"get_row_value_text", &"anomaly_frequency")) == "x0.75", "menu: anomaly row reflects the live sector")
+	scroll.move_selection(1)
+	scroll.confirm()
+	_check(String(menu.call(&"get_row_value_text", &"planet_frequency")) == "x1.25", "menu: planet occurrence increment updates its setting")
+	menu.call(&"_decrease_highlighted")
+	_check(String(menu.call(&"get_row_value_text", &"planet_frequency")) == "x1.00", "menu: planet occurrence decrement updates its setting")
+	var persisted: Node = load("res://src/autoload/settings.gd").new()
+	persisted.call(&"load_settings")
+	_check(is_equal_approx(float(persisted.call(&"get_value", &"asteroid_frequency")), 1.25), "menu: asteroid control persists across reload")
+	_check(is_equal_approx(float(persisted.call(&"get_value", &"anomaly_frequency")), 0.75), "menu: anomaly control persists across reload")
+	_check(is_equal_approx(float(persisted.call(&"get_value", &"planet_frequency")), 1.0), "menu: planet occurrence persists across reload")
+	persisted.free()
 	settings.call(&"set_value", &"analogue_filter_enabled", true)
 	settings.call(&"set_value", &"analogue_filter_intensity", 1.0)
 

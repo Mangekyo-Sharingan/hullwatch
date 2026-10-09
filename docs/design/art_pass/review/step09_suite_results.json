@@ -1,0 +1,634 @@
+{
+  "date": "2026-10-01",
+  "command": "Godot 4.7.2 --headless --path game --script res://tests/<suite>.gd",
+  "isolated_user_data": "/tmp/hullwatch-art-step09-userdata",
+  "suite_count": 89,
+  "passed": 89,
+  "failed": 0,
+  "results": [
+    {
+      "suite": "smoke_test",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 1.717
+    },
+    {
+      "suite": "test_airlock",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.596
+    },
+    {
+      "suite": "test_airlock_scene",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 2.185
+    },
+    {
+      "suite": "test_analogue_filter",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.408
+    },
+    {
+      "suite": "test_anomaly_salvage",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.502
+    },
+    {
+      "suite": "test_approach",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.505
+    },
+    {
+      "suite": "test_atmosphere",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.408
+    },
+    {
+      "suite": "test_audio",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.691
+    },
+    {
+      "suite": "test_cabin_light",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 1.722
+    },
+    {
+      "suite": "test_cargo",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.416
+    },
+    {
+      "suite": "test_carry",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.517
+    },
+    {
+      "suite": "test_cockpit_instrument_panel",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.416
+    },
+    {
+      "suite": "test_comms",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 3.766
+    },
+    {
+      "suite": "test_component_breadth",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.599
+    },
+    {
+      "suite": "test_computer_log",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.411
+    },
+    {
+      "suite": "test_computer_terminal",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.698
+    },
+    {
+      "suite": "test_crt_panels",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.595
+    },
+    {
+      "suite": "test_day_loop",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.501
+    },
+    {
+      "suite": "test_destination_data",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.424
+    },
+    {
+      "suite": "test_detection",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.501
+    },
+    {
+      "suite": "test_diagnostics",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.505
+    },
+    {
+      "suite": "test_diagnostics_api",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.499
+    },
+    {
+      "suite": "test_door",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 2.277
+    },
+    {
+      "suite": "test_eva_flow",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 2.104
+    },
+    {
+      "suite": "test_fabricator",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.502
+    },
+    {
+      "suite": "test_failures",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.514
+    },
+    {
+      "suite": "test_field_streamer",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.596
+    },
+    {
+      "suite": "test_footsteps",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.88
+    },
+    {
+      "suite": "test_hero_cabins",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 1.726
+    },
+    {
+      "suite": "test_hull",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.78
+    },
+    {
+      "suite": "test_hull_exterior",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 1.439
+    },
+    {
+      "suite": "test_hull_profile",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.422
+    },
+    {
+      "suite": "test_humidity",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.407
+    },
+    {
+      "suite": "test_interactables",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.406
+    },
+    {
+      "suite": "test_interior_kit",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.786
+    },
+    {
+      "suite": "test_localization",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.418
+    },
+    {
+      "suite": "test_m11_voyage",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 93.637
+    },
+    {
+      "suite": "test_m4_extras",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 3.858
+    },
+    {
+      "suite": "test_m9_loop",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.505
+    },
+    {
+      "suite": "test_machine_fitting",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.51
+    },
+    {
+      "suite": "test_maintenance_isolation",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.507
+    },
+    {
+      "suite": "test_manual",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.501
+    },
+    {
+      "suite": "test_mining",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.5
+    },
+    {
+      "suite": "test_module_catalog",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.875
+    },
+    {
+      "suite": "test_module_effects",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.502
+    },
+    {
+      "suite": "test_module_geometry",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.97
+    },
+    {
+      "suite": "test_module_scene",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 1.825
+    },
+    {
+      "suite": "test_modules",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.506
+    },
+    {
+      "suite": "test_nav",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 3.2
+    },
+    {
+      "suite": "test_new_watch_wear",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 1.726
+    },
+    {
+      "suite": "test_o2_candle_stock",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.522
+    },
+    {
+      "suite": "test_occupancy",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.508
+    },
+    {
+      "suite": "test_operator_maintenance",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.502
+    },
+    {
+      "suite": "test_pilot_chair",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 6.942
+    },
+    {
+      "suite": "test_pilot_seat_flow",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 5.555
+    },
+    {
+      "suite": "test_player",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 6.57
+    },
+    {
+      "suite": "test_player_traversal",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 10.151
+    },
+    {
+      "suite": "test_power",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.41
+    },
+    {
+      "suite": "test_propulsion",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 6.672
+    },
+    {
+      "suite": "test_rations",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 8.246
+    },
+    {
+      "suite": "test_save_load",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.502
+    },
+    {
+      "suite": "test_save_migration",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.416
+    },
+    {
+      "suite": "test_scenario_cascade",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.598
+    },
+    {
+      "suite": "test_scenario_humidity",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 1.354
+    },
+    {
+      "suite": "test_scenario_power_night",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.608
+    },
+    {
+      "suite": "test_scene_loop",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 4.98
+    },
+    {
+      "suite": "test_scene_save_load",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 6.022
+    },
+    {
+      "suite": "test_scroll_menu",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.407
+    },
+    {
+      "suite": "test_seated_hud",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.421
+    },
+    {
+      "suite": "test_sector",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.5
+    },
+    {
+      "suite": "test_session_flow",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 3.046
+    },
+    {
+      "suite": "test_session_menu",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.502
+    },
+    {
+      "suite": "test_settings",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.51
+    },
+    {
+      "suite": "test_ship_compartments",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 1.627
+    },
+    {
+      "suite": "test_ship_layout",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.969
+    },
+    {
+      "suite": "test_stores",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.407
+    },
+    {
+      "suite": "test_survival_3day",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 22.218
+    },
+    {
+      "suite": "test_tether",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.702
+    },
+    {
+      "suite": "test_thermal",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.505
+    },
+    {
+      "suite": "test_tool_kit",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.782
+    },
+    {
+      "suite": "test_tube_layout",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.416
+    },
+    {
+      "suite": "test_ui",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.706
+    },
+    {
+      "suite": "test_ui_scale",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.596
+    },
+    {
+      "suite": "test_vitals",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 2.46
+    },
+    {
+      "suite": "test_voice_guide",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.504
+    },
+    {
+      "suite": "test_wall_computer",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 1.166
+    },
+    {
+      "suite": "test_water",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.6
+    },
+    {
+      "suite": "test_wear_model",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 0.417
+    },
+    {
+      "suite": "test_world_layout",
+      "exit_code": 0,
+      "pass_marker": true,
+      "script_error": false,
+      "elapsed_seconds": 1.088
+    }
+  ],
+  "raw_logs": "/tmp/hullwatch-art-step09/full-suite/"
+}

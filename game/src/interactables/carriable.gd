@@ -6,6 +6,9 @@ extends Interactable
 ## Usage moments: the sim event that means the item in hand just did its job, and the item ids
 ## whose authored "use" animation it should play. Items with no entry never animate.
 const USE_EVENTS: Dictionary = {
+	&"salvage_released": [&"wrench"],
+	&"salvage_diagnosed": [&"multimeter"],
+	&"salvage_repaired": [&"wrench"],
 	&"probe_diagnosis": [&"multimeter"],
 	&"diagnosis_clear": [&"multimeter"],
 	&"probe_scanned": [&"scanner"],

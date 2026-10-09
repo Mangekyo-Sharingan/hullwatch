@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1020" viewBox="0 0 1600 1020">
+  <defs>
+    <style>
+      text { font-family: sans-serif; fill: #ddd6c8; }
+      .title { font-size: 26px; letter-spacing: 2px; fill: #e5b96c; }
+      .head { font-size: 17px; fill: #d1a65b; letter-spacing: 1px; }
+      .label { font-size: 14px; }
+      .small { font-size: 12px; fill: #aaa49b; }
+      .dim { font-size: 12px; fill: #82c4c1; }
+      .panel { fill: #131619; stroke: #51504a; stroke-width: 1.5; }
+      .hull { fill: #282a29; stroke: #92856d; stroke-width: 3; }
+      .lane { fill: #163033; fill-opacity: .45; stroke: #57a9a5; stroke-width: 1.5; stroke-dasharray: 7 6; }
+      .rib { stroke: #d1a65b; stroke-width: 5; }
+      .tray { stroke: #8d9a92; stroke-width: 3; stroke-dasharray: 8 5; }
+      .hatch { stroke: #e1864c; stroke-width: 2; stroke-dasharray: 6 5; }
+      .station { fill: #657777; stroke: #c3ba9f; stroke-width: 2; }
+      .utility { fill: #956a37; stroke: #e0bd73; stroke-width: 2; }
+      .collider { fill: none; stroke: #e17b57; stroke-width: 1.5; stroke-dasharray: 5 4; }
+      .profile { fill: #292d2c; stroke: #b9a987; stroke-width: 3; }
+    </style>
+  </defs>
+  <rect width="1600" height="1020" fill="#0a0c0e"/>
+  <text x="42" y="48" class="title">HULLWATCH / HERO CABIN TARGET</text>
+  <text x="42" y="75" class="small">Measured plan and pressure-section envelopes · ship-local metres · Z increases aft</text>
+
+  <rect x="35" y="95" width="750" height="880" rx="8" class="panel"/>
+  <text x="60" y="130" class="head">LONGITUDINAL PLAN · COCKPIT SUITE + QUARTERS</text>
+  <text x="60" y="153" class="small">Room widths shown at the vertical wall; the walking deck is narrower at y=0.</text>
+  <text x="95" y="194" class="dim">X -2.5 m</text>
+  <text x="659" y="194" class="dim">X +2.5 m</text>
+  <text x="400" y="190" text-anchor="middle" class="dim">Z -21.0 · BOW</text>
+
+  <!-- section extents at wall height; 90 px per metre in X and 80 px per metre in Z -->
+  <path d="M210 205 H590 V381 H210 Z" class="hull"/>
+  <path d="M210 409 H590 V633 H210 Z" class="hull"/>
+  <path d="M186 661 H614 V885 H186 Z" class="hull"/>
+  <rect x="378.4" y="205" width="43.2" height="176" class="lane"/>
+  <rect x="378.4" y="409" width="43.2" height="224" class="lane"/>
+  <rect x="378.4" y="661" width="43.2" height="224" class="lane"/>
+
+  <!-- shallow upper ribs at the measured end offsets -->
+  <path d="M215 221 H585 M215 365 H585 M215 425 H585 M215 617 H585 M191 677 H609 M191 869 H609" class="rib"/>
+  <!-- ceiling edge cable routes -->
+  <path d="M257 240 V345 M543 240 V345 M257 444 V598 M543 444 V598 M238 696 V850 M562 696 V850" class="tray"/>
+
+  <!-- CRTs, three per wall in the cupola -->
+  <rect x="213.5" y="229" width="22" height="38" rx="3" class="station"/>
+  <rect x="564.5" y="229" width="22" height="38" rx="3" class="station"/>
+  <rect x="213.5" y="289" width="22" height="38" rx="3" class="station"/>
+  <rect x="564.5" y="289" width="22" height="38" rx="3" class="station"/>
+  <rect x="213.5" y="349" width="22" height="25" rx="3" class="station"/>
+  <rect x="564.5" y="349" width="22" height="25" rx="3" class="station"/>
+  <text x="252" y="252" class="small">Log / Wall Computer</text>
+  <text x="252" y="311" class="small">Contact / Archive</text>
+  <text x="252" y="367" class="small">Nav / Comms</text>
+
+  <!-- forward instrument row and chair/swing envelope -->
+  <rect x="364" y="218" width="72" height="12" rx="3" class="station"/>
+  <text x="400" y="214" text-anchor="middle" class="small">live forward instruments</text>
+  <ellipse cx="400" cy="301" rx="74" ry="52" class="collider"/>
+  <circle cx="400" cy="301" r="16" fill="#d28b4d" stroke="#f0c578" stroke-width="2"/>
+  <text x="400" y="306" text-anchor="middle" font-size="10">SEAT</text>
+  <text x="400" y="343" text-anchor="middle" class="small">chair swing / boarding clear</text>
+
+  <!-- utility fittings in cockpit drum, port and starboard -->
+  <rect x="210" y="447" width="18" height="44" rx="2" class="utility"/>
+  <rect x="210" y="551" width="18" height="44" rx="2" class="utility"/>
+  <rect x="572" y="447" width="18" height="44" rx="2" class="utility"/>
+  <rect x="572" y="551" width="18" height="44" rx="2" class="utility"/>
+  <text x="400" y="516" text-anchor="middle" class="small">4 passive utility fittings · z=-17.7 / -16.4</text>
+
+  <!-- hatch leaves live in the short bulkhead gaps -->
+  <path d="M216 395 H584 M216 643 H584 M192 895 H608" class="hatch"/>
+  <text x="600" y="401" class="small">0.90 m hatch</text>
+  <text x="600" y="649" class="small">0.90 m hatch</text>
+  <text x="600" y="901" class="small">quarters → life support</text>
+
+  <!-- quarters prop and dock keep-outs -->
+  <rect x="290" y="701" width="77" height="160" rx="8" fill="#68604f" stroke="#c2aa78" stroke-width="2"/>
+  <text x="328" y="781" text-anchor="middle" class="small">BUNK</text>
+  <rect x="469" y="783" width="55" height="44" rx="3" class="station"/>
+  <text x="496" y="777" text-anchor="middle" class="small">LOCKER</text>
+  <path d="M186 725 H130 V821 H186" fill="none" stroke="#e1864c" stroke-width="4" stroke-dasharray="8 6"/>
+  <text x="70" y="826" class="small">dock throat</text>
+  <text x="70" y="844" class="small">keep clear</text>
+
+  <text x="60" y="930" class="dim">Cupola: -21.00..-18.80 · Cockpit: -18.45..-15.65 · Quarters: -15.30..-12.50</text>
+  <text x="60" y="953" class="small">Blue = 0.48 m capsule route; orange = moving hatch / dock exclusion.</text>
+
+  <rect x="805" y="95" width="760" height="880" rx="8" class="panel"/>
+  <text x="830" y="130" class="head">CROSS-SECTION · ACTUAL OCTAGONAL CABIN PROFILE</text>
+  <text x="830" y="153" class="small">Pressure skin bounds at floor, bevels, vertical wall and ceiling; not nominal drum radius.</text>
+
+  <!-- Cockpit profile: 70 px/m horizontally, 90 px/m vertically, base y=820 -->
+  <path d="M942.7 820 L872.2 793 L872.2 649 L932.6 595 L1107.4 595 L1167.8 649 L1167.8 793 L1097.3 820 Z" class="profile"/>
+  <rect x="1003.2" y="662.5" width="33.6" height="157.5" rx="16" class="lane"/>
+  <path d="M908.8 633 H1131.2" class="tray"/>
+  <text x="1020" y="854" text-anchor="middle" class="label">COCKPIT · radius 2.40 m</text>
+  <text x="1020" y="877" text-anchor="middle" class="dim">deck half-width 1.104 · wall 2.112 · ceiling 1.248 m</text>
+
+  <!-- Quarters profile: same drawing scale as cockpit -->
+  <path d="M1303.1 820 L1223.7 793 L1223.7 649 L1291.7 595 L1488.3 595 L1556.3 649 L1556.3 793 L1476.9 820 Z" class="profile"/>
+  <rect x="1373.2" y="662.5" width="33.6" height="157.5" rx="16" class="lane"/>
+  <path d="M1263.8 633 H1516.2" class="tray"/>
+  <text x="1390" y="854" text-anchor="middle" class="label">QUARTERS · radius 2.70 m</text>
+  <text x="1390" y="877" text-anchor="middle" class="dim">deck half-width 1.242 · wall 2.376 · ceiling 1.404 m</text>
+
+  <!-- vertical and radial dimensions -->
+  <path d="M850 820 V595" stroke="#82c4c1" stroke-width="1.5"/>
+  <path d="M842 820 H858 M842 595 H858" stroke="#82c4c1" stroke-width="1.5"/>
+  <text x="834" y="710" class="dim" transform="rotate(-90 834 710)">2.50 m clear height</text>
+  <text x="922" y="784" class="small">floor</text>
+  <text x="1174" y="642" class="small">wall ends y=1.90</text>
+  <text x="1113" y="584" class="small">ceiling y=2.50</text>
+  <text x="830" y="928" class="small">Upper-rib additions stop at the true bevel; no floor-spanning ring or added collision.</text>
+  <text x="830" y="951" class="small">The operator capsule is 0.48 m wide × 1.75 m tall; verify the aisle and moving states in physics tests.</text>
+</svg>

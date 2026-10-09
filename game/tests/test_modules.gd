@@ -94,9 +94,12 @@ func _run() -> void:
 	_check(atmosphere.has_compartment(&"greenhouse"), "load re-registers module compartments")
 	_check(thermal.has_compartment(&"greenhouse"), "load re-registers into thermal")
 	_check(hull.has_compartment(&"workshop") == false, "unstored modules stay unregistered")
-	_check(modules.get_installed_at(&"hp_galley") == &"med_bay", "load restores hardpoint assignments")
+	_check(modules.get_installed_at(&"hp_engine_bay") == &"med_bay", "load restores hardpoint assignments")
 
-	_check(modules.start_build(&"workshop"), "a build can start on another dock")
+	_check(modules.can_install(&"workshop") == ModuleSystem.REFUSAL_HARDPOINT_CLEARANCE, "adjacent port pods cannot be installed together")
+	_check(not modules.start_build(&"workshop"), "a port clearance conflict refuses construction")
+	_check(modules.uninstall(&"greenhouse"), "removing the adjacent pod clears the port")
+	_check(modules.start_build(&"workshop"), "a build can start after the neighboring dock is cleared")
 	var in_flight: Dictionary = modules.save_state()
 	modules.sim_tick(0.5)
 	_check(is_equal_approx(float(modules.get_job(&"hp_life_support").get("remaining", 0.0)), 5.5), "the workshop job ticks down")
@@ -107,7 +110,7 @@ func _run() -> void:
 	_check(modules.is_installed(&"workshop"), "the restored job completes")
 
 	var status: Dictionary = modules.get_status()
-	_check(int(status["installed_count"]) == 3, "status counts installed modules")
+	_check(int(status["installed_count"]) == 2, "status counts installed modules")
 	_check(int(status["building_count"]) == 0, "status counts no jobs once they land")
 
 	if _failures == 0:
@@ -141,7 +144,7 @@ func _catalog() -> Array[ShipModule]:
 
 	var med_bay: ShipModule = ShipModule.new()
 	med_bay.module_id = &"med_bay"
-	med_bay.hardpoint_id = &"hp_galley"
+	med_bay.hardpoint_id = &"hp_engine_bay"
 	med_bay.compartment_config = _make_config(&"med_bay", 18.0)
 
 	var modules: Array[ShipModule] = [greenhouse, twin, workshop, med_bay]

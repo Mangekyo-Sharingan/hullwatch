@@ -12,6 +12,7 @@ signal compartment_pressure_changed(compartment_id: StringName, pressure_kpa: fl
 signal compartment_atmosphere_changed(compartment_id: StringName, o2_fraction: float, co2_ppm: float)
 signal hull_puncture(compartment_id: StringName, severity: float)
 signal course_changed(destination_id: StringName, fuel_cost_kg: float)
+signal navigation_state_restored(in_transit: bool)
 signal destination_arrived(destination_id: StringName, kind: StringName, sector_seed: int, resource_id: StringName, resource_units: float, arrival_stores: Dictionary)
 signal destination_state_restored(destination_id: StringName)
 signal stores_changed(part_id: StringName, new_count: int)
@@ -30,6 +31,7 @@ signal module_uninstalled(module_id: StringName, hardpoint_id: StringName)
 signal construction_started(module_id: StringName, hardpoint_id: StringName)
 signal machine_fitted(machine_id: StringName, socket_id: StringName)
 signal machine_removed(machine_id: StringName, socket_id: StringName)
+signal salvage_changed(unit_id: String)
 
 const LOG_LIMIT: int = 500
 

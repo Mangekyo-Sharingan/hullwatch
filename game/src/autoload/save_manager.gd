@@ -2,15 +2,18 @@
 ## Autoload name: SaveManager. No class_name on purpose — it would conflict with the autoload.
 extends Node
 
-const SAVE_VERSION: int = 3
+const SAVE_VERSION: int = 6
 const SAVE_DIR: String = "user://saves"
 const SLOT_COUNT: int = 3
+const GAME_SCENE: String = "res://scenes/main.tscn"
+const MENU_SCENE: String = "res://scenes/main_menu.tscn"
 ## module_system loads first so module compartments exist before the life-support systems merge
 ## their saved per-compartment state into them.
-const SYSTEM_GROUPS: Array[StringName] = [&"module_system", &"power_system", &"atmosphere_system", &"stores_system", &"thermal_system", &"hull_system", &"nav_system", &"vitals_system", &"water_system", &"comms_system", &"airlock_system", &"sector_system", &"cargo_system", &"fabricator_system", &"computer_system", &"voice_guide_system"]
+const SYSTEM_GROUPS: Array[StringName] = [&"module_system", &"salvage_system", &"power_system", &"atmosphere_system", &"stores_system", &"thermal_system", &"hull_system", &"nav_system", &"vitals_system", &"water_system", &"comms_system", &"airlock_system", &"sector_system", &"cargo_system", &"fabricator_system", &"computer_system", &"voice_guide_system"]
 
 var _last_error: String = ""
 var _meta: Dictionary = {}
+var active_slot: int = 1
 
 
 func get_last_error() -> String:
@@ -40,6 +43,8 @@ func save_to_dict() -> Dictionary:
 		"meta": {
 			"created_unix": int(Time.get_unix_time_from_system()),
 			"play_hours": float(clock_state.get("sim_seconds", 0.0)) / 3600.0,
+			"day": int(floor(float(clock_state.get("sim_seconds", 0.0)) / 86400.0)) + 1,
+			"destination_id": String((systems.get("nav", {}) as Dictionary).get("current_destination_id", "")),
 		},
 		"clock": clock_state,
 		"systems": systems,
@@ -49,9 +54,13 @@ func save_to_dict() -> Dictionary:
 
 func load_from_dict(data: Dictionary) -> bool:
 	_last_error = ""
-	var version: int = int(data.get("save_version", 0))
+	var raw_version: Variant = data.get("save_version", 0)
+	var version: int = int(raw_version) if (raw_version is int or raw_version is float) and is_finite(float(raw_version)) else 0
 	if version <= 0 or version > SAVE_VERSION:
 		_last_error = "save_version_unsupported"
+		return false
+	if not _validate_save(data):
+		_last_error = "invalid_save_data"
 		return false
 	data = _migrate(data)
 	var meta: Variant = data.get("meta", {})
@@ -70,7 +79,7 @@ func load_from_dict(data: Dictionary) -> bool:
 			continue
 		var key: String = _system_key(system, group_name)
 		if not systems.has(key):
-			if group_name == &"computer_system":
+			if group_name in [&"computer_system", &"salvage_system"]:
 				system.call("load_state", {})
 			continue
 		system.call("load_state", systems[key])
@@ -94,12 +103,23 @@ func save_to_slot(slot: int = 1) -> bool:
 	if directory_error != OK:
 		_last_error = "directory_failed"
 		return false
-	var file: FileAccess = FileAccess.open(_slot_path(slot), FileAccess.WRITE)
+	var temporary_path: String = _slot_path(slot) + ".tmp"
+	var file: FileAccess = FileAccess.open(temporary_path, FileAccess.WRITE)
 	if file == null:
 		_last_error = "write_failed"
 		return false
 	file.store_string(JSON.stringify(save_to_dict(), "\t"))
+	file.flush()
+	var write_error: Error = file.get_error()
 	file.close()
+	if write_error != OK:
+		_last_error = "write_failed"
+		DirAccess.remove_absolute(temporary_path)
+		return false
+	if DirAccess.rename_absolute(temporary_path, _slot_path(slot)) != OK:
+		_last_error = "replace_failed"
+		return false
+	active_slot = slot
 	return true
 
 
@@ -123,13 +143,112 @@ func load_from_slot(slot: int = 1) -> bool:
 		_last_error = "parse_error"
 		push_error("SaveManager.load_from_slot: corrupt save file '%s'." % path)
 		return false
-	return load_from_dict(parsed)
+	var loaded: bool = load_from_dict(parsed)
+	if loaded:
+		active_slot = slot
+	return loaded
 
 
 func has_save(slot: int = 1) -> bool:
 	if slot < 1 or slot > SLOT_COUNT:
 		return false
 	return FileAccess.file_exists(_slot_path(slot))
+
+
+func get_slot_summary(slot: int) -> Dictionary:
+	if slot < 1 or slot > SLOT_COUNT:
+		return {"slot": slot, "exists": false, "valid": false, "error": "slot_out_of_range"}
+	var path: String = _slot_path(slot)
+	if not FileAccess.file_exists(path):
+		return {"slot": slot, "exists": false, "valid": false, "error": ""}
+	var file: FileAccess = FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		return {"slot": slot, "exists": true, "valid": false, "error": "read_failed"}
+	var parsed: Variant = JSON.parse_string(file.get_as_text())
+	file.close()
+	if not (parsed is Dictionary):
+		return {"slot": slot, "exists": true, "valid": false, "error": "parse_error"}
+	var data: Dictionary = parsed
+	var raw_version: Variant = data.get("save_version", 0)
+	var version: int = int(raw_version) if (raw_version is int or raw_version is float) and is_finite(float(raw_version)) else 0
+	if version <= 0 or version > SAVE_VERSION:
+		return {"slot": slot, "exists": true, "valid": false, "error": "save_version_unsupported"}
+	if not _validate_save(data):
+		return {"slot": slot, "exists": true, "valid": false, "error": "invalid_save_data"}
+	var meta: Dictionary = data.get("meta", {})
+	var clock: Dictionary = data.get("clock", {})
+	var play_hours: float = float(meta.get("play_hours", float(clock.get("sim_seconds", 0.0)) / 3600.0))
+	var day: int = int(meta.get("day", floori(play_hours / 24.0) + 1))
+	var nav: Dictionary = (data.get("systems", {}) as Dictionary).get("nav", {})
+	var destination_id: String = String(meta.get("destination_id", nav.get("current_destination_id", "")))
+	return {
+		"slot": slot,
+		"exists": true,
+		"valid": true,
+		"error": "",
+		"created_unix": int(meta.get("created_unix", data.get("created_unix", 0))),
+		"play_hours": play_hours,
+		"day": maxi(day, 1),
+		"destination_id": destination_id,
+	}
+
+
+func get_latest_valid_slot() -> int:
+	var latest_slot: int = 0
+	var latest_time: int = -1
+	for slot: int in range(1, SLOT_COUNT + 1):
+		var summary: Dictionary = get_slot_summary(slot)
+		if not bool(summary.get("valid", false)):
+			continue
+		var created_unix: int = int(summary.get("created_unix", 0))
+		if created_unix > latest_time:
+			latest_time = created_unix
+			latest_slot = slot
+	return latest_slot
+
+
+func start_new_game(slot: int) -> void:
+	_last_error = ""
+	if slot < 1 or slot > SLOT_COUNT:
+		_last_error = "slot_out_of_range"
+		return
+	active_slot = slot
+	var sim_clock: Node = get_node_or_null(^"/root/SimClock")
+	if sim_clock != null and sim_clock.has_method(&"reset_clock"):
+		sim_clock.call(&"reset_clock")
+	var tree: SceneTree = get_tree()
+	tree.paused = false
+	var change_error: Error = tree.change_scene_to_file(GAME_SCENE)
+	if change_error != OK:
+		_last_error = "game_scene_failed"
+		return
+	await tree.scene_changed
+	if not save_to_slot(slot):
+		push_error("SaveManager.start_new_game: initial save failed (%s)." % _last_error)
+
+
+func load_game_scene(slot: int) -> void:
+	_last_error = ""
+	var summary: Dictionary = get_slot_summary(slot)
+	if not bool(summary.get("valid", false)):
+		_last_error = String(summary.get("error", "file_not_found"))
+		return
+	var tree: SceneTree = get_tree()
+	tree.paused = false
+	var change_error: Error = tree.change_scene_to_file(GAME_SCENE)
+	if change_error != OK:
+		_last_error = "game_scene_failed"
+		return
+	await tree.scene_changed
+	if load_from_slot(slot):
+		var clock: Node = get_node_or_null(^"/root/SimClock")
+		if clock != null:
+			clock.call("set_paused", false)
+		return
+	var load_error: String = _last_error
+	if tree.change_scene_to_file(MENU_SCENE) == OK:
+		await tree.scene_changed
+	_last_error = load_error
 
 
 func delete_save(slot: int = 1) -> bool:
@@ -148,6 +267,45 @@ func delete_save(slot: int = 1) -> bool:
 	var remove_error: Error = directory.remove(_slot_path(slot).trim_prefix(SAVE_DIR + "/"))
 	if remove_error != OK:
 		_last_error = "delete_failed"
+		return false
+	return true
+
+
+func return_to_menu() -> bool:
+	if not save_to_slot(active_slot):
+		return false
+	var tree: SceneTree = get_tree()
+	tree.paused = false
+	var sim_clock: Node = get_node_or_null(^"/root/SimClock")
+	if sim_clock != null and sim_clock.has_method(&"set_paused"):
+		sim_clock.call(&"set_paused", false)
+	return tree.change_scene_to_file(MENU_SCENE) == OK
+
+
+func _validate_save(data: Dictionary) -> bool:
+	for key: String in ["meta", "clock", "systems", "interactables"]:
+		if not (data.get(key, {}) is Dictionary):
+			return false
+	for key: String in ["systems", "interactables"]:
+		var states: Dictionary = data.get(key, {})
+		for state: Variant in states.values():
+			if not (state is Dictionary):
+				return false
+			if key == "systems":
+				var covers: Variant = state.get("maintenance_covers", {})
+				if not (covers is Dictionary):
+					return false
+				for opened: Variant in covers.values():
+					if not (opened is bool):
+						return false
+	var meta: Dictionary = data.get("meta", {})
+	var clock: Dictionary = data.get("clock", {})
+	for key: String in ["created_unix", "play_hours", "day"]:
+		var value: Variant = meta.get(key, 0)
+		if not (value is int or value is float) or not is_finite(float(value)):
+			return false
+	var seconds: Variant = clock.get("sim_seconds", 0.0)
+	if not (seconds is int or seconds is float) or not is_finite(float(seconds)):
 		return false
 	return true
 
@@ -173,6 +331,30 @@ func _migrate(data: Dictionary) -> Dictionary:
 		version = 2
 	if version == 2:
 		data["save_version"] = 3
+		version = 3
+	if version == 3:
+		var systems: Dictionary = data.get("systems", {})
+		if systems.has("nav"):
+			var nav: Dictionary = systems["nav"]
+			if not nav.has("propulsion"):
+				nav["propulsion"] = {}
+		data["save_version"] = 4
+		version = 4
+	if version == 4:
+		var systems: Dictionary = data.get("systems", {})
+		systems["salvage"] = {"system_id": "salvage", "state_version": 1, "units": {}}
+		data["systems"] = systems
+		data["save_version"] = 5
+		version = 5
+	if version == 5:
+		var systems: Dictionary = data.get("systems", {})
+		if systems.has("nav"):
+			var nav: Dictionary = systems["nav"]
+			nav["state_version"] = 4
+			nav["arrival_ordinal"] = 0
+			nav["planet_discoveries"] = []
+		data["systems"] = systems
+		data["save_version"] = 6
 	return data
 
 

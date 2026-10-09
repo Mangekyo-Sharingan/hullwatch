@@ -2,6 +2,14 @@
 extends Node
 
 const EVENT_CUES: Dictionary = {
+	&"salvage_isolated": &"relay",
+	&"salvage_released": &"thunk",
+	&"salvage_stowed": &"thunk",
+	&"salvage_diagnosed": &"beep",
+	&"salvage_repaired": &"click",
+	&"salvage_fitted": &"thunk",
+	&"salvage_removed": &"thunk",
+	&"salvage_scrapped": &"thunk",
 	&"breaker_toggled": &"relay",
 	&"circuit_shed": &"relay",
 	&"circuit_restored": &"relay",

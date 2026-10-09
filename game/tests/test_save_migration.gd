@@ -21,6 +21,7 @@ func _run() -> void:
 
 	_test_v1_migration()
 	_test_v2_migration()
+	_test_v5_migration()
 	_test_fresh_v3_shape()
 	_test_v3_round_trip()
 	_test_missing_meta_tolerance()
@@ -43,7 +44,7 @@ func _test_v1_migration() -> void:
 		"interactables": {},
 	}
 	_check(bool(save_manager.call("load_from_dict", v1)), "v1 dict loads through migration")
-	_check(int(v1.get("save_version", 0)) == 3, "migrated v1 dict is version 3")
+	_check(int(v1.get("save_version", 0)) == 6, "migrated v1 dict is version 6")
 	_check(not v1.has("created_unix"), "old root created_unix key is removed")
 	var meta: Dictionary = v1.get("meta", {})
 	_check(absf(float(meta.get("play_hours", -1.0)) - 2.0) < 0.001, "migrated meta.play_hours is 2.0")
@@ -63,9 +64,27 @@ func _test_v2_migration() -> void:
 		"interactables": {},
 	}
 	_check(bool(save_manager.call("load_from_dict", v2)), "v2 dict loads through migration")
-	_check(int(v2.get("save_version", 0)) == 3, "migrated v2 dict is version 3")
+	_check(int(v2.get("save_version", 0)) == 6, "migrated v2 dict is version 6")
 	_check(float((v2["meta"] as Dictionary).get("play_hours", 0.0)) == 12.5, "v2 meta is preserved")
 	_check(int(((v2["systems"] as Dictionary)["nav"] as Dictionary).get("current_leg", 0)) == 1, "v2 system state is preserved")
+
+
+func _test_v5_migration() -> void:
+	var save_manager: Node = _find_root_child(&"SaveManager")
+	if save_manager == null:
+		return
+	var v5: Dictionary = {
+		"save_version": 5,
+		"systems": {"nav": {"state_version": 3, "current_destination_id": "arden_ii", "visited_destinations": {"arden_ii": true}}},
+		"interactables": {},
+	}
+	_check(bool(save_manager.call("load_from_dict", v5)), "v5 dict loads through migration")
+	_check(int(v5.get("save_version", 0)) == 6, "migrated v5 dict is version 6")
+	var nav: Dictionary = (v5["systems"] as Dictionary)["nav"]
+	_check(int(nav.get("state_version", 0)) == 4, "migrated nav state advances to v4")
+	_check(int(nav.get("arrival_ordinal", -1)) == 0, "migrated nav starts with no generated arrivals")
+	_check((nav.get("planet_discoveries", []) as Array).is_empty(), "migrated nav starts with no generated routes")
+	_check(String(nav.get("current_destination_id", "")) == "arden_ii", "v5 destination remains preserved")
 
 
 func _test_fresh_v3_shape() -> void:
@@ -73,7 +92,7 @@ func _test_fresh_v3_shape() -> void:
 	if save_manager == null:
 		return
 	var data: Dictionary = save_manager.call("save_to_dict")
-	_check(int(data.get("save_version", 0)) == 3, "fresh save dict is version 3")
+	_check(int(data.get("save_version", 0)) == 6, "fresh save dict is version 6")
 	_check(not data.has("created_unix"), "fresh save has no root created_unix")
 	var meta: Dictionary = data.get("meta", {})
 	_check(meta.has("created_unix"), "fresh meta carries created_unix")
@@ -104,7 +123,7 @@ func _test_missing_meta_tolerance() -> void:
 		"interactables": {},
 	}
 	_check(bool(save_manager.call("load_from_dict", data)), "v2 dict without meta loads")
-	_check(int(data.get("save_version", 0)) == 3, "v2 dict without meta migrates to version 3")
+	_check(int(data.get("save_version", 0)) == 6, "v2 dict without meta migrates to version 6")
 	_check(absf(float(_sim_clock().call("get_total_hours")) - 1.0) < 0.001, "v2 dict without meta restores the clock")
 
 

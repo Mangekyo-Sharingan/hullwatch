@@ -1,0 +1,135 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="980" viewBox="0 0 1500 980">
+  <defs>
+    <pattern id="keepout" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="10" height="10" fill="#35291b" fill-opacity=".35"/>
+      <rect width="3" height="10" fill="#e1a34c" fill-opacity=".5"/>
+    </pattern>
+    <pattern id="overlap" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="10" height="10" fill="#3d2028" fill-opacity=".38"/>
+      <rect width="3" height="10" fill="#da6974" fill-opacity=".55"/>
+    </pattern>
+    <style>
+      text { font-family: sans-serif; fill: #e5e9e8; }
+      .title { font-size: 25px; font-weight: 700; letter-spacing: 2px; }
+      .sub { font-size: 13px; fill: #9aa8ad; letter-spacing: 1px; }
+      .panel { fill: #111a20; stroke: #34454d; stroke-width: 1.5; }
+      .section { font-size: 16px; font-weight: 700; fill: #b7c6c6; letter-spacing: 1px; }
+      .label { font-size: 12px; fill: #dce1dc; }
+      .small { font-size: 10px; fill: #a8b4b4; }
+      .dim { font-size: 10px; fill: #91a0a1; }
+      .hull { fill: #39434a; stroke: #7e8a8e; stroke-width: 2; }
+      .seam { stroke: #a5b0b0; stroke-width: 2; opacity: .65; }
+      .access { fill: #55b8c2; fill-opacity: .25; stroke: #6bd6dc; stroke-width: 2; }
+      .route { fill: none; stroke: #6bd6dc; stroke-width: 4; stroke-dasharray: 9 6; }
+      .keep { fill: url(#keepout); stroke: #e1a34c; stroke-width: 2; }
+      .potential { fill: url(#overlap); stroke: #df7782; stroke-width: 2; stroke-dasharray: 7 5; }
+      .dock { fill: #d6b56b; stroke: #f1d48c; stroke-width: 1.5; }
+      .equipment { fill: #738388; stroke: #c0c8c6; stroke-width: 1.5; }
+      .leader { fill: none; stroke: #a9b5b5; stroke-width: 1.2; }
+      .center { stroke: #59676c; stroke-width: 1; stroke-dasharray: 6 6; }
+      .axis { stroke: #91a4a5; stroke-width: 1.5; marker-end: url(#arrow); }
+      .warn { fill: #f0b4b7; }
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#91a4a5"/>
+    </marker>
+  </defs>
+  <rect width="1500" height="980" fill="#0a1015"/>
+  <text x="48" y="48" class="title">HULLWATCH / EXTERIOR ACCESS MAP</text>
+  <text x="48" y="73" class="sub">WORLD AXES: X PORT− / STARBOARD+ · Z BOW− / STERN+ · DIMENSIONS METRES · SCHEMATIC, NOT TO SCALE</text>
+
+  <rect x="38" y="96" width="1424" height="360" rx="7" class="panel"/>
+  <text x="60" y="126" class="section">SIDE ELEVATION · PORT SERVICE SIDE</text>
+  <text x="1320" y="126" class="small">BOW ← Z → STERN</text>
+  <line x1="160" y1="385" x2="1375" y2="385" class="center"/>
+  <path class="hull" d="M190 276 L228 220 L265 195 L1180 195 L1200 206 L1215 232 L1215 310 L1186 326 L265 326 L228 306 Z"/>
+  <path d="M190 276 L228 220 L265 195 L265 326 L228 306 Z" fill="#465159" stroke="#7e8a8e" stroke-width="2"/>
+  <path d="M1180 195 L1200 206 L1215 232 L1215 310 L1186 326 L1165 309 L1165 210 Z" fill="#465159" stroke="#7e8a8e" stroke-width="2"/>
+  <g class="seam">
+    <path d="M355 197 L355 324"/><path d="M508 197 L508 324"/><path d="M653 197 L653 324"/>
+    <path d="M814 197 L814 324"/><path d="M976 197 L976 324"/><path d="M1107 197 L1107 324"/>
+  </g>
+  <path d="M294 190 Q302 176 310 190 M1151 184 L1151 166" fill="none" stroke="#98a7a8" stroke-width="3"/>
+  <rect x="1172" y="174" width="92" height="18" class="equipment"/>
+  <rect x="1260" y="170" width="35" height="48" class="equipment"/>
+  <text x="1174" y="160" class="small">ARRAY / BOOM KEEP-CLEAR</text>
+  <rect x="362" y="210" width="112" height="92" class="access"/>
+  <rect x="451" y="210" width="112" height="92" class="access"/>
+  <rect x="451" y="210" width="23" height="92" class="potential"/>
+  <rect x="409" y="229" width="18" height="54" class="dock"/>
+  <rect x="498" y="229" width="18" height="54" class="dock"/>
+  <rect x="582" y="229" width="18" height="54" class="dock"/>
+  <rect x="994" y="229" width="18" height="54" class="dock"/>
+  <text x="377" y="226" class="small">Q · −13.90</text>
+  <text x="482" y="226" class="small">LS · −11.05</text>
+  <text x="565" y="222" class="small">GALLEY · −8.30</text>
+  <text x="975" y="222" class="small">ENGINE BAY · +5.15</text>
+  <text x="376" y="343" class="small">CAPTURED UTILITY POD</text>
+  <text x="574" y="189" class="small">EVA TRUSS → LIFE SUPPORT DOCK</text>
+  <path d="M526 316 L743 316" class="route"/>
+  <rect x="769" y="276" width="103" height="54" class="keep"/>
+  <text x="773" y="346" class="small">AIRLOCK / EVA LANE · z −2.35…+1.05</text>
+  <rect x="1131" y="251" width="92" height="48" class="equipment"/>
+  <rect x="1223" y="240" width="128" height="70" class="keep"/>
+  <text x="1108" y="333" class="small">ION PAIR + TANK SERVICE</text>
+  <text x="1231" y="286" class="small">AFT PLUME</text>
+  <text x="175" y="418" class="dim">−21.45</text>
+  <text x="1158" y="418" class="dim">+9.90 SHELL</text>
+  <text x="1290" y="418" class="dim">+12.11 DRIVE / ARRAY ENVELOPE</text>
+  <line x1="190" y1="399" x2="1371" y2="399" class="axis"/>
+
+  <rect x="38" y="475" width="1424" height="390" rx="7" class="panel"/>
+  <text x="60" y="505" class="section">PLAN VIEW · TOP-DOWN DOCKS AND EVA KEEP-OUTS</text>
+  <text x="60" y="526" class="small">BOW LEFT · STERN RIGHT · POD RECTANGLES SHOW APPROXIMATE OUTBOARD FOOTPRINTS</text>
+  <line x1="170" y1="690" x2="1378" y2="690" class="center"/>
+  <path class="hull" d="M185 690 L236 622 L280 608 L1118 608 L1134 619 L1150 690 L1134 761 L1118 772 L280 772 L236 758 Z"/>
+  <path d="M185 690 L236 622 L280 608 L280 772 L236 758 Z" fill="#465159" stroke="#7e8a8e" stroke-width="2"/>
+  <path d="M1118 608 L1134 619 L1150 690 L1134 761 L1118 772 Z" fill="#465159" stroke="#7e8a8e" stroke-width="2"/>
+  <g class="seam">
+    <path d="M355 610 L355 770"/><path d="M508 610 L508 770"/><path d="M653 610 L653 770"/>
+    <path d="M814 610 L814 770"/><path d="M976 610 L976 770"/>
+  </g>
+  <rect x="366" y="538" width="102" height="70" class="access"/>
+  <rect x="447" y="538" width="102" height="70" class="access"/>
+  <rect x="447" y="538" width="21" height="70" class="potential"/>
+  <rect x="407" y="570" width="20" height="38" class="dock"/>
+  <rect x="488" y="570" width="20" height="38" class="dock"/>
+  <text x="373" y="556" class="small">QUARTERS</text>
+  <text x="474" y="556" class="small">LIFE SUPPORT</text>
+  <text x="850" y="551" class="small warn">Q / LS POD SHELL OVERLAP · 0.75 m</text>
+  <text x="367" y="622" class="small">hp_quarters</text>
+  <text x="367" y="636" class="dim">z −13.90</text>
+  <text x="470" y="622" class="small">hp_life_support</text>
+  <text x="470" y="636" class="dim">z −11.05</text>
+  <rect x="535" y="772" width="94" height="84" class="access"/>
+  <rect x="948" y="772" width="94" height="84" class="access"/>
+  <rect x="567" y="772" width="20" height="34" class="dock"/>
+  <rect x="972" y="772" width="20" height="34" class="dock"/>
+  <text x="550" y="827" class="small">hp_galley · z −8.30</text>
+  <text x="941" y="827" class="small">hp_engine_bay · z +5.15</text>
+  <rect x="758" y="516" width="100" height="92" class="access"/>
+  <path d="M535 581 L755 581 L808 561" class="route"/>
+  <text x="766" y="533" class="small">EVA DECK / HATCH z −0.65</text>
+  <text x="622" y="570" class="small">PORT TRUSS WALKWAY</text>
+  <rect x="1113" y="509" width="145" height="99" class="keep"/>
+  <rect x="1113" y="772" width="145" height="84" class="keep"/>
+  <text x="1122" y="529" class="small">ARRAY / BOOM CLEAR</text>
+  <text x="1122" y="852" class="small">ARRAY / BOOM CLEAR</text>
+  <rect x="1117" y="656" width="74" height="68" class="access"/>
+  <rect x="1191" y="644" width="112" height="91" class="keep"/>
+  <text x="1111" y="650" class="small">DRIVE SERVICE</text>
+  <text x="1200" y="695" class="small">AFT NO-BUILD</text>
+  <line x1="190" y1="837" x2="1372" y2="837" class="axis"/>
+  <text x="174" y="850" class="dim">−21.45 BOW</text>
+  <text x="1320" y="850" class="dim">STERN +Z</text>
+  <line x1="1420" y1="750" x2="1420" y2="590" class="axis"/>
+  <text x="1387" y="577" class="dim">PORT −X</text>
+  <text x="1384" y="770" class="dim">STARBOARD +X</text>
+
+  <rect x="38" y="883" width="1424" height="67" rx="7" fill="#111a20" stroke="#34454d"/>
+  <rect x="58" y="900" width="18" height="18" class="access"/><text x="84" y="914" class="label">verified access / route</text>
+  <rect x="270" y="900" width="18" height="18" class="keep"/><text x="296" y="914" class="label">keep clear / no build</text>
+  <rect x="495" y="900" width="18" height="18" class="potential"/><text x="521" y="914" class="label">overlapping pod shells · second adjacent build refused</text>
+  <text x="1000" y="912" class="small">Port pod shells are 3.6 m long on 2.85 m spaced mounts.</text>
+  <text x="1000" y="930" class="small">Single-pod EVA routes and aft drive service access remain clear.</text>
+</svg>

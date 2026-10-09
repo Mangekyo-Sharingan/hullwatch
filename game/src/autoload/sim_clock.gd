@@ -43,6 +43,15 @@ func set_paused(paused: bool) -> void:
 	is_paused = paused
 
 
+func reset_clock() -> void:
+	is_paused = false
+	tick_index = 0
+	sim_seconds = 0.0
+	_accumulator = 0.0
+	_last_hour = 0
+	_last_day = 1
+
+
 func get_total_hours() -> float:
 	return sim_seconds / 3600.0
 

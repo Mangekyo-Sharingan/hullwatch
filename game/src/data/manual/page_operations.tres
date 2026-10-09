@@ -20,4 +20,6 @@ CARRY. E takes an item, right click drops it. Some procedures need the right ite
 
 THE DAY. Sleep in the bunk (E) to end a shift. The ship keeps running while you sleep - and so do its problems.
 
+WATCH REPORT. Start each watch at the warning board. Its report shows current safety readings, resource reserves, inspection records, diagnosed faults, navigation holds and recent history. Take the scanner and multimeter to the named equipment; unlogged inspection is a reminder to look, not proof of a fault. Follow the relevant manual procedure, then verify the result on STATUS before choosing what can wait. Switch the board to SHIP LOG for the full history and older operator volumes.
+
 READINGS. The status panel lists power, atmosphere, thermal and component condition. Check it after every repair. A repair is not finished until the panel agrees."

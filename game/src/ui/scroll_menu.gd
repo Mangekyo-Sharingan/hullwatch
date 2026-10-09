@@ -6,7 +6,7 @@ extends PanelContainer
 signal option_selected(index: int)
 signal option_highlighted(index: int)
 
-const HINT_TEXT: String = "WHEEL: BROWSE    WHEEL CLICK: SELECT    E/ESC: CLOSE"
+const HINT_TEXT: String = "WHEEL: BROWSE    ROW CLICK / WHEEL CLICK / ENTER: SELECT    E/ESC: CLOSE"
 const COLOR_HIGHLIGHT: Color = Color(1.0, 0.85, 0.55, 1.0)
 const COLOR_NORMAL: Color = Color(0.72, 0.76, 0.7, 1.0)
 const COLOR_SELECTED: Color = Color(0.55, 0.78, 0.72, 1.0)
@@ -142,6 +142,16 @@ func confirm() -> void:
 
 
 func _gui_input(event: InputEvent) -> void:
+	if is_open() and Input.mouse_mode != Input.MOUSE_MODE_CAPTURED and event is InputEventMouseButton:
+		var click: InputEventMouseButton = event as InputEventMouseButton
+		if click.pressed and click.button_index == MOUSE_BUTTON_LEFT:
+			var point: Vector2 = get_global_transform_with_canvas() * click.position
+			for i: int in _rows.size():
+				if _rows[i].get_global_rect().has_point(point):
+					set_highlighted_index(i)
+					confirm()
+					accept_event()
+					return
 	if not _handle_event(event):
 		return
 	accept_event()

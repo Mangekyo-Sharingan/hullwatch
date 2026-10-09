@@ -218,6 +218,7 @@ func save_state() -> Dictionary:
 		var punctures: Array[float] = state["punctures"]
 		compartments[String(compartment_id)] = {"punctures": punctures.duplicate()}
 	return {
+		"maintenance_covers": maintenance_covers.duplicate(),
 		"system_id": String(system_id),
 		"state_version": 1,
 		"compartments": compartments,
@@ -229,6 +230,7 @@ func save_state() -> Dictionary:
 
 
 func load_state(state: Dictionary) -> void:
+	restore_maintenance_covers(state)
 	var compartments: Variant = state.get("compartments", {})
 	if compartments is Dictionary:
 		for key: Variant in (compartments as Dictionary):

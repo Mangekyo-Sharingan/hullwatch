@@ -140,7 +140,7 @@ wasted either way.
 | **M13.1 — Section hull generator** | `SectionHull` helpers in `src/world/` (lathe rings, drums, domes, ribs, flanges, radial ports) + the section table + collision generated from the same table; replaces the offset-polygon shell in `build_ship_geometry.gd` | Tool output deterministic; hull collides exactly where it renders; no room interior clips the shell; `test_hull_profile`/`test_hull_exterior` re-baselined and green |
 | **M13.2 — Tube interior** | Each room becomes a section: circular deck plate, curved wall, bulkhead doorway at the flange, ladderway or crawl to the next section; corridor retires into the section chain (train layout) | Every room reachable on foot; doors at bulkheads; atmosphere/thermal/hull compartment defs follow the section volumes; layout suites green |
 | **M13.3 — Radial docks & exterior fittings** | Four docks as radial ports on their sections (pods hang perpendicular to the hull axis); airlock outer hatch, EVA platform, truss walkway with railings, tether anchors, cargo port re-mounted on the curved shell | Build → EVA → enter a pod on foot; tether clips; hull-exterior rays green |
-| **M13.4 — Ring decks** | Partial aft-half mezzanine decks and ladders in the quarters, storage and both engine-bay sections; these three section types rise to a 4.4 m ceiling with 3.4 m wall tops and a deck at 2.2 m | Both levels are walkable with standing clearance; shell and ladder collisions enclose the decks; compartment volumes account for deck structure; traversal and hull/layout suites green |
+| **M13.4 — Slim interior profile** | Keep one walkable deck per section at the standard 2.5 m cabin ceiling; remove the experimental raised ceilings, mezzanines and ladders | The room geometry, pressure volumes and occupancy zones agree; no generated prop bounds overlap; hull and layout suites green |
 | **M13.5 — Verification** | Captures, `test_scene_loop` with the new geometry, manual/manual-binder text, docs | Full loop headless; captures reviewed; docs consistent |
 
 **Status: M13.1 landed (2026-09-20).** `SectionHull` (`game/src/world/section_hull.gd`) owns the
@@ -208,19 +208,86 @@ contract lives in `test_hull_exterior` (deck, headroom, rails, posts, plate reac
 clearance), and `test_ship_layout` probes moved clear of the wider bore and the joint hatch
 jambs. Captures: `docs/design/shot_tube_walkway.png` plus the refreshed tube set.
 
-**M13.4 Ring decks and M13.5 verification complete (2026-09-29).** Per Q8, quarters, storage
-and both engine-bay sections have a 4.4 m ceiling, 3.4 m wall top and partial aft-half deck at
-2.2 m. Each deck follows its section's full width and has a physical ladder opening, matching
-collision, guard rails and an interactive ladder; W climbs and S descends after targeting it
-with the standing interact ray. Both engine-bay sections have their own decks and ladders.
-Upper-deck clearance, opening collision and traversal are checked in `test_ship_layout` and
-`test_player_traversal`. Compartment volumes now use each room's raised cross-section less the
-full-width mezzanine slabs, and one room-wide occupancy zone spans the engine-bay section seam
-(`test_atmosphere`, `test_scene_loop`).
-The geometry and world-layout generators reproduce byte-for-byte. The four rendered upper-deck
-captures were reviewed and are in `docs/design/shot_tube_*_mezzanine.png`. The headless smoke
-test and all 79 `game/tests/test_*.gd` suites pass; the manual describes the ladder controls.
-This closes the M13 milestone.
+**M13.4 profile revision and M13.5 verification complete (2026-09-29).** The operator
+superseded the double-height Q8 choice after reviewing the generated ship. The quarters,
+storage and engine bay return to the standard single-deck tube profile: 2.5 m cabin ceiling,
+no mezzanines and no ladders. Their atmosphere volumes now match the cross-section and section
+lengths, and the engine bay keeps one occupancy zone across its two sections
+(`test_atmosphere`, `test_scene_loop`). The layout test checks every pair of mesh-backed prop bounds,
+and the tube hull omits the offset tank pair retained only by the legacy flat hull;
+the centered stern drum remains. Geometry and layout are regenerated from their sources.
+The headless smoke test and all `game/tests/test_*.gd` suites pass. This closes M13.
+
+### M14 — Xenonite ion propulsion (operator-requested 2026-09-29)
+
+The main drive is a pair of electric ion-drive cassettes mounted symmetrically on the centered
+stern drum. Expelled xenon gas remains the independent route reaction mass; a dedicated
+Xenonite tank supplies drive output. Developer-only fiction: UV induces perfect biological
+cell division in the tank. Its origin, use and internal technology are secret from the player.
+Player-facing text/art must never explain biology, division, energy density, conversion or
+lattice principles. Show operational feed reserve/output and UV service only, plus external
+hardware status and tool-gated diagnostics. Exhaust remains a restrained blue ion wake.
+
+| Sub-step | Deliverable | Exit criteria |
+|---|---|---|
+| **M14.1 — Drive hardware** | Authored paired aft cassettes on stern drum; maneuvering RCS distinct | Generated symmetric mounts clear arrays/anchor/ramp/RCS; visible in aft capture |
+| **M14.2 — Live drive readout** | Independent xenon propellant and operational drive status; wakes follow actual cassette firing | Start, arrival, fuel exhaustion, unavailable output and restored saves yield correct wakes/readouts |
+| **M14.3 — System coupling** | Data-driven dedicated tank output, UV bus load, existing engine-bay heat, degraded travel and operator service of external hardware | Parent validates deterministic wear/fault/diagnosis/repair, power shedding, thermal/feed holds, reduced travel and save/load without soft locks; UI/manual checks pass |
+| **M14.4 — Review** | Updated aft/side EVA captures, operational manual and closed simulation decisions | Operator reviews silhouette, sealed tank, external service access, reference fit and failure behavior after M14.3 validation |
+
+**Current pass (2026-09-30):** M14.1/M14.2's paired hardware and transit-linked wake were
+implemented and validated before this coupling pass. Their 79-suite result and existing
+captures describe that earlier state, not the new integration. Existing captures:
+`docs/design/shot_ion_drive_stern_idle.png`, `shot_ion_drive_stern_burning.png`,
+`shot_ion_drive_service.png` and `shot_ion_drive_eva.png` (all under `docs/design/`).
+
+All five simulation questions are now **closed by exact operator answers** in
+[OPEN_QUESTIONS.md](OPEN_QUESTIONS.md#propulsion-modules--decisions-closed-2026-09-30).
+Energy comes from the dedicated tank; heat uses existing engine-bay thermal input; a surviving
+cassette travels slower and uses more Xenonite; the operator diagnoses/services all external
+hardware; the computer automatically knows cassette functionality only. The knowledge boundary
+is binding for manual, readouts, logs, visible labels and authored art.
+
+**M14.3 engine integration is verified by the final 88/88 headless suites (2026-10-01).** Paired operation retains nominal
+route duration and xenon cost. Single operation halves route progress speed with unchanged xenon
+cost and greater Xenonite use. Feed recovery, cassette availability and engine-bay heat can hold
+transit. ETA uses `transit_remaining_hours` (infinite during holds); actual elapsed time uses
+`transit_actual_hours`. Legacy `transit_elapsed_hours` remains nominal route-progress hours.
+External port/starboard/tank actions are isolate/open/scan/diagnose/service/close/restore;
+wrench opens/repairs/closes, scanner logs wear and multimeter diagnoses/restores. Housing must
+be isolated and open for diagnosis/repair; sealed core internals remain inaccessible.
+
+The 30 W priority-3 UV load raises demand to 640 W. With lighting shed, 440 W remains served
+(life support 120, scrubber 150, airlock 60, fabricator 80, UV 30) against the existing 500 W
+RTG; the battery remains 4 kWh. The manual recommends proactively switching lighting/fabricator
+off for charge margin. Dedicated propulsion output cannot power the hotel bus. Tank/output,
+heat thresholds and repair tuning are recorded in the decision/design notes and owned by
+simulation configs. No mandatory irreplaceable service stocks may block recovery.
+
+**M14.4 has nine rendered captures; operator review is pending.** The set adds port, starboard,
+tank, single-cassette and diagnostics views to the existing stern/service/EVA views; all are
+linked in the propulsion design notes. Capture existence does not close the operator review
+gate. Broader style and gameplay-loop work is independently authorized to continue. Use
+`Reference/station_design.jpg` for segmented pressure hardware, ribs/collars and brackets;
+Preserve sealed opaque housings and leave the darker port-side cassette as an operator review
+item. Player text uses DRIVE FEED or RESTRICTED FEED, never the technology name. See
+[the propulsion design notes](design/propulsion_module_narrative.md).
+
+
+M14.3 uses global **save v4** and **NavSystem state v3**, with migration for older saves. Ship history records cassette function loss (or unavailable tank UV),
+external service actions and drive hold transitions. It never records automatic grid/cathode
+fault identities: external component rows appear only after scanning or diagnosis, with failure
+modes exposed only after diagnosis.
+
+**Validation accounting (2026-10-01):** all **88/88 headless suites pass** on the final source,
+including settings persistence, real new/save/menu/load flow, external service, oxygen recipe
+usage, active-room consistency and fresh-watch wear isolation. The subsequent `test_operator_maintenance` passes for tool/diagnosis/scanned
+checks, cover isolation, gasket/time/quality costs and saved open covers. WATCH REPORT and
+its manual/board checks pass. Generic external refit tuning is 0.25 h / quality 0.75 / one
+gasket, separate from the propulsion procedure. Wear assets are local to each scene instance;
+cover containers/flags are validated before loading. Generated scenes reproduce byte-for-byte.
+The expanded sim profiler passes at 199.7 us/tick against its unchanged 200 us budget;
+this local result leaves little timing margin and is not a rendered FPS measurement.
 
 **Solar arrays authored (2026-09-28).** The stern arrays are the authored Blender piece now:
 `game/assets/models/hullwatch/exterior/hw_solar_array.glb` (32 parts) carries the canted mount
@@ -404,9 +471,11 @@ the docks into radial ports the bore goes to 1.2 m to match interior doors, at n
 
 ## Save format
 
-The current format is **v3**. v1 saves migrate through the v2 metadata shape; v2 saves keep
-loading and map legacy navigation progress to the available destination data. Migration tests
-cover both paths, and in-flight M11 transit is part of the saved navigation state.
+The current format is global **save v6**, with **NavSystem state v4**. Save v5 migrates with
+empty planet-discovery history; earlier versions continue through the existing migration chain.
+Generated survey-orbit routes and arrival history are deterministic and survive reload, including
+a plotted route to a generated planet. M14.3 propulsion state remains covered by its original
+tests; the current playtest-menu pass runs the affected migration and travel suites separately.
 
 **M11 landed (2026-09-28):** destination resources drive course plotting, plot time/fuel,
 multi-day fixed-tick transit, daily transit events, and finite first-visit caches. The cockpit

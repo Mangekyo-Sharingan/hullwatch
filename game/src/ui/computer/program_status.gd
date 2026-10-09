@@ -61,7 +61,10 @@ func _cargo_lines(terminal: Node) -> PackedStringArray:
 		int(roundf(float(status["capacity_units"]))),
 	])
 	var materials: Dictionary = status["materials"]
-	if materials.is_empty():
+	var reservations: Dictionary = status.get("reserved_units", {})
+	if float(reservations.get(&"salvage", 0.0)) > 0.0:
+		lines.append("  RECOVERED EQUIPMENT %.0f UNITS" % float(reservations[&"salvage"]))
+	if materials.is_empty() and reservations.is_empty():
 		lines.append("  EMPTY")
 	else:
 		var kinds: Array = materials.keys()
@@ -148,18 +151,10 @@ func _nav_lines(terminal: Node) -> PackedStringArray:
 		if bool(status["transit_active"]):
 			var destination: VoyageDestination = nav.call("get_destination", status["plotted_destination_id"])
 			var destination_name: String = String(status["plotted_destination_id"]).to_upper()
-			var transit_day: int = int(status["transit_day"])
-			var transit_days: int = 0
 			if destination != null:
 				destination_name = destination.display_name.to_upper()
-				transit_days = destination.transit_days
 			lines.append("NAV  IN TRANSIT TO %s" % destination_name)
-			lines.append("  DAY %d / %d  FUEL %d KG  %d%% COMPLETE" % [
-				transit_day,
-				transit_days,
-				int(roundf(float(status["fuel_mass_kg"]))),
-				int(roundf(float(status["transit_progress"]) * 100.0)),
-			])
+			lines.append("  XENON %d KG  %d%% COMPLETE" % [int(roundf(float(status["fuel_mass_kg"]))), int(roundf(float(status["transit_progress"]) * 100.0))])
 		elif StringName(status["plotted_destination_id"]) != &"":
 			var destination: VoyageDestination = nav.call("get_destination", status["plotted_destination_id"])
 			var destination_name: String = String(status["plotted_destination_id"]).to_upper()
@@ -167,8 +162,8 @@ func _nav_lines(terminal: Node) -> PackedStringArray:
 			if destination != null:
 				destination_name = destination.display_name.to_upper()
 				travel_days = destination.transit_days
-			lines.append("NAV  COURSE SET TO %s  %d DAYS" % [destination_name, travel_days])
-			lines.append("  FUEL %d KG  DRIFT %d%%" % [
+			lines.append("NAV  COURSE SET TO %s  NOMINAL %d DAYS (PAIR)" % [destination_name, travel_days])
+			lines.append("  ION DRIVE STANDBY  XENON %d KG  DRIFT %d%%" % [
 				int(roundf(float(status["fuel_mass_kg"]))),
 				int(roundf(float(status["course_error"]) * 100.0)),
 			])
@@ -180,10 +175,11 @@ func _nav_lines(terminal: Node) -> PackedStringArray:
 				if current != null:
 					position = current.display_name.to_upper()
 			lines.append("NAV  POSITION %s" % position)
-			lines.append("  FUEL %d KG  DRIFT %d%%" % [
+			lines.append("  ION DRIVE IDLE  XENON %d KG  DRIFT %d%%" % [
 				int(roundf(float(status["fuel_mass_kg"]))),
 				int(roundf(float(status["course_error"]) * 100.0)),
 			])
+		lines.append_array(NavProgram.drive_readout(status))
 	var sector: Node = terminal.call("system", &"sector_system") as Node
 	if sector != null and sector.has_method(&"get_contacts"):
 		var contacts: Array = sector.call("get_contacts")
@@ -207,7 +203,7 @@ func _nav_lines(terminal: Node) -> PackedStringArray:
 func _components_lines(terminal: Node) -> PackedStringArray:
 	var lines: PackedStringArray = PackedStringArray()
 	var entries: PackedStringArray = PackedStringArray()
-	for group_name: StringName in [&"power_system", &"atmosphere_system", &"thermal_system", &"hull_system", &"water_system"]:
+	for group_name: StringName in [&"power_system", &"atmosphere_system", &"thermal_system", &"hull_system", &"water_system", &"nav_system"]:
 		var system: Node = terminal.call("system", group_name) as Node
 		if system == null or not system.has_method(&"get_wear_status"):
 			continue
@@ -217,10 +213,15 @@ func _components_lines(terminal: Node) -> PackedStringArray:
 		for key: Variant in component_ids:
 			var component_id: StringName = key
 			var status: Dictionary = wear[component_id]
+			if group_name == &"nav_system" and not bool(status.get("scanned", false)) and not bool(status.get("diagnosed", false)):
+				continue
+			var state: String = _component_state_text(status)
+			if group_name == &"nav_system" and not bool(status.get("diagnosed", false)):
+				state = "DIAGNOSIS REQUIRED"
 			entries.append("%-16s %s %s" % [
 				String(component_id).to_upper(),
 				_condition_text(status),
-				_component_state_text(status),
+				state,
 			])
 	if not entries.is_empty():
 		lines.append("COMPONENTS")
@@ -265,7 +266,8 @@ func _power_lines(terminal: Node) -> PackedStringArray:
 			state = "OFF"
 		elif bool(circuit["shed"]):
 			state = "SHED"
-		lines.append("  %-11s %s" % [String(circuit_id).to_upper(), state])
+		var label: String = "DRIVE FEED UV" if circuit_id == &"xenonite_uv" else String(circuit_id).to_upper()
+		lines.append("  %-11s %s" % [label, state])
 	return lines
 
 

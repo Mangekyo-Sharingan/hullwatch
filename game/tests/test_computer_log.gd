@@ -52,7 +52,9 @@ func _test_capture() -> void:
 	_check(StringName(entries[0]["kind"]) == &"breaker_toggled", "newest entry is first")
 	_check(String(entries[0]["text"]) == "BREAKER OFF: LIGHTING", "breaker entries name state and circuit")
 	_check(String(entries[1]["text"]).begins_with("STORES LOW: FILTER_CO2"), "low stock entries name the part")
-	_check(String(entries[2]["text"]) == "COMPONENT FAILED: RTG_MAIN MODE RTG_DEGRADED", "failures name component and mode")
+	_check(String(entries[2]["text"]) == "COMPONENT FAILED: RTG_MAIN — DIAGNOSIS REQUIRED", "automatic failure logs preserve fault uncertainty")
+	_event_bus.call("emit_event", &"component_diagnosed", {"component_id": &"rtg_main", "failure_mode_id": &"rtg_degraded"})
+	_check(String(computer.get_entries()[0]["text"]).contains("RTG_DEGRADED"), "operator diagnosis reveals exact mode")
 	_check(int(entries[0]["day"]) == 1 and int(entries[0]["hour"]) == 0, "entries are stamped with the ship clock")
 	computer.free()
 

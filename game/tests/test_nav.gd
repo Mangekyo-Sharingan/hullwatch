@@ -13,6 +13,7 @@ func _initialize() -> void:
 	_test_course_expiry()
 	_test_save_load_and_legacy_state()
 	_test_console_flow()
+	_test_planet_frequency()
 	_despawn_all()
 	_finish()
 
@@ -92,7 +93,7 @@ func _test_save_load_and_legacy_state() -> void:
 	_check(nav.begin_transit(), "save: transit started")
 	nav.sim_tick(24.0)
 	var saved: Dictionary = nav.save_state()
-	_check(int(saved["state_version"]) == 2, "save: current state version recorded")
+	_check(int(saved["state_version"]) == 4, "save: current state version recorded")
 	nav.sim_tick(12.0)
 	nav.load_state(saved)
 	_check(nav.transit_active, "load: active transit restored")
@@ -123,6 +124,54 @@ func _test_console_flow() -> void:
 	_check(" ".join(console.build_readout()).contains("SHIP SYSTEMS REMAIN ON DUTY"), "console: readout explains live transit")
 	console.close()
 	_check(not console.is_open(), "console: chart closes")
+	_despawn_all()
+
+
+func _test_planet_frequency() -> void:
+	var settings: Node = _find_root_child(&"GameSettings")
+	if settings == null:
+		_check(false, "planet frequency: GameSettings autoload is available")
+		return
+	var previous_frequency: float = float(settings.call(&"get_value", &"planet_frequency"))
+	var nav: NavSystem = _spawn_nav()
+	var arden: VoyageDestination = nav.get_destination(&"arden_ii")
+	settings.call(&"set_value", &"planet_frequency", 0.0)
+	nav._arrive(arden)
+	_check(nav.get_destinations().size() == 2, "planet frequency: zero suppresses discoveries")
+	settings.call(&"set_value", &"planet_frequency", 3.0)
+	nav._arrive(arden)
+	var planets: Array[VoyageDestination] = nav.get_destinations()
+	_check(planets.size() == 3, "planet frequency: maximum guarantees one route per arrival")
+	var discovered: VoyageDestination = planets[2] if planets.size() > 2 else null
+	_check(discovered != null and discovered.kind == &"planet" and discovered.is_valid(), "planet frequency: generated destination is a valid planet route")
+	if discovered == null:
+		settings.call(&"set_value", &"planet_frequency", previous_frequency)
+		_despawn_all()
+		return
+	_check(discovered.sector_seed != arden.sector_seed, "planet frequency: generated route has a distinct field seed")
+	_check(not nav.has_visited(discovered.destination_id), "planet frequency: discovered route has not granted its cache")
+
+	var nav_copy: NavSystem = _spawn_nav()
+	settings.call(&"set_value", &"planet_frequency", 0.0)
+	nav_copy._arrive(nav_copy.get_destination(&"arden_ii"))
+	settings.call(&"set_value", &"planet_frequency", 3.0)
+	nav_copy._arrive(nav_copy.get_destination(&"arden_ii"))
+	var repeated: VoyageDestination = nav_copy.get_destination(discovered.destination_id)
+	_check(repeated != null and repeated.sector_seed == discovered.sector_seed, "planet frequency: same seed and arrival history produce the same route")
+
+	settings.call(&"set_value", &"planet_frequency", 0.0)
+	var console: NavConsole = NavConsole.new()
+	_spawn(console)
+	console.interact(null)
+	_check(console.get_actions().has(discovered.destination_id), "planet frequency: discovered route appears on the star chart")
+	_check(console.select_action(discovered.destination_id), "planet frequency: chart can plot the discovered route")
+	var saved: Dictionary = nav.save_state()
+	var restored: NavSystem = _spawn_nav()
+	restored.load_state(saved)
+	var restored_route: VoyageDestination = restored.get_destination(discovered.destination_id)
+	_check(restored_route != null and restored.plotted_destination_id == discovered.destination_id, "planet frequency: route and plotted course survive save load")
+	_check(restored._arrival_ordinal == 2, "planet frequency: arrival history survives save load")
+	settings.call(&"set_value", &"planet_frequency", previous_frequency)
 	_despawn_all()
 
 

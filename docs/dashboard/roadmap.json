@@ -1,0 +1,2988 @@
+{
+  "title": "Hullwatch \u2014 factual roadmap and acceptance gates",
+  "updated": "2026-10-09",
+  "summary": "Source-backed roadmap, not a readiness percentage. M0\u2013M6 retain original targets; M7\u2013M11 and M13 are implemented, while M12 and M14 retain operator/platform gates. The October 9 Windows package is from c982415; the current feature branch adds confirmed Delete Watch, persistent field/anomaly/planet-rate settings and deterministic optional survey-orbit routes. Linux validation passes 90/90 suites and profile_sim at 198.6 \u00b5s/tick; this branch is not packaged and rendered FPS is unmeasured. Open-ended survival replaces a required campaign ending. Private playtest still needs a fresh exact-source Windows package, native Windows run and human work-cycle test. Early Access still needs bounded content, sustainable economy, broad persistence/recovery, rendered performance and balance acceptance. Q10 retains the live field-rate timing question.",
+  "milestones": [
+    {
+      "id": "M0",
+      "title": "Setup",
+      "phase": "Original production",
+      "status": "complete",
+      "summary": "Setup and scaffold exist in the playable project; this is an implementation assessment, not a fresh editor/MCP check. The October 1 retry reported the editor bridge disconnected.",
+      "evidence": [
+        {
+          "path": "docs/PRODUCTION_SPEC.md",
+          "label": "Original production milestone and exit criteria"
+        },
+        {
+          "path": "docs/SHIPPING_CHECKLIST.md",
+          "label": "Historical v0.10.0 shipping state"
+        },
+        {
+          "path": "AGENTS.md",
+          "label": "Installed MCP and project setup"
+        },
+        {
+          "path": "docs/design/art_pass/steps/12-final-validation-result.md",
+          "label": "Editor bridge limitation"
+        }
+      ],
+      "tasks": [
+        {
+          "title": "Project conventions, input, interaction, Git/LFS and local engine scaffold",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/SHIPPING_CHECKLIST.md",
+              "label": "Project conventions, input, interaction, Git/LFS and local engine scaffold"
+            }
+          ]
+        },
+        {
+          "title": "Godot MCP installed; current editor bridge connectivity needs recheck",
+          "status": "needs_review",
+          "evidence": [
+            {
+              "path": "docs/SHIPPING_CHECKLIST.md",
+              "label": "Godot MCP installed; current editor bridge connectivity needs recheck"
+            }
+          ]
+        }
+      ],
+      "acceptance": [
+        "Editor runs project; MCP agent can create/inspect a scene; `--headless` smoke test passes"
+      ]
+    },
+    {
+      "id": "M1",
+      "title": "Grey-box prototype",
+      "phase": "Original production",
+      "status": "complete",
+      "summary": "The grey-box walk/repair/sleep loop and procedural diagnostic audio are documented in the historical v0.6.0 build; later work replaces its visuals.",
+      "evidence": [
+        {
+          "path": "docs/PRODUCTION_SPEC.md",
+          "label": "Original production milestone and exit criteria"
+        },
+        {
+          "path": "docs/SHIPPING_CHECKLIST.md",
+          "label": "Historical v0.10.0 shipping state"
+        },
+        {
+          "path": "docs/release-notes-v0.6.0.md",
+          "label": "Historical playable systems baseline"
+        }
+      ],
+      "tasks": [
+        {
+          "title": "Walkable module, power, repair, day cycle and placeholder audio",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/SHIPPING_CHECKLIST.md",
+              "label": "Walkable module, power, repair, day cycle and placeholder audio"
+            }
+          ]
+        }
+      ],
+      "acceptance": [
+        "10-minute day loop playable with no placeholder logic holes"
+      ]
+    },
+    {
+      "id": "M2",
+      "title": "Systems prototype",
+      "phase": "Original production",
+      "status": "complete",
+      "summary": "Interlinked simulators, wear, cascades and versioned saves are implemented. Later integration reports deterministic suites; none were rerun for this manifest.",
+      "evidence": [
+        {
+          "path": "docs/PRODUCTION_SPEC.md",
+          "label": "Original production milestone and exit criteria"
+        },
+        {
+          "path": "docs/SHIPPING_CHECKLIST.md",
+          "label": "Historical v0.10.0 shipping state"
+        },
+        {
+          "path": "docs/release-notes-v0.6.0.md",
+          "label": "Historical playable systems baseline"
+        }
+      ],
+      "tasks": [
+        {
+          "title": "Power, thermal, atmosphere, wear and traceable cascades",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/SHIPPING_CHECKLIST.md",
+              "label": "Power, thermal, atmosphere, wear and traceable cascades"
+            }
+          ]
+        },
+        {
+          "title": "Deterministic scenario harness and saved simulation state",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/SHIPPING_CHECKLIST.md",
+              "label": "Deterministic scenario harness and saved simulation state"
+            }
+          ]
+        }
+      ],
+      "acceptance": [
+        "Deterministic scenario tests pass; failures traceable in a test harness"
+      ]
+    },
+    {
+      "id": "M3",
+      "title": "Vertical slice",
+      "phase": "Original production",
+      "status": "needs_review",
+      "summary": "Art, diegetic UI, diagnostic audio, navigation and comms exist. Manual-only external survival and the specified player-experience success metrics remain unverified for current content.",
+      "evidence": [
+        {
+          "path": "docs/PRODUCTION_SPEC.md",
+          "label": "Original production milestone and exit criteria"
+        },
+        {
+          "path": "docs/SHIPPING_CHECKLIST.md",
+          "label": "Historical v0.10.0 shipping state"
+        },
+        {
+          "path": "docs/release-notes-v0.7.0.md",
+          "label": "Diagnostics/comms and returned v0.6.0 feedback"
+        }
+      ],
+      "tasks": [
+        {
+          "title": "Module art, audio direction, diegetic panels and narrative traffic",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/SHIPPING_CHECKLIST.md",
+              "label": "Module art, audio direction, diegetic panels and narrative traffic"
+            }
+          ]
+        },
+        {
+          "title": "External tester survives three days using only the manual and explains failures",
+          "status": "needs_review",
+          "evidence": [
+            {
+              "path": "docs/SHIPPING_CHECKLIST.md",
+              "label": "External tester survives three days using only the manual and explains failures"
+            }
+          ]
+        },
+        {
+          "title": "Collect tension, repair-satisfaction and chore-fatigue metrics from spec \u00a78.5",
+          "status": "planned",
+          "evidence": [
+            {
+              "path": "docs/PRODUCTION_SPEC.md",
+              "label": "Collect tension, repair-satisfaction and chore-fatigue metrics from spec \u00a78.5"
+            }
+          ]
+        }
+      ],
+      "acceptance": [
+        "Vertical slice demo: 20\u201330 min, external playtester completes success test"
+      ]
+    },
+    {
+      "id": "M4",
+      "title": "Alpha",
+      "phase": "Original production",
+      "status": "in_progress",
+      "summary": "Open-ended survival replaces finite campaign stages. Operator approved six richer activity directions; their plans and interactions are written. Useful-salvage mechanics have a provisional battery prototype; manual acceptance and final technology choice remain open. Replenishment and whole-state persistence preparation are complete, implementation pending.",
+      "evidence": [
+        {
+          "path": "docs/PRODUCTION_SPEC.md",
+          "label": "Original production milestone and exit criteria"
+        },
+        {
+          "path": "docs/SHIPPING_CHECKLIST.md",
+          "label": "Historical v0.10.0 shipping state"
+        },
+        {
+          "path": "docs/release-notes-v0.6.0.md",
+          "label": "Historical playable systems baseline"
+        },
+        {
+          "path": "docs/EXPANSION_SPEC.md",
+          "label": "M11 currently names two destinations"
+        },
+        {
+          "path": "docs/design/alpha_campaign_scope_pass.md",
+          "label": "Approved Alpha scope and pending content acceptance"
+        },
+        {
+          "path": "docs/design/open_survival_direction_pass.md",
+          "label": "Open survival direction, reference review and proposed passes"
+        },
+        {
+          "path": "docs/design/survival_slices/README.md",
+          "label": "Six approved directions and linked slice plans"
+        }
+      ],
+      "tasks": [
+        {
+          "title": "Small ship, procedures, stores, food and interlinked systems",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/SHIPPING_CHECKLIST.md",
+              "label": "Small ship, procedures, stores, food and interlinked systems"
+            }
+          ]
+        },
+        {
+          "title": "Data-driven Arden II and Kestrel destinations",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/EXPANSION_SPEC.md",
+              "label": "Data-driven Arden II and Kestrel destinations"
+            }
+          ]
+        },
+        {
+          "title": "Confirm campaign versus open survival scope \u2014 open survival chosen October 9",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/PRODUCTION_SPEC.md",
+              "label": "Confirm original 3\u20135-waypoint content-complete target against current campaign scope"
+            },
+            {
+              "path": "docs/design/alpha_campaign_scope_pass.md",
+              "label": "Approved Alpha scope and pending content acceptance"
+            },
+            {
+              "path": "docs/design/open_survival_direction_pass.md",
+              "label": "Open survival direction, reference review and proposed passes"
+            }
+          ]
+        },
+        {
+          "title": "Approve six open-survival activity directions and write prioritized slice plans",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/survival_slices/README.md",
+              "label": "Approved activity directions and plans"
+            }
+          ]
+        },
+        {
+          "title": "Plan resource continuity and salvage/refit activity passes for open survival",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/survival_slices/replenishment_plan.md",
+              "label": "All-resource replenishment preparation"
+            },
+            {
+              "path": "docs/design/survival_slices/persistence_plan.md",
+              "label": "Whole-game persistence preparation"
+            }
+          ]
+        },
+        {
+          "title": "Balance pass across a real three-day session",
+          "status": "planned",
+          "evidence": [
+            {
+              "path": "docs/SHIPPING_CHECKLIST.md",
+              "label": "Balance pass across a real three-day session"
+            }
+          ]
+        }
+      ],
+      "acceptance": [
+        "Agreed open-survival activity set is content-complete; balance pass begins. No mandatory campaign sequence or ending."
+      ]
+    },
+    {
+      "id": "M5",
+      "title": "Beta",
+      "phase": "Original production",
+      "status": "in_progress",
+      "summary": "Settings, migrations, localization preparation and profilers exist. Stable playtest metrics, mid-range rendered performance, broader accessibility and no-P1 acceptance are not established by the source reports.",
+      "evidence": [
+        {
+          "path": "docs/PRODUCTION_SPEC.md",
+          "label": "Original production milestone and exit criteria"
+        },
+        {
+          "path": "docs/SHIPPING_CHECKLIST.md",
+          "label": "Historical v0.10.0 shipping state"
+        }
+      ],
+      "tasks": [
+        {
+          "title": "Persisted settings, versioned save migrations and localization preparation",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/SHIPPING_CHECKLIST.md",
+              "label": "Persisted settings, versioned save migrations and localization preparation"
+            }
+          ]
+        },
+        {
+          "title": "Validate 60 fps on mid-range hardware and stable playtest metrics",
+          "status": "needs_review",
+          "evidence": [
+            {
+              "path": "docs/SHIPPING_CHECKLIST.md",
+              "label": "Validate 60 fps on mid-range hardware and stable playtest metrics"
+            }
+          ]
+        },
+        {
+          "title": "Accessibility beyond existing settings",
+          "status": "planned",
+          "evidence": [
+            {
+              "path": "docs/SHIPPING_CHECKLIST.md",
+              "label": "Accessibility beyond existing settings"
+            }
+          ]
+        },
+        {
+          "title": "Confirm no P1 bugs before beta acceptance",
+          "status": "needs_review",
+          "evidence": [
+            {
+              "path": "docs/PRODUCTION_SPEC.md",
+              "label": "Confirm no P1 bugs before beta acceptance"
+            }
+          ]
+        }
+      ],
+      "acceptance": [
+        "60 fps target on mid hardware; no P1 bugs; playtest metrics stable"
+      ]
+    },
+    {
+      "id": "M6",
+      "title": "Release prep",
+      "phase": "Original production",
+      "status": "in_progress",
+      "summary": "Build/export preparation, draft store copy, generated capsules, screenshots and public test builds exist. The shipping checklist remains open; this is not a completed public-release gate.",
+      "evidence": [
+        {
+          "path": "docs/PRODUCTION_SPEC.md",
+          "label": "Original production milestone and exit criteria"
+        },
+        {
+          "path": "docs/SHIPPING_CHECKLIST.md",
+          "label": "Historical v0.10.0 shipping state"
+        }
+      ],
+      "tasks": [
+        {
+          "title": "Single-file Windows pipeline, export presets, icon and test-build distribution",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/SHIPPING_CHECKLIST.md",
+              "label": "Single-file Windows pipeline, export presets, icon and test-build distribution"
+            }
+          ]
+        },
+        {
+          "title": "Draft store copy, generated capsules and real gameplay screenshots",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/SHIPPING_CHECKLIST.md",
+              "label": "Draft store copy, generated capsules and real gameplay screenshots"
+            }
+          ]
+        },
+        {
+          "title": "Finish pending shipping checklist and store/depot setup",
+          "status": "planned",
+          "evidence": [
+            {
+              "path": "docs/SHIPPING_CHECKLIST.md",
+              "label": "Finish pending shipping checklist and store/depot setup"
+            }
+          ]
+        }
+      ],
+      "acceptance": [
+        "Shipping checklist complete"
+      ]
+    },
+    {
+      "id": "M7",
+      "title": "EVA & open hull",
+      "phase": "Early-access expansion",
+      "status": "complete",
+      "summary": "M7.1\u2013M7.7 landed: generated open hull, real airlock, suit, starfield, magnetic-boot exterior route, tether and EVA HUD/manual; saved round trip is covered by documented suites.",
+      "evidence": [
+        {
+          "path": "docs/EXPANSION_SPEC.md",
+          "label": "M7 specification, progress and acceptance"
+        }
+      ],
+      "tasks": [
+        {
+          "title": "M7.1 \u2014 Airlock room: Generated `Airlock` space west of Storage (inner + outer doorway gaps), `compartment_airlock.tres`, layout tests updated",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/EXPANSION_SPEC.md",
+              "label": "M7.1 scope and recorded status"
+            }
+          ]
+        },
+        {
+          "title": "M7.2 \u2014 In-world wiring: Atmosphere/thermal/hull defs + `AirlockSystem` node + `circuit_airlock` in `main.tscn`; inner/outer doors wired with airlock ids; airlock zone + compartment link; control panel (ScrollMenu) + suit locker interactables; new `test_airlock_scene.gd`",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/EXPANSION_SPEC.md",
+              "label": "M7.2 scope and recorded status"
+            }
+          ]
+        },
+        {
+          "title": "M7.3 \u2014 Polygonal hull form (interior): `HullProfile` utilities; `build_ship_geometry.gd` rewritten into the faceted prism language: plan polygons, mitered flush wall bands (no overlapping slabs or protruding edges), flat-bottom hexagonal corridor profile, doorways with jambs and lintels, trimesh collision from the same surfaces",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/EXPANSION_SPEC.md",
+              "label": "M7.3 scope and recorded status"
+            }
+          ]
+        },
+        {
+          "title": "M7.4 \u2014 Exterior hull: Polygonal hull shell offset from the plan (opening at the outer door); perimeter catwalk + railings; ramp to the roof; EVA platform; hardpoint markers",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/EXPANSION_SPEC.md",
+              "label": "M7.4 scope and recorded status"
+            }
+          ]
+        },
+        {
+          "title": "M7.5 \u2014 Space backdrop: Sky shader (stars + distant star/planet), sun light, environment swap; windowed captures",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/EXPANSION_SPEC.md",
+              "label": "M7.5 scope and recorded status"
+            }
+          ]
+        },
+        {
+          "title": "M7.6 \u2014 Tether & HUD: `toggle_tether` action; `TetherAnchor`/`TetherZone` auto-clip; player constraint + release/re-clip; HUD EVA readout (suit O2, tether distance, airlock state); toast reasons; manual EVA page",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/EXPANSION_SPEC.md",
+              "label": "M7.6 scope and recorded status"
+            }
+          ]
+        },
+        {
+          "title": "M7.7 \u2014 Verification: `test_eva_flow.gd` end-to-end; scene save/load incl. airlock + suit; captures 11\u201313 for docs; AGENTS/brain updates",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/EXPANSION_SPEC.md",
+              "label": "M7.7 scope and recorded status"
+            }
+          ]
+        }
+      ],
+      "acceptance": [
+        "Rays pass both doorway gaps; floor collision + chamfers present; layout suites green",
+        "Player can cycle the lock and suit up in-game; interlock observable; counts and scene tests updated",
+        "No two structural solids overlap; corridor cross-section matches the hexagon profile at all heights; doorway rays still pass; `test_hull_profile` green; captures reviewed",
+        "Walk ray from outer door across platform/catwalk/ramp; no shell collision inside rooms; hardpoint markers exist",
+        "Captures read as space; interiors stay lit; scene profiler unchanged",
+        "Tether clamp/release/auto-clip tested; HUD states tested; EVA round trip playable",
+        "Full loop passes headless; save/load round-trips; captures reviewed"
+      ]
+    },
+    {
+      "id": "M8",
+      "title": "Deep field",
+      "phase": "Early-access expansion",
+      "status": "complete",
+      "summary": "M8.1\u2013M8.5 are reported complete: seeded ~2% occupied field, bounded streaming, scanner/console detection and fuel-gated 30 m standoff approach. Field-object captures remain explicitly deferred in the expansion spec.",
+      "evidence": [
+        {
+          "path": "docs/EXPANSION_SPEC.md",
+          "label": "M8 specification, progress and acceptance"
+        }
+      ],
+      "tasks": [
+        {
+          "title": "M8.1 \u2014 Sector field sim: `SectorSystem`: seeded chunk corridor along the drift axis (~2% content), asteroid/debris/anomaly data objects, active stream list, contacts with enter/leave events, save/load",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/EXPANSION_SPEC.md",
+              "label": "M8.1 scope and recorded status"
+            }
+          ]
+        },
+        {
+          "title": "M8.2 \u2014 Scene streaming: `FieldStreamer` binds visuals + collision to active objects (faceted asteroid meshes, anomaly placeholders), spawn/despawn leak-free, profiler budget",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/EXPANSION_SPEC.md",
+              "label": "M8.2 scope and recorded status"
+            }
+          ]
+        },
+        {
+          "title": "M8.3 \u2014 Detection: Nav console `CONTACTS` list (range/bearing/kind), handheld scanner ping (HUD toast + nearest contact)",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/EXPANSION_SPEC.md",
+              "label": "M8.3 scope and recorded status"
+            }
+          ]
+        },
+        {
+          "title": "M8.4 \u2014 Close approach: Hybrid traversal: manual approach burn in the nav console toward a contact (fuel + time), hold at standoff distance",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/EXPANSION_SPEC.md",
+              "label": "M8.4 scope and recorded status"
+            }
+          ]
+        },
+        {
+          "title": "M8.5 \u2014 Verification: 7-day end-to-end scenario, EVA reachability from standoff, captures, docs",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/EXPANSION_SPEC.md",
+              "label": "M8.5 scope and recorded status"
+            }
+          ]
+        },
+        {
+          "title": "Capture streamed field objects after sufficient game-hours of drift",
+          "status": "planned",
+          "evidence": [
+            {
+              "path": "docs/EXPANSION_SPEC.md",
+              "label": "Explicit deferred field-capture note"
+            }
+          ]
+        }
+      ],
+      "acceptance": [
+        "Same seed \u2192 identical field; density within 1\u20133% over 7 days; active set bounded; save/load reproduces it; `test_sector` green",
+        "Objects appear/leave as the ship drifts; node count bounded; scene profiler holds",
+        "Contacts listed sorted by range; ping works from EVA; tests",
+        "Approach closes range, costs fuel, clamps at standoff, refuses without fuel; tests",
+        "Loop passes headless; docs/captures updated"
+      ]
+    },
+    {
+      "id": "M9",
+      "title": "Materials & fabrication",
+      "phase": "Early-access expansion",
+      "status": "complete",
+      "summary": "M9.1\u2013M9.5 are reported complete: finite mining/sample hauling, mass-limited cargo, power/material-gated fabrication and scanner anomaly salvage. A month-long mined-input repair scenario is documented; field-object captures remain deferred.",
+      "evidence": [
+        {
+          "path": "docs/EXPANSION_SPEC.md",
+          "label": "M9 specification, progress and acceptance"
+        }
+      ],
+      "tasks": [
+        {
+          "title": "M9.1 \u2014 Cargo hold & materials: `CargoSystem`: ice/ore/metal/exotic units with a mass budget, add/consume API, events, save/load; status-panel CARGO section",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/EXPANSION_SPEC.md",
+              "label": "M9.1 scope and recorded status"
+            }
+          ]
+        },
+        {
+          "title": "M9.2 \u2014 Mining runs: Cutter + sample canisters as carriables; streamed asteroids become mineable (`SpaceObject` interactable, finite seeded yields by kind); hull cargo port deposits canisters",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/EXPANSION_SPEC.md",
+              "label": "M9.2 scope and recorded status"
+            }
+          ]
+        },
+        {
+          "title": "M9.3 \u2014 Fabricator: Workshop device (power-gated) with `.tres` recipes: ice \u2192 water filter / O2 candle, ore \u2192 CO2 filter, metal \u2192 sealant / gasket, exotic \u2192 parts; menu UI; consumes cargo, feeds stores",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/EXPANSION_SPEC.md",
+              "label": "M9.3 scope and recorded status"
+            }
+          ]
+        },
+        {
+          "title": "M9.4 \u2014 Anomaly salvage: Scanner interaction on anomalies yields exotic material and a logged event",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/EXPANSION_SPEC.md",
+              "label": "M9.4 scope and recorded status"
+            }
+          ]
+        },
+        {
+          "title": "M9.5 \u2014 Verification: Long-run scenario: mine \u2192 fabricate \u2192 repair across days; captures; docs",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/EXPANSION_SPEC.md",
+              "label": "M9.5 scope and recorded status"
+            }
+          ]
+        },
+        {
+          "title": "Capture streamed field objects after sufficient game-hours of drift",
+          "status": "planned",
+          "evidence": [
+            {
+              "path": "docs/EXPANSION_SPEC.md",
+              "label": "Explicit deferred field-capture note"
+            }
+          ]
+        }
+      ],
+      "acceptance": [
+        "Capacity enforced, units conserved, save/load round trip; `test_cargo` green",
+        "EVA: mine an asteroid into a canister and stow it; yields finite; tests",
+        "Recipes gated by materials + power; fabricate repairs the loop; tests",
+        "Salvage works from EVA; exotic reaches cargo; tests",
+        "Loop passes headless; docs updated"
+      ]
+    },
+    {
+      "id": "M10",
+      "title": "Ship expansion",
+      "phase": "Early-access expansion",
+      "status": "complete",
+      "summary": "M10.1\u2013M10.5 landed: four walk-in docks, seven pod kinds, saved timed nanite construction, full cancellation/teardown refunds and three machine sockets per pod. Step 11 adds an adjacent-pod overlap refusal; legacy saves containing both pods remain intact.",
+      "evidence": [
+        {
+          "path": "docs/EXPANSION_SPEC.md",
+          "label": "M10 specification, progress and acceptance"
+        },
+        {
+          "path": "docs/design/art_pass/steps/11-exterior-result.md",
+          "label": "Adjacent-pod shell overlap and construction guard"
+        }
+      ],
+      "tasks": [
+        {
+          "title": "M10.1 \u2014 Module framework: `ShipModule` resource (cost, hardpoint, pod recipe, compartment config) + `ModuleSystem` sim: install/uninstall per hardpoint, material cost out of `CargoSystem`, compartment register/unregister in atmosphere/thermal/hull, save/load; `remove_compartment` on the three sims; `module_installed`/`module_uninstalled` signals",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/EXPANSION_SPEC.md",
+              "label": "M10.1 scope and recorded status"
+            }
+          ]
+        },
+        {
+          "title": "M10.2 \u2014 Dock geometry: Four side-wall docks (quarter, life-support, galley, engine-bay walls), flush mount plates, generic `dock_pod` scene generated by the geometry tool (prism room, doorway through the hull band, caps, trimesh collision, compartment zone + link node); hardpoint markers relocate from the roof deck; deterministic regeneration + `test_module_geometry`",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/EXPANSION_SPEC.md",
+              "label": "M10.2 scope and recorded status"
+            }
+          ]
+        },
+        {
+          "title": "M10.3 \u2014 Construction scene: Dock mount interactable (EVA): build menu with cost + build hours, install spawns the pod scene and swaps the plate for the open dock; uninstall reverses; scene save/load with a module standing; `test_module_scene`",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/EXPANSION_SPEC.md",
+              "label": "M10.3 scope and recorded status"
+            }
+          ]
+        },
+        {
+          "title": "M10.4 \u2014 Catalog & function: `.tres` catalog in `src/data/modules/`: greenhouse (renewable rations into stores), workshop (fabricator throughput), expanded storage (cargo capacity), aux battery (power capacity, new circuit), med bay (operator recovery); power/link wiring",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/EXPANSION_SPEC.md",
+              "label": "M10.4 scope and recorded status"
+            }
+          ]
+        },
+        {
+          "title": "M10.5 \u2014 Verification: Scenario: build greenhouse \u2192 rations appear over days; full-loop save/load; captures; manual page; docs",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/EXPANSION_SPEC.md",
+              "label": "M10.5 scope and recorded status"
+            }
+          ]
+        }
+      ],
+      "acceptance": [
+        "Install gating (unknown/duplicate/occupied/missing materials) tested; compartments appear and leave with install/uninstall; save/load restores installed set; `test_modules` green",
+        "Pod doorway is walkable from the parent room; plate seals the dock when unbuilt; tool output byte-stable; layout suites green",
+        "Full build \u2192 walk in \u2192 tear down loop passes; save/load round trip with a module",
+        "Each module's effect observable in its sim; catalog validation (unique ids/hardpoints, cost kinds exist)",
+        "Loop passes headless; docs/captures updated"
+      ]
+    },
+    {
+      "id": "M11",
+      "title": "Destinations",
+      "phase": "Early-access expansion",
+      "status": "complete",
+      "summary": "Implemented September 28: resource-driven Arden II planet and Kestrel star routes, 2/4-day transit, plot/fuel costs, daily events, one-time caches, arrival field/sky swaps and in-flight saves. Neutral route content does not settle the ending.",
+      "evidence": [
+        {
+          "path": "docs/EXPANSION_SPEC.md",
+          "label": "M11 specification, progress and acceptance"
+        }
+      ],
+      "tasks": [
+        {
+          "title": "Star chart and data-driven planet/star routes",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/EXPANSION_SPEC.md",
+              "label": "Star chart and data-driven planet/star routes"
+            }
+          ]
+        },
+        {
+          "title": "Fixed-tick multi-day transit, fuel and daily events",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/EXPANSION_SPEC.md",
+              "label": "Fixed-tick multi-day transit, fuel and daily events"
+            }
+          ]
+        },
+        {
+          "title": "Finite first-visit supplies and field/sky arrival swaps",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/EXPANSION_SPEC.md",
+              "label": "Finite first-visit supplies and field/sky arrival swaps"
+            }
+          ]
+        },
+        {
+          "title": "In-flight save/load and v3 migration; later global v4 integration",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/EXPANSION_SPEC.md",
+              "label": "In-flight save/load and v3 migration; later global v4 integration"
+            }
+          ]
+        }
+      ],
+      "acceptance": [
+        "**Complete (2026-09-28):** tested voyages to a planet and star, per-route time/fuel costs, distinct arrival fields and caches, save/load in transit"
+      ]
+    },
+    {
+      "id": "M12",
+      "title": "Feel & polish",
+      "phase": "Early-access expansion",
+      "status": "in_progress",
+      "summary": "EVA strain/audio/HUD, work lights and later full-ship art are implemented. The milestone stays open for external full-loop playtest, subjective feel, encounter feedback, rendered performance and profiler budgets. October 1 Step 12 sim timing exceeded its budget.",
+      "evidence": [
+        {
+          "path": "docs/EXPANSION_SPEC.md",
+          "label": "M12 specification, progress and acceptance"
+        },
+        {
+          "path": ".wolf/STATUS.md",
+          "label": "September 28 M12 implementation report"
+        },
+        {
+          "path": "docs/design/art_pass/steps/12-final-validation-result.md",
+          "label": "October 1 final verification limits"
+        }
+      ],
+      "tasks": [
+        {
+          "title": "Tether strain warning, suited-vacuum mix, EVA HUD and exterior work lights",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": ".wolf/STATUS.md",
+              "label": "Tether strain warning, suited-vacuum mix, EVA HUD and exterior work lights"
+            }
+          ]
+        },
+        {
+          "title": "Full-ship original interior/exterior art implementation",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/art_pass/README.md",
+              "label": "Full-ship original interior/exterior art implementation"
+            }
+          ]
+        },
+        {
+          "title": "External playtest on a build containing the full loop",
+          "status": "needs_review",
+          "evidence": [
+            {
+              "path": "docs/EXPANSION_SPEC.md",
+              "label": "External playtest on a build containing the full loop"
+            }
+          ]
+        },
+        {
+          "title": "Review movement feel and encounter pacing; 2% density retained pending feedback",
+          "status": "needs_review",
+          "evidence": [
+            {
+              "path": ".wolf/STATUS.md",
+              "label": "Review movement feel and encounter pacing; 2% density retained pending feedback"
+            }
+          ]
+        },
+        {
+          "title": "Investigate 201.8 \u00b5s/tick against the 200 \u00b5s sim budget",
+          "status": "needs_review",
+          "evidence": [
+            {
+              "path": "docs/design/art_pass/steps/12-final-validation-result.md",
+              "label": "Investigate 201.8 \u00b5s/tick against the 200 \u00b5s sim budget"
+            }
+          ]
+        },
+        {
+          "title": "Measure rendered performance on real mid-range GPU hardware",
+          "status": "needs_review",
+          "evidence": [
+            {
+              "path": "docs/SHIPPING_CHECKLIST.md",
+              "label": "Measure rendered performance on real mid-range GPU hardware"
+            }
+          ]
+        }
+      ],
+      "acceptance": [
+        "External playtest round on a build with the full loop; profiler budgets hold"
+      ]
+    },
+    {
+      "id": "M13",
+      "title": "Modular hull in the reference language",
+      "phase": "Early-access expansion",
+      "status": "complete",
+      "summary": "M13.1\u2013M13.5 are explicitly closed September 29: section shell, tube chain, 1.2 m radial docks, exterior route and standard 2.5 m single deck. Earlier raised ceilings, mezzanines and ladders were superseded.",
+      "evidence": [
+        {
+          "path": "docs/EXPANSION_SPEC.md",
+          "label": "M13 specification, progress and acceptance"
+        }
+      ],
+      "tasks": [
+        {
+          "title": "M13.1 \u2014 Section hull generator: `SectionHull` helpers in `src/world/` (lathe rings, drums, domes, ribs, flanges, radial ports) + the section table + collision generated from the same table; replaces the offset-polygon shell in `build_ship_geometry.gd`",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/EXPANSION_SPEC.md",
+              "label": "M13.1 scope and recorded status"
+            }
+          ]
+        },
+        {
+          "title": "M13.2 \u2014 Tube interior: Each room becomes a section: circular deck plate, curved wall, bulkhead doorway at the flange, ladderway or crawl to the next section; corridor retires into the section chain (train layout)",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/EXPANSION_SPEC.md",
+              "label": "M13.2 scope and recorded status"
+            }
+          ]
+        },
+        {
+          "title": "M13.3 \u2014 Radial docks & exterior fittings: Four docks as radial ports on their sections (pods hang perpendicular to the hull axis); airlock outer hatch, EVA platform, truss walkway with railings, tether anchors, cargo port re-mounted on the curved shell",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/EXPANSION_SPEC.md",
+              "label": "M13.3 scope and recorded status"
+            }
+          ]
+        },
+        {
+          "title": "M13.4 \u2014 Slim interior profile: Keep one walkable deck per section at the standard 2.5 m cabin ceiling; remove the experimental raised ceilings, mezzanines and ladders",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/EXPANSION_SPEC.md",
+              "label": "M13.4 scope and recorded status"
+            }
+          ]
+        },
+        {
+          "title": "M13.5 \u2014 Verification: Captures, `test_scene_loop` with the new geometry, manual/manual-binder text, docs",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/EXPANSION_SPEC.md",
+              "label": "M13.5 scope and recorded status"
+            }
+          ]
+        }
+      ],
+      "acceptance": [
+        "Tool output deterministic; hull collides exactly where it renders; no room interior clips the shell; `test_hull_profile`/`test_hull_exterior` re-baselined and green",
+        "Every room reachable on foot; doors at bulkheads; atmosphere/thermal/hull compartment defs follow the section volumes; layout suites green",
+        "Build \u2192 EVA \u2192 enter a pod on foot; tether clips; hull-exterior rays green",
+        "The room geometry, pressure volumes and occupancy zones agree; no generated prop bounds overlap; hull and layout suites green",
+        "Full loop headless; captures reviewed; docs consistent"
+      ]
+    },
+    {
+      "id": "M14",
+      "title": "Xenonite ion propulsion",
+      "phase": "Early-access expansion",
+      "status": "needs_review",
+      "summary": "M14.1\u2013M14.3 implementation is documented as integrated and verified October 1. Paired hardware, live wakes, dedicated drive feed, UV bus load, heat/degraded transit and tool-gated external service save correctly. M14.4 operator presentation review remains pending; five propulsion choices are closed.",
+      "evidence": [
+        {
+          "path": "docs/EXPANSION_SPEC.md",
+          "label": "M14 specification, progress and acceptance"
+        },
+        {
+          "path": "docs/design/propulsion_module_narrative.md",
+          "label": "Integrated propulsion contract and pending capture review"
+        },
+        {
+          "path": "docs/OPEN_QUESTIONS.md",
+          "label": "Five closed operator choices; older provisional note superseded"
+        }
+      ],
+      "tasks": [
+        {
+          "title": "M14.1 \u2014 Drive hardware: Authored paired aft cassettes on stern drum; maneuvering RCS distinct",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/EXPANSION_SPEC.md",
+              "label": "M14.1 scope and recorded status"
+            }
+          ]
+        },
+        {
+          "title": "M14.2 \u2014 Live drive readout: Independent xenon propellant and operational drive status; wakes follow actual cassette firing",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/EXPANSION_SPEC.md",
+              "label": "M14.2 scope and recorded status"
+            }
+          ]
+        },
+        {
+          "title": "M14.3 \u2014 System coupling: Data-driven dedicated tank output, UV bus load, existing engine-bay heat, degraded travel and operator service of external hardware",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/EXPANSION_SPEC.md",
+              "label": "M14.3 scope and recorded status"
+            }
+          ]
+        },
+        {
+          "title": "M14.4 \u2014 Review: Updated aft/side EVA captures, operational manual and closed simulation decisions",
+          "status": "needs_review",
+          "evidence": [
+            {
+              "path": "docs/EXPANSION_SPEC.md",
+              "label": "M14.4 scope and recorded status"
+            }
+          ]
+        }
+      ],
+      "acceptance": [
+        "Generated symmetric mounts clear arrays/anchor/ramp/RCS; visible in aft capture",
+        "Start, arrival, fuel exhaustion, unavailable output and restored saves yield correct wakes/readouts",
+        "Parent validates deterministic wear/fault/diagnosis/repair, power shedding, thermal/feed holds, reduced travel and save/load without soft locks; UI/manual checks pass",
+        "Operator reviews silhouette, sealed tank, external service access, reference fit and failure behavior after M14.3 validation"
+      ]
+    },
+    {
+      "id": "COMPUTER",
+      "title": "Shared ship computer and physical cockpit",
+      "phase": "Gameplay passes",
+      "status": "complete",
+      "summary": "September 28\u201329 reports describe one simulator-backed terminal OS, dated onboard log, remote control, physical folding wall blade, live wall banks, central pilot chair and mechanical state animations. Reported suite counts are historical.",
+      "evidence": [
+        {
+          "path": ".wolf/STATUS.md",
+          "label": "Completed computer/cockpit/chair phases"
+        }
+      ],
+      "tasks": [
+        {
+          "title": "Shared STATUS, STAR CHART, COMMS, LOG, CONTROL and CONTACTS programs",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": ".wolf/STATUS.md",
+              "label": "Shared STATUS, STAR CHART, COMMS, LOG, CONTROL and CONTACTS programs"
+            }
+          ]
+        },
+        {
+          "title": "Saved dated onboard log with unread marks and archived K. Voss volumes",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": ".wolf/STATUS.md",
+              "label": "Saved dated onboard log with unread marks and archived K. Voss volumes"
+            }
+          ]
+        },
+        {
+          "title": "Remote breakers, isolation, pressure doors and airlock controls",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": ".wolf/STATUS.md",
+              "label": "Remote breakers, isolation, pressure doors and airlock controls"
+            }
+          ]
+        },
+        {
+          "title": "Physical animated wall blade with focused display and restored input/HUD",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": ".wolf/STATUS.md",
+              "label": "Physical animated wall blade with focused display and restored input/HUD"
+            }
+          ]
+        },
+        {
+          "title": "Live gauges, circuit lamps and ordered shallow cockpit wall banks",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": ".wolf/STATUS.md",
+              "label": "Live gauges, circuit lamps and ordered shallow cockpit wall banks"
+            }
+          ]
+        },
+        {
+          "title": "Central pilot seating, freelook, station labels and safe fold/swivel/board sequence",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": ".wolf/STATUS.md",
+              "label": "Central pilot seating, freelook, station labels and safe fold/swivel/board sequence"
+            }
+          ]
+        },
+        {
+          "title": "Door and machinery clips follow interactions and saved state",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": ".wolf/STATUS.md",
+              "label": "Door and machinery clips follow interactions and saved state"
+            }
+          ]
+        }
+      ],
+      "acceptance": [
+        "Stations display simulator state; shared log survives saves.",
+        "Blade closing restores view/input; seating and door collision follow animation.",
+        "Retain clear aisle and authentic live instruments."
+      ]
+    },
+    {
+      "id": "WATCH",
+      "title": "Independent watch and maintenance loop",
+      "phase": "Gameplay passes",
+      "status": "needs_review",
+      "summary": "Implementation is reported complete with historical October 1 88/88 source suites. WATCH REPORT, physical refits and clean new-watch state exist; the continuous manual work cycle remains pending.",
+      "evidence": [
+        {
+          "path": "docs/design/independent_watch_pass.md",
+          "label": "Watch-loop implementation and historical validation"
+        },
+        {
+          "path": "docs/design/art_pass/steps/12-final-validation-result.md",
+          "label": "Continuous manual route remains incomplete"
+        }
+      ],
+      "tasks": [
+        {
+          "title": "Live actionable WATCH REPORT and diagnosis-gated fault history",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/independent_watch_pass.md",
+              "label": "Live actionable WATCH REPORT and diagnosis-gated fault history"
+            }
+          ]
+        },
+        {
+          "title": "Tool-gated isolate/open/scan/diagnose/refit/close/restore procedures",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/independent_watch_pass.md",
+              "label": "Tool-gated isolate/open/scan/diagnose/refit/close/restore procedures"
+            }
+          ]
+        },
+        {
+          "title": "Resource-defined gasket, time and quality costs; saved covers block re-energization",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/independent_watch_pass.md",
+              "label": "Resource-defined gasket, time and quality costs; saved covers block re-energization"
+            }
+          ]
+        },
+        {
+          "title": "Fabricated oxygen replenishes the physical rack",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/independent_watch_pass.md",
+              "label": "Fabricated oxygen replenishes the physical rack"
+            }
+          ]
+        },
+        {
+          "title": "Patch point per active tube compartment; retired flat rooms filtered",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/independent_watch_pass.md",
+              "label": "Patch point per active tube compartment; retired flat rooms filtered"
+            }
+          ]
+        },
+        {
+          "title": "Per-scene wear resources prevent damage leaking into a new watch",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/independent_watch_pass.md",
+              "label": "Per-scene wear resources prevent damage leaking into a new watch"
+            }
+          ]
+        },
+        {
+          "title": "Warm hatch surrounds and physical room plaques",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/independent_watch_pass.md",
+              "label": "Warm hatch surrounds and physical room plaques"
+            }
+          ]
+        },
+        {
+          "title": "Complete one uninterrupted watch/repair/travel/EVA/return/save/load session",
+          "status": "needs_review",
+          "evidence": [
+            {
+              "path": "docs/design/art_pass/steps/12-final-validation-result.md",
+              "label": "Complete one uninterrupted watch/repair/travel/EVA/return/save/load session"
+            }
+          ]
+        }
+      ],
+      "acceptance": [
+        "Inspect and diagnose from live readings, refit safely and verify recovery.",
+        "New watch owns clean mutable wear state; physical service survives save/load.",
+        "Complete the Step 12 continuous manual route."
+      ]
+    },
+    {
+      "id": "MENUS",
+      "title": "Main, pause, save/load and settings menus",
+      "phase": "Gameplay passes",
+      "status": "needs_review",
+      "summary": "Main/pause/new/load/save/settings flows, atomic saves, overwrite and confirmed Delete Watch are covered by Linux tests. Three-slot management works; player preferences include field, anomaly and planet rates. Planet rate deterministically discovers optional survey-orbit routes after arrivals; generated routes persist in v6 saves. The current feature branch is not in Windows package c982415, and native Windows usability remains unverified.",
+      "evidence": [
+        {
+          "path": "docs/design/independent_watch_pass.md",
+          "label": "Menu and save implementation"
+        },
+        {
+          "path": "docs/design/art_pass/README.md",
+          "label": "Published gameplay package versus local art"
+        },
+        {
+          "path": "docs/design/art_pass/steps/12-final-validation-result.md",
+          "label": "Wayland menu retry and platform limits"
+        },
+        {
+          "path": "docs/design/playtest_readiness_pass.md",
+          "label": "Current working-tree 90/90 result and release gates"
+        },
+        {
+          "path": "docs/SHIPPING_CHECKLIST.md",
+          "label": "Current package/source distinction and playtest checklist"
+        },
+        {
+          "path": "docs/OPEN_QUESTIONS.md",
+          "label": "Resolved Q9 planet occurrence behavior; Q10 live field-rate timing remains open"
+        },
+        {
+          "path": "game/tests/test_nav.gd",
+          "label": "Planet route frequency extremes, determinism, chart selection and route save/load"
+        },
+        {
+          "path": "game/tests/test_save_migration.gd",
+          "label": "Global save v5 to v6 migration"
+        }
+      ],
+      "tasks": [
+        {
+          "title": "Continue/new/load slot selection and overwrite confirmation",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/independent_watch_pass.md",
+              "label": "Continue/new/load slot selection and overwrite confirmation"
+            }
+          ]
+        },
+        {
+          "title": "Pause freezes movement/sim; save/resume/menu/quit",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/independent_watch_pass.md",
+              "label": "Pause freezes movement/sim; save/resume/menu/quit"
+            }
+          ]
+        },
+        {
+          "title": "Flushed temporary-file save replacement and validated slots",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/independent_watch_pass.md",
+              "label": "Flushed temporary-file save replacement and validated slots"
+            }
+          ]
+        },
+        {
+          "title": "Physical readouts consume first Escape; open doors allow pause",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/independent_watch_pass.md",
+              "label": "Physical readouts consume first Escape; open doors allow pause"
+            }
+          ]
+        },
+        {
+          "title": "Persistent settings",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "game/tests/test_settings.gd",
+              "label": "Persistent controls including planet occurrence"
+            },
+            {
+              "path": "game/tests/test_sector.gd",
+              "label": "Field and anomaly settings remain global across watch loads"
+            }
+          ]
+        },
+        {
+          "title": "Confirmed Delete Watch flow; cancellation preserves the save and successful deletion refreshes the slot list",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "game/tests/test_session_menu.gd",
+              "label": "Delete confirmation, cancel and refreshed slot list"
+            },
+            {
+              "path": "game/tests/test_session_flow.gd",
+              "label": "Actual SaveManager deletion and byte-for-byte cancel preservation"
+            }
+          ]
+        },
+        {
+          "title": "Keep encounter rates in global settings across load; ignore legacy per-watch frequency values",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "game/tests/test_sector.gd",
+              "label": "Legacy frequency fields ignored and omitted from new sector saves"
+            },
+            {
+              "path": "game/tests/test_settings.gd",
+              "label": "Persistent global preferences and live field updates"
+            }
+          ]
+        },
+        {
+          "title": "Implement optional waypoint planet discovery and route persistence",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/OPEN_QUESTIONS.md",
+              "label": "Q9 deterministic route-discovery decision and rate semantics"
+            },
+            {
+              "path": "game/tests/test_nav.gd",
+              "label": "Rate extremes, deterministic discoveries, star-chart route and save/load"
+            },
+            {
+              "path": "game/tests/test_save_migration.gd",
+              "label": "Planet-route save v6 migration"
+            }
+          ]
+        },
+        {
+          "title": "Verify new/load/save/pause/settings on native Windows",
+          "status": "needs_review",
+          "evidence": [
+            {
+              "path": "docs/design/art_pass/steps/12-final-validation-result.md",
+              "label": "Verify new/load/save/pause/settings on native Windows"
+            }
+          ]
+        }
+      ],
+      "acceptance": [
+        "Saved watch reloads correctly; overwrite confirmation and slot isolation preserve data.",
+        "Readout dismissal and pause behave correctly during play.",
+        "Native Windows verification records actual executable behavior."
+      ]
+    },
+    {
+      "id": "MOVEMENT",
+      "title": "Movement recovery, drift and menu feel",
+      "phase": "Gameplay passes",
+      "status": "needs_review",
+      "summary": "October 1 implementation fixes reversed W/S thrust, capsule-centered roll/recovery, reachable-surface push-off and boarding alignment, with updated controls/HUD/menu. Historical 88/88 regression evidence and stills exist; subjective human feel and Windows execution remain unverified.",
+      "evidence": [
+        {
+          "path": "docs/design/movement_feel_pass.md",
+          "label": "Movement implementation, controls, captures and validation limits"
+        }
+      ],
+      "tasks": [
+        {
+          "title": "Camera-relative forward thrust and Space/Ctrl vertical thrust",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/movement_feel_pass.md",
+              "label": "Camera-relative forward thrust and Space/Ctrl vertical thrust"
+            }
+          ]
+        },
+        {
+          "title": "Finite-reach wall/ceiling push-off with incoming normal momentum cancelled",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/movement_feel_pass.md",
+              "label": "Finite-reach wall/ceiling push-off with incoming normal momentum cancelled"
+            }
+          ]
+        },
+        {
+          "title": "Shift drift brake and Z/C roll",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/movement_feel_pass.md",
+              "label": "Shift drift brake and Z/C roll"
+            }
+          ]
+        },
+        {
+          "title": "Q prioritizes reachable deck with checked center/feet-pivot attachment",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/movement_feel_pass.md",
+              "label": "Q prioritizes reachable deck with checked center/feet-pivot attachment"
+            }
+          ]
+        },
+        {
+          "title": "Faster walking response, eased crouch/boot camera and level pilot boarding",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/movement_feel_pass.md",
+              "label": "Faster walking response, eased crouch/boot camera and level pilot boarding"
+            }
+          ]
+        },
+        {
+          "title": "HUD/manual recovery controls and larger CRT menu click targets",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/movement_feel_pass.md",
+              "label": "HUD/manual recovery controls and larger CRT menu click targets"
+            }
+          ]
+        },
+        {
+          "title": "Human play review of recovery, drift and seated interaction",
+          "status": "needs_review",
+          "evidence": [
+            {
+              "path": "docs/design/movement_feel_pass.md",
+              "label": "Human play review of recovery, drift and seated interaction"
+            }
+          ]
+        }
+      ],
+      "acceptance": [
+        "Forward displacement matches view; released controls preserve drift.",
+        "Low-ceiling recovery and close-hull attachment respect real capsule clearance.",
+        "Confirm subjective feel in live play, not only physics regression checks."
+      ]
+    },
+    {
+      "id": "ART",
+      "title": "Starpath-inspired full-ship art: twelve packets",
+      "phase": "Art passes",
+      "status": "needs_review",
+      "summary": "Steps 01\u201311 and the Step 12 report are complete locally per October 1 sources; art is reported uncommitted/unpushed at that checkpoint. Implementation and agent capture review do not close final operator review, manual play, profiler or Windows gates. The 89/89 result is historical October 1 evidence, not current October 8 validation.",
+      "evidence": [
+        {
+          "path": "docs/design/art_pass/README.md",
+          "label": "Twelve-step sequence, scope and publication boundary"
+        },
+        {
+          "path": "docs/design/art_pass/steps/12-final-validation-result.md",
+          "label": "Final report and outstanding verification"
+        },
+        {
+          "path": "docs/design/art_pass/hero_review.md",
+          "label": "Hero baseline and three operator questions"
+        }
+      ],
+      "tasks": [
+        {
+          "title": "Step 01 \u2014 Trustworthy checkpoint and repaired imported-mesh bounds validation",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/art_pass/steps/01-result.md",
+              "label": "Step 01 \u2014 Trustworthy checkpoint and repaired imported-mesh bounds validation"
+            }
+          ]
+        },
+        {
+          "title": "Step 02 \u2014 Measured hero layout and visual rubric",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/art_pass/steps/02-result.md",
+              "label": "Step 02 \u2014 Measured hero layout and visual rubric"
+            }
+          ]
+        },
+        {
+          "title": "Step 03 \u2014 Layered pressure frames and cable routing",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/art_pass/steps/03-result.md",
+              "label": "Step 03 \u2014 Layered pressure frames and cable routing"
+            }
+          ]
+        },
+        {
+          "title": "Step 04 \u2014 Original refined modular utility kit",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/art_pass/steps/04-result.md",
+              "label": "Step 04 \u2014 Original refined modular utility kit"
+            }
+          ]
+        },
+        {
+          "title": "Step 05 \u2014 Working dense cockpit integration",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/art_pass/steps/05-result.md",
+              "label": "Step 05 \u2014 Working dense cockpit integration"
+            }
+          ]
+        },
+        {
+          "title": "Step 06 \u2014 Restrained materials and wear",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/art_pass/steps/06-result.md",
+              "label": "Step 06 \u2014 Restrained materials and wear"
+            }
+          ]
+        },
+        {
+          "title": "Step 07 \u2014 Practical lighting and breaker/save behavior",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/art_pass/steps/07-result.md",
+              "label": "Step 07 \u2014 Practical lighting and breaker/save behavior"
+            }
+          ]
+        },
+        {
+          "title": "Step 08 \u2014 Adjoining quarters cabin and capsule-clear pod route",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/art_pass/steps/08-result.md",
+              "label": "Step 08 \u2014 Adjoining quarters cabin and capsule-clear pod route"
+            }
+          ]
+        },
+        {
+          "title": "Step 09 \u2014 Hero acceptance evidence and seated light matrix",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/art_pass/steps/09-result.md",
+              "label": "Step 09 \u2014 Hero acceptance evidence and seated light matrix"
+            }
+          ]
+        },
+        {
+          "title": "Step 10 \u2014 Interior room-by-room rollout",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/art_pass/steps/10-life-support-result.md",
+              "label": "Step 10 \u2014 Interior room-by-room rollout"
+            }
+          ]
+        },
+        {
+          "title": "Step 11 \u2014 Exterior language, service access and adjacent-pod guard",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/art_pass/steps/11-exterior-result.md",
+              "label": "Step 11 \u2014 Exterior language, service access and adjacent-pod guard"
+            }
+          ]
+        },
+        {
+          "title": "Step 12 \u2014 Final validation report and remaining manual/platform checks",
+          "status": "needs_review",
+          "evidence": [
+            {
+              "path": "docs/design/art_pass/steps/12-final-validation-result.md",
+              "label": "Step 12 \u2014 Final validation report and remaining manual/platform checks"
+            }
+          ]
+        },
+        {
+          "title": "Step 10 room \u2014 Life Support",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/art_pass/steps/10-life-support-result.md",
+              "label": "Step 10 room \u2014 Life Support"
+            }
+          ]
+        },
+        {
+          "title": "Step 10 room \u2014 Engine Bay",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/art_pass/steps/10-engine-bay-result.md",
+              "label": "Step 10 room \u2014 Engine Bay"
+            }
+          ]
+        },
+        {
+          "title": "Step 10 room \u2014 Storage",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/art_pass/steps/10-storage-result.md",
+              "label": "Step 10 room \u2014 Storage"
+            }
+          ]
+        },
+        {
+          "title": "Step 10 room \u2014 Galley",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/art_pass/steps/10-galley-result.md",
+              "label": "Step 10 room \u2014 Galley"
+            }
+          ]
+        },
+        {
+          "title": "Step 10 room \u2014 Water Closet",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/art_pass/steps/10-water-closet-result.md",
+              "label": "Step 10 room \u2014 Water Closet"
+            }
+          ]
+        },
+        {
+          "title": "Step 10 room \u2014 Airlock",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/art_pass/steps/10-airlock-result.md",
+              "label": "Step 10 room \u2014 Airlock"
+            }
+          ]
+        },
+        {
+          "title": "Operator review of additional localized hero-wall cable/mount detail",
+          "status": "needs_review",
+          "evidence": [
+            {
+              "path": "docs/design/art_pass/hero_review.md",
+              "label": "Operator review of additional localized hero-wall cable/mount detail"
+            }
+          ]
+        },
+        {
+          "title": "Operator review of seated side-console flashlight visibility in actual play",
+          "status": "needs_review",
+          "evidence": [
+            {
+              "path": "docs/design/art_pass/hero_review.md",
+              "label": "Operator review of seated side-console flashlight visibility in actual play"
+            }
+          ]
+        },
+        {
+          "title": "Operator review of small CRT text under the stronger analogue filter",
+          "status": "needs_review",
+          "evidence": [
+            {
+              "path": "docs/design/art_pass/hero_review.md",
+              "label": "Operator review of small CRT text under the stronger analogue filter"
+            }
+          ]
+        },
+        {
+          "title": "Continuous manual work-cycle replay with suitable approved live-input path",
+          "status": "blocked",
+          "evidence": [
+            {
+              "path": "docs/design/art_pass/steps/12-final-validation-result.md",
+              "label": "Continuous manual work-cycle replay with suitable approved live-input path"
+            }
+          ]
+        },
+        {
+          "title": "Sim profiler budget investigation",
+          "status": "needs_review",
+          "evidence": [
+            {
+              "path": "docs/design/art_pass/steps/12-final-validation-result.md",
+              "label": "Sim profiler budget investigation"
+            }
+          ]
+        },
+        {
+          "title": "Native Windows runtime verification",
+          "status": "needs_review",
+          "evidence": [
+            {
+              "path": "docs/design/art_pass/steps/12-final-validation-result.md",
+              "label": "Native Windows runtime verification"
+            }
+          ]
+        },
+        {
+          "title": "Investigate native import popup-parent errors separately from script suites",
+          "status": "needs_review",
+          "evidence": [
+            {
+              "path": "docs/design/art_pass/steps/12-final-validation-result.md",
+              "label": "Investigate native import popup-parent errors separately from script suites"
+            }
+          ]
+        },
+        {
+          "title": "Optional reviewed art source commit, export and publication after explicit release request",
+          "status": "planned",
+          "evidence": [
+            {
+              "path": "docs/design/art_pass/steps/12-final-validation-and-release.md",
+              "label": "Optional reviewed art source commit, export and publication after explicit release request"
+            }
+          ]
+        }
+      ],
+      "acceptance": [
+        "Preserve mottled walls, strong analogue filter, 2.5 m single deck and working physical instruments.",
+        "Every room and exterior has actual rendered evidence and preserved service/capsule access.",
+        "Keep source, generated geometry, tests and any claimed exported build consistent.",
+        "Record manual route, profiler/platform limits and operator review before claiming final acceptance."
+      ]
+    },
+    {
+      "id": "RELEASE",
+      "title": "Early-access and public-release preparation",
+      "phase": "Release gates",
+      "status": "planned",
+      "summary": "Extracted pending checklist items retain their provenance and conditional scope (for example store-required legal documents and nice-to-have notices). Existing test-build releases do not close the full shipping checklist. Public art export/publication is conditional on a separate release request.",
+      "evidence": [
+        {
+          "path": "docs/SHIPPING_CHECKLIST.md",
+          "label": "Every unchecked item from the historical shipping checklist"
+        },
+        {
+          "path": "docs/STORE_PAGE.md",
+          "label": "Store preparation and explicit remaining items"
+        },
+        {
+          "path": "docs/design/art_pass/steps/12-final-validation-and-release.md",
+          "label": "Optional release procedure"
+        }
+      ],
+      "tasks": [
+        {
+          "title": "Build pipeline \u2014 Code signing (not needed until public release)",
+          "status": "planned",
+          "evidence": [
+            {
+              "path": "docs/SHIPPING_CHECKLIST.md",
+              "label": "Unchecked shipping checklist: Build pipeline"
+            }
+          ]
+        },
+        {
+          "title": "Build pipeline \u2014 Installer / installer branding",
+          "status": "planned",
+          "evidence": [
+            {
+              "path": "docs/SHIPPING_CHECKLIST.md",
+              "label": "Unchecked shipping checklist: Build pipeline"
+            }
+          ]
+        },
+        {
+          "title": "Game content \u2014 External playtest of current content (spec \u00a78.5 success test: manual-only survival) \u2014 v0.6.0 round returned; v0.7.0-v0.10.0 rounds pending",
+          "status": "needs_review",
+          "evidence": [
+            {
+              "path": "docs/SHIPPING_CHECKLIST.md",
+              "label": "Unchecked shipping checklist: Game content"
+            }
+          ]
+        },
+        {
+          "title": "Game content \u2014 Balance pass across a full 3-day session on real hardware",
+          "status": "needs_review",
+          "evidence": [
+            {
+              "path": "docs/SHIPPING_CHECKLIST.md",
+              "label": "Unchecked shipping checklist: Game content"
+            }
+          ]
+        },
+        {
+          "title": "Technical \u2014 Performance validation on mid-range hardware (profilers exist; real GPU run pending)",
+          "status": "needs_review",
+          "evidence": [
+            {
+              "path": "docs/SHIPPING_CHECKLIST.md",
+              "label": "Unchecked shipping checklist: Technical"
+            }
+          ]
+        },
+        {
+          "title": "Technical \u2014 Accessibility pass beyond settings (subtitles do not exist yet \u2014 most audio is diagnostic)",
+          "status": "planned",
+          "evidence": [
+            {
+              "path": "docs/SHIPPING_CHECKLIST.md",
+              "label": "Unchecked shipping checklist: Technical"
+            }
+          ]
+        },
+        {
+          "title": "Legal / credits \u2014 EULA / privacy policy if store-required",
+          "status": "planned",
+          "evidence": [
+            {
+              "path": "docs/SHIPPING_CHECKLIST.md",
+              "label": "Unchecked shipping checklist: Legal / credits"
+            }
+          ]
+        },
+        {
+          "title": "Legal / credits \u2014 Third-party notices page in-game (nice-to-have)",
+          "status": "planned",
+          "evidence": [
+            {
+              "path": "docs/SHIPPING_CHECKLIST.md",
+              "label": "Unchecked shipping checklist: Legal / credits"
+            }
+          ]
+        },
+        {
+          "title": "Store \u2014 Real key art (capsules are still generated)",
+          "status": "planned",
+          "evidence": [
+            {
+              "path": "docs/SHIPPING_CHECKLIST.md",
+              "label": "Unchecked shipping checklist: Store"
+            }
+          ]
+        },
+        {
+          "title": "Store \u2014 Steamworks (or itch.io) account + depot configuration",
+          "status": "planned",
+          "evidence": [
+            {
+              "path": "docs/SHIPPING_CHECKLIST.md",
+              "label": "Unchecked shipping checklist: Store"
+            }
+          ]
+        },
+        {
+          "title": "Store \u2014 Trailer/animated capsule",
+          "status": "planned",
+          "evidence": [
+            {
+              "path": "docs/STORE_PAGE.md",
+              "label": "Open items before a real store page"
+            }
+          ]
+        },
+        {
+          "title": "Store \u2014 Age rating questionnaire",
+          "status": "planned",
+          "evidence": [
+            {
+              "path": "docs/STORE_PAGE.md",
+              "label": "Open items before a real store page"
+            }
+          ]
+        },
+        {
+          "title": "Store \u2014 Final title (working title Hullwatch)",
+          "status": "needs_review",
+          "evidence": [
+            {
+              "path": "docs/STORE_PAGE.md",
+              "label": "Open items before a real store page"
+            }
+          ]
+        },
+        {
+          "title": "Commit reviewed art source on the intended branch while preserving published checkpoints",
+          "status": "planned",
+          "evidence": [
+            {
+              "path": "docs/design/art_pass/steps/12-final-validation-and-release.md",
+              "label": "Commit reviewed art source on the intended branch while preserving published checkpoints"
+            }
+          ]
+        },
+        {
+          "title": "Export a uniquely named dated/art Windows package with recorded source/tool versions",
+          "status": "planned",
+          "evidence": [
+            {
+              "path": "docs/design/art_pass/steps/12-final-validation-and-release.md",
+              "label": "Export a uniquely named dated/art Windows package with recorded source/tool versions"
+            }
+          ]
+        },
+        {
+          "title": "Check PE output, zip CRC, hashes and embedded-pack startup/menu/player content",
+          "status": "planned",
+          "evidence": [
+            {
+              "path": "docs/design/art_pass/steps/12-final-validation-and-release.md",
+              "label": "Check PE output, zip CRC, hashes and embedded-pack startup/menu/player content"
+            }
+          ]
+        },
+        {
+          "title": "Record native Windows runtime coverage separately from cross-export",
+          "status": "planned",
+          "evidence": [
+            {
+              "path": "docs/design/art_pass/steps/12-final-validation-and-release.md",
+              "label": "Record native Windows runtime coverage separately from cross-export"
+            }
+          ]
+        },
+        {
+          "title": "Provide package README, controls, source commit and SHA256SUMS",
+          "status": "planned",
+          "evidence": [
+            {
+              "path": "docs/design/art_pass/steps/12-final-validation-and-release.md",
+              "label": "Provide package README, controls, source commit and SHA256SUMS"
+            }
+          ]
+        },
+        {
+          "title": "Publish through authenticated release assets or verified branch LFS; verify remote commit and objects",
+          "status": "planned",
+          "evidence": [
+            {
+              "path": "docs/design/art_pass/steps/12-final-validation-and-release.md",
+              "label": "Publish through authenticated release assets or verified branch LFS; verify remote commit and objects"
+            }
+          ]
+        }
+      ],
+      "acceptance": [
+        "Complete applicable shipping checklist, current-content playtest and real-hardware balance/performance.",
+        "Replace generated placeholder capsules with real key art before external store use.",
+        "Do not claim local art, Linux cross-export or pack checks establish Windows runtime or publication."
+      ]
+    },
+    {
+      "id": "NARRATIVE",
+      "title": "Unresolved campaign and narrative choices",
+      "phase": "Design decisions",
+      "status": "needs_review",
+      "summary": "Open-ended survival replaces finite campaign duration/order and mandatory ending as of October 9. Identity, vessel name, optional grounded context and death/recovery policy remain decisions. Expanded activities are proposals; keep Xenonite internals sealed.",
+      "evidence": [
+        {
+          "path": "docs/PRODUCTION_SPEC.md",
+          "label": "Narrative framework, voyage ending and unresolved \u00a79 choices"
+        },
+        {
+          "path": "docs/EXPANSION_SPEC.md",
+          "label": "Neutral M11 destinations"
+        },
+        {
+          "path": "docs/release-notes-v0.7.0.md",
+          "label": "Implemented comms traffic"
+        },
+        {
+          "path": "docs/OPEN_QUESTIONS.md",
+          "label": "Closed construction, hull and propulsion decisions"
+        }
+      ],
+      "tasks": [
+        {
+          "title": "Choose protagonist identity/backstory versus blank slate",
+          "status": "needs_review",
+          "evidence": [
+            {
+              "path": "docs/PRODUCTION_SPEC.md",
+              "label": "Choose protagonist identity/backstory versus blank slate"
+            }
+          ]
+        },
+        {
+          "title": "Choose open-ended survival instead of a fixed campaign duration/order",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/open_survival_direction_pass.md",
+              "label": "Open survival direction, reference review and proposed passes"
+            }
+          ]
+        },
+        {
+          "title": "Confirm death frequency and mercy-reset target",
+          "status": "needs_review",
+          "evidence": [
+            {
+              "path": "docs/PRODUCTION_SPEC.md",
+              "label": "Confirm death frequency and mercy-reset target"
+            }
+          ]
+        },
+        {
+          "title": "Resolve vessel name and optional grounded narrative context (no mandatory campaign ending)",
+          "status": "needs_review",
+          "evidence": [
+            {
+              "path": "docs/PRODUCTION_SPEC.md",
+              "label": "Resolve vessel name and grounded voyage conclusion"
+            }
+          ]
+        },
+        {
+          "title": "Reconcile old comms-reply question with implemented late reply",
+          "status": "needs_review",
+          "evidence": [
+            {
+              "path": "docs/PRODUCTION_SPEC.md",
+              "label": "Reconcile old comms-reply question with implemented late reply"
+            }
+          ]
+        },
+        {
+          "title": "Construction jobs, modular pod machines, full refunds and bare-pod tier decisions",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/OPEN_QUESTIONS.md",
+              "label": "Construction jobs, modular pod machines, full refunds and bare-pod tier decisions"
+            }
+          ]
+        },
+        {
+          "title": "Radial 1.2 m docks and standard single-height deck supersede earlier geometry choices",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/EXPANSION_SPEC.md",
+              "label": "Radial 1.2 m docks and standard single-height deck supersede earlier geometry choices"
+            }
+          ]
+        },
+        {
+          "title": "Five propulsion decisions closed; preserve sealed player-knowledge boundary",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/propulsion_module_narrative.md",
+              "label": "Five propulsion decisions closed; preserve sealed player-knowledge boundary"
+            }
+          ]
+        }
+      ],
+      "acceptance": [
+        "Operator resolves narrative and scope choices explicitly.",
+        "No supernatural answer, combat, jumpscare or agency-based threat.",
+        "Older options and superseded choices remain history rather than reopened requirements."
+      ]
+    },
+    {
+      "id": "LATER",
+      "title": "Explicit later and post-EA scope",
+      "phase": "Future scope",
+      "status": "planned",
+      "summary": "Only documented deferrals are listed; no dates or delivery commitments are inferred. Freeform hull building is post-EA, a ship manipulator is a later upgrade, visitable stations are deferred, co-op is only a post-launch maybe, and Linux/macOS follow Windows.",
+      "evidence": [
+        {
+          "path": "docs/EXPANSION_SPEC.md",
+          "label": "Resolved expansion deferrals"
+        },
+        {
+          "path": "docs/OPEN_QUESTIONS.md",
+          "label": "Visitable stations deferred"
+        },
+        {
+          "path": "docs/PRODUCTION_SPEC.md",
+          "label": "Platform order and post-launch co-op maybe"
+        }
+      ],
+      "tasks": [
+        {
+          "title": "Ship-mounted manipulator arm as a later module/upgrade",
+          "status": "planned",
+          "evidence": [
+            {
+              "path": "docs/EXPANSION_SPEC.md",
+              "label": "Ship-mounted manipulator arm as a later module/upgrade"
+            }
+          ]
+        },
+        {
+          "title": "Freeform hull building after fixed-hardpoint EA scope",
+          "status": "planned",
+          "evidence": [
+            {
+              "path": "docs/EXPANSION_SPEC.md",
+              "label": "Freeform hull building after fixed-hardpoint EA scope"
+            }
+          ]
+        },
+        {
+          "title": "Visitable stations deferred from the player-ship hull pass",
+          "status": "planned",
+          "evidence": [
+            {
+              "path": "docs/OPEN_QUESTIONS.md",
+              "label": "Visitable stations deferred from the player-ship hull pass"
+            }
+          ]
+        },
+        {
+          "title": "Linux/macOS after Windows-first platform scope",
+          "status": "planned",
+          "evidence": [
+            {
+              "path": "docs/PRODUCTION_SPEC.md",
+              "label": "Linux/macOS after Windows-first platform scope"
+            }
+          ]
+        },
+        {
+          "title": "Post-launch co-op consideration only; not committed launch scope",
+          "status": "planned",
+          "evidence": [
+            {
+              "path": "docs/PRODUCTION_SPEC.md",
+              "label": "Post-launch co-op consideration only; not committed launch scope"
+            }
+          ]
+        }
+      ],
+      "acceptance": [
+        "Current EA remains fixed-hardpoint, single-player, waypoint travel.",
+        "Future work requires its own approved scope; speculative dates are omitted."
+      ]
+    },
+    {
+      "id": "DASHBOARD",
+      "title": "Interactive documentation dashboard",
+      "phase": "Development tools",
+      "status": "complete",
+      "summary": "Complete local source archive, visual roadmap, evidence reader and per-pass refresh hooks. Portable export is available; nothing is published. Restart agents to load new hooks.",
+      "evidence": [
+        {
+          "path": "docs/dashboard/RESULT.md",
+          "label": "Dashboard outcome and checks"
+        },
+        {
+          "path": "docs/dashboard/README.md",
+          "label": "Usage and hosting recommendation"
+        },
+        {
+          "path": "docs/dashboard/HOOKS.md",
+          "label": "Refresh hooks and runtime limits"
+        }
+      ],
+      "tasks": [
+        {
+          "title": "Collect complete documentation, game data and project context",
+          "status": "complete"
+        },
+        {
+          "title": "Build interactive document search and reader",
+          "status": "complete"
+        },
+        {
+          "title": "Visualize production, expansion, art and release roadmap with evidence",
+          "status": "complete"
+        },
+        {
+          "title": "Integrate full visual archive and portable offline export",
+          "status": "complete"
+        },
+        {
+          "title": "Install refresh hooks and check browser layouts and source fidelity",
+          "status": "complete"
+        }
+      ],
+      "acceptance": [
+        "Local dashboard opens without a server or internet.",
+        "Task statuses remain explicitly authored and linked to evidence.",
+        "End hooks preserve OpenWolf ordering and report failures.",
+        "Desktop, mobile and portable offline checks pass."
+      ]
+    },
+    {
+      "id": "SURVIVAL_SALVAGE",
+      "title": "Useful salvage",
+      "phase": "Open survival Alpha",
+      "status": "in_progress",
+      "summary": "Common salvage mechanics implemented and tested with a provisional battery fixture. First technology choice, manual continuous EVA route and final art/balance acceptance remain pending.",
+      "evidence": [
+        {
+          "path": "docs/design/survival_slices/01-useful-salvage.md",
+          "label": "Slice plan"
+        },
+        {
+          "path": "docs/design/survival_slices/README.md",
+          "label": "Interaction map"
+        }
+      ],
+      "tasks": [
+        {
+          "title": "Write bounded slice plan and cross-slice interactions",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/survival_slices/01-useful-salvage.md",
+              "label": "Implementation steps and acceptance"
+            }
+          ]
+        },
+        {
+          "title": "Implement unique recovery, physical transport, diagnosis, repair, fitting and scrapping",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/survival_slices/01-result.md",
+              "label": "Implementation checkpoint"
+            }
+          ]
+        },
+        {
+          "title": "Validate scene interactions, save migration and conservation",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/survival_slices/01-result.md",
+              "label": "90-suite run and focused checks"
+            }
+          ]
+        },
+        {
+          "title": "Choose first recovered technology (battery recommended; choice pending)",
+          "status": "needs_review",
+          "evidence": [
+            {
+              "path": "docs/design/survival_slices/README.md",
+              "label": "First technology options"
+            }
+          ]
+        },
+        {
+          "title": "Review live approach, EVA/tether return, service access and final presentation/balance",
+          "status": "needs_review",
+          "evidence": [
+            {
+              "path": "docs/design/survival_slices/01-result.md",
+              "label": "Manual/art acceptance remains open"
+            }
+          ]
+        }
+      ],
+      "acceptance": [
+        "Complete the planned physical player sequence with real system consequences and saved ownership.",
+        "Human gameplay acceptance is distinct from automated checks."
+      ]
+    },
+    {
+      "id": "SURVIVAL_REFIT",
+      "title": "Ship specialization",
+      "phase": "Open survival Alpha",
+      "status": "planned",
+      "summary": "Operator-approved activity direction; bounded plan written. Implementation and acceptance remain planned.",
+      "evidence": [
+        {
+          "path": "docs/design/survival_slices/02-ship-specialization.md",
+          "label": "Slice plan"
+        },
+        {
+          "path": "docs/design/survival_slices/README.md",
+          "label": "Interaction map"
+        }
+      ],
+      "tasks": [
+        {
+          "title": "Write bounded slice plan and cross-slice interactions",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/survival_slices/02-ship-specialization.md",
+              "label": "Implementation steps and acceptance"
+            }
+          ]
+        },
+        {
+          "title": "Implement the bounded player activity and connect its live resource/system consequences",
+          "status": "planned",
+          "evidence": [
+            {
+              "path": "docs/design/survival_slices/02-ship-specialization.md",
+              "label": "Player sequence and dependencies"
+            }
+          ]
+        },
+        {
+          "title": "Validate conservation, persistence and live play acceptance",
+          "status": "planned",
+          "evidence": [
+            {
+              "path": "docs/design/survival_slices/02-ship-specialization.md",
+              "label": "Acceptance criteria"
+            }
+          ]
+        }
+      ],
+      "acceptance": [
+        "Complete the planned physical player sequence with real system consequences and saved ownership.",
+        "Human gameplay acceptance is distinct from automated checks."
+      ]
+    },
+    {
+      "id": "SURVIVAL_SURVEY",
+      "title": "Investigation and surveying",
+      "phase": "Open survival Alpha",
+      "status": "planned",
+      "summary": "Planet waypoint occurrence now offers optional travel opportunities and saves discoveries. The broader investigation slice\u2014useful contact evidence, a survey notebook and a complete probe/sample loop\u2014remains planned.",
+      "evidence": [
+        {
+          "path": "docs/design/survival_slices/03-investigation.md",
+          "label": "Slice plan"
+        },
+        {
+          "path": "docs/design/survival_slices/README.md",
+          "label": "Interaction map"
+        }
+      ],
+      "tasks": [
+        {
+          "title": "Write bounded slice plan and cross-slice interactions",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/survival_slices/03-investigation.md",
+              "label": "Implementation steps and acceptance"
+            }
+          ]
+        },
+        {
+          "title": "Implement the bounded player activity and connect its live resource/system consequences",
+          "status": "planned",
+          "evidence": [
+            {
+              "path": "docs/design/survival_slices/03-investigation.md",
+              "label": "Player sequence and dependencies"
+            }
+          ]
+        },
+        {
+          "title": "Validate conservation, persistence and live play acceptance",
+          "status": "planned",
+          "evidence": [
+            {
+              "path": "docs/design/survival_slices/03-investigation.md",
+              "label": "Acceptance criteria"
+            }
+          ]
+        }
+      ],
+      "acceptance": [
+        "Complete the planned physical player sequence with real system consequences and saved ownership.",
+        "Human gameplay acceptance is distinct from automated checks."
+      ]
+    },
+    {
+      "id": "SURVIVAL_LIFE",
+      "title": "Sustainable survival",
+      "phase": "Open survival Alpha",
+      "status": "planned",
+      "summary": "Operator-approved activity direction; bounded plan written. Implementation and acceptance remain planned.",
+      "evidence": [
+        {
+          "path": "docs/design/survival_slices/04-sustainable-survival.md",
+          "label": "Slice plan"
+        },
+        {
+          "path": "docs/design/survival_slices/README.md",
+          "label": "Interaction map"
+        }
+      ],
+      "tasks": [
+        {
+          "title": "Write bounded slice plan and cross-slice interactions",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/survival_slices/04-sustainable-survival.md",
+              "label": "Implementation steps and acceptance"
+            }
+          ]
+        },
+        {
+          "title": "Implement the bounded player activity and connect its live resource/system consequences",
+          "status": "planned",
+          "evidence": [
+            {
+              "path": "docs/design/survival_slices/04-sustainable-survival.md",
+              "label": "Player sequence and dependencies"
+            }
+          ]
+        },
+        {
+          "title": "Validate conservation, persistence and live play acceptance",
+          "status": "planned",
+          "evidence": [
+            {
+              "path": "docs/design/survival_slices/04-sustainable-survival.md",
+              "label": "Acceptance criteria"
+            }
+          ]
+        }
+      ],
+      "acceptance": [
+        "Complete the planned physical player sequence with real system consequences and saved ownership.",
+        "Human gameplay acceptance is distinct from automated checks."
+      ]
+    },
+    {
+      "id": "SURVIVAL_EVA",
+      "title": "Exterior projects",
+      "phase": "Open survival Alpha",
+      "status": "planned",
+      "summary": "Operator-approved activity direction; bounded plan written. Implementation and acceptance remain planned.",
+      "evidence": [
+        {
+          "path": "docs/design/survival_slices/05-exterior-projects.md",
+          "label": "Slice plan"
+        },
+        {
+          "path": "docs/design/survival_slices/README.md",
+          "label": "Interaction map"
+        }
+      ],
+      "tasks": [
+        {
+          "title": "Write bounded slice plan and cross-slice interactions",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/survival_slices/05-exterior-projects.md",
+              "label": "Implementation steps and acceptance"
+            }
+          ]
+        },
+        {
+          "title": "Implement the bounded player activity and connect its live resource/system consequences",
+          "status": "planned",
+          "evidence": [
+            {
+              "path": "docs/design/survival_slices/05-exterior-projects.md",
+              "label": "Player sequence and dependencies"
+            }
+          ]
+        },
+        {
+          "title": "Validate conservation, persistence and live play acceptance",
+          "status": "planned",
+          "evidence": [
+            {
+              "path": "docs/design/survival_slices/05-exterior-projects.md",
+              "label": "Acceptance criteria"
+            }
+          ]
+        }
+      ],
+      "acceptance": [
+        "Complete the planned physical player sequence with real system consequences and saved ownership.",
+        "Human gameplay acceptance is distinct from automated checks."
+      ]
+    },
+    {
+      "id": "SURVIVAL_HOME",
+      "title": "Personal ownership",
+      "phase": "Open survival Alpha",
+      "status": "planned",
+      "summary": "Operator-approved activity direction; bounded plan written. Implementation and acceptance remain planned.",
+      "evidence": [
+        {
+          "path": "docs/design/survival_slices/06-personal-ownership.md",
+          "label": "Slice plan"
+        },
+        {
+          "path": "docs/design/survival_slices/README.md",
+          "label": "Interaction map"
+        }
+      ],
+      "tasks": [
+        {
+          "title": "Write bounded slice plan and cross-slice interactions",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/survival_slices/06-personal-ownership.md",
+              "label": "Implementation steps and acceptance"
+            }
+          ]
+        },
+        {
+          "title": "Implement the bounded player activity and connect its live resource/system consequences",
+          "status": "planned",
+          "evidence": [
+            {
+              "path": "docs/design/survival_slices/06-personal-ownership.md",
+              "label": "Player sequence and dependencies"
+            }
+          ]
+        },
+        {
+          "title": "Validate conservation, persistence and live play acceptance",
+          "status": "planned",
+          "evidence": [
+            {
+              "path": "docs/design/survival_slices/06-personal-ownership.md",
+              "label": "Acceptance criteria"
+            }
+          ]
+        }
+      ],
+      "acceptance": [
+        "Complete the planned physical player sequence with real system consequences and saved ownership.",
+        "Human gameplay acceptance is distinct from automated checks."
+      ]
+    },
+    {
+      "id": "SURVIVAL_SUPPLY",
+      "title": "Replenishment paths",
+      "phase": "Open survival foundations",
+      "status": "planned",
+      "summary": "Parallel preparation complete across current game state/resources. Bounded implementation packets remain planned; slice-01 save/conservation fixes are documented separately.",
+      "evidence": [
+        {
+          "path": "docs/design/survival_slices/replenishment_plan.md",
+          "label": "Source inventory, gaps and staged implementation"
+        }
+      ],
+      "tasks": [
+        {
+          "title": "Inventory current ownership, transfer paths and gaps; write staged plan",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/survival_slices/replenishment_plan.md",
+              "label": "Preparation complete"
+            }
+          ]
+        },
+        {
+          "title": "Resolve listed resource/persistence policy choices and implement staged packets",
+          "status": "planned",
+          "evidence": [
+            {
+              "path": "docs/design/survival_slices/replenishment_plan.md",
+              "label": "Bounded implementation order and open decisions"
+            }
+          ]
+        },
+        {
+          "title": "Validate multi-week continuity, save/revisit conservation and failure paths",
+          "status": "planned",
+          "evidence": [
+            {
+              "path": "docs/design/survival_slices/replenishment_plan.md",
+              "label": "Acceptance plan"
+            }
+          ]
+        }
+      ],
+      "acceptance": [
+        "Every gameplay resource/state has an explicit owner, transfer/persistence policy and validated conservation behavior."
+      ]
+    },
+    {
+      "id": "SURVIVAL_SAVE",
+      "title": "Whole-game persistence",
+      "phase": "Open survival foundations",
+      "status": "planned",
+      "summary": "Parallel preparation complete across current game state/resources. Bounded implementation packets remain planned; slice-01 save/conservation fixes are documented separately.",
+      "evidence": [
+        {
+          "path": "docs/design/survival_slices/persistence_plan.md",
+          "label": "Source inventory, gaps and staged implementation"
+        }
+      ],
+      "tasks": [
+        {
+          "title": "Inventory current ownership, transfer paths and gaps; write staged plan",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/survival_slices/persistence_plan.md",
+              "label": "Preparation complete"
+            }
+          ]
+        },
+        {
+          "title": "Resolve listed resource/persistence policy choices and implement staged packets",
+          "status": "planned",
+          "evidence": [
+            {
+              "path": "docs/design/survival_slices/persistence_plan.md",
+              "label": "Bounded implementation order and open decisions"
+            }
+          ]
+        },
+        {
+          "title": "Validate multi-week continuity, save/revisit conservation and failure paths",
+          "status": "planned",
+          "evidence": [
+            {
+              "path": "docs/design/survival_slices/persistence_plan.md",
+              "label": "Acceptance plan"
+            }
+          ]
+        }
+      ],
+      "acceptance": [
+        "Every gameplay resource/state has an explicit owner, transfer/persistence policy and validated conservation behavior."
+      ]
+    },
+    {
+      "id": "WINDOWS_20261009",
+      "title": "October 9 Windows art and salvage playtest",
+      "phase": "Delivered builds",
+      "status": "complete",
+      "summary": "Source c982415 and dated LFS EXE/ZIP pushed on the art-pass branch. Native Windows/manual gameplay review remains open; this delivery does not close Alpha or EA gates. Downloads require repository access.",
+      "evidence": [
+        {
+          "path": "docs/design/windows_publication_2026-10-09.md",
+          "label": "Published checkpoint, checks and open review limits"
+        },
+        {
+          "path": "releases/windows/2026-10-09/README.md",
+          "label": "Windows downloads and controls"
+        },
+        {
+          "path": "docs/design/windows_playtest_2026-10-09_results.json",
+          "label": "Fresh 90/90 and embedded-pack checks"
+        }
+      ],
+      "tasks": [
+        {
+          "title": "Push exact art and salvage source checkpoint",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/windows_publication_2026-10-09.md",
+              "label": "Published checkpoint, checks and open review limits"
+            }
+          ]
+        },
+        {
+          "title": "Cross-export and publish EXE/ZIP with source identity and checksums",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "releases/windows/2026-10-09/README.md",
+              "label": "Windows downloads and controls"
+            }
+          ]
+        },
+        {
+          "title": "Fresh source and extracted-pack validation",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/windows_playtest_2026-10-09_results.json",
+              "label": "Fresh 90/90 and embedded-pack checks"
+            }
+          ]
+        },
+        {
+          "title": "Native Windows and continuous manual gameplay review",
+          "status": "needs_review",
+          "evidence": [
+            {
+              "path": "docs/design/windows_publication_2026-10-09.md",
+              "label": "Published checkpoint, checks and open review limits"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "gates": [
+    {
+      "id": "DOCS",
+      "title": "Reconcile prototype, source and build documentation",
+      "status": "needs_review",
+      "summary": "Production header still says draft/pre-production; README says v0.11.0/M13 in progress; AGENTS also calls v0.10.0 current; shipping checklist is a v0.10.0 snapshot. October 1 handoff reports published gameplay/package checkpoints and locally completed art. These refer to different ages/scopes and cannot be treated as one current validated build. Q1 Kenney default and provisional M14.3 notes are superseded by later authored-door/integration reports.",
+      "evidence": [
+        {
+          "path": "docs/PRODUCTION_SPEC.md",
+          "label": "Draft/pre-production header"
+        },
+        {
+          "path": "README.md",
+          "label": "v0.11.0 and older M13 progress statement"
+        },
+        {
+          "path": "AGENTS.md",
+          "label": "Conflicting v0.11.0/v0.10.0 build claims"
+        },
+        {
+          "path": "docs/SHIPPING_CHECKLIST.md",
+          "label": "Historical shipping snapshot"
+        },
+        {
+          "path": "docs/design/art_pass/README.md",
+          "label": "Gameplay publication and local art checkpoint"
+        },
+        {
+          "path": "docs/OPEN_QUESTIONS.md",
+          "label": "Older decision/provisional wording"
+        },
+        {
+          "path": "docs/EXPANSION_SPEC.md",
+          "label": "Later M13/M14 integration records"
+        }
+      ]
+    },
+    {
+      "id": "VALIDATION",
+      "title": "Current-source validation freshness",
+      "status": "needs_review",
+      "summary": "89/89 is the October 1 art report; 88/88 is the preceding gameplay/integration report. This documentation-only task validates JSON and evidence paths, not the game. Re-enumerate current suites and require exit 0, exact PASS and no script/parse errors before a new game-validation claim.",
+      "evidence": [
+        {
+          "path": "docs/design/art_pass/steps/12-final-validation-result.md",
+          "label": "Historical final run"
+        },
+        {
+          "path": "docs/design/independent_watch_pass.md",
+          "label": "Historical gameplay run"
+        },
+        {
+          "path": "docs/design/art_pass/README.md",
+          "label": "Final-run requirements"
+        }
+      ]
+    },
+    {
+      "id": "MANUAL",
+      "title": "Continuous manual maintenance/travel/EVA/save route",
+      "status": "blocked",
+      "summary": "October 1 Wayland retry rendered the menu only. X11 was black; requested KDE input-control approval expired. Nine passing linked scripted slices do not close the uninterrupted live route; suitable operator-approved input/environment is still needed.",
+      "evidence": [
+        {
+          "path": "docs/design/art_pass/steps/12-final-validation-result.md",
+          "label": "Exact retry outcome and pending route"
+        }
+      ]
+    },
+    {
+      "id": "PERFORMANCE",
+      "title": "CPU budget and rendered mid-range performance",
+      "status": "needs_review",
+      "summary": "At c982415, profile_sim measured 201.0 \u00b5s/tick against 200 \u00b5s; the current feature branch measures 198.6 \u00b5s/tick over 144,000 ticks, a narrow CPU-budget pass. Rendered FPS/native hardware acceptance remains pending.",
+      "evidence": [
+        {
+          "path": "docs/design/art_pass/steps/12-final-validation-result.md",
+          "label": "Final profiler values and limits"
+        },
+        {
+          "path": "docs/design/independent_watch_pass.md",
+          "label": "Earlier near-budget profile"
+        },
+        {
+          "path": "docs/SHIPPING_CHECKLIST.md",
+          "label": "Pending real-GPU validation"
+        },
+        {
+          "path": "docs/PRODUCTION_SPEC.md",
+          "label": "Beta 60 fps acceptance"
+        },
+        {
+          "path": "docs/design/survival_slices/01-result.md",
+          "label": "October 9 salvage/profile evidence"
+        },
+        {
+          "path": "docs/design/playtest_readiness_pass.md",
+          "label": "Current feature-branch simulation profile"
+        }
+      ]
+    },
+    {
+      "id": "WINDOWS",
+      "title": "Native Windows execution",
+      "status": "needs_review",
+      "summary": "The October 9 Windows cross-export at c982415 has embedded-project checks using the matching Linux engine; native Windows runtime remains unverified. The current working tree has additional tested menu/settings changes and is not in that package.",
+      "evidence": [
+        {
+          "path": "docs/design/art_pass/README.md",
+          "label": "Published package coverage"
+        },
+        {
+          "path": "docs/design/art_pass/steps/12-final-validation-result.md",
+          "label": "No art export or native Windows run"
+        },
+        {
+          "path": "docs/design/art_pass/steps/12-final-validation-and-release.md",
+          "label": "Separate package and native checks"
+        },
+        {
+          "path": "docs/SHIPPING_CHECKLIST.md",
+          "label": "October 1 and October 9 package identities versus current local source"
+        },
+        {
+          "path": "docs/design/playtest_readiness_pass.md",
+          "label": "Current Linux test result and native Windows gate"
+        }
+      ]
+    },
+    {
+      "id": "OPERATOR_ART",
+      "title": "Operator visual and propulsion acceptance",
+      "status": "needs_review",
+      "summary": "M14.4 review remains pending, including darker port housing, silhouette, sealed tank, service access and failure presentation. Hero rollout had an accepted working baseline and authorized implementation; exact final captures still have CRT-size, flashlight and wall-detail questions for the operator.",
+      "evidence": [
+        {
+          "path": "docs/design/propulsion_module_narrative.md",
+          "label": "M14.4 review scope"
+        },
+        {
+          "path": "docs/design/art_pass/hero_review.md",
+          "label": "Three bounded hero questions"
+        },
+        {
+          "path": "docs/design/art_pass/steps/12-final-validation-result.md",
+          "label": "Full-ship evidence limits"
+        }
+      ]
+    },
+    {
+      "id": "PLAYTEST",
+      "title": "Current full-loop external success test",
+      "status": "needs_review",
+      "summary": "Returned v0.6.0 feedback predates current diagnostics/comms and all later expansion/art content. Current manual-only three-day survival, explainable failures, tension/satisfaction metrics and full-session balance are pending.",
+      "evidence": [
+        {
+          "path": "docs/SHIPPING_CHECKLIST.md",
+          "label": "Pending external playtest and balance"
+        },
+        {
+          "path": "docs/release-notes-v0.7.0.md",
+          "label": "Older feedback scope"
+        },
+        {
+          "path": "docs/PRODUCTION_SPEC.md",
+          "label": "\u00a78.5 success metrics"
+        },
+        {
+          "path": "docs/EXPANSION_SPEC.md",
+          "label": "M12 full-loop external playtest"
+        }
+      ]
+    },
+    {
+      "id": "IMPORT",
+      "title": "Native editor/import warnings",
+      "status": "needs_review",
+      "summary": "October 1 import exited 0 but emitted 843 popup-parent errors. Dummy-renderer shutdown leak family and deliberate invalid-input fixture errors are recorded separately. Passing script suites do not resolve the editor warning.",
+      "evidence": [
+        {
+          "path": "docs/design/art_pass/steps/12-final-validation-result.md",
+          "label": "Native warnings and fixture accounting"
+        }
+      ]
+    },
+    {
+      "id": "POD_CLEARANCE",
+      "title": "Adjacent pod construction constraint",
+      "status": "complete",
+      "summary": "Step 11 documents 0.75 m Quarters/Life Support shell overlap. A second neighboring build is refused until the first pod is removed, with refusal/recovery tests reported. Legacy saves already containing both pods are preserved; no geometry-wide compatibility fix is claimed.",
+      "evidence": [
+        {
+          "path": "docs/design/art_pass/steps/11-exterior-result.md",
+          "label": "Measured access map and construction guard"
+        },
+        {
+          "path": "docs/design/art_pass/steps/12-final-validation-result.md",
+          "label": "Legacy-save limitation"
+        }
+      ]
+    },
+    {
+      "id": "NARRATIVE",
+      "title": "Unresolved narrative/campaign approval",
+      "status": "needs_review",
+      "summary": "Open survival is selected. Protagonist, vessel name, optional grounded context and death/recovery policy remain open; a mandatory campaign ending is no longer an Alpha gate.",
+      "evidence": [
+        {
+          "path": "docs/PRODUCTION_SPEC.md",
+          "label": "Unresolved narrative/campaign scope"
+        },
+        {
+          "path": "docs/OPEN_QUESTIONS.md",
+          "label": "Resolved decision log"
+        },
+        {
+          "path": "docs/design/propulsion_module_narrative.md",
+          "label": "Closed propulsion contract"
+        },
+        {
+          "path": "docs/design/open_survival_direction_pass.md",
+          "label": "Open survival direction, reference review and proposed passes"
+        }
+      ]
+    },
+    {
+      "id": "ART_RELEASE",
+      "title": "Current art export and publication",
+      "status": "planned",
+      "summary": "October 1 reports local uncommitted/unpushed art and no art export/publication. A separate explicit release request gates reviewed source commit, new dated package, platform checks and verified remote delivery. This manifest does not infer that authorization.",
+      "evidence": [
+        {
+          "path": "docs/design/art_pass/README.md",
+          "label": "Source/package ownership and scope"
+        },
+        {
+          "path": "docs/design/art_pass/steps/12-final-validation-result.md",
+          "label": "Local art and no release"
+        },
+        {
+          "path": "docs/design/art_pass/steps/12-final-validation-and-release.md",
+          "label": "Conditional release checklist"
+        }
+      ]
+    },
+    {
+      "id": "SHIPPING",
+      "title": "Public store/release readiness",
+      "status": "planned",
+      "summary": "Signing, installer/branding, current-content playtest/balance, real GPU performance, accessibility, conditional legal pages/notices, real key art, store/depot account, trailer, age questionnaire and final title remain specified gaps. Historical test builds and generated capsules do not close these.",
+      "evidence": [
+        {
+          "path": "docs/SHIPPING_CHECKLIST.md",
+          "label": "Unchecked shipping items"
+        },
+        {
+          "path": "docs/STORE_PAGE.md",
+          "label": "Additional store gaps"
+        }
+      ]
+    }
+  ]
+}

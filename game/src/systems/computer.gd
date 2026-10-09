@@ -149,8 +149,12 @@ func _on_day_changed(day: int) -> void:
 
 func _event_text(event_name: StringName, payload: Dictionary) -> String:
 	match event_name:
+		&"salvage_stowed", &"salvage_diagnosed", &"salvage_repaired", &"salvage_fitted", &"salvage_removed", &"salvage_scrapped":
+			return "%s: %s" % [String(event_name).replace("_", " ").to_upper(), String(payload.get("unit_id", ""))]
 		&"component_failed":
-			return "COMPONENT FAILED: %s MODE %s" % [_upper(payload.get("component_id", &"")), _upper(payload.get("failure_mode_id", &""))]
+			if StringName(payload.get("component_id", &"")) in [&"port_grid", &"port_cathode", &"starboard_grid", &"starboard_cathode", &"tank_uv"]:
+				return ""
+			return "COMPONENT FAILED: %s — DIAGNOSIS REQUIRED" % _upper(payload.get("component_id", &""))
 		&"component_repaired":
 			return "COMPONENT REPAIRED: %s" % _upper(payload.get("component_id", &""))
 		&"component_diagnosed":
@@ -209,6 +213,24 @@ func _event_text(event_name: StringName, payload: Dictionary) -> String:
 			return "COURSE EXPIRED: %s" % _destination_label(payload)
 		&"transit_started":
 			return "TRANSIT STARTED: %s" % _destination_label(payload)
+		&"drive_cassette_failed":
+			if StringName(payload.get("cassette_id", &"")) == &"tank":
+				return "TANK UV SERVICE UNAVAILABLE"
+			return "DRIVE CASSETTE FUNCTION UNAVAILABLE: %s" % _upper(payload.get("cassette_id", &""))
+		&"drive_service_changed":
+			return "DRIVE SERVICE: %s / %s" % [_upper(payload.get("target", &"")), _upper(payload.get("action", &""))]
+		&"drive_state_changed":
+			if not bool(payload.get("hold_changed", false)):
+				return ""
+			match StringName(payload.get("hold_reason", &"")):
+				&"cassette_offline":
+					return "DRIVE HOLD: CASSETTES OFFLINE / ISOLATED"
+				&"tank_recovering":
+					return "DRIVE HOLD: FEED RESERVE RECOVERING"
+				&"thermal_hold":
+					return "DRIVE HOLD: ENGINE BAY COOLING"
+				&"":
+					return "DRIVE HOLD CLEARED"
 		&"transit_day_advanced":
 			return "TRANSIT DAY %d/%d: %s" % [int(payload.get("day", 0)), int(payload.get("days_total", 0)), _destination_label(payload)]
 		&"transit_fuel_exhausted":
@@ -263,6 +285,10 @@ func _destination_label(payload: Dictionary) -> String:
 
 
 func _upper(value: Variant) -> String:
+	if String(value) == "xenonite_uv":
+		return "DRIVE FEED UV"
+	if String(value) == "xenonite_uv":
+		return "DRIVE FEED UV"
 	return String(value).to_upper()
 
 

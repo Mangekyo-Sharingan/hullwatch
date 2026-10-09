@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ManualPage" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/components/manual_page.gd" id="1_page"]
+
+[resource]
+script = ExtResource("1_page")
+title = "PROPULSION"
+body = "RESERVES. Xenon is expelled reaction mass. Course plotting and route burns use the xenon reserve shown on the star chart. The separate drive feed reserve supplies the drive only; drive output cannot charge the battery or power cabin equipment. Check both reserves before departure.
+
+TRANSIT. Listed route durations assume two working cassettes. One surviving cassette can continue at half route speed: allow twice the travel time and greater drive feed use. Route xenon cost stays the same. Read ETA and elapsed hours on the computer; route progress is not elapsed clock time. The computer reports whether each cassette works or is firing, but cannot diagnose its fault for you.
+
+HOLDS. With no available cassette, transit waits for service. A low feed reserve holds the drive while the tank recovers; check UV service and its breaker. Engine-bay heat also holds the drive until the compartment cools. Check the hold reason and current ETA rather than assuming a burning pair. Ship systems and your suit continue consuming supplies during a hold.
+
+POWER. UV service uses the drive feed UV circuit. Protect life support and scrubber power. You can proactively switch lighting and the fabricator off for battery charge margin; automatic shedding may turn lights off first. Drive output is dedicated to propulsion.
+
+EXTERNAL SERVICE. Suit up, check O2 and tether, and reach the stern service panels. Port cassette, starboard cassette and tank each have their own external housing. Isolate the target before opening it with the wrench. Carry the scanner to log wear; carry the multimeter to diagnose faults. Diagnosis and repair require an isolated, open housing. Service the indicated component with the wrench, then close the housing with the wrench and restore with the multimeter. Check functional status, UV service, output and ETA afterward. Repeat for any other faulty component. External service needs tools and time, not an irreplaceable cassette stock. Keep the sealed tank core intact."

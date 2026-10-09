@@ -39,7 +39,7 @@ func get_action_label(terminal: Node, action: StringName) -> String:
 		var destination: VoyageDestination = nav.call("get_destination", action)
 		if destination != null:
 			var visited: String = "  [VISITED]" if bool(nav.call("has_visited", destination.destination_id)) else ""
-			return "%s  %d DAYS  %d KG%s" % [
+			return "%s  %d DAYS  XENON %d KG%s" % [
 				destination.display_name.to_upper(),
 				destination.transit_days,
 				int(roundf(destination.fuel_cost_kg)),
@@ -63,12 +63,12 @@ func build_readout(terminal: Node) -> PackedStringArray:
 		lines.append("NAVIGATION COMPUTER OFFLINE")
 		return lines
 	var status: Dictionary = nav.call("get_status")
-	lines.append("FUEL RESERVE  %d KG" % int(roundf(float(status["fuel_mass_kg"]))))
+	lines.append("XENON RESERVE  %d KG" % int(roundf(float(status["fuel_mass_kg"]))))
+	lines.append_array(drive_readout(status))
 	if bool(status["transit_active"]):
 		var destination: VoyageDestination = nav.call("get_destination", status["plotted_destination_id"])
 		if destination != null:
 			lines.append("AUTOPILOT  %s" % destination.display_name.to_upper())
-			lines.append("DAY %d / %d" % [int(status["transit_day"]), destination.transit_days])
 			lines.append("TRANSIT %d%%" % int(roundf(float(status["transit_progress"]) * 100.0)))
 		lines.append("SHIP SYSTEMS REMAIN ON DUTY")
 		return lines
@@ -76,9 +76,9 @@ func build_readout(terminal: Node) -> PackedStringArray:
 		var plotted: VoyageDestination = nav.call("get_destination", status["plotted_destination_id"])
 		if plotted != null:
 			lines.append("COURSE LOCKED  %s" % plotted.display_name.to_upper())
-			lines.append("TRANSIT  %d DAYS" % plotted.transit_days)
-			lines.append("PLOT  %.0f H  %d KG" % [plotted.course_plot_hours, int(roundf(plotted.course_plot_fuel_kg))])
-			lines.append("TRANSIT FUEL  %d KG" % int(roundf(plotted.fuel_cost_kg)))
+			lines.append("NOMINAL TRANSIT  %d DAYS (PAIR)" % plotted.transit_days)
+			lines.append("PLOT  %.0f H  XENON %d KG" % [plotted.course_plot_hours, int(roundf(plotted.course_plot_fuel_kg))])
+			lines.append("TRANSIT XENON  %d KG" % int(roundf(plotted.fuel_cost_kg)))
 			lines.append("DRIFT ERROR  %d%%" % int(roundf(float(status["course_error"]) * 100.0)))
 			lines.append("SELECT BEGIN TRANSIT WHEN READY")
 		return lines
@@ -94,8 +94,38 @@ func build_readout(terminal: Node) -> PackedStringArray:
 		if selected != null:
 			lines.append("")
 			lines.append("CLASS  %s" % selected.kind.to_upper())
-			lines.append("TRANSIT  %d DAYS" % selected.transit_days)
-			lines.append("FUEL  %d KG" % int(roundf(selected.fuel_cost_kg)))
+			lines.append("NOMINAL TRANSIT  %d DAYS (PAIR)" % selected.transit_days)
+			lines.append("XENON  %d KG" % int(roundf(selected.fuel_cost_kg)))
+	return lines
+
+
+static func drive_readout(status: Dictionary) -> PackedStringArray:
+	var lines: PackedStringArray = PackedStringArray()
+	if not status.has("cassette_functional"):
+		return lines
+	var functional: Dictionary = status["cassette_functional"]
+	var firing: Dictionary = status["cassette_firing"]
+	lines.append("ION DRIVE  %d/2 CASSETTES FUNCTIONAL" % int(status["functional_cassettes"]))
+	for cassette_id: String in ["port", "starboard"]:
+		var state: String = "OFFLINE"
+		if bool(functional[cassette_id]):
+			state = "FIRING" if bool(firing[cassette_id]) else "STANDBY"
+		lines.append("  %s  %s" % [cassette_id.to_upper(), state])
+	lines.append("DRIVE FEED  %.2f/%.2f KG" % [float(status["xenonite_mass_kg"]), float(status["xenonite_capacity_kg"])])
+	lines.append("DRIVE FEED USED  %.2f KG" % float(status["xenonite_consumed_kg"]))
+	lines.append("UV SERVICE  %s" % ("ACTIVE" if bool(status["uv_active"]) else "OFF"))
+	lines.append("DRIVE OUTPUT  %.0f W  HEAT %.0f W" % [float(status["drive_output_w"]), float(status["drive_heat_w"])])
+	match StringName(status["drive_hold_reason"]):
+		&"cassette_offline":
+			lines.append("DRIVE HOLD  CASSETTES OFFLINE / ISOLATED")
+		&"tank_recovering":
+			lines.append("DRIVE HOLD  FEED RESERVE RECOVERING")
+		&"thermal_hold":
+			lines.append("DRIVE HOLD  ENGINE BAY COOLING")
+	if bool(status["transit_active"]):
+		var remaining: float = float(status["transit_remaining_hours"])
+		lines.append("ETA  HELD" if is_inf(remaining) else "ETA  %.1f H" % remaining)
+		lines.append("TRANSIT ELAPSED  %.1f H" % float(status["transit_actual_hours"]))
 	return lines
 
 

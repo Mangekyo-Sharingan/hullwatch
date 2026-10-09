@@ -12,10 +12,6 @@ class_name TubeLayout
 extends RefCounted
 
 const EPSILON: float = 0.0001
-## Default clear height for sections without a per-section ceiling override.
-const DECK_HEIGHT: float = 2.5
-const MEZZANINE_FRACTION: float = 0.5
-const MEZZANINE_THICKNESS: float = 0.12
 ## Pressure wall thickness used when sizing a section's usable radius.
 const WALL: float = 0.12
 ## Flange length between two sections; a hatch sits in every one.
@@ -35,14 +31,14 @@ const BOW_Z: float = -21.0
 const SECTIONS: Array[Dictionary] = [
 	{"name": "cupola", "room": "cockpit", "radius": 2.4, "length": 2.2, "kind": "dome"},
 	{"name": "cockpit", "room": "cockpit", "radius": 2.4, "length": 2.8, "kind": "drum", "replaces_area_m2": 31.3},
-	{"name": "quarters", "room": "quarters", "radius": 2.7, "length": 2.8, "kind": "drum", "port": "hp_quarters", "wall_top": 3.4, "ceiling": 4.4, "mezzanine_y": 2.2, "replaces_area_m2": 19.8},
+	{"name": "quarters", "room": "quarters", "radius": 2.7, "length": 2.8, "kind": "drum", "port": "hp_quarters", "replaces_area_m2": 19.8},
 	{"name": "life_support", "room": "life_support", "radius": 2.1, "length": 2.2, "kind": "drum", "port": "hp_life_support", "replaces_area_m2": 9.1},
 	{"name": "galley", "room": "galley", "radius": 2.3, "length": 2.6, "kind": "drum", "port": "hp_galley", "replaces_area_m2": 14.4},
 	{"name": "water_closet", "room": "water_closet", "radius": 2.0, "length": 1.8, "kind": "drum", "replaces_area_m2": 5.7},
-	{"name": "storage", "room": "storage", "radius": 2.3, "length": 2.6, "kind": "drum", "wall_top": 3.4, "ceiling": 4.4, "mezzanine_y": 2.2, "replaces_area_m2": 13.3},
+	{"name": "storage", "room": "storage", "radius": 2.3, "length": 2.6, "kind": "drum", "replaces_area_m2": 13.3},
 	{"name": "airlock", "room": "airlock", "radius": 2.0, "length": 1.8, "kind": "drum", "outer_hatch": true, "replaces_area_m2": 4.0},
-	{"name": "engine_bay_a", "room": "engine_bay", "radius": 2.8, "length": 2.8, "kind": "drum", "wall_top": 3.4, "ceiling": 4.4, "mezzanine_y": 2.2, "replaces_area_m2": 22.3},
-	{"name": "engine_bay_b", "room": "engine_bay", "radius": 2.8, "length": 2.8, "kind": "drum", "port": "hp_engine_bay", "wall_top": 3.4, "ceiling": 4.4, "mezzanine_y": 2.2, "replaces_area_m2": 22.3},
+	{"name": "engine_bay_a", "room": "engine_bay", "radius": 2.8, "length": 2.8, "kind": "drum", "replaces_area_m2": 22.3},
+	{"name": "engine_bay_b", "room": "engine_bay", "radius": 2.8, "length": 2.8, "kind": "drum", "port": "hp_engine_bay", "replaces_area_m2": 22.3},
 	{"name": "tank", "room": "", "radius": 2.6, "length": 3.0, "kind": "tank"},
 ]
 

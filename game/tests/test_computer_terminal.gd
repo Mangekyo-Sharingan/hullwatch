@@ -35,6 +35,7 @@ func _run() -> void:
 	await _test_log_station()
 	await _test_history_and_marks()
 	await _test_warning_board()
+	_test_watch_baseline()
 	await _test_control_program()
 	_test_menu_relative()
 
@@ -102,7 +103,99 @@ func _test_warning_board() -> void:
 	board.interact(null)
 	_check(board.build_readout()[0] == "HULLWATCH SHIP COMPUTER", "board readout carries the computer header")
 	_check("\n".join(board.build_readout()).contains("STORES LOW"), "board readout lists the entries")
+	_check("\n".join(board.build_readout()).contains("PROGRAM: WATCH REPORT"), "board defaults to the watch report")
+	var harness: SimHarness = SimHarness.new(self)
+	var config: CompartmentConfig = harness.make_compartment(&"enginebay")
+	config.initial_o2_fraction = 0.12
+	config.initial_co2_ppm = 20000.0
+	config.initial_temperature_c = 0.0
+	var atmosphere: AtmosphereSystem = harness.add_atmosphere([config])
+	var thermal: ThermalSystem = harness.add_thermal([config])
+	var vitals: VitalsSystem = VitalsSystem.new()
+	root.add_child(vitals)
+	var nav: NavSystem = NavSystem.new()
+	nav.destinations = [load("res://src/data/destinations/destination_arden_ii.tres") as VoyageDestination]
+	root.add_child(nav)
+	var component: WearComponent = nav.wear_components[0]
+	component.condition = 0.123
+	component.failed_mode = &"watch_test_fault"
+	_computer.record("COMPONENT FAILED: HIDDEN_TEST MODE SECRET_MODE", &"component_failed")
+	var unread: int = _computer.get_unread_count()
+	var report: String = "\n".join(board.build_readout())
+	_check(report.contains("LOW O2") and report.contains("HIGH CO2") and report.contains("COLD:"), "watch reports real atmosphere and thermal hazards")
+	_check(report.contains("INSPECTION NOT LOGGED: PORT STERN EVA SERVICE PANEL") and report.contains("STARBOARD STERN EVA SERVICE PANEL") and report.contains("TANK STERN EVA SERVICE PANEL"), "watch directs unscanned external hardware inspection")
+	_check(not report.contains("PORT_GRID") and not report.contains("WATCH_TEST_FAULT") and not report.contains("12%"), "watch hides uninspected external component identity, fault and condition")
+	_check(not report.contains("HIDDEN_TEST") and not report.contains("SECRET_MODE"), "watch does not repeat omniscient automatic fault history")
+	_check(not report.to_lower().contains("xenonite"), "watch conceals restricted feed technology")
+	_check(_computer.get_unread_count() == unread, "watch reading preserves unread history marks")
+	var power: PowerSystem = PowerSystem.new()
+	var rtg: WearComponent = load("res://src/data/wear/rtg_main.tres").duplicate(true) as WearComponent
+	rtg.failed_mode = &"rtg_degraded"
+	power.wear_components = [rtg]
+	root.add_child(power)
+	_check(not "\n".join(board.build_readout()).contains("DIAGNOSED RTG_MAIN"), "watch does not infer a hidden power fault")
+	power.diagnose_component(&"rtg_main")
+	report = "\n".join(board.build_readout())
+	_check(report.contains("DIAGNOSED RTG_MAIN") and report.contains("ALL BUS BREAKERS OFF") and report.contains("GASKET / 0.25 H"), "watch uses authoritative circuit, parts and time for diagnosed refit guidance")
+	_check(nav.service_action(&"port", &"isolate", &""), "watch fixture isolates port service target")
+	_check(nav.service_action(&"port", &"open", &"wrench"), "watch fixture opens external housing")
+	_check(nav.service_action(&"port", &"scan", &"scanner"), "watch fixture records external inspection")
+	_check(nav.service_action(&"port", &"diagnose", &"multimeter"), "watch fixture diagnoses external fault")
+	report = "\n".join(board.build_readout())
+	_check(report.contains("DIAGNOSED PORT_GRID") and report.contains("WATCH_TEST_FAULT") and report.contains("WRENCH SERVICE"), "watch turns diagnosed fault into located service guidance")
+	_check(not report.contains("INSPECTION NOT LOGGED: PORT STERN EVA SERVICE PANEL"), "watch clears inspection reminder after the operator scans the housing")
+	_check(nav.service_action(&"starboard", &"isolate", &""), "watch fixture isolates the remaining cassette")
+	nav.transit_active = true
+	nav.plotted_destination_id = nav.destinations[0].destination_id
+	nav.sim_tick(0.001)
+	report = "\n".join(board.build_readout())
+	_check(report.contains("DRIVE HOLD  CASSETTES OFFLINE / ISOLATED") and report.contains("ETA  HELD"), "watch shows actual navigation holds and suspended ETA")
+	_check(board.select_action(&"log"), "board retains the full log program")
+	_check("\n".join(board.build_readout()).contains("ONBOARD HISTORY"), "board can switch to full history")
+	nav.free()
+	power.free()
+	vitals.free()
+	thermal.free()
+	atmosphere.free()
 	board.free()
+
+func _test_watch_baseline() -> void:
+	var harness: SimHarness = SimHarness.new(self)
+	var main: CompartmentConfig = harness.make_compartment(&"main")
+	var corridor: CompartmentConfig = harness.make_compartment(&"corridor")
+	main.leak_rate_per_hour = 0.0002
+	corridor.leak_rate_per_hour = 0.0004
+	var atmosphere: AtmosphereSystem = AtmosphereSystem.new()
+	atmosphere.compartment_defs = [main, corridor]
+	var blower: WearComponent = load("res://src/data/wear/scrubber_blower_main.tres").duplicate(true) as WearComponent
+	atmosphere.wear_components = [blower]
+	root.add_child(atmosphere)
+	var thermal: ThermalSystem = harness.add_thermal([main, corridor])
+	var hull: HullSystem = HullSystem.new()
+	hull.compartment_defs = [main, corridor]
+	root.add_child(hull)
+	var unit: ScrubberUnit = ScrubberUnit.new()
+	root.add_child(unit)
+	var board: MaintenanceBoard = MaintenanceBoard.new()
+	root.add_child(board)
+	var report: String = "\n".join(board.build_readout())
+	_check(not report.contains("LEAK ABOVE BASELINE") and not report.contains("SCRUBBER UNAVAILABLE"), "watch baseline leaks and corridor mixing do not create false alarms")
+	_check(report.contains("ROOMS: 2 CHECKED / 0 NEED ATTENTION") and not report.contains("CORRIDOR:"), "watch summarizes normal rooms and shows only current-room readings")
+	atmosphere.set_filter_installed(&"main", false)
+	_check("\n".join(board.build_readout()).contains("FILTER MISSING"), "watch reports a missing filter at the actual scrubber")
+	atmosphere.set_filter_installed(&"main", true)
+	atmosphere.set_scrubber_efficiency(&"main", 0.0)
+	_check("\n".join(board.build_readout()).contains("SCRUBBER UNAVAILABLE"), "watch reports measured zero scrubber output at the actual unit")
+	blower.failed_mode = &"blower_seize"
+	atmosphere.diagnose_component(blower.component_id)
+	_check("\n".join(board.build_readout()).contains("DIAGNOSED SCRUBBER_BLOWER_MAIN"), "watch reports diagnosed blower failure as actionable service")
+	hull.add_puncture(&"main", 1.0)
+	_check("\n".join(board.build_readout()).contains("LEAK ABOVE BASELINE"), "watch reports a real puncture above normal hull leakage")
+	board.free()
+	unit.free()
+	hull.free()
+	thermal.free()
+	atmosphere.free()
 
 
 ## The CONTROL program drives the live sims: breakers, isolation, airlock hatches and doors.

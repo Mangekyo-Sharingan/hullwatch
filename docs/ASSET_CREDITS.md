@@ -50,10 +50,12 @@ Previews: `docs/design/asset_*.png`. Style rules in `docs/ASSET_SOURCES.md` / sp
 | Pressure hatch | Airlock outer hatch leaf (fitted through `DOOR_STYLES["hullwatch"]`) | `game/assets/models/hullwatch/machinery/` |
 | Interior dressing kit | Crew locker, mess table, filter rack, tool cart | `game/assets/models/hullwatch/props/` |
 | Storage & galley kit | Crate stack, shelf unit, galley counter, pod service panel | `game/assets/models/hullwatch/props/` |
+| Ion-drive service kit (2026-09-30) | Segmented sealed cassette housing, discharge grille, collars, brackets, diagnostics and animated service cover; separate opaque tank with exterior UV service assembly and animated cover. Original geometry; reference images inform proportions only. Source: `art/blender/build_ion_drive.py` → `ion_drive_kit.blend`; both face glTF +Z aft, with `open_service` / `close_service` clips | `game/assets/models/hullwatch/exterior/hw_ion_drive.glb`, `hw_xenonite_tank.glb` |
 | Exterior fittings kit | Antenna dish, thruster cluster, hull vent, floodlight, handrail, solar array (boom, conduit, mount shoe and framed cell panel) | `game/assets/models/hullwatch/exterior/` |
 | Lighting kit | Ceiling lamp (one per cabin light), wall conduit run | `game/assets/models/hullwatch/exterior/` |
 | Hand tool kit | Multimeter, wrench, wear scanner, sealant cartridge, hull cutter, sample canister — each with a node-animated "use" action (dial sweep, emitter pulse, plunger push, cap twist) | `game/assets/models/hullwatch/tools/` |
 | Interior kit | Bunk, manual lectern, hull patch plate, O2 candle rack, diagnostic probe, cargo port, airlock panel, interior sliding door leaf, storage container, computer terminal, wall display | `game/assets/models/hullwatch/interior/` |
+| Hero utility fitting (2026-10-01) | Wall-mounted junction spine with three service covers, continuous conduit runs, branch couplings, clamps, and fasteners | `game/assets/models/hullwatch/interior/hw_utility_spine.glb` |
 
 ## Notes
 
@@ -63,3 +65,10 @@ Previews: `docs/design/asset_*.png`. Style rules in `docs/ASSET_SOURCES.md` / sp
   (scratched painted metal, grate/plate floor, rust, painted wall panel) at CC0 with 1K/2K JPG.
 - Kenney's Space Station Kit is stylized (cartoon proportions) and will need a retexture pass to
   match the "Analog Industrial" palette, per `docs/ASSET_SOURCES.md`.
+
+### Salvage prototype (2026-10-09)
+
+The recovery frame and transport case are original Hullwatch procedural meshes
+(`salvage_wreck.gd`, `field_streamer.gd`), reusing existing authored materials.
+Fitted equipment reuses the original Hullwatch battery cabinet glTF. No external
+reference or Starpath imagery was used as game geometry, texture or branding.

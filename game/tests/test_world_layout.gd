@@ -89,15 +89,21 @@ func _run() -> void:
 		_finish()
 		return
 
-	var expected_total: int = CARRIED_PROPS.size() + PLATFORM_PROPS.size() + _expected_doors().size()
+	var surround_count: int = 0
+	for index: int in TubeLayout.sections().size() - 1:
+		if TubeLayout.has_hatch(index):
+			surround_count += 2
+	var expected_total: int = CARRIED_PROPS.size() + PLATFORM_PROPS.size() + _expected_doors().size() + surround_count + 7
 	_check(_props.get_child_count() == expected_total, "Props holds all %d named nodes (%d)" % [expected_total, _props.get_child_count()])
 
 	_test_props_carry()
+	_test_prefab_clearance()
 	_test_cockpit_instruments()
 	_test_pilot_chair_clearance()
 	_test_doors()
 	_test_zones()
 	_test_links()
+	_test_hatch_surrounds()
 	await _test_crt_props()
 
 	layout.free()
@@ -130,6 +136,8 @@ func _test_props_carry() -> void:
 		var outboard: float = -box.position.x if side < 0.0 else box.end.x
 		_check(outboard <= SectionHull.tube_half_width(radius, maxf(box.position.y, 0.0)) + 0.03, "carried prop clears the canted wall: " + prop_name)
 		_check(box.position.y >= -0.05, "carried prop sits above the deck: " + prop_name)
+	var computer_prop: Node3D = _props.get_node_or_null(^"ComputerProp") as Node3D
+	_check(computer_prop != null and computer_prop.get_script() == null and computer_prop.find_child("ComputerTerminal", true, false) == null, "galley computer remains passive set dressing")
 	for prop_name: String in PLATFORM_PROPS:
 		var prop: Node3D = _props.get_node_or_null(NodePath(prop_name)) as Node3D
 		if prop == null:
@@ -138,6 +146,27 @@ func _test_props_carry() -> void:
 		var airlock: int = TubeLayout.index_of("airlock")
 		var face: float = float(TubeLayout.sections()[airlock]["radius"]) + SectionHull.TUBE_BAND
 		_check(prop.position.x < -face, "platform prop stands off the airlock's drum face: " + prop_name)
+
+
+func _test_prefab_clearance() -> void:
+	var names: Array[String] = []
+	var bounds: Array[AABB] = []
+	for child: Node in _props.get_children():
+		var prop: Node3D = child as Node3D
+		if prop == null:
+			continue
+		var box: AABB = _world_bounds(prop)
+		if box.size == Vector3.ZERO:
+			continue
+		names.append(String(prop.name))
+		bounds.append(box)
+	var overlaps: PackedStringArray = PackedStringArray()
+	# ponytail: pairwise AABBs are cheap for this layout; add spatial partitioning only if prop count grows significantly.
+	for first: int in bounds.size():
+		for second: int in range(first + 1, bounds.size()):
+			if bounds[first].intersects(bounds[second]):
+				overlaps.append("%s / %s" % [names[first], names[second]])
+	_check(overlaps.is_empty(), "prop prefab bounds do not overlap%s" % (": " + ", ".join(overlaps) if not overlaps.is_empty() else ""))
 
 
 func _test_cockpit_instruments() -> void:
@@ -167,6 +196,15 @@ func _test_cockpit_instruments() -> void:
 			var outer: float = box.end.x if side == 0 else -box.position.x
 			_check(absf(SectionHull.tube_half_width(2.4, box.position.y) - outer) < 0.12, "%s mounts flush to the cockpit wall" % station_name)
 			_check(absf(station.position.y - 1.25) < 0.01 and station.position.z > previous_z and station.position.z >= cupola.x and station.position.z <= cupola.y, "%s follows the cupola station grid" % station_name)
+			if station_name == "CommsTerminal":
+				_check(station.get_node_or_null(^"WallMountPlinth") == null, "Comms station leaves its adjacent hull-service plate exposed")
+			elif station_name != "WallComputer":
+				var plate: MeshInstance3D = station.get_node_or_null(^"WallMountPlinth") as MeshInstance3D
+				_check(plate != null and plate.mesh is BoxMesh and plate.get_parent() == station, "%s has a wrapper-owned shallow mounting plinth" % station_name)
+				if plate != null:
+					var plate_bounds: AABB = _world_bounds(plate)
+					var plate_outboard: float = plate_bounds.end.x if side == 0 else -plate_bounds.position.x
+					_check(plate_outboard <= SectionHull.tube_half_width(2.4, maxf(plate_bounds.position.y, 0.0)) + 0.03, "%s plinth clears the wall profile" % station_name)
 			previous_z = station.position.z
 	var chair: PilotChair = _props.get_node_or_null(^"PilotChair") as PilotChair
 	_check(chair != null and chair.position.z >= cupola.x and chair.position.z < cupola.y, "pilot chair mounts inside the cupola")
@@ -242,7 +280,7 @@ func _airlock_outer_door_ok() -> bool:
 	return absf(position.x + radius + 0.08) <= POSITION_TOLERANCE and absf(position.z - center_z) <= POSITION_TOLERANCE
 
 
-## One zone per unique room: it spans all sections, including both engine-bay levels.
+## One zone per unique room: it spans all sections, including both engine-bay sections.
 func _test_zones() -> void:
 	var expected_zones: int = 0
 	for room_value: Variant in TubeLayout.ROOM_COMPARTMENTS:
@@ -268,9 +306,7 @@ func _test_zones() -> void:
 		_check(absf(box.size.z - (bounds.y - bounds.x)) <= 0.05, "zone spans every section in the room: " + zone_name)
 		_check(absf((zone as Node3D).position.z - (bounds.x + bounds.y) * 0.5) <= POSITION_TOLERANCE, "zone is centred on the room: " + zone_name)
 		var ceiling: float = SectionHull.TUBE_CEILING
-		for index: int in sections:
-			ceiling = maxf(ceiling, float(TubeLayout.sections()[index].get("ceiling", SectionHull.TUBE_CEILING)))
-		_check(absf(box.size.y - ceiling) <= POSITION_TOLERANCE, "zone covers both vertical levels: " + zone_name)
+		_check(absf(box.size.y - ceiling) <= POSITION_TOLERANCE, "zone covers the slim room height: " + zone_name)
 		_check(absf((zone as Node3D).position.y - ceiling * 0.5) <= POSITION_TOLERANCE, "zone is centred across room height: " + zone_name)
 	_check(_zones.get_child_count() == expected_zones, "Zones holds one zone per room (%d)" % expected_zones)
 
@@ -388,6 +424,25 @@ func _remove_root_child(node_name: StringName) -> void:
 			root.remove_child(child)
 			child.free()
 			return
+
+
+func _test_hatch_surrounds() -> void:
+	for room: StringName in TubeLayout.ROOM_COMPARTMENTS:
+		var compartment: StringName = TubeLayout.ROOM_COMPARTMENTS[room]
+		var patch: HullPatch = _props.get_node_or_null("HullPatch" if compartment == &"engine_bay" else "HullPatch_" + String(compartment)) as HullPatch
+		_check(patch != null and patch.compartment_id == compartment, "physical patch point serves " + String(compartment))
+	for index: int in TubeLayout.sections().size() - 1:
+		if not TubeLayout.has_hatch(index):
+			continue
+		for side: String in ["fore", "aft"]:
+			var surround: Node3D = _props.get_node_or_null("HatchSurround_%d_%s" % [index, side]) as Node3D
+			_check(surround != null, "hatch destination surround generated on " + side)
+			if surround == null:
+				continue
+			var label: Label3D = surround.get_node_or_null("Destination") as Label3D
+			_check(label != null and not label.text.is_empty() and not label.no_depth_test, "physical hatch destination remains occluded by geometry")
+			var jamb: MeshInstance3D = surround.get_node_or_null("Jamb_1") as MeshInstance3D
+			_check(jamb != null and jamb.position.x - (jamb.mesh as BoxMesh).size.x * 0.5 >= TubeLayout.HATCH_HALF_WIDTH - 0.001, "hatch surround preserves full passage width")
 
 
 func _finish() -> void:

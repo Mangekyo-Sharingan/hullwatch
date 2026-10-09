@@ -7,6 +7,7 @@ const BASE_FONT_SIZE: int = 14
 const REFRESH_SECONDS: float = 0.25
 const SYSTEM_TITLE: String = "HULLWATCH SHIP COMPUTER"
 const PROGRAM_PATHS: Dictionary = {
+	&"watch": "res://src/ui/computer/program_watch.gd",
 	&"status": "res://src/ui/computer/program_status.gd",
 	&"nav": "res://src/ui/computer/program_nav.gd",
 	&"comms": "res://src/ui/computer/program_comms.gd",

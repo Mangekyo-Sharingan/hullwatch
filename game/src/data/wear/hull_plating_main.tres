@@ -20,6 +20,7 @@ severity = 3
 symptoms = Array[StringName]([&"pressure_loss", &"hull_creak"])
 
 [resource]
+resource_local_to_scene = true
 script = ExtResource("1")
 component_id = &"hull_plating_main"
 display_name = "Hull Plating"

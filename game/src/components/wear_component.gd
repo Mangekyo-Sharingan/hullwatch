@@ -8,6 +8,10 @@ extends Resource
 @export var wear_rate_per_hour: float = 0.002
 @export var load: float = 1.0
 @export var failure_modes: Array[FailureMode] = []
+@export var service_circuit: StringName = &""
+@export var service_part: StringName = &"gasket"
+@export var service_hours: float = 0.25
+@export var service_quality: float = 0.75
 
 var failed_mode: StringName = &""
 var diagnosed: bool = false

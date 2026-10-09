@@ -73,18 +73,19 @@ func build_readout(terminal: Node) -> PackedStringArray:
 			var rows: int = mini(entries.size(), MAX_HISTORY_ROWS)
 			for i: int in rows:
 				var entry: Dictionary = entries[i]
-				var marker: String = "* " if bool(entry["unread"]) else "  "
-				lines.append("%sDAY %04d  %02d:00  %s" % [
-					marker,
-					int(entry["day"]),
-					int(entry["hour"]),
-					String(entry["text"]),
-				])
+				lines.append(history_line(entry))
 			if entries.size() > rows:
 				lines.append("  ... %d OLDER ENTRIES" % (entries.size() - rows))
 	lines.append("")
 	lines.append("E/ESC: CLOSE")
 	return lines
+
+
+static func history_line(entry: Dictionary) -> String:
+	return "%sDAY %04d  %02d:00  %s" % [
+		"* " if bool(entry["unread"]) else "  ",
+		int(entry["day"]), int(entry["hour"]), String(entry["text"]),
+	]
 
 
 func select_action(terminal: Node, action: StringName) -> bool:

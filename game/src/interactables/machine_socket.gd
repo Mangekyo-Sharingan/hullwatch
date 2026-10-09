@@ -8,6 +8,10 @@ extends Interactable
 const ACTION_FIT_PREFIX: String = "fit:"
 const ACTION_CANCEL: StringName = &"cancel_fit"
 const ACTION_REMOVE: StringName = &"remove"
+const ACTION_RECOVERED_FIT_PREFIX: String = "fit_unit:"
+const ACTION_DIAGNOSE_PREFIX: String = "diagnose_unit:"
+const ACTION_REPAIR_PREFIX: String = "repair_unit:"
+const ACTION_SCRAP_PREFIX: String = "scrap_unit:"
 
 @export var slot_id: StringName = &""
 
@@ -17,6 +21,7 @@ var _root: HBoxContainer
 var _actions: Array[StringName] = []
 var _prop: Node3D
 var _light: OmniLight3D
+var _operator: Node
 
 
 func get_interaction_prompt() -> String:
@@ -50,10 +55,13 @@ func _ready() -> void:
 	if bus != null:
 		bus.connect(&"machine_fitted", _on_machine_changed)
 		bus.connect(&"machine_removed", _on_machine_changed)
+		if bus.has_signal(&"salvage_changed"):
+			bus.connect(&"salvage_changed", _on_salvage_changed)
 	_sync()
 
 
-func _handle_interact(_player: Node) -> void:
+func _handle_interact(player: Node) -> void:
+	_operator = player
 	if _menu != null and _menu.is_open():
 		close()
 		return
@@ -89,13 +97,28 @@ func select_action(action: StringName) -> bool:
 	if modules == null or slot_id == &"":
 		return false
 	var performed: bool = false
+	var action_text: String = String(action)
+	var salvage: Node = _get_system(&"salvage_system")
 	match action:
 		ACTION_CANCEL:
 			performed = bool(modules.call(&"cancel_machine_fit", slot_id))
 		ACTION_REMOVE:
 			performed = bool(modules.call(&"remove_machine", slot_id))
 		_:
-			performed = bool(modules.call(&"fit_machine", StringName(String(action).trim_prefix(ACTION_FIT_PREFIX)), slot_id))
+			if action_text.begins_with(ACTION_RECOVERED_FIT_PREFIX):
+				if salvage != null and _fitted() == &"" and _job().is_empty():
+					performed = bool(salvage.call(&"fit_unit", action_text.trim_prefix(ACTION_RECOVERED_FIT_PREFIX), slot_id, _current_tool()))
+			elif action_text.begins_with(ACTION_DIAGNOSE_PREFIX):
+				if salvage != null:
+					performed = bool(salvage.call(&"diagnosis_unit", action_text.trim_prefix(ACTION_DIAGNOSE_PREFIX), _current_tool()))
+			elif action_text.begins_with(ACTION_REPAIR_PREFIX):
+				if salvage != null:
+					performed = bool(salvage.call(&"repair_unit", action_text.trim_prefix(ACTION_REPAIR_PREFIX), _current_tool()))
+			elif action_text.begins_with(ACTION_SCRAP_PREFIX):
+				if salvage != null:
+					performed = bool(salvage.call(&"scrap_unit", action_text.trim_prefix(ACTION_SCRAP_PREFIX)))
+			elif action_text.begins_with(ACTION_FIT_PREFIX):
+				performed = bool(modules.call(&"fit_machine", StringName(action_text.trim_prefix(ACTION_FIT_PREFIX)), slot_id))
 	_refresh_menu()
 	_refresh_content()
 	_sync()
@@ -116,17 +139,37 @@ func build_readout() -> PackedStringArray:
 	if fitted != &"":
 		var machine: ShipMachine = _machine(fitted)
 		lines.append("FITTED: %s" % _machine_name(fitted).to_upper())
+		var recovered: Dictionary = _fitted_unit()
+		if not recovered.is_empty():
+			lines.append(_unit_status(recovered))
 		if machine != null:
 			lines.append(_effect_text(machine.effect, machine.effect_amount))
 			if machine.power_load_w > 0.0:
 				lines.append("draws %.0f W on %s" % [machine.power_load_w, String(machine.circuit_id).to_upper()])
-			if not machine.portable:
+			if not machine.portable and recovered.is_empty():
 				lines.append("")
 				lines.append("Fixed machinery. It stays where it is bolted.")
 				return lines
 		lines.append("")
-		lines.append("Removing returns the full material cost.")
+		if not recovered.is_empty():
+			lines.append("Removing returns this original unit to cargo.")
+			lines.append("A full hold refuses removal.")
+		else:
+			lines.append("Removing returns the full material cost.")
 		return lines
+	for unit: Dictionary in _stowed_units():
+		lines.append("RECOVERED: %s [%s]" % [_machine_name(StringName(String(unit.get("machine_id", "")))), String(unit.get("unit_id", ""))])
+		lines.append("  " + _unit_status(unit))
+		if not bool(unit.get("diagnosed", false)):
+			lines.append("  Diagnose with the multimeter.")
+		elif float(unit.get("condition", 0.0)) < 1.0:
+			var salvage: Node = _get_system(&"salvage_system")
+			var definition: Resource = salvage.get("definition") as Resource if salvage != null else null
+			if definition != null:
+				lines.append("  Repair with wrench: %.0f %s from cargo." % [float(definition.get("repair_units")), String(definition.get("repair_material"))])
+		else:
+			lines.append("  Ready to fit with wrench; uses this unit.")
+		lines.append("")
 	var cargo: Node = _get_system(&"cargo_system")
 	for machine: Variant in _catalog():
 		var ship_machine: ShipMachine = machine as ShipMachine
@@ -143,6 +186,12 @@ func build_readout() -> PackedStringArray:
 func _on_machine_changed(_machine_id: StringName, socket_id: StringName) -> void:
 	if socket_id == slot_id:
 		_sync()
+	if is_open():
+		_refresh_menu()
+		_refresh_content()
+
+
+func _on_salvage_changed(_unit_id: String) -> void:
 	if is_open():
 		_refresh_menu()
 		_refresh_content()
@@ -205,9 +254,18 @@ func _collect_actions() -> void:
 	var fitted: StringName = _fitted()
 	if fitted != &"":
 		var machine: ShipMachine = _machine(fitted)
-		if machine != null and machine.portable:
+		if not _fitted_unit().is_empty() or (machine != null and machine.portable):
 			_actions.append(ACTION_REMOVE)
 		return
+	for unit: Dictionary in _stowed_units():
+		var unit_id: String = String(unit.get("unit_id", ""))
+		if not bool(unit.get("diagnosed", false)):
+			_actions.append(StringName(ACTION_DIAGNOSE_PREFIX + unit_id))
+		elif float(unit.get("condition", 0.0)) < 1.0:
+			_actions.append(StringName(ACTION_REPAIR_PREFIX + unit_id))
+		else:
+			_actions.append(StringName(ACTION_RECOVERED_FIT_PREFIX + unit_id))
+		_actions.append(StringName(ACTION_SCRAP_PREFIX + unit_id))
 	for machine: Variant in _catalog():
 		_actions.append(StringName(ACTION_FIT_PREFIX + String((machine as ShipMachine).machine_id)))
 
@@ -220,10 +278,35 @@ func _refresh_menu() -> void:
 	for action: StringName in _actions:
 		match action:
 			ACTION_REMOVE:
-				items.append("Remove %s (refund)" % _machine_name(_fitted()))
+				var destination: String = "original unit to cargo" if not _fitted_unit().is_empty() else "refund"
+				items.append("Remove %s (%s)" % [_machine_name(_fitted()), destination])
 			ACTION_CANCEL:
 				items.append("Cancel fitting (refund)")
 			_:
+				var action_text: String = String(action)
+				var salvage_prefix: String = ""
+				var verb: String = ""
+				if action_text.begins_with(ACTION_RECOVERED_FIT_PREFIX):
+					salvage_prefix = ACTION_RECOVERED_FIT_PREFIX
+					verb = "Fit recovered"
+				elif action_text.begins_with(ACTION_DIAGNOSE_PREFIX):
+					salvage_prefix = ACTION_DIAGNOSE_PREFIX
+					verb = "Diagnose (multimeter)"
+				elif action_text.begins_with(ACTION_REPAIR_PREFIX):
+					salvage_prefix = ACTION_REPAIR_PREFIX
+					verb = "Repair (wrench)"
+				elif action_text.begins_with(ACTION_SCRAP_PREFIX):
+					salvage_prefix = ACTION_SCRAP_PREFIX
+					verb = "Scrap"
+					var salvage: Node = _get_system(&"salvage_system")
+					var definition: Resource = salvage.get(&"definition") as Resource if salvage != null else null
+					if definition != null:
+						verb += " (+%s %s)" % [str(definition.get(&"scrap_units")), String(definition.get(&"scrap_material"))]
+				if salvage_prefix != "":
+					var unit_id: String = action_text.trim_prefix(salvage_prefix)
+					var unit: Dictionary = _unit(unit_id)
+					items.append("%s %s [%s]" % [verb, _machine_name(StringName(String(unit.get("machine_id", "")))), unit_id])
+					continue
 				var machine_id: StringName = StringName(String(action).trim_prefix(ACTION_FIT_PREFIX))
 				var machine: ShipMachine = _machine(machine_id)
 				if machine != null:
@@ -258,6 +341,41 @@ func _fitted() -> StringName:
 	if modules == null or not modules.has_method(&"get_machine_at"):
 		return &""
 	return StringName(modules.call(&"get_machine_at", slot_id))
+
+
+func _current_tool() -> StringName:
+	var player: Node = _operator if is_instance_valid(_operator) else _get_system(&"player")
+	if player == null or not player.has_method(&"get_carried_item_id"):
+		return &""
+	return StringName(player.call(&"get_carried_item_id"))
+
+
+func _stowed_units() -> Array[Dictionary]:
+	var salvage: Node = _get_system(&"salvage_system")
+	var units: Array[Dictionary] = []
+	if salvage != null:
+		units.assign(salvage.call(&"get_units", &"stowed") as Array)
+	return units
+
+
+func _unit(unit_id: String) -> Dictionary:
+	var salvage: Node = _get_system(&"salvage_system")
+	if salvage == null or unit_id == "":
+		return {}
+	return salvage.call(&"get_unit", unit_id) as Dictionary
+
+
+func _fitted_unit() -> Dictionary:
+	var salvage: Node = _get_system(&"salvage_system")
+	if salvage == null:
+		return {}
+	return _unit(String(salvage.call(&"get_unit_at", slot_id)))
+
+
+func _unit_status(unit: Dictionary) -> String:
+	if not bool(unit.get("diagnosed", false)):
+		return "Not diagnosed; condition unknown."
+	return "Diagnosed; condition %.0f%%." % (float(unit.get("condition", 0.0)) * 100.0)
 
 
 func _job() -> Dictionary:

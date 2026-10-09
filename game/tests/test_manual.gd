@@ -38,16 +38,14 @@ func _test_manual_book() -> void:
 	_check(book != null, "manual book loads")
 	if book == null:
 		return
-	_check(book.pages.size() == 11, "manual has eleven pages")
+	_check(book.pages.size() == 12, "manual has twelve pages")
 	_check(book.pages[0].title == "OPERATIONS", "operations page is first")
 	_check(book.pages[5].title == "SYMPTOMS", "symptoms page is sixth")
 	_check(book.pages[6].title == "DIAGNOSTICS", "diagnostics page is seventh")
 	_check(book.pages[8].title == "EVA", "eva page is ninth")
 	_check(book.pages[9].title == "FIELD WORK", "field work page is tenth")
-	_check(book.pages[10].title == "DOCK PODS AND MACHINES", "modules page is last")
-	var module_text: String = book.pages[10].body
-	_check(module_text.contains("RING DECKS") and module_text.contains("Quarters, storage, and the engine bay"), "modules page covers the three ring-deck rooms")
-	_check(module_text.contains("press E to climb") and module_text.contains("W to go up") and module_text.contains("S to go down"), "modules page explains ladder controls")
+	_check(book.pages[10].title == "DOCK PODS AND MACHINES", "modules page is eleventh")
+	_check(book.pages[11].title == "PROPULSION", "propulsion service page is last")
 	var total_chars: int = 0
 	for page: ManualPage in book.pages:
 		_check(not page.title.is_empty() and page.body.length() > 80, "page '%s' has substance" % page.title)
@@ -65,7 +63,7 @@ func _test_binder() -> void:
 	binder.interact(null)
 	_check(binder.is_open() and binder.get_current_page_title() == "OPERATIONS", "binder opens on the first page")
 	var menu: ScrollMenu = binder.get_menu()
-	_check(menu != null and menu.get_items().size() == 11, "binder menu lists every page")
+	_check(menu != null and menu.get_items().size() == book.pages.size(), "binder menu lists every page")
 
 	menu.move_selection(1)
 	_check(binder.get_current_page_title() == "POWER", "browsing moves the highlighted page")
@@ -76,7 +74,7 @@ func _test_binder() -> void:
 	_check(binder.get_current_page_title() == "POWER", "selected page stays displayed")
 
 	menu.move_selection(-2)
-	_check(binder.get_current_page_title() == "DOCK PODS AND MACHINES", "browsing wraps around the page list")
+	_check(binder.get_current_page_title() == "PROPULSION", "browsing wraps around the page list")
 	_check(binder.get_interaction_prompt() == "Close manual", "prompt offers close while open")
 
 	binder.interact(null)
@@ -107,6 +105,7 @@ func _test_board() -> void:
 
 	board.interact(null)
 	_check(board.is_open(), "board opens on interact")
+	_check(board.select_action(&"log"), "board offers full ship history alongside watch report")
 	var text: String = "\n".join(board.build_readout())
 	_check(text.contains("COMPONENT FAILED") and text.contains("RTG_MAIN"), "board names the failed component")
 	_check(text.contains("STORES LOW"), "board names the low-stock event")

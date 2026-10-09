@@ -1,12 +1,12 @@
-## Wall-mounted warning board: a read-only station on the ship computer's log program.
+## Wall-mounted watch report and onboard history, derived from the live simulators.
 class_name MaintenanceBoard
 extends ComputerTerminal
 
 
 func _ready() -> void:
 	terminal_title = "WARNING BOARD"
-	programs = [&"log"]
-	default_program = &"log"
+	programs = [&"watch", &"log"]
+	default_program = &"watch"
 	phosphor = CrtPanel.PHOSPHOR_GREEN
 	ui_layer = 11
 	super._ready()

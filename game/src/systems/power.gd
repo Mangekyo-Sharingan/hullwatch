@@ -98,6 +98,18 @@ func set_breaker(circuit_id: StringName, on: bool) -> bool:
 	if not _circuits.has(circuit_id):
 		push_error("PowerSystem.set_breaker: unknown circuit_id '%s'." % String(circuit_id))
 		return false
+	if on and is_inside_tree():
+		for node: Node in get_tree().get_nodes_in_group(&"ship_system"):
+			var system: ShipSystem = node as ShipSystem
+			if system == null or system.maintenance_covers.is_empty():
+				continue
+			for component_id: Variant in system.maintenance_covers:
+				if not bool(system.maintenance_covers[component_id]):
+					continue
+				var component: WearComponent = system._maintenance_component(StringName(component_id))
+				if component != null and component.service_circuit in [circuit_id, &"all_bus"]:
+					emit_sim_event(&"procedure_error", {"reason": &"maintenance_cover_open", "circuit_id": circuit_id, "component_id": component_id})
+					return false
 	_breaker_on[circuit_id] = on
 	emit_sim_event(&"breaker_toggled", {"circuit_id": circuit_id, "on": on})
 	return true
@@ -423,6 +435,7 @@ func save_state() -> Dictionary:
 	return {
 		"system_id": String(system_id),
 		"state_version": 1,
+		"maintenance_covers": maintenance_covers.duplicate(),
 		"battery_charge_wh": battery_charge_wh,
 		"battery_capacity_wh": battery_capacity_wh,
 		"battery_max_discharge_w": battery_max_discharge_w,
@@ -439,6 +452,7 @@ func save_state() -> Dictionary:
 
 
 func load_state(state: Dictionary) -> void:
+	restore_maintenance_covers(state)
 	if state.has("battery_capacity_wh"):
 		battery_capacity_wh = maxf(float(state.get("battery_capacity_wh", battery_capacity_wh)), 0.0)
 	if state.has("battery_max_discharge_w"):
@@ -469,6 +483,8 @@ func load_state(state: Dictionary) -> void:
 		var rng: RandomNumberGenerator = _wear_rng()
 		rng.state = int(state.get("wear_rng_state", rng.state))
 	_reapply_failed_effects()
+	# Sync physical indicators without logging restored state as an operator action.
+	emit_sim_event(&"power_state_restored")
 
 
 func get_wear_environment() -> Dictionary:

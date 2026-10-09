@@ -17,6 +17,19 @@ const SEATED_STATIONS: Dictionary = {
 	"WallComputer": "SHIP COMPUTER",
 }
 const PROCEDURE_ERROR_TEXT: Dictionary = {
+	&"isolate_salvage_first": "ISOLATE THE RECOVERY SUPPLY FIRST",
+	&"needs_wrench": "A WRENCH IS REQUIRED",
+	&"salvage_hold_full": "MAKE ROOM IN THE CARGO HOLD FIRST",
+	&"salvage_diagnosis_needs_multimeter": "STOW THE UNIT AND CARRY A MULTIMETER",
+	&"diagnose_salvage_first": "DIAGNOSE THE RECOVERED UNIT FIRST",
+	&"missing_repair_material": "NOT ENOUGH REPAIR MATERIAL IN THE HOLD",
+	&"salvage_not_ready": "DIAGNOSE AND REPAIR THE UNIT BEFORE FITTING",
+	&"salvage_already_repaired": "UNIT IS ALREADY REPAIRED",
+	&"stow_salvage_first": "STOW THE RECOVERED UNIT FIRST",
+	&"socket_unavailable": "THE SOCKET MUST BE EMPTY IN A STANDING POD",
+	&"salvage_not_available": "UNIT IS NOT AVAILABLE TO CARRY",
+	&"not_mounted": "RECOVERY MOUNT IS EMPTY",
+	&"invalid_socket": "NO VALID SOCKET AVAILABLE",
 	&"no_tool": "NO DIAGNOSTIC TOOL CARRIED",
 	&"no_wrench": "A WRENCH IS REQUIRED",
 	&"no_sealant": "NO HULL SEALANT CARRIED",
@@ -38,6 +51,7 @@ const PROCEDURE_ERROR_TEXT: Dictionary = {
 	&"unknown_recipe": "UNKNOWN RECIPE",
 	&"already_building": "NANITES ALREADY BUILDING HERE",
 	&"hardpoint_occupied": "DOCK MOUNT IS OCCUPIED",
+	&"hardpoint_clearance": "ADJACENT PORT POD OCCUPIES REQUIRED CLEARANCE",
 	&"missing_materials": "NOT ENOUGH MATERIALS",
 	&"no_build_job": "NO BUILD TO CANCEL",
 	&"unknown_module": "NO SUCH MODULE",
@@ -162,6 +176,22 @@ func _message_for(event_name: StringName, payload: Dictionary) -> String:
 			return "POD ONLINE: %s" % String(payload.get("module_id", &"")).to_upper()
 		&"construction_cancelled":
 			return "BUILD CANCELLED: MATERIALS RETURNED"
+		&"salvage_isolated":
+			return "RECOVERY SUPPLY ISOLATED"
+		&"salvage_released":
+			return "EQUIPMENT RELEASED: CARRY THE CASE TO THE CARGO PORT"
+		&"salvage_stowed":
+			return "RECOVERED UNIT STOWED: DIAGNOSE AT A POD SOCKET"
+		&"salvage_diagnosed":
+			return "RECOVERED UNIT DIAGNOSED: SERVICE CONNECTION DAMAGED"
+		&"salvage_repaired":
+			return "RECOVERED UNIT REPAIRED: READY TO FIT"
+		&"salvage_fitted":
+			return "RECOVERED UNIT FITTED"
+		&"salvage_removed":
+			return "ORIGINAL RECOVERED UNIT RETURNED TO CARGO"
+		&"salvage_scrapped":
+			return "RECOVERED UNIT DISMANTLED: MATERIAL STOWED"
 		&"machine_fitted":
 			return "MACHINE FITTED: %s" % String(payload.get("machine_id", &"")).to_upper()
 		&"machine_removed":
@@ -218,6 +248,11 @@ func _update_eva(delta: float) -> void:
 		return
 	var parts: PackedStringArray = PackedStringArray()
 	var player: Node = _find_player()
+	if player != null and player.has_method(&"is_boots_engaged") and not bool(player.call(&"is_pilot_seated")):
+		if bool(player.call(&"is_boots_engaged")):
+			parts.append("MAG BOOTS  [Q: RELEASE / SPACE: PUSH]")
+		else:
+			parts.append("DRIFT %.1f m/s  [Q: LAND  SPACE/CTRL: UP/DOWN  SHIFT: BRAKE  Z/C: ROLL]" % (player as CharacterBody3D).velocity.length())
 	if player != null and player.has_method(&"is_tethered") and bool(player.call(&"is_tethered")):
 		var tether_label: String = "TETHER %.1f m  [T: RELEASE]" % float(player.call(&"get_tether_distance"))
 		if player.has_method(&"get_tether_extension_ratio") and float(player.call(&"get_tether_extension_ratio")) >= 0.9:

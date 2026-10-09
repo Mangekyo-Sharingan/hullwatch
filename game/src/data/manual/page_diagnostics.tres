@@ -13,6 +13,12 @@ MULTIMETER. Carry it to a probe to identify the fault: the panel then shows the 
 
 SCANNER. Carry it to a probe to log wear. The panel shows condition percentages only for systems you have scanned. Scan before a fault exists and you will see it coming.
 
+EXTERNAL HARDWARE REFIT. Inspect with the scanner; diagnose a fault with the multimeter. At the test point, switch off the required service breaker before using the wrench to open the cover. Power hardware requires ALL bus breakers off. Other hardware names its required service circuit at the test point. An off breaker is isolation; a shed circuit alone is not. Use the wrench to refit the selected external component with a gasket from stores, then close the cover before restoring power. A fault must be diagnosed before repair; routine wear must be scanned. Refits consume a gasket and service time. The simulator refuses missing tools, unsafe isolation, a closed cover or insufficient stocks. Verify the result on STATUS after restoration.
+
+HULL. Service seam fittings only; do not alter the grown frame. The seam has no service breaker. Punctures still use the compartment's hull patch point and sealant procedure.
+
+PROPULSION. Port, starboard and tank service use the separate stern EVA panels and the PROPULSION procedure; their isolation and restoration are handled at those panels.
+
 WRENCH. Housings and fittings are fastened. You cannot open the scrubber without the wrench in hand.
 
 Store the tools on your person, not the shelf. A probe without the right tool is just a wall."
