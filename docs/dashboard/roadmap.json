@@ -1,7 +1,7 @@
 {
   "title": "Hullwatch — factual roadmap and acceptance gates",
   "updated": "2026-10-09",
-  "summary": "Open-ended survival development with explicit implementation, validation, delivery and operator gates. PR #1 is correctly merged; v0.12.0-playtest.20261009.1 is published. The current layout feedback pass adds outward service bays, wall-fitted equipment and shared door-jamb fixes. See its evidence for fresh tests and updated build delivery. Alpha content, sustainable economy, broad persistence/recovery, native Windows gameplay, rendered performance and external balance remain open.",
+  "summary": "Open-ended survival development with separate implementation, validation, delivery and operator gates. Current main layout fixes are delivered as v0.12.0-playtest.20261009.2: source91/91 and EXE embedded-project7/7 pass, with rendered layout evidence. Alpha content, sustainable economy, broad persistence/recovery, native Windows gameplay, rendered performance and external balance remain open.",
   "milestones": [
     {
       "id": "M0",
@@ -2786,7 +2786,7 @@
       "title": "Playtest walkway clearance and outward service bays",
       "phase": "Playtest feedback",
       "status": "needs_review",
-      "summary": "Opposite-side life-support and galley bays; machinery fitted to real walls; corrected joint jambs and buried exterior sheets; EVA walkway rerouted. Final validation and delivery recorded separately from tester acceptance.",
+      "summary": "Outward service bays, real wall fits, tube jamb and buried-hull fixes, and rerouted EVA walkway implemented. Fresh source91/91 and EXE pack7/7 pass; deterministic scenes and seven rendered captures reviewed. Published v0.12.0-playtest.20261009.2 targets 2ce57fd; downloaded assets verified. Native Windows/human gameplay acceptance remains open.",
       "evidence": [
         {
           "path": "docs/design/layout_clearance/README.md",
@@ -2842,7 +2842,7 @@
         },
         {
           "title": "Deliver updated Windows playtest from exact source",
-          "status": "in_progress",
+          "status": "complete",
           "evidence": [
             {
               "path": "docs/design/layout_clearance/README.md",

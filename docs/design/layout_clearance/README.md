@@ -38,6 +38,17 @@ service rays, closed pressure surfaces, single-owner compartment occupancy,
 matching visible/collision bounds, and EVA mount access. Both scene builders
 reproduce identical ship, world and dock-pod scene hashes.
 
+Final source validation: **91/91 suites pass**, with exit 0 and exact suite
+PASS. The rebuilt Windows EXE's extracted pack passes **7/7 checks** in an empty
+project directory on Linux: startup, walkway clearance, world layout, exterior
+hull, module service access, player traversal and session flow. Independent
+review ran 19,200 pressure rays with zero escapes. Seven native captures exited
+successfully. Dashboard browser and snapshot checks pass.
+
+The original outer hull also required a wider cut inside each service bay.
+Its cut now spans the bay width to the 2.2 m chamfer base, retaining the upper
+sealed lintel; regressions check the former sheets beside both entrances.
+
 Seven native Wayland Forward+ captures use the real scene, normal lighting and
 analogue filter. The capture script pauses simulation and hides HUD layers for
 review; these pictures do not constitute a continuous human playthrough.
@@ -53,6 +64,15 @@ review; these pictures do not constitute a continuous human playthrough.
 Save format remains v6; simulator ownership and existing node paths are retained.
 This pass adds physical space without granting machines, stock or build refunds.
 Native Windows execution and tester acceptance of the revised layout remain
-separate review gates. Export and delivery evidence will be recorded below when
-available. Existing renderer/resource shutdown warnings are tracked separately
+separate review gates. The updated Windows playtest is published below. Existing renderer/resource shutdown warnings are tracked separately
 from script errors and test failures.
+
+## Delivered playtest
+
+[Download v0.12.0-playtest.20261009.2](https://github.com/Mangekyo-Sharingan/hullwatch/releases/tag/v0.12.0-playtest.20261009.2)
+
+Published 2026-10-09T18:52:50Z from main commit `2ce57fd`. EXE, ZIP,
+SHA256SUMS and candidate VALIDATION.json are attached. Independently downloaded
+EXE, ZIP and validation hashes all match. The published tag resolves to the
+source commit. This supersedes `.1` for the layout fixes; native Windows/manual
+review remains open. Repository access is required for downloads.
