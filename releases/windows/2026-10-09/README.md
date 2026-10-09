@@ -1,5 +1,9 @@
 # Windows playtest — 2026-10-09
 
+> Publication update: [the merged-main GitHub prerelease](https://github.com/Mangekyo-Sharingan/hullwatch/releases/tag/v0.12.0-playtest.20261009.1)
+> supersedes the older packaged/source publication status below.
+> See `docs/design/windows_main_release_2026-10-09.md` for fresh checks and limits.
+
 [Download Hullwatch.exe](https://github.com/Mangekyo-Sharingan/hullwatch/raw/refs/heads/feat/starpath-art-pass-2026-10-01/releases/windows/2026-10-09/Hullwatch.exe) or [Hullwatch-Windows.zip](https://github.com/Mangekyo-Sharingan/hullwatch/raw/refs/heads/feat/starpath-art-pass-2026-10-01/releases/windows/2026-10-09/Hullwatch-Windows.zip).
 
 Run `Hullwatch.exe` directly, or extract the ZIP and run it. The executable contains the game data; no Godot installation is needed. Windows x64, Vulkan-capable GPU (Forward+ renderer).

@@ -1,5 +1,9 @@
 # Playtest readiness pass — 2026-10-09
 
+> Publication update: [the merged-main GitHub prerelease](https://github.com/Mangekyo-Sharingan/hullwatch/releases/tag/v0.12.0-playtest.20261009.1)
+> supersedes the older packaged/source publication status below.
+> See `docs/design/windows_main_release_2026-10-09.md` for fresh checks and limits.
+
 ## Verdict
 
 The current feature branch has a main/pause/menu flow, three save slots,

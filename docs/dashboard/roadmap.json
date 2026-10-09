@@ -2721,6 +2721,65 @@
           ]
         }
       ]
+    },
+    {
+      "id": "WINDOWS_MAIN_20261009",
+      "title": "Merged-main October 9 GitHub prerelease",
+      "phase": "Delivered builds",
+      "status": "complete",
+      "summary": "PR #1 correctly merged at a194fe2. Fresh Windows EXE/ZIP published as v0.12.0-playtest.20261009.1; independently downloaded and verified. This prerelease supersedes c982415. Native Windows/manual/rendered review stays open; private-repository access is required.",
+      "evidence": [
+        {
+          "path": "docs/design/windows_main_release_2026-10-09.md",
+          "label": "Verified PR #1 merge and published GitHub Release"
+        },
+        {
+          "path": "docs/design/windows_main_release_2026-10-09_results.json",
+          "label": "Fresh source 90/90, embedded-project 9/9 and build identity"
+        }
+      ],
+      "tasks": [
+        {
+          "title": "Verify latest feature branch correctly merged into main",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/windows_main_release_2026-10-09.md",
+              "label": "Verified PR #1 merge and published GitHub Release"
+            }
+          ]
+        },
+        {
+          "title": "Export exact main and run fresh source/embedded-project checks",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/windows_main_release_2026-10-09_results.json",
+              "label": "Fresh source 90/90, embedded-project 9/9 and build identity"
+            }
+          ]
+        },
+        {
+          "title": "Publish Release with EXE, ZIP, hashes and validation; independently verify downloads",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/windows_main_release_2026-10-09.md",
+              "label": "Verified PR #1 merge and published GitHub Release"
+            }
+          ]
+        },
+        {
+          "title": "Native Windows and continuous manual gameplay review",
+          "status": "needs_review",
+          "evidence": [
+            {
+              "path": "docs/design/windows_main_release_2026-10-09.md",
+              "label": "Verified PR #1 merge and published GitHub Release"
+            }
+          ]
+        }
+      ]
     }
   ],
   "gates": [
