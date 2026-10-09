@@ -96,6 +96,17 @@ func select_action(index: int) -> void:
 		&"new", &"load":
 			_page = action
 			_refresh()
+		&"delete":
+			_page = &"delete"
+			_refresh()
+		&"confirm_delete":
+			var manager: Node = _manager()
+			if manager != null and bool(manager.call("delete_save", _pending_slot)):
+				_page = &"delete"
+				_message.text = "SLOT %d DELETED" % _pending_slot
+				_refresh()
+			else:
+				_show_error(manager)
 		&"back", &"cancel":
 			_back()
 		&"settings":
@@ -150,6 +161,14 @@ func select_action(index: int) -> void:
 					await _transition(&"load_game_scene", slot)
 				else:
 					_message.text = "THIS SLOT HAS NO VALID WATCH"
+			elif _page == &"delete":
+				if bool(summary.get("exists", false)):
+					_pending_slot = slot
+					_page = &"delete_confirm"
+					_message.text = "DELETE %s? THIS CANNOT BE UNDONE." % _slot_label(summary)
+					_refresh()
+				else:
+					_message.text = "THIS SLOT IS EMPTY"
 
 
 func _transition(method: StringName, slot: int) -> void:
@@ -202,6 +221,8 @@ func _back() -> void:
 	_message.text = ""
 	if _page == &"overwrite":
 		_page = &"new"
+	elif _page == &"delete_confirm":
+		_page = &"delete"
 	elif _page != &"root":
 		_page = &"root"
 	elif pause_mode:
@@ -251,12 +272,15 @@ func _show_error(manager: Node) -> void:
 func _refresh() -> void:
 	_ids.clear()
 	_actions.clear()
-	if _page in [&"new", &"load"]:
+	if _page in [&"new", &"load", &"delete"]:
 		for slot: int in range(1, SLOT_COUNT + 1):
 			_add_action(StringName("slot:%d" % slot), _slot_label(_slot_summary(slot)))
 		_add_action(&"back", "BACK")
 	elif _page == &"overwrite":
 		_add_action(&"overwrite", "OVERWRITE SLOT %d AND START NEW WATCH" % _pending_slot)
+		_add_action(&"cancel", "CANCEL")
+	elif _page == &"delete_confirm":
+		_add_action(&"confirm_delete", "DELETE SLOT %d" % _pending_slot)
 		_add_action(&"cancel", "CANCEL")
 	elif pause_mode:
 		_add_action(&"resume", "RESUME")
@@ -272,6 +296,7 @@ func _refresh() -> void:
 		_add_action(&"new", "NEW WATCH")
 		_add_action(&"load", "LOAD WATCH")
 		_add_action(&"settings", "SETTINGS")
+		_add_action(&"delete", "DELETE WATCH")
 		_add_action(&"quit", "QUIT")
 	var title: String = "WATCH PAUSED" if pause_mode else "WATCH CONTROL"
 	if _page == &"new":
@@ -280,6 +305,10 @@ func _refresh() -> void:
 		title = "LOAD WATCH"
 	elif _page == &"overwrite":
 		title = "REPLACE WATCH"
+	elif _page == &"delete":
+		title = "DELETE WATCH"
+	elif _page == &"delete_confirm":
+		title = "CONFIRM DELETION"
 	_menu.setup(title, _actions)
 	_menu.set_hint("WHEEL / ARROWS: BROWSE\nCLICK / WHEEL CLICK / ENTER: SELECT    ESC: BACK")
 	_style_rows()

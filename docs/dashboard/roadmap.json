@@ -1,7 +1,7 @@
 {
   "title": "Hullwatch \u2014 factual roadmap and acceptance gates",
   "updated": "2026-10-09",
-  "summary": "Source-backed roadmap snapshot, not a fresh game validation. M0\u2013M6 retain original acceptance targets; M7\u2013M11 and M13 are documented as implemented, M12 has open playtest/performance gates, and M14 awaits operator review. All twelve art packets have implementation/report artifacts, with manual/platform/performance acceptance still open. Reported 89/89 is historical October 1 evidence, not October 8 validation. Published gameplay Windows cross-export and embedded-pack checks do not establish native Windows runtime; October 1 art is reported local/unpublished. Draft/pre-production, v0.10.0 checklist/current-build wording, v0.11.0 README and later handoff records conflict in age/scope; prototype history, current source and delivered packages are kept explicit. Narrative leanings remain unresolved; no deadlines or readiness percentage are inferred. October 9: operator replaces finite Alpha campaign with open survival; activity backlog is proposed, not approved implementation. October 9 execution: six activity directions approved and planned; salvage prototype in source, first technology and human review pending; parallel replenishment/persistence preparation complete.",
+  "summary": "Source-backed roadmap, not a readiness percentage. M0\u2013M6 retain original targets; M7\u2013M11 and M13 are implemented, while M12 and M14 retain operator/platform gates. The October 9 Windows package is from c982415; the current feature branch adds confirmed Delete Watch, persistent field/anomaly/planet-rate settings and deterministic optional survey-orbit routes. Linux validation passes 90/90 suites and profile_sim at 198.6 \u00b5s/tick; this branch is not packaged and rendered FPS is unmeasured. Open-ended survival replaces a required campaign ending. Private playtest still needs a fresh exact-source Windows package, native Windows run and human work-cycle test. Early Access still needs bounded content, sustainable economy, broad persistence/recovery, rendered performance and balance acceptance. Q10 retains the live field-rate timing question.",
   "milestones": [
     {
       "id": "M0",
@@ -1237,7 +1237,7 @@
       "title": "Main, pause, save/load and settings menus",
       "phase": "Gameplay passes",
       "status": "needs_review",
-      "summary": "Main/pause/new/load/save/settings flows, atomic save replacement and overwrite confirmation are implemented and packaged in the published gameplay checkpoint. Source/embedded-pack tests and a Wayland menu render do not establish native Windows runtime usability.",
+      "summary": "Main/pause/new/load/save/settings flows, atomic saves, overwrite and confirmed Delete Watch are covered by Linux tests. Three-slot management works; player preferences include field, anomaly and planet rates. Planet rate deterministically discovers optional survey-orbit routes after arrivals; generated routes persist in v6 saves. The current feature branch is not in Windows package c982415, and native Windows usability remains unverified.",
       "evidence": [
         {
           "path": "docs/design/independent_watch_pass.md",
@@ -1250,6 +1250,26 @@
         {
           "path": "docs/design/art_pass/steps/12-final-validation-result.md",
           "label": "Wayland menu retry and platform limits"
+        },
+        {
+          "path": "docs/design/playtest_readiness_pass.md",
+          "label": "Current working-tree 90/90 result and release gates"
+        },
+        {
+          "path": "docs/SHIPPING_CHECKLIST.md",
+          "label": "Current package/source distinction and playtest checklist"
+        },
+        {
+          "path": "docs/OPEN_QUESTIONS.md",
+          "label": "Resolved Q9 planet occurrence behavior; Q10 live field-rate timing remains open"
+        },
+        {
+          "path": "game/tests/test_nav.gd",
+          "label": "Planet route frequency extremes, determinism, chart selection and route save/load"
+        },
+        {
+          "path": "game/tests/test_save_migration.gd",
+          "label": "Global save v5 to v6 migration"
         }
       ],
       "tasks": [
@@ -1298,8 +1318,58 @@
           "status": "complete",
           "evidence": [
             {
-              "path": "docs/design/independent_watch_pass.md",
-              "label": "Persistent settings"
+              "path": "game/tests/test_settings.gd",
+              "label": "Persistent controls including planet occurrence"
+            },
+            {
+              "path": "game/tests/test_sector.gd",
+              "label": "Field and anomaly settings remain global across watch loads"
+            }
+          ]
+        },
+        {
+          "title": "Confirmed Delete Watch flow; cancellation preserves the save and successful deletion refreshes the slot list",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "game/tests/test_session_menu.gd",
+              "label": "Delete confirmation, cancel and refreshed slot list"
+            },
+            {
+              "path": "game/tests/test_session_flow.gd",
+              "label": "Actual SaveManager deletion and byte-for-byte cancel preservation"
+            }
+          ]
+        },
+        {
+          "title": "Keep encounter rates in global settings across load; ignore legacy per-watch frequency values",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "game/tests/test_sector.gd",
+              "label": "Legacy frequency fields ignored and omitted from new sector saves"
+            },
+            {
+              "path": "game/tests/test_settings.gd",
+              "label": "Persistent global preferences and live field updates"
+            }
+          ]
+        },
+        {
+          "title": "Implement optional waypoint planet discovery and route persistence",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/OPEN_QUESTIONS.md",
+              "label": "Q9 deterministic route-discovery decision and rate semantics"
+            },
+            {
+              "path": "game/tests/test_nav.gd",
+              "label": "Rate extremes, deterministic discoveries, star-chart route and save/load"
+            },
+            {
+              "path": "game/tests/test_save_migration.gd",
+              "label": "Planet-route save v6 migration"
             }
           ]
         },
@@ -2286,7 +2356,7 @@
       "title": "Investigation and surveying",
       "phase": "Open survival Alpha",
       "status": "planned",
-      "summary": "Operator-approved activity direction; bounded plan written. Implementation and acceptance remain planned.",
+      "summary": "Planet waypoint occurrence now offers optional travel opportunities and saves discoveries. The broader investigation slice\u2014useful contact evidence, a survey notebook and a complete probe/sample loop\u2014remains planned.",
       "evidence": [
         {
           "path": "docs/design/survival_slices/03-investigation.md",
@@ -2726,7 +2796,7 @@
       "id": "PERFORMANCE",
       "title": "CPU budget and rendered mid-range performance",
       "status": "needs_review",
-      "summary": "Fresh October 9 profile_sim measures 201.0 \u00b5s/tick against 200 \u00b5s (FAIL); previous art 201.8 \u00b5s is historical. Simulation performance gate remains open. Rendered FPS/native hardware acceptance also remains pending.",
+      "summary": "At c982415, profile_sim measured 201.0 \u00b5s/tick against 200 \u00b5s; the current feature branch measures 198.6 \u00b5s/tick over 144,000 ticks, a narrow CPU-budget pass. Rendered FPS/native hardware acceptance remains pending.",
       "evidence": [
         {
           "path": "docs/design/art_pass/steps/12-final-validation-result.md",
@@ -2747,6 +2817,10 @@
         {
           "path": "docs/design/survival_slices/01-result.md",
           "label": "October 9 salvage/profile evidence"
+        },
+        {
+          "path": "docs/design/playtest_readiness_pass.md",
+          "label": "Current feature-branch simulation profile"
         }
       ]
     },
@@ -2754,7 +2828,7 @@
       "id": "WINDOWS",
       "title": "Native Windows execution",
       "status": "needs_review",
-      "summary": "Published October 1 gameplay package was Linux cross-exported; embedded-pack tests used the matching Linux engine. Native Windows runtime remains unverified. Step 12 exported/published no new art package; older gameplay executable cannot establish current-art runtime coverage.",
+      "summary": "The October 9 Windows cross-export at c982415 has embedded-project checks using the matching Linux engine; native Windows runtime remains unverified. The current working tree has additional tested menu/settings changes and is not in that package.",
       "evidence": [
         {
           "path": "docs/design/art_pass/README.md",
@@ -2767,6 +2841,14 @@
         {
           "path": "docs/design/art_pass/steps/12-final-validation-and-release.md",
           "label": "Separate package and native checks"
+        },
+        {
+          "path": "docs/SHIPPING_CHECKLIST.md",
+          "label": "October 1 and October 9 package identities versus current local source"
+        },
+        {
+          "path": "docs/design/playtest_readiness_pass.md",
+          "label": "Current Linux test result and native Windows gate"
         }
       ]
     },

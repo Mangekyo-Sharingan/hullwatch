@@ -26,6 +26,7 @@ const SUPPORTED_KEYS: Array[StringName] = [
 	&"analogue_filter_intensity",
 	&"asteroid_frequency",
 	&"anomaly_frequency",
+	&"planet_frequency",
 ]
 
 var mouse_sensitivity_multiplier: float = 1.0
@@ -36,6 +37,7 @@ var analogue_filter_enabled: bool = true
 var analogue_filter_intensity: float = 1.0
 var asteroid_frequency: float = 1.0
 var anomaly_frequency: float = 1.0
+var planet_frequency: float = 1.0
 
 
 func _ready() -> void:
@@ -57,6 +59,7 @@ func load_settings() -> void:
 		analogue_filter_intensity = 1.0
 		asteroid_frequency = 1.0
 		anomaly_frequency = 1.0
+		planet_frequency = 1.0
 		_apply_volume()
 		return
 	mouse_sensitivity_multiplier = clampf(
@@ -73,6 +76,7 @@ func load_settings() -> void:
 	)
 	asteroid_frequency = clampf(_read_float(config, &"asteroid_frequency", 1.0), ENCOUNTER_FREQUENCY_MIN, ENCOUNTER_FREQUENCY_MAX)
 	anomaly_frequency = clampf(_read_float(config, &"anomaly_frequency", 1.0), ENCOUNTER_FREQUENCY_MIN, ENCOUNTER_FREQUENCY_MAX)
+	planet_frequency = clampf(_read_float(config, &"planet_frequency", 1.0), ENCOUNTER_FREQUENCY_MIN, ENCOUNTER_FREQUENCY_MAX)
 	_apply_volume()
 
 
@@ -86,6 +90,7 @@ func save_settings() -> void:
 	config.set_value(CONFIG_SECTION, "analogue_filter_intensity", analogue_filter_intensity)
 	config.set_value(CONFIG_SECTION, "asteroid_frequency", asteroid_frequency)
 	config.set_value(CONFIG_SECTION, "anomaly_frequency", anomaly_frequency)
+	config.set_value(CONFIG_SECTION, "planet_frequency", planet_frequency)
 	var save_error: Error = config.save(CONFIG_PATH)
 	if save_error != OK:
 		push_error("GameSettings.save_settings: failed to write '%s' (error %d)." % [CONFIG_PATH, save_error])
@@ -152,6 +157,13 @@ func set_value(key: StringName, value: Variant) -> bool:
 			anomaly_frequency = clampf(float(value), ENCOUNTER_FREQUENCY_MIN, ENCOUNTER_FREQUENCY_MAX)
 			settings_changed.emit(key, anomaly_frequency)
 			return true
+		&"planet_frequency":
+			if not _is_number(value):
+				push_error(_type_error(key, value, "a number"))
+				return false
+			planet_frequency = clampf(float(value), ENCOUNTER_FREQUENCY_MIN, ENCOUNTER_FREQUENCY_MAX)
+			settings_changed.emit(key, planet_frequency)
+			return true
 		_:
 			push_error("GameSettings.set_value: unknown key '%s'." % String(key))
 			return false
@@ -175,6 +187,8 @@ func get_value(key: StringName) -> Variant:
 			return asteroid_frequency
 		&"anomaly_frequency":
 			return anomaly_frequency
+		&"planet_frequency":
+			return planet_frequency
 		_:
 			push_error("GameSettings.get_value: unknown key '%s'." % String(key))
 			return null
@@ -190,6 +204,7 @@ func reset_to_defaults() -> void:
 	analogue_filter_intensity = 1.0
 	asteroid_frequency = 1.0
 	anomaly_frequency = 1.0
+	planet_frequency = 1.0
 	_apply_volume()
 	for key: StringName in SUPPORTED_KEYS:
 		settings_changed.emit(key, get_value(key))

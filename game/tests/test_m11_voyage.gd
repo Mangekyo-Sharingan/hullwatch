@@ -5,10 +5,16 @@ var _failures: int = 0
 var _main: Node
 var _planet_ration_count: int = 0
 var _star_ration_count: int = 0
+var _settings: Node
+var _previous_planet_frequency: float = 1.0
 
 
 func _initialize() -> void:
 	await process_frame
+	_settings = root.get_node_or_null(^"GameSettings")
+	if _settings != null:
+		_previous_planet_frequency = float(_settings.call(&"get_value", &"planet_frequency"))
+		_settings.call(&"set_value", &"planet_frequency", 0.0)
 	_run()
 
 
@@ -94,7 +100,7 @@ func _test_planet_arrival(nav: Node, sector: Node, cargo: Node, stores: Node) ->
 func _test_star_arrival_and_round_trip(nav: Node, sector: Node, cargo: Node, stores: Node) -> void:
 	var save_manager: Node = root.get_node_or_null(^"SaveManager")
 	var saved_at_planet: Dictionary = save_manager.call("save_to_dict") if save_manager != null else {}
-	_check(int(saved_at_planet.get("save_version", 0)) == 5, "save: new voyage data writes save version 5")
+	_check(int(saved_at_planet.get("save_version", 0)) == 6, "save: new voyage data writes save version 6")
 	_check(bool(nav.call("plot_course", &"kestrel_system")), "star: course plots from planet")
 	_check(bool(nav.call("begin_transit")), "star: longer transit starts")
 	_test_ion_plumes(true, "star transit starts")
@@ -178,6 +184,8 @@ func _test_fuel_exhaustion_stops_the_wake(nav: Node) -> void:
 
 
 func _finish() -> void:
+	if _settings != null:
+		_settings.call(&"set_value", &"planet_frequency", _previous_planet_frequency)
 	if _failures == 0:
 		print("PASS: test_m11_voyage")
 		quit(0)

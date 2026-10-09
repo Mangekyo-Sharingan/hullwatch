@@ -310,8 +310,6 @@ func save_state() -> Dictionary:
 		"offset": {"x": _offset.x, "y": _offset.y, "z": _offset.z},
 		"holding": _holding,
 		"approach_target_id": _approach_target_id,
-		"asteroid_frequency": asteroid_frequency,
-		"anomaly_frequency": anomaly_frequency,
 		"mined": _mined.duplicate(),
 	}
 
@@ -327,8 +325,6 @@ func load_state(state: Dictionary) -> void:
 	)
 	_holding = bool(state.get("holding", false))
 	_approach_target_id = String(state.get("approach_target_id", ""))
-	asteroid_frequency = clampf(float(state.get("asteroid_frequency", asteroid_frequency)), 0.0, 3.0)
-	anomaly_frequency = clampf(float(state.get("anomaly_frequency", anomaly_frequency)), 0.0, 3.0)
 	_mined.clear()
 	var mined: Dictionary = state.get("mined", {})
 	for key: Variant in mined:

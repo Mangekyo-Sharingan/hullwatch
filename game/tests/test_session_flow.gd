@@ -66,7 +66,7 @@ func _run() -> void:
 	power.call("set_breaker", &"lighting", false)
 	_select(pause_menu, "SAVE WATCH")
 	var saved: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("user://saves/slot_1.json")) as Dictionary
-	_check(int(saved.get("save_version", 0)) == 5 and int(saved["clock"]["tick_index"]) == int(frozen["tick_index"]) and is_equal_approx(float(saved["clock"]["sim_seconds"]), float(frozen["sim_seconds"])), "pause save stores current version and frozen clock")
+	_check(int(saved.get("save_version", 0)) == 6 and int(saved["clock"]["tick_index"]) == int(frozen["tick_index"]) and is_equal_approx(float(saved["clock"]["sim_seconds"]), float(frozen["sim_seconds"])), "pause save stores current version and frozen clock")
 	_manager.set("active_slot", 0)
 	_select(pause_menu, "SAVE AND MAIN MENU")
 	_check(current_scene.scene_file_path == GAME_SCENE and paused and bool(pause_menu.call("is_menu_open")), "save failure keeps gameplay paused")
@@ -105,6 +105,22 @@ func _run() -> void:
 	await _escape()
 	await _escape()
 	_check(not bool(pause_menu.call("is_menu_open")) and not paused and not bool(_clock.get("is_paused")), "Escape resumes pause menu")
+	await _escape()
+	_select(pause_menu, "SAVE AND MAIN MENU")
+	if not await _wait_scene(MENU_SCENE):
+		_finish()
+		return
+	menu = current_scene
+	var save_before_delete: PackedByteArray = FileAccess.get_file_as_bytes("user://saves/slot_1.json")
+	_select(menu, "DELETE WATCH")
+	_select(menu, "SLOT 1")
+	_check((menu.call("get_actions") as PackedStringArray)[0].begins_with("DELETE SLOT 1"), "delete watch asks for confirmation")
+	_select(menu, "CANCEL")
+	_check(FileAccess.get_file_as_bytes("user://saves/slot_1.json") == save_before_delete, "cancelled deletion preserves the save byte-for-byte")
+	_select(menu, "SLOT 1")
+	_select(menu, "DELETE SLOT 1")
+	_check(not FileAccess.file_exists("user://saves/slot_1.json"), "confirmed menu deletion removes the selected save")
+	_check((menu.call("get_actions") as PackedStringArray)[0].contains("EMPTY"), "delete list refreshes the slot summary")
 	_finish()
 
 

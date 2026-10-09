@@ -471,11 +471,11 @@ the docks into radial ports the bore goes to 1.2 m to match interior doors, at n
 
 ## Save format
 
-The M14.3 integration format is **v4**, with **NavSystem state v3**. Earlier v1/v2 metadata
-and legacy route progress continue through the migration chain; v3 saves gain the propulsion
-state defaults through the parent migration. Tank, external service and in-flight degraded/held
-travel round-trip with deterministic state in the affected engine suites. Final integrated
-full-suite confirmation passes all 88 suites on 2026-10-01.
+The current format is global **save v6**, with **NavSystem state v4**. Save v5 migrates with
+empty planet-discovery history; earlier versions continue through the existing migration chain.
+Generated survey-orbit routes and arrival history are deterministic and survive reload, including
+a plotted route to a generated planet. M14.3 propulsion state remains covered by its original
+tests; the current playtest-menu pass runs the affected migration and travel suites separately.
 
 **M11 landed (2026-09-28):** destination resources drive course plotting, plot time/fuel,
 multi-day fixed-tick transit, daily transit events, and finite first-visit caches. The cockpit

@@ -294,3 +294,25 @@ migrated by the parent. Ship history records cassette function loss (or unavaila
 external service actions and drive hold transitions. It never records automatic grid/cathode
 fault identities: external component rows appear only after scanning or diagnosis, with failure
 modes exposed only after diagnosis.
+
+## Q9 — Planet occurrence setting (RESOLVED 2026-10-09)
+
+Planet occurrence controls optional, resource-bearing survey-orbit waypoints. On each waypoint
+arrival, the nav simulator makes a deterministic discovery roll from the origin's sector seed and
+arrival ordinal. At `x1.00` the chance is 35%; `x2.00` gives 70%; `x3.00` guarantees one offer.
+At most one route appears per arrival. Generated routes use the existing waypoint/travel model,
+provide a smaller finite first-visit cache, and persist in nav state v4 / save v6. Changing the
+global preference affects later arrivals only; already charted routes stay available. This keeps
+planets out of the local asteroid stream, where the game has no planetary approach or landing loop.
+
+The settings row is a player preference, not watch state. Route discoveries are stable through
+save/load and generated route IDs/seeds derive from the saved arrival history. Playtest feedback
+should tune the 35% baseline/cache values; the mechanic does not add landing or probe gameplay.
+
+## Q10 — When do encounter-rate changes take effect? (OPEN)
+
+Field-object and anomaly rates are global player preferences. Changing either
+currently rebuilds the active streamed field immediately, and the chosen values
+also apply when loading a watch. Should players be able to reshape the current
+field at any time, or should new rates apply only after entering a new sector?
+Keep the current live behavior until playtest feedback gives a reason to change it.

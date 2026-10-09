@@ -21,8 +21,9 @@ const ROW_ANALOGUE_FILTER: int = 4
 const ROW_FILTER_INTENSITY: int = 5
 const ROW_ASTEROID_FREQUENCY: int = 6
 const ROW_ANOMALY_FREQUENCY: int = 7
-const ROW_RESET: int = 8
-const ROW_CLOSE: int = 9
+const ROW_PLANET_FREQUENCY: int = 8
+const ROW_RESET: int = 9
+const ROW_CLOSE: int = 10
 
 var _open: bool = false
 var managed_by_controller: bool = false
@@ -86,7 +87,7 @@ func get_row_value_text(key: StringName) -> String:
 			text = "ON" if _setting_bool(key, true) else "OFF"
 		&"analogue_filter_intensity":
 			text = "%d%%" % int(roundf(_setting_float(key, 1.0) * 100.0))
-		&"asteroid_frequency", &"anomaly_frequency":
+		&"asteroid_frequency", &"anomaly_frequency", &"planet_frequency":
 			text = "x%.2f" % _option_float(key, 1.0)
 	return text
 
@@ -149,6 +150,8 @@ func _on_option_selected(index: int) -> void:
 			_step(&"asteroid_frequency", 1.0)
 		ROW_ANOMALY_FREQUENCY:
 			_step(&"anomaly_frequency", 1.0)
+		ROW_PLANET_FREQUENCY:
+			_step(&"planet_frequency", 1.0)
 		ROW_RESET:
 			_reset()
 		ROW_CLOSE:
@@ -171,6 +174,8 @@ func _decrease_highlighted() -> void:
 			_step(&"asteroid_frequency", -1.0)
 		ROW_ANOMALY_FREQUENCY:
 			_step(&"anomaly_frequency", -1.0)
+		ROW_PLANET_FREQUENCY:
+			_step(&"planet_frequency", -1.0)
 
 
 func _step(key: StringName, direction: float) -> void:
@@ -221,8 +226,9 @@ func _menu_items() -> PackedStringArray:
 	items.append("UI SCALE             %s" % get_row_value_text(&"ui_scale"))
 	items.append("ANALOGUE FILTER      %s" % get_row_value_text(&"analogue_filter_enabled"))
 	items.append("FILTER INTENSITY     %s" % get_row_value_text(&"analogue_filter_intensity"))
-	items.append("ASTEROID FIELD RATE  %s" % get_row_value_text(&"asteroid_frequency"))
+	items.append("FIELD OBJECT RATE    %s" % get_row_value_text(&"asteroid_frequency"))
 	items.append("ANOMALY FREQUENCY    %s" % get_row_value_text(&"anomaly_frequency"))
+	items.append("PLANET OCCURRENCE    %s" % get_row_value_text(&"planet_frequency"))
 	items.append("RESET DEFAULTS")
 	items.append("CLOSE (ESC)")
 	return items
@@ -261,7 +267,7 @@ func _step_for(key: StringName) -> float:
 			return UI_SCALE_STEP
 		&"analogue_filter_intensity":
 			return FILTER_INTENSITY_STEP
-		&"asteroid_frequency", &"anomaly_frequency":
+		&"asteroid_frequency", &"anomaly_frequency", &"planet_frequency":
 			return ENCOUNTER_FREQUENCY_STEP
 	return 0.0
 

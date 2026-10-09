@@ -33,10 +33,13 @@ class Manager extends Node:
 	var new_slots: Array[int] = []
 	var load_slots: Array[int] = []
 	var saved_slots: Array[int] = []
+	var deleted_slots: Array[int] = []
 	var menu_returns: int = 0
 	var error: String = ""
 
 	func get_slot_summary(slot: int) -> Dictionary:
+		if deleted_slots.has(slot):
+			return {"slot": slot, "exists": false, "valid": false}
 		if slot == 1:
 			return {"slot": 1, "exists": true, "valid": true, "day": 7, "destination_id": "arden_ii"}
 		if slot == 2:
@@ -69,6 +72,11 @@ class Manager extends Node:
 		saved_slots.append(slot)
 		error = "" if save_success else "write_failed"
 		return save_success
+
+	func delete_save(slot: int) -> bool:
+		deleted_slots.append(slot)
+		error = ""
+		return true
 
 	func return_to_menu() -> bool:
 		menu_returns += 1
@@ -142,7 +150,7 @@ func _test_main_scene() -> void:
 func _test_main_actions() -> void:
 	var menu: TestMenu = _make_menu(false)
 	var actions: PackedStringArray = menu.get_actions()
-	_check(actions.size() == 5 and actions[0].contains("DAY 0007") and actions[0].contains("ARDEN II"), "Continue displays latest watch day and location")
+	_check(actions.size() == 6 and actions[0].contains("DAY 0007") and actions[0].contains("ARDEN II"), "Continue displays latest watch day and location")
 	menu.select_action(-1)
 	menu.select_action(99)
 	_check(_manager.load_slots.is_empty(), "out-of-range selections do nothing")
@@ -162,7 +170,7 @@ func _test_main_actions() -> void:
 	_check(menu.get_actions()[0].contains("OVERWRITE SLOT 2"), "invalid occupied slot also requires confirmation")
 	_escape(menu)
 	_escape(menu)
-	_check(menu.get_actions().size() == 5, "Escape backs out confirmation and slot chooser")
+	_check(menu.get_actions().size() == 6, "Escape backs out confirmation and slot chooser")
 	menu.select_action(1)
 	menu.select_action(0)
 	menu.select_action(0)
@@ -206,6 +214,16 @@ func _test_main_actions() -> void:
 	_escape(menu)
 	_check(not bool(settings.call("is_menu_open")) and menu.get_menu().is_open(), "Escape closes settings before backing out session")
 	menu.select_action(4)
+	menu.select_action(0)
+	_check(menu.get_actions()[0].contains("DELETE SLOT 1") and _message(menu).contains("CANNOT BE UNDONE"), "delete requires a separate confirmation")
+	_escape(menu)
+	_check(menu.get_actions()[0].contains("DAY 0007") and _manager.deleted_slots.is_empty(), "cancel preserves the selected watch")
+	menu.select_action(0)
+	menu.select_action(0)
+	_check(_manager.deleted_slots == [1] and menu.get_actions()[0].contains("EMPTY"), "confirmed deletion returns to updated slot list")
+	_escape(menu)
+	_check(menu.get_actions().size() == 6, "Escape returns from delete list to main menu")
+	menu.select_action(5)
 	_check(menu.quit_requested, "main Quit requests exit")
 	menu.free()
 

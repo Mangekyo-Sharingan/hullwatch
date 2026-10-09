@@ -104,7 +104,7 @@ Pin equipment identity with the salvage owner: at minimum instance id, machine k
 
 **Physical path:** mine/carry → cargo port accepts what fits → remainder stays in hand. Wreck detach → carry recovered unit → stow → fit the same instance. Full destination storage refuses visibly. Build cancellation/refund respects space and retains its job on refusal.
 
-**Acceptance:** partial/full deposit conservation; refusal/rollback for multi-material payment; repeated remove/cancel gives no extra stock; capacity-removing teardown conserves contents; revisit and reload preserve depletion and recovered identity; fabricated pending output survives a missing receiver. Parent coordinates global save version migration (currently v4) rather than competing version bumps.
+**Acceptance:** partial/full deposit conservation; refusal/rollback for multi-material payment; repeated remove/cancel gives no extra stock; capacity-removing teardown conserves contents; revisit and reload preserve depletion and recovered identity; fabricated pending output survives a missing receiver. Parent coordinates global save version migration (currently v6) rather than competing version bumps.
 
 ### R1 — Turn mined ice into usable water
 

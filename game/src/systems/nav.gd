@@ -4,8 +4,10 @@ extends ShipSystem
 
 const HOURS_PER_DAY: float = 24.0
 const MAX_STEP_HOURS: float = 1.0 / 600.0
+const PLANET_ROUTE_BASE_CHANCE: float = 0.35
 
 @export var destinations: Array[VoyageDestination] = []
+@export var planet_destination_template: VoyageDestination = preload("res://src/data/destinations/destination_unregistered_planet.tres")
 @export var fuel_mass_kg: float = 1200.0
 @export var course_error_per_hour: float = 0.01
 @export var approach_fuel_cost_kg: float = 25.0
@@ -17,6 +19,9 @@ var course_error: float = 0.0
 var transit_elapsed_hours: float = 0.0
 var transit_active: bool = false
 var _visited_destinations: Dictionary = {}
+var _discovered_planet_destinations: Array[VoyageDestination] = []
+var _planet_discovery_records: Array[Dictionary] = []
+var _arrival_ordinal: int = 0
 var xenonite_mass_kg: float = 0.0
 var xenonite_consumed_kg: float = 0.0
 var transit_actual_hours: float = 0.0
@@ -82,11 +87,16 @@ func get_destination(destination_id: StringName) -> VoyageDestination:
 	for destination: VoyageDestination in destinations:
 		if destination != null and destination.destination_id == destination_id:
 			return destination
+	for destination: VoyageDestination in _discovered_planet_destinations:
+		if destination.destination_id == destination_id:
+			return destination
 	return null
 
 
 func get_destinations() -> Array[VoyageDestination]:
-	return destinations.duplicate()
+	var available: Array[VoyageDestination] = destinations.duplicate()
+	available.append_array(_discovered_planet_destinations)
+	return available
 
 
 func has_visited(destination_id: StringName) -> bool:
@@ -220,7 +230,7 @@ func save_state() -> Dictionary:
 		wear.append(entry)
 	return {
 		"system_id": "nav",
-		"state_version": 3,
+		"state_version": 4,
 		"current_destination_id": String(current_destination_id),
 		"plotted_destination_id": String(plotted_destination_id),
 		"fuel_mass_kg": fuel_mass_kg,
@@ -228,6 +238,8 @@ func save_state() -> Dictionary:
 		"transit_elapsed_hours": transit_elapsed_hours,
 		"transit_active": transit_active,
 		"visited_destinations": _visited_destinations.duplicate(),
+		"arrival_ordinal": _arrival_ordinal,
+		"planet_discoveries": _planet_discovery_records.duplicate(true),
 		"propulsion": {
 			"mass_kg": xenonite_mass_kg,
 			"consumed_kg": xenonite_consumed_kg,
@@ -244,6 +256,8 @@ func save_state() -> Dictionary:
 func load_state(state: Dictionary) -> void:
 	_reset_propulsion()
 	_load_propulsion(state.get("propulsion", {}))
+	_arrival_ordinal = maxi(int(state.get("arrival_ordinal", 0)), 0)
+	_restore_planet_discoveries(state.get("planet_discoveries", []))
 	if state.has("current_destination_id"):
 		current_destination_id = _known_destination_id(StringName(String(state["current_destination_id"])))
 	else:
@@ -336,6 +350,8 @@ func _arrive(destination: VoyageDestination) -> void:
 	transit_elapsed_hours = float(destination.transit_days) * HOURS_PER_DAY
 	plotted_destination_id = &""
 	course_error = 0.0
+	_arrival_ordinal += 1
+	var discovered_planet: VoyageDestination = _try_discover_planet(destination, _arrival_ordinal)
 	var resource_id: StringName = destination.arrival_resource if first_visit else &""
 	var resource_units: float = destination.arrival_resource_units if first_visit else 0.0
 	var event_bus: Node = _get_autoload(&"EventBus")
@@ -355,6 +371,77 @@ func _arrive(destination: VoyageDestination) -> void:
 		"first_visit": first_visit,
 		"arrival_stores": destination.arrival_stores if first_visit else {},
 	})
+	if discovered_planet != null:
+		_planet_discovery_records.append({
+			"destination_id": String(discovered_planet.destination_id),
+			"origin_destination_id": String(destination.destination_id),
+			"arrival_ordinal": _arrival_ordinal,
+		})
+		_discovered_planet_destinations.append(discovered_planet)
+		emit_sim_event(&"planet_route_discovered", {
+			"destination_id": discovered_planet.destination_id,
+			"display_name": discovered_planet.display_name,
+			"origin_destination_id": destination.destination_id,
+		})
+
+
+func _try_discover_planet(origin: VoyageDestination, arrival_ordinal: int) -> VoyageDestination:
+	var settings: Node = _get_autoload(&"GameSettings")
+	if settings == null or not settings.has_method(&"get_value"):
+		return null
+	var raw_frequency: Variant = settings.call(&"get_value", &"planet_frequency")
+	if not (raw_frequency is int or raw_frequency is float):
+		return null
+	var frequency: float = clampf(float(raw_frequency), 0.0, 3.0)
+	var rng: RandomNumberGenerator = _planet_rng(origin, arrival_ordinal)
+	if rng.randf() >= minf(PLANET_ROUTE_BASE_CHANCE * frequency, 1.0):
+		return null
+	return _make_planet_destination(origin, arrival_ordinal)
+
+
+func _make_planet_destination(origin: VoyageDestination, arrival_ordinal: int) -> VoyageDestination:
+	if planet_destination_template == null or not planet_destination_template.is_valid():
+		return null
+	var rng: RandomNumberGenerator = _planet_rng(origin, arrival_ordinal)
+	# Mirror the discovery roll so the generated sector seed follows it in the same stream.
+	rng.randf()
+	var destination: VoyageDestination = planet_destination_template.duplicate(true) as VoyageDestination
+	destination.destination_id = StringName("planet_orbit_%04d" % arrival_ordinal)
+	destination.display_name = "UNREGISTERED PLANET %02d" % arrival_ordinal
+	destination.sector_seed = rng.randi_range(1, 2000000000)
+	return destination if destination.is_valid() else null
+
+
+func _planet_rng(origin: VoyageDestination, arrival_ordinal: int) -> RandomNumberGenerator:
+	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
+	var seed_text: String = "%s:%d:%d:planet-route" % [String(origin.destination_id), origin.sector_seed, arrival_ordinal]
+	var stable_seed: int = int(seed_text.hash()) & 0x7fffffff
+	rng.seed = maxi(stable_seed, 1)
+	return rng
+
+
+func _restore_planet_discoveries(saved_records: Variant) -> void:
+	_discovered_planet_destinations.clear()
+	_planet_discovery_records.clear()
+	if not saved_records is Array:
+		return
+	for raw_record: Variant in saved_records:
+		if not raw_record is Dictionary:
+			continue
+		var origin_id: StringName = StringName(String(raw_record.get("origin_destination_id", "")))
+		var origin: VoyageDestination = get_destination(origin_id)
+		var arrival_ordinal: int = int(raw_record.get("arrival_ordinal", 0))
+		if origin == null or arrival_ordinal < 1:
+			continue
+		var destination: VoyageDestination = _make_planet_destination(origin, arrival_ordinal)
+		if destination == null or String(raw_record.get("destination_id", "")) != String(destination.destination_id):
+			continue
+		_discovered_planet_destinations.append(destination)
+		_planet_discovery_records.append({
+			"destination_id": String(destination.destination_id),
+			"origin_destination_id": String(origin.destination_id),
+			"arrival_ordinal": arrival_ordinal,
+		})
 
 
 func _known_destination_id(destination_id: StringName) -> StringName:
