@@ -524,6 +524,7 @@ func _build_tube_interior() -> void:
 		var floors: Dictionary = _surface()
 		var collision: Array[Vector3] = []
 		var gaps: Array = []
+		gaps.append_array(_service_bay_gaps(index))
 		if TubeLayout.port_of(index) != &"":
 			for edge: int in _tube_side_edges(_tube_port_edge(index)):
 				gaps.append({"edge": edge, "from": center_z - TUBE_DOCK_DOOR_HALF, "to": center_z + TUBE_DOCK_DOOR_HALF, "top": 2.1})
@@ -575,7 +576,7 @@ func _build_tube_interior() -> void:
 		var hatch_min: Vector2 = Vector2(-TubeLayout.HATCH_HALF_WIDTH, 0.0)
 		var hatch_max: Vector2 = Vector2(TubeLayout.HATCH_HALF_WIDTH, TubeLayout.HATCH_HEIGHT)
 		for facing: Vector3 in [Vector3(0.0, 0.0, -1.0), Vector3(0.0, 0.0, 1.0)]:
-			_add_tube_face(walls, ring_min, mid, hatch_min, hatch_max, facing, collision, mid + TubeLayout.BULKHEAD * signf(facing.z))
+			_add_tube_face(walls, ring_min, mid, hatch_min, hatch_max, facing, collision, z0 if facing.z < 0.0 else z1)
 		if neck_radius < radius_a - EPSILON:
 			_add_washer(walls, SectionHull.tube_section(radius_a), ring_min, z0, Vector3(0.0, 0.0, -1.0), collision)
 		if neck_radius < radius_b - EPSILON:
@@ -586,6 +587,58 @@ func _build_tube_interior() -> void:
 		joint.add_child(_make_surface_node("Walls", walls, MATERIAL_XENON, collision))
 		joint.add_child(_make_surface_node("Floor", floors, MATERIAL_FLOOR, collision))
 		joint.add_child(_make_collision_node(collision))
+	_build_service_bays()
+
+
+func _service_bay_gaps(index: int, exterior: bool = false) -> Array:
+	var gaps: Array = []
+	for bay: Dictionary in TubeLayout.service_bays():
+		if String(bay["section"]) != String(TubeLayout.sections()[index]["name"]):
+			continue
+		var wall_edge: int = SectionHull.TUBE_EDGE_STARBOARD if float(bay["side"]) > 0.0 else SectionHull.TUBE_EDGE_PORT
+		var half: float = float(bay["length"]) * 0.5 if exterior else TUBE_DOCK_DOOR_HALF
+		var top: float = float(bay["ceiling"]) - 0.3 if exterior else 2.1
+		for edge: int in _tube_side_edges(wall_edge):
+			gaps.append({"edge": edge, "from": float(bay["center_z"]) - half, "to": float(bay["center_z"]) + half, "top": top})
+	return gaps
+
+
+func _build_service_bays() -> void:
+	for bay: Dictionary in TubeLayout.service_bays():
+		var walls: Dictionary = _surface()
+		var floors: Dictionary = _surface()
+		var collision: Array[Vector3] = []
+		var half: float = float(bay["length"]) * 0.5
+		var height: float = float(bay["ceiling"])
+		var depth: float = absf(float(bay["outer_x"]) - float(bay["inner_x"]))
+		var ring: PackedVector2Array = PackedVector2Array([Vector2(-half, 0.0), Vector2(half, 0.0), Vector2(half, height - 0.3), Vector2(half - 0.2, height), Vector2(-half + 0.2, height), Vector2(-half, height - 0.3)])
+		_add_tunnel_band(walls, ring, 0.0, depth, [], collision, true, false)
+		_add_tunnel_band(walls, ring, 0.0, depth, [], collision, false, false)
+		_add_tunnel_deck(floors, ring, 0.0, depth, collision)
+		_add_quad(floors, Vector3(-half, 0.0, 0.0), Vector3(half, 0.0, 0.0), Vector3(half, 0.0, depth), Vector3(-half, 0.0, depth), Vector3.DOWN, [])
+		for facing: Vector3 in [Vector3.FORWARD, Vector3.BACK]:
+			_add_tube_face(walls, ring, depth, Vector2.ZERO, Vector2.ZERO, facing, collision, depth)
+			_add_tube_face(walls, ring, 0.0, Vector2(-TUBE_DOCK_DOOR_HALF, 0.0), Vector2(TUBE_DOCK_DOOR_HALF, 2.1), facing, collision, 0.0)
+		var body: StaticBody3D = StaticBody3D.new()
+		body.name = "ServiceBay_" + String(bay["name"])
+		body.position = Vector3(float(bay["inner_x"]), 0.0, float(bay["center_z"]))
+		body.rotation.y = float(bay["side"]) * PI * 0.5
+		_root.add_child(body)
+		body.add_child(_make_surface_node("Walls", walls, MATERIAL_XENON, collision))
+		body.add_child(_make_surface_node("Floor", floors, MATERIAL_FLOOR, []))
+		body.add_child(_make_collision_node(collision))
+		_add_tube_cabin_light(body, depth * 0.5)
+		var throat_walls: Dictionary = _surface()
+		var throat_floors: Dictionary = _surface()
+		var throat_collision: Array[Vector3] = []
+		var index: int = TubeLayout.index_of(String(bay["section"]))
+		_add_tube_throat(throat_walls, throat_floors, throat_collision, float(TubeLayout.sections()[index]["radius"]), float(bay["center_z"]), float(bay["side"]), float(bay["inner_x"]))
+		var throat: StaticBody3D = StaticBody3D.new()
+		throat.name = "ServiceBayThroat_" + String(bay["name"])
+		_root.add_child(throat)
+		throat.add_child(_make_surface_node("Walls", throat_walls, MATERIAL_XENON, []))
+		throat.add_child(_make_surface_node("Floor", throat_floors, MATERIAL_FLOOR, []))
+		throat.add_child(_make_collision_node(throat_collision))
 
 
 ## One tunnel band swept along z at constant radius: the inner (or outer) surface of every
@@ -707,8 +760,8 @@ func _add_tube_face(surface: Dictionary, ring: PackedVector2Array, z: float, hol
 		return
 	_add_quad(surface, _xy(hole_min, z), _xy(Vector2(hole_max.x, hole_min.y), z), _xy(Vector2(hole_max.x, hole_min.y), z_bore), _xy(hole_min, z_bore), Vector3.UP, collision)
 	_add_quad(surface, _xy(Vector2(hole_min.x, hole_max.y), z), _xy(hole_max, z), _xy(hole_max, z_bore), _xy(Vector2(hole_min.x, hole_max.y), z_bore), Vector3.DOWN, collision)
-	_add_quad(surface, _xy(hole_min, z), _xy(hole_min, z_bore), _xy(Vector2(hole_min.x, hole_max.y), z_bore), _xy(Vector2(hole_min.x, hole_max.y), z), Vector3(-1.0, 0.0, 0.0), collision)
-	_add_quad(surface, _xy(Vector2(hole_max.x, hole_min.y), z), _xy(hole_max, z), _xy(hole_max, z_bore), _xy(Vector2(hole_max.x, hole_min.y), z_bore), Vector3(1.0, 0.0, 0.0), collision)
+	_add_quad(surface, _xy(hole_min, z), _xy(hole_min, z_bore), _xy(Vector2(hole_min.x, hole_max.y), z_bore), _xy(Vector2(hole_min.x, hole_max.y), z), Vector3(1.0, 0.0, 0.0), collision)
+	_add_quad(surface, _xy(Vector2(hole_max.x, hole_min.y), z), _xy(hole_max, z), _xy(hole_max, z_bore), _xy(Vector2(hole_max.x, hole_min.y), z_bore), Vector3(-1.0, 0.0, 0.0), collision)
 
 
 ## The cross-section's own wall half-width at height y, interpolated along the ring's canted
@@ -1217,6 +1270,7 @@ func _build_tube_hull(hull: StaticBody3D, shell: Dictionary, decks: Dictionary, 
 			elif absf(float(joint["z"]) - z1) <= SectionHull.TUBE_STEP:
 				z1 -= SectionHull.TUBE_STEP * 0.5
 		var gaps: Array = []
+		gaps.append_array(_service_bay_gaps(index, true))
 		if TubeLayout.port_of(index) != &"":
 			for edge: int in _tube_side_edges(_tube_drum_port_edge(index)):
 				gaps.append({"edge": edge, "from": center_z - TUBE_DOCK_DOOR_HALF, "to": center_z + TUBE_DOCK_DOOR_HALF, "top": 2.1})
@@ -1452,7 +1506,7 @@ func _add_tube_throats(hull: StaticBody3D) -> void:
 					var outward: float = float(dock["outward"])
 					_add_tube_throat(walls, floors, collision, radius, center_z, outward, outward * (radius + SectionHull.TUBE_BAND))
 		if hatched:
-			_add_tube_throat(walls, floors, collision, radius, center_z, -1.0, -radius)
+			_add_tube_throat(walls, floors, collision, radius, center_z, -1.0, -radius, 2.0)
 	hull.add_child(_make_surface_node("ThroatWalls", walls, MATERIAL_XENON, collision))
 	hull.add_child(_make_surface_node("ThroatFloors", floors, MATERIAL_FLOOR, []))
 	hull.add_child(_make_collision_node(collision))
@@ -1461,10 +1515,9 @@ func _add_tube_throats(hull: StaticBody3D) -> void:
 ## One throat: floor at deck level, lid under the canted facet's top rim, side walls in the
 ## opening's own z planes, all spanning from the inner facet out to the closing face (the
 ## drum face for a dock plate, the hatch leaf's inner face for the airlock).
-func _add_tube_throat(walls: Dictionary, floors: Dictionary, collision: Array[Vector3], radius: float, center_z: float, outward: float, out_x: float) -> void:
+func _add_tube_throat(walls: Dictionary, floors: Dictionary, collision: Array[Vector3], radius: float, center_z: float, outward: float, out_x: float, lid: float = 2.1) -> void:
 	var foot: float = outward * SectionHull.TUBE_DECK_HALF * radius
-	var top: float = outward * SectionHull.TUBE_WALL_HALF * radius
-	var lid: float = SectionHull.TUBE_WALL_TOP
+	var top: float = outward * SectionHull.tube_half_width(radius, lid)
 	var z_lo: float = center_z - TUBE_DOCK_DOOR_HALF
 	var z_hi: float = center_z + TUBE_DOCK_DOOR_HALF
 	for hint: Vector3 in [Vector3.UP, Vector3.DOWN]:
@@ -1661,6 +1714,9 @@ func _add_tube_walkway(hull: StaticBody3D, decks: Dictionary, collision: Array[V
 	var platform_z0: float = (TubeLayout.span(airlock).x + TubeLayout.span(airlock).y) * 0.5 - 1.7
 	var dock_face: float = float(TubeLayout.sections()[target]["radius"]) + SectionHull.TUBE_BAND
 	var inner_x: float = -(dock_face + DOCK_SILL_DEPTH)
+	for bay: Dictionary in TubeLayout.service_bays():
+		if float(bay["side"]) < 0.0:
+			inner_x = minf(inner_x, float(bay["outer_x"]) - 0.03)
 	var outer_x: float = inner_x - WALKWAY_WIDTH
 	var dock_z: float = (TubeLayout.span(target).x + TubeLayout.span(target).y) * 0.5
 	var z0: float = platform_z0

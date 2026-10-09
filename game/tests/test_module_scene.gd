@@ -150,7 +150,12 @@ func _run() -> void:
 	_check(_capsule_segment_clear(player, Vector2(0.0, water_center), Vector2(0.0, water_span.y - 0.55)), "standing capsule clears the water-closet-to-storage hatch lane")
 	var water_reclaimer: CollisionShape3D = main.get_node("WorldLayout/Props/WaterReclaimer/Shape") as CollisionShape3D
 	var water_probe: CollisionShape3D = main.get_node("WorldLayout/Props/ProbeWater/Shape") as CollisionShape3D
-	_check(_ray_hits_target(Vector3(0.0, 1.7, water_center), water_reclaimer.global_position, water_reclaimer.get_parent()), "water reclaimer is reachable from the standing service lane")
+	var service_x: float = float(TubeLayout.service_bays()[0]["inner_x"]) + 0.55
+	_check(_capsule_segment_clear(player, Vector2(0.0, life_support_z), Vector2(service_x, life_support_z)), "standing capsule enters life-support service bay")
+	_check(_capsule_segment_clear(player, Vector2(service_x, life_support_z), Vector2(service_x, water_reclaimer.global_position.z)), "standing capsule reaches water-reclaimer service apron")
+	var service_eye: Vector3 = Vector3(service_x, 1.55, water_reclaimer.global_position.z)
+	_check(service_eye.distance_to(water_reclaimer.global_position) <= 2.5, "water reclaimer stays within normal interaction reach")
+	_check(_ray_hits_target(service_eye, water_reclaimer.global_position, water_reclaimer.get_parent()), "water reclaimer is reachable from the standing service apron")
 	_check(_ray_hits_target(Vector3(0.0, 1.7, water_probe.global_position.z), water_probe.global_position, water_probe.get_parent()), "water probe is reachable from the standing service lane")
 
 	var saved: Dictionary = modules.call("save_state") as Dictionary

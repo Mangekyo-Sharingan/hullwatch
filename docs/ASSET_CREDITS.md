@@ -72,3 +72,10 @@ The recovery frame and transport case are original Hullwatch procedural meshes
 (`salvage_wreck.gd`, `field_streamer.gd`), reusing existing authored materials.
 Fitted equipment reuses the original Hullwatch battery cabinet glTF. No external
 reference or Starpath imagery was used as game geometry, texture or branding.
+
+### Service bays (2026-10-09)
+
+The permanent life-support and galley extensions are original generated
+Hullwatch meshes in `build_ship_geometry.gd`, reusing the existing xenon/floor
+materials and authored cabin lamps. Furnishings reuse the original machinery,
+interior and galley kits; no new external assets were acquired.

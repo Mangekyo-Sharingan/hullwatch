@@ -60,6 +60,26 @@ const DOCK_PORTS: Array[StringName] = [&"hp_quarters", &"hp_life_support", &"hp_
 ## Two sections or more for these rooms; one section each for everything else.
 const MIN_SECTIONS_PER_ROOM: Dictionary = {&"cockpit": 1, &"engine_bay": 2}
 
+const SERVICE_BAYS: Array[Dictionary] = [
+	{"name": "life_support_service", "section": "life_support", "room": &"life_support", "side": 1.0},
+	{"name": "galley_service", "section": "galley", "room": &"galley", "side": -1.0, "length": 2.2},
+]
+
+
+static func service_bays() -> Array[Dictionary]:
+	var bays: Array[Dictionary] = []
+	for spec: Dictionary in SERVICE_BAYS:
+		var bay: Dictionary = spec.duplicate()
+		var index: int = index_of(String(bay["section"]))
+		var side: float = float(bay["side"])
+		bay["center_z"] = (span(index).x + span(index).y) * 0.5
+		bay["inner_x"] = side * 0.88 * float(SECTIONS[index]["radius"])
+		bay["outer_x"] = float(bay["inner_x"]) + side * 2.0
+		bay["length"] = float(bay.get("length", 1.8))
+		bay["ceiling"] = 2.5
+		bays.append(bay)
+	return bays
+
 
 static func sections() -> Array[Dictionary]:
 	return SECTIONS

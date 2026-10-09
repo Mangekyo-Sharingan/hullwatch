@@ -2,7 +2,7 @@
 ## all made it onto the chain. Props sit inside their own tunnel section hugged to its
 ## canted wall (never embedded, never across the centre line), the EVA platform kit stands
 ## off the airlock, joint doors ship open with their slabs stowed while the airlock's two
-## hatches stay shut, each room has one occupancy volume across all its sections, and one
+## hatches stay shut, each room owns one occupancy area including its service bay, and one
 ## atmosphere link crosses every hatched joint.
 extends SceneTree
 
@@ -97,6 +97,9 @@ func _run() -> void:
 	_check(_props.get_child_count() == expected_total, "Props holds all %d named nodes (%d)" % [expected_total, _props.get_child_count()])
 
 	_test_props_carry()
+	await _test_service_bays()
+	_test_machine_collisions()
+	_test_walkway()
 	_test_prefab_clearance()
 	_test_cockpit_instruments()
 	_test_pilot_chair_clearance()
@@ -128,11 +131,16 @@ func _test_props_carry() -> void:
 		if box.size == Vector3.ZERO:
 			_check(false, "carried prop has meshes: " + prop_name)
 			continue
+		if prop_name in ["ScrubberUnit", "WaterReclaimer", "GalleyUnit", "O2CandleRack", "StatusPanel", "MessTable", "ProbeAtmosphere"]:
+			continue
+		if prop_name == "ProbeThermal":
+			var section_span: Vector2 = TubeLayout.span(TubeLayout.index_of(String(nearest["name"])))
+			_check(box.position.z >= section_span.x and box.end.z <= section_span.y, "remapped thermal probe stays clear of the bulkhead neck")
 		var radius: float = float(nearest["radius"])
 		var side: float = signf(prop.position.x) if absf(prop.position.x) > 0.01 else 1.0
 		var inboard: float = box.end.x if side < 0.0 else box.position.x
 		var lane: float = SectionHull.tube_half_width(radius, 1.0) + side * inboard
-		_check(lane >= 0.55, "carried prop leaves a walkable lane: " + prop_name)
+		_check(lane >= 0.8, "carried prop leaves a walkable lane: " + prop_name)
 		var outboard: float = -box.position.x if side < 0.0 else box.end.x
 		_check(outboard <= SectionHull.tube_half_width(radius, maxf(box.position.y, 0.0)) + 0.03, "carried prop clears the canted wall: " + prop_name)
 		_check(box.position.y >= -0.05, "carried prop sits above the deck: " + prop_name)
@@ -146,6 +154,107 @@ func _test_props_carry() -> void:
 		var airlock: int = TubeLayout.index_of("airlock")
 		var face: float = float(TubeLayout.sections()[airlock]["radius"]) + SectionHull.TUBE_BAND
 		_check(prop.position.x < -face, "platform prop stands off the airlock's drum face: " + prop_name)
+
+
+func _test_service_bays() -> void:
+	for bay: Dictionary in TubeLayout.service_bays():
+		var equipment: Array[String] = []
+		if bay["name"] == "life_support_service":
+			equipment.assign(["ScrubberUnit", "WaterReclaimer"])
+		else:
+			equipment.assign(["GalleyUnit"])
+		var previous_end: float = -INF
+		for prop_name: String in equipment:
+			var prop: Node3D = _props.get_node_or_null(NodePath(prop_name)) as Node3D
+			if prop == null:
+				_check(false, "bay equipment exists: " + prop_name)
+				continue
+			var bounds: AABB = _world_bounds(prop)
+			var outboard: float = bounds.end.x if float(bay["side"]) > 0.0 else bounds.position.x
+			_check(absf(outboard - (float(bay["outer_x"]) - float(bay["side"]) * 0.02)) < 0.001, "equipment hugs its service bay wall: " + prop_name)
+			_check(bounds.position.z >= float(bay["center_z"]) - float(bay["length"]) * 0.5 and bounds.end.z <= float(bay["center_z"]) + float(bay["length"]) * 0.5, "equipment fits its bay length: " + prop_name)
+			_check(bounds.position.z > previous_end, "bay equipment has separate wall slots: " + prop_name)
+			previous_end = bounds.end.z
+			_check(minf(bounds.position.x * float(bay["side"]), bounds.end.x * float(bay["side"])) > absf(float(bay["inner_x"])), "bay equipment clears trunk: " + prop_name)
+		var mounted_name: String = "O2CandleRack" if bay["name"] == "life_support_service" else "StatusPanel"
+		var mounted: Node3D = _props.get_node(NodePath(mounted_name)) as Node3D
+		var mounted_bounds: AABB = _world_bounds(mounted)
+		var mounted_outboard: float = mounted_bounds.end.x if float(bay["side"]) > 0.0 else mounted_bounds.position.x
+		_check(absf(mounted_outboard - (float(bay["outer_x"]) - float(bay["side"]) * 0.02)) < 0.001, "bay readout hugs outboard wall: " + mounted_name)
+		for prop_name: String in equipment:
+			var machine: Node3D = _props.get_node(NodePath(prop_name)) as Node3D
+			_check(mounted_bounds.position.y > _world_bounds(machine).end.y, "bay readout clears floor equipment: " + mounted_name)
+		if bay["name"] == "galley_service":
+			var table: Node3D = _props.get_node(^"MessTable") as Node3D
+			var table_bounds: AABB = _world_bounds(table)
+			var counter_bounds: AABB = _world_bounds(_props.get_node(^"GalleyUnit") as Node3D)
+			_check(absf(table_bounds.position.z - (float(bay["center_z"]) - float(bay["length"]) * 0.5 + 0.02)) < 0.001, "mess table fits the bay fore wall")
+			_check(table_bounds.position.x > counter_bounds.end.x, "mess table remains inboard of counter without overlap")
+			_check(table_bounds.end.z < float(bay["center_z"]) - 0.3, "mess table leaves bay centre service apron clear")
+		var zone_name: String = "ZoneRoom_" + String(bay["room"]).replace("_", " ").capitalize().replace(" ", "")
+		var zone: Area3D = _zones.get_node_or_null(NodePath(zone_name)) as Area3D
+		var shape: CollisionShape3D = zone.get_node_or_null(^"ShapeServiceBay") as CollisionShape3D if zone != null else null
+		_check(shape != null and shape.shape is BoxShape3D and zone.get("compartment_id") == TubeLayout.ROOM_COMPARTMENTS[bay["room"]], "bay shares its existing room occupancy owner: " + String(bay["name"]))
+		if shape != null:
+			var bounds: AABB = _collision_bounds(shape)
+			_check(bounds.size.is_equal_approx(Vector3(absf(float(bay["outer_x"]) - float(bay["inner_x"])), float(bay["ceiling"]), float(bay["length"]))), "bay occupancy spans usable bay dimensions")
+			_check(bounds.get_center().is_equal_approx(Vector3((float(bay["inner_x"]) + float(bay["outer_x"])) * 0.5, float(bay["ceiling"]) * 0.5, float(bay["center_z"]))), "bay occupancy is centred in layout space")
+		var operator: CharacterBody3D = CharacterBody3D.new()
+		operator.add_to_group(&"player")
+		var capsule: CapsuleShape3D = CapsuleShape3D.new()
+		capsule.radius = 0.2
+		capsule.height = 1.6
+		var body_shape: CollisionShape3D = CollisionShape3D.new()
+		body_shape.shape = capsule
+		operator.add_child(body_shape)
+		root.add_child(operator)
+		for offset: float in [-0.55, 0.0, 0.55, -0.55]:
+			operator.position = Vector3(float(bay["inner_x"]) + float(bay["side"]) * offset, 0.85, float(bay["center_z"]))
+			await physics_frame
+			await physics_frame
+			_check(zone.get_occupants() == 1, "room/bay union counts the operator once at offset %.2f: %s" % [offset, bay["name"]])
+		operator.free()
+		await physics_frame
+		await physics_frame
+		_check(zone.get_occupants() == 0, "room/bay occupancy clears after the operator leaves")
+
+
+func _test_machine_collisions() -> void:
+	for prop_name: String in ["ScrubberUnit", "WaterReclaimer", "Fabricator", "GalleyUnit", "Bunk", "SuitLocker", "CrewLocker", "MessTable", "ToolCart", "CrateStack", "ShelfUnit", "ManualBinder"]:
+		var prop: StaticBody3D = _props.get_node_or_null(NodePath(prop_name)) as StaticBody3D
+		var shape: CollisionShape3D = prop.get_node_or_null(^"Shape") as CollisionShape3D if prop != null else null
+		_check(shape != null and shape.shape is BoxShape3D and not shape.disabled and prop.collision_layer == 1, "floor equipment retains solid collision: " + prop_name)
+		if shape == null:
+			continue
+		var rendered: AABB = _world_bounds(prop)
+		var solid: AABB = _collision_bounds(shape)
+		_check(rendered.position.is_equal_approx(solid.position) and rendered.size.is_equal_approx(solid.size), "floor equipment collision matches its geometry: " + prop_name)
+
+
+func _test_walkway() -> void:
+	for prop_name: String in CARRIED_PROPS:
+		var prop: Node3D = _props.get_node_or_null(NodePath(prop_name)) as Node3D
+		if prop == null:
+			continue
+		# The cupola chair has two side aisles; its motion is checked separately.
+		if prop.position.z < TubeLayout.span(TubeLayout.index_of("cockpit")).x:
+			continue
+		var rendered: AABB = _world_bounds(prop)
+		var shape: CollisionShape3D = prop.get_node_or_null(^"Shape") as CollisionShape3D
+		if shape != null and shape.shape is BoxShape3D and not shape.disabled:
+			rendered = rendered.merge(_collision_bounds(shape))
+		_check(rendered.end.x <= -0.4 or rendered.position.x >= 0.4, "render and collision leave a 0.8 m centre walkway: " + prop_name)
+		for index: int in TubeLayout.sections().size() - 1:
+			if not TubeLayout.has_hatch(index):
+				continue
+			var joint_z: float = (TubeLayout.span(index).y + TubeLayout.span(index + 1).x) * 0.5
+			var approach: AABB = AABB(Vector3(-0.4, 0.0, joint_z - 0.8), Vector3(0.8, TubeLayout.HATCH_HEIGHT, 1.6))
+			_check(not rendered.intersects(approach), "equipment clears both hatch approaches: %s / %d" % [prop_name, index])
+
+
+func _collision_bounds(shape: CollisionShape3D) -> AABB:
+	var size: Vector3 = (shape.shape as BoxShape3D).size
+	return shape.global_transform * AABB(-size * 0.5, size)
 
 
 func _test_prefab_clearance() -> void:
@@ -241,6 +350,10 @@ func _test_doors() -> void:
 			slab_ok = slab.find_children("*", "MeshInstance3D", true, false).size() > 0
 		_check(slab_ok, "door slab uses the authored leaf: " + door_name)
 		_check(slab_shape != null and slab_shape.shape is BoxShape3D, "door slab collision: " + door_name)
+		if slab is Node3D and slab_shape != null and slab_shape.shape is BoxShape3D:
+			var rendered: AABB = _world_bounds(slab as Node3D)
+			var solid: AABB = _collision_bounds(slab_shape)
+			_check(rendered.position.is_equal_approx(solid.position) and rendered.size.is_equal_approx(solid.size), "authored closed leaf bounds match its collider: " + door_name)
 		var frame: StaticBody3D = door.get_node_or_null(^"Frame") as StaticBody3D
 		_check(frame != null and frame.collision_layer == 2 and frame.collision_mask == 0, "door keeps a sensor frame: " + door_name)
 	for index: int in TubeLayout.sections().size() - 1:
@@ -407,7 +520,7 @@ func _world_bounds(prop: Node3D) -> AABB:
 	var first: bool = true
 	for child: Node in prop.find_children("*", "MeshInstance3D", true, false):
 		var mesh: MeshInstance3D = child as MeshInstance3D
-		if mesh.mesh == null:
+		if mesh.mesh == null or not mesh.is_inside_tree():
 			continue
 		var box: AABB = mesh.global_transform * mesh.get_aabb()
 		if first:

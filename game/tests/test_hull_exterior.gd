@@ -67,6 +67,9 @@ func _test_rooms_are_closed() -> void:
 		var gaps: Array[Array] = []
 		if docked or bool(section.get("outer_hatch", false)):
 			gaps.append(["west" if port_west or bool(section.get("outer_hatch", false)) else "east", center_z - 0.5, center_z + 0.5])
+		for bay: Dictionary in TubeLayout.service_bays():
+			if String(bay["section"]) == String(section["name"]):
+				gaps.append(["east" if float(bay["side"]) > 0.0 else "west", center_z - 0.6, center_z + 0.6])
 		for probe: Array in [
 			[Vector3(0.0, 1.4, z), Vector3(0.0, -0.6, z), "down", false],
 			[Vector3(0.0, 1.4, z), Vector3(0.0, 3.6, z), "up", false],
@@ -139,6 +142,8 @@ func _test_no_outboard_geometry() -> void:
 	var reach: float = 0.0
 	for drum: Dictionary in SectionHull.tube_drums():
 		reach = maxf(reach, SectionHull.tube_drum_half_width(float(drum["radius"]), SectionHull.TUBE_WALL_TOP))
+	for bay: Dictionary in TubeLayout.service_bays():
+		reach = maxf(reach, absf(float(bay["outer_x"])))
 	var limit: float = reach + 2.0
 	var platform: Array[String] = ["TubeRailing0", "TubeRailing1", "TubeRailing2", "TetherAnchor0", "TetherAnchor1", "TetherZone"]
 	var strays: PackedStringArray = PackedStringArray()
@@ -277,11 +282,16 @@ func _test_walkway() -> void:
 	var target: int = TubeLayout.index_of("life_support")
 	var dock_z: float = (TubeLayout.span(target).x + TubeLayout.span(target).y) * 0.5
 	var dock_face: float = float(TubeLayout.sections()[target]["radius"]) + SectionHull.TUBE_BAND
-	var x: float = -(dock_face + 0.5)
+	var inner_x: float = -(dock_face + 0.34)
+	for bay: Dictionary in TubeLayout.service_bays():
+		if float(bay["side"]) < 0.0:
+			inner_x = minf(inner_x, float(bay["outer_x"]) - 0.03)
+	var x: float = inner_x - 0.5
 	var end_z: float = dock_z + 1.7
 	_check(_ray_hits(Vector3(x, 0.5, -6.0), Vector3(x, -1.0, -6.0)), "walkway deck is solid along the spur")
 	_check(not _ray_hits(Vector3(x, 0.5, -6.0), Vector3(x, 2.5, -6.0)), "walkway headroom is clear")
-	var reach: Dictionary = _ray_result(Vector3(x, 1.0, end_z), Vector3(-dock_face - 0.075, 1.0, dock_z))
+	var reach: Dictionary = _ray_result(Vector3(inner_x - 0.24, 1.0, end_z), Vector3(-dock_face - 0.075, 1.0, dock_z))
+	_check(Vector3(inner_x - 0.24, 1.0, end_z).distance_to(Vector3(-dock_face - 0.075, 1.0, dock_z)) <= 2.5, "dock mount stays within normal interaction reach")
 	var hit_x: float = float((reach["position"] as Vector3).x) if not reach.is_empty() else 999.0
 	_check(
 		not reach.is_empty() and hit_x > -(dock_face + DOCK_PLATE_THICKNESS) - 0.05 and hit_x < -dock_face + 0.05,

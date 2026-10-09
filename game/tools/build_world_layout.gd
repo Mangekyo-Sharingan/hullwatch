@@ -104,9 +104,11 @@ const KIT_PATHS: Array[String] = [KIT_CONTAINER, KIT_COMPUTER]
 const PROPS: Array[Dictionary] = [
 	{
 		"name": "ScrubberUnit",
+		"model_scale": Vector3(0.9, 1.0, 1.0),
 		"script": "res://src/interactables/scrubber_unit.gd",
 		"position": Vector3(-2.6, 0.6, -7.2),
-		"tube_position": Vector3(0.666, 0.6, -11.258),
+		"service_bay": "life_support_service",
+		"bay_z_offset": -0.40,
 		"size": Vector3(0.5, 1.2, 1.0),
 		"model": "res://assets/models/hullwatch/machinery/hw_scrubber_unit.glb",
 		"material": MATERIAL_MACHINE_TEAL,
@@ -114,6 +116,9 @@ const PROPS: Array[Dictionary] = [
 	},
 	{
 		"name": "WaterReclaimer",
+		"model_scale": Vector3(0.9, 1.0, 1.0),
+		"service_bay": "life_support_service",
+		"bay_z_offset": 0.50,
 		"script": "res://src/interactables/water_reclaimer.gd",
 		"position": Vector3(2.2, 0.6, -2.65),
 		"size": Vector3(0.5, 1.2, 0.8),
@@ -134,6 +139,9 @@ const PROPS: Array[Dictionary] = [
 	},
 	{
 		"name": "StatusPanel",
+		"service_bay": "galley_service",
+		"bay_y": 1.55,
+		"tube_rotation": Vector3.ZERO,
 		"script": "res://src/ui/status_panel.gd",
 		"position": Vector3(-1.22, 0.8, -8.0),
 		"rotation": Vector3(0, 0, 30.0),
@@ -223,8 +231,8 @@ const PROPS: Array[Dictionary] = [
 		# Keep the quarters pod approach clear on the port side.
 		"tube_position": Vector3(0.80, 0.35, -13.8),
 		"model_yaw": 0.0,
-		"model_scale": Vector3(0.85, 1.0, 1.0),
-		"size": Vector3(0.85, 0.7, 2.0),
+		"model_scale": Vector3(0.8, 1.0, 1.0),
+		"size": Vector3(0.8, 0.7, 2.0),
 		"model": "res://assets/models/hullwatch/interior/hw_bunk.glb",
 		"material": MATERIAL_FLOOR_GRATE,
 		"exports": {"sleep_hours": 8.0},
@@ -243,7 +251,8 @@ const PROPS: Array[Dictionary] = [
 		"name": "O2CandleRack",
 		"script": "res://src/interactables/o2_candle.gd",
 		"position": Vector3(-2.5, 0.9, -6.8),
-		"tube_position": Vector3(1.723, 0.9, -11.165),
+		"service_bay": "life_support_service",
+		"bay_y": 1.65,
 		"size": Vector3(0.15, 0.3, 0.34),
 		"model": "res://assets/models/hullwatch/interior/hw_o2_rack.glb",
 		"model_mount": "wall",
@@ -294,7 +303,9 @@ const PROPS: Array[Dictionary] = [
 		"name": "ProbeAtmosphere",
 		"script": "res://src/interactables/diagnostic_probe.gd",
 		"position": Vector3(-3.8, 0.35, -7.2),
-		"tube_position": Vector3(1.4787, 1.45, -11.257692),
+		"service_bay": "life_support_service",
+		"bay_y": 1.4,
+		"bay_z_offset": 0.5,
 		"size": Vector3(0.08, 0.29, 0.22),
 		"model": "res://assets/models/hullwatch/interior/hw_probe.glb",
 		"model_mount": "wall",
@@ -304,7 +315,7 @@ const PROPS: Array[Dictionary] = [
 	{
 		"name": "ProbeThermal",
 		"script": "res://src/interactables/diagnostic_probe.gd",
-		"position": Vector3(3.28, 0.35, 4.7),
+		"position": Vector3(3.28, 1.35, 4.7),
 		"size": Vector3(0.08, 0.29, 0.22),
 		"model": "res://assets/models/hullwatch/interior/hw_probe.glb",
 		"model_mount": "wall",
@@ -445,6 +456,7 @@ const PROPS: Array[Dictionary] = [
 	},
 	{
 		"name": "SuitLocker",
+		"model_scale": Vector3(1.0, 1.0, 0.9),
 		"script": "res://src/interactables/suit_locker.gd",
 		"position": Vector3(-6.3, 0.95, -0.445),
 		"tube_position": Vector3(0.68, 0.95, -0.35),
@@ -516,7 +528,7 @@ const DOORS: Array[Dictionary] = [
 
 ## Kit-scene decorations: visual only, no collision added by this generator.
 const KIT_PROPS: Array[Dictionary] = [
-	{"name": "ContainerProp", "scene": KIT_CONTAINER, "position": Vector3(-3.0, 0.0, -0.2), "tube_position": Vector3(-0.42, 0.0, -2.922222), "size": Vector3(0.575, 0.6, 0.575)},
+	{"name": "ContainerProp", "scene": KIT_CONTAINER, "position": Vector3(-3.0, 0.0, -0.2), "tube_position": Vector3(-1.0, 0.0, 4.5), "size": Vector3(0.575, 0.6, 0.575)},
 	{"name": "ComputerProp", "scene": KIT_COMPUTER, "position": Vector3(2.6, 0.75, -7.0), "size": Vector3(0.9, 0.6, 0.7)},
 ]
 
@@ -532,12 +544,12 @@ const MODEL_PROPS: Array[Dictionary] = [
 	# The dressing kit's pieces sit at hand-picked tube spots: the carry compresses a short
 	# section's props into its middle, where the room's own gear already stands.
 	{"name": "CrewLocker", "model": "res://assets/models/hullwatch/props/hw_locker.glb", "position": Vector3(-3.0, 0.0, -10.5), "tube_position": Vector3(-0.962, 0.0, -12.95), "rotation": Vector3(0, -90, 0), "size": Vector3(0.5, 1.9, 0.6)},
-	{"name": "MessTable", "model": "res://assets/models/hullwatch/props/hw_mess_table.glb", "position": Vector3(3.0, 0.0, -5.5), "tube_position": Vector3(-0.71, 0.0, -7.8), "rotation": Vector3(0, 90, 0), "size": Vector3(0.7, 0.75, 1.1)},
+	{"name": "MessTable", "service_bay": "galley_service", "bay_wall": "fore", "tube_rotation": Vector3.ZERO, "model": "res://assets/models/hullwatch/props/hw_mess_table.glb", "position": Vector3(3.0, 0.0, -5.5), "tube_position": Vector3(-0.71, 0.0, -7.8), "rotation": Vector3(0, 90, 0), "size": Vector3(0.7, 0.75, 1.1)},
 	{"name": "FilterRack", "model": "res://assets/models/hullwatch/props/hw_filter_rack.glb", "position": Vector3(-2.5, 1.3, -6.5), "tube_position": Vector3(1.331, 1.3, -10.3), "tube_rotation": Vector3(0, -90, 0), "rotation": Vector3(0, 90, 0), "size": Vector3(0.3, 0.9, 0.7)},
 	{"name": "ToolCart", "model": "res://assets/models/hullwatch/props/hw_tool_cart.glb", "position": Vector3(2.0, 0.0, 2.0), "tube_position": Vector3(1.008, 0.0, 1.6), "rotation": Vector3(0, -90, 0), "size": Vector3(0.5, 0.9, 0.7)},
 	{"name": "CrateStack", "model": "res://assets/models/hullwatch/props/hw_crate_stack.glb", "position": Vector3(-4.0, 0.0, -1.0), "tube_position": Vector3(0.728, 0.0, -2.6), "rotation": Vector3(0, -90, 0), "size": Vector3(0.6, 1.5, 1.0)},
 	{"name": "ShelfUnit", "model": "res://assets/models/hullwatch/props/hw_shelf_unit.glb", "position": Vector3(-4.5, 0.95, -0.5), "tube_position": Vector3(-1.028, 0.95, -4.0), "rotation": Vector3(0, 90, 0), "size": Vector3(0.4, 1.8, 1.0)},
-	{"name": "GalleyUnit", "model": "res://assets/models/hullwatch/props/hw_galley_unit.glb", "position": Vector3(4.0, 0.0, -5.0), "tube_position": Vector3(-0.72, 0.0, -9.0), "tube_rotation": Vector3(0, 90, 0), "rotation": Vector3(0, -90, 0), "size": Vector3(0.6, 0.9, 1.2)},
+	{"name": "GalleyUnit", "model": "res://assets/models/hullwatch/props/hw_galley_unit.glb", "position": Vector3(4.0, 0.0, -5.0), "service_bay": "galley_service", "tube_rotation": Vector3(0, 90, 0), "rotation": Vector3(0, -90, 0), "size": Vector3(0.6, 0.9, 1.2)},
 ]
 
 ## Atmosphere occupancy zones: Area3D + script + one BoxShape3D child named Shape.
@@ -702,6 +714,16 @@ func _tube_position(flat: Vector3, size: Vector3) -> Vector3:
 		var half_depth: float = maxf(bounds.size.y * 0.5, 0.001)
 		var v: float = clampf((flat.z - center.y) / half_depth, -1.0, 1.0)
 		z = z_center + v * maxf(z_half - 0.8, 0.2)
+		var nearest_z: float = z
+		var nearest_distance: float = INF
+		for index: int in TubeLayout.sections_for_room(room):
+			var section_span: Vector2 = TubeLayout.span(index)
+			var margin: float = minf(size.z * 0.5 + 0.15, (section_span.y - section_span.x) * 0.5)
+			var candidate: float = clampf(z, section_span.x + margin, section_span.y - margin)
+			if absf(candidate - z) < nearest_distance:
+				nearest_distance = absf(candidate - z)
+				nearest_z = candidate
+		z = nearest_z
 	else:
 		z = clampf(flat.z, float(tube["z0"]) + 0.25, float(tube["z1"]) - 0.25)
 	return Vector3(side * hug, flat.y, z)
@@ -735,6 +757,16 @@ func _build_tube_chain() -> void:
 			"position": Vector3(0.0, SectionHull.TUBE_CEILING * 0.5, (bounds.x + bounds.y) * 0.5),
 			"exports": {"compartment_id": TubeLayout.ROOM_COMPARTMENTS[room]},
 		})
+	for bay: Dictionary in TubeLayout.service_bays():
+		var zone_name: String = "ZoneRoom_" + String(bay["room"]).replace("_", " ").capitalize().replace(" ", "")
+		var zone: Area3D = _zones.get_node(NodePath(zone_name)) as Area3D
+		var box: BoxShape3D = BoxShape3D.new()
+		box.size = Vector3(absf(float(bay["outer_x"]) - float(bay["inner_x"])), float(bay["ceiling"]), float(bay["length"]))
+		var shape: CollisionShape3D = CollisionShape3D.new()
+		shape.name = "ShapeServiceBay"
+		shape.shape = box
+		shape.position = Vector3((float(bay["inner_x"]) + float(bay["outer_x"])) * 0.5, float(bay["ceiling"]) * 0.5, float(bay["center_z"])) - zone.position
+		zone.add_child(shape)
 	if TubeLayout.sections().size() < 2:
 		return
 	for index: int in TubeLayout.sections().size() - 1:
@@ -831,7 +863,13 @@ func _build_airlock_hatch() -> void:
 ## A prop or kit entry carried into its tube section.
 func _carried(spec: Dictionary) -> Dictionary:
 	var carried: Dictionary = spec.duplicate()
-	if spec.has("tube_position"):
+	if spec.has("service_bay"):
+		for bay: Dictionary in TubeLayout.service_bays():
+			if bay["name"] != spec["service_bay"]:
+				continue
+			var position: Vector3 = spec["position"]
+			carried["position"] = Vector3(float(bay["outer_x"]), float(spec.get("bay_y", position.y)), float(bay["center_z"]) + float(spec.get("bay_z_offset", 0.0)))
+	elif spec.has("tube_position"):
 		carried["position"] = spec["tube_position"]
 	elif bool(spec.get("tube_platform", false)):
 		carried["position"] = _tube_platform_position(spec["position"])
@@ -901,7 +939,7 @@ func _build_room_patch_points() -> void:
 			continue
 		seen[compartment] = true
 		var wall: float = SectionHull.tube_half_width(float(section["radius"]), 1.5)
-		_build_prop({"name": "HullPatch_" + String(compartment), "script": "res://src/interactables/hull_patch.gd", "position": Vector3(-wall + 0.05, 1.6, TubeLayout.span(index).y - 0.28), "size": Vector3(0.08, 0.22, 0.22), "model": "res://assets/models/hullwatch/interior/hw_hull_patch.glb", "model_scale": Vector3.ONE * 0.35, "model_mount": "wall", "material": MATERIAL_METAL_RUSTED, "exports": {"compartment_id": compartment}})
+		_build_prop({"name": "HullPatch_" + String(compartment), "script": "res://src/interactables/hull_patch.gd", "position": Vector3(-wall + 0.05, 1.85 if room == &"cockpit" else 1.6, TubeLayout.span(index).y - 0.28), "size": Vector3(0.08, 0.22, 0.22), "model": "res://assets/models/hullwatch/interior/hw_hull_patch.glb", "model_scale": Vector3.ONE * 0.35, "model_mount": "wall", "material": MATERIAL_METAL_RUSTED, "exports": {"compartment_id": compartment}})
 
 
 func _make_group(group_name: String) -> Node3D:
@@ -938,9 +976,14 @@ func _door_leaf(style_name: String) -> Dictionary:
 		if leaf != null:
 			info = style.duplicate()
 			info["mesh"] = leaf.mesh
+			info["min"] = leaf.get_aabb().position
+			info["max"] = leaf.get_aabb().end
 		elif instance.get_node_or_null(String(style["node"])) != null:
 			info = style.duplicate()
 			info["prefab"] = packed
+			var bounds: AABB = _local_bounds(instance as Node3D)
+			info["min"] = bounds.position
+			info["max"] = bounds.end
 		else:
 			print("WARN: door prefab has no leaf node ", style["node"], " in ", scene_path)
 		instance.free()
@@ -961,19 +1004,17 @@ func _build_prop(spec: Dictionary) -> void:
 	_add_box_children(prop, spec["size"], String(spec["material"]), not spec.has("crt") and not has_model)
 	if spec.has("crt"):
 		_build_crt(prop, spec)
-		_fit_crt_collision(prop)
+		_fit_model_collision(prop)
 	elif has_model:
 		_attach_model(prop, spec)
-	_settle_against_wall(prop)
+		_fit_model_collision(prop)
+	_place_furnished_prop(prop, spec)
 	if _interior_style() == "tube" and prop.name in ["LogTerminal", "ContactConsole", "NavConsole", "ArchiveTerminal"]:
 		_add_cockpit_mount_plinth(prop)
 
 
-## The authored console is deeper than the flat panel's collision slab; grow the shape to the
-## model's own bounds so the operator cannot stand inside the terminal.
-func _fit_crt_collision(prop: StaticBody3D) -> void:
-	if prop.get_node_or_null(^"Crt/Model") == null:
-		return
+## Authored assets differ from their nominal boxes; fit the collider to the rendered bounds.
+func _fit_model_collision(prop: StaticBody3D) -> void:
 	var shape: CollisionShape3D = prop.get_node_or_null(^"Shape") as CollisionShape3D
 	var box: AABB = _local_bounds(prop)
 	var box_shape: BoxShape3D = shape.shape as BoxShape3D if shape != null else null
@@ -1008,7 +1049,7 @@ func _add_cockpit_mount_plinth(prop: StaticBody3D) -> void:
 ## origin (floor centre for machines, back centre for wall panels) facing Blender -Y, which
 ## the export maps to +Z; the prop's origin is the centre of its `size` box, so the model is
 ## shifted to the box's floor or wall face and yawed to face inboard. The collision box is
-## kept, so the interaction ray and the walkthrough stay the same.
+## fitted to the resulting mesh bounds so the interaction ray and walkthrough agree.
 func _attach_model(prop: StaticBody3D, spec: Dictionary) -> void:
 	var scene: PackedScene = load(String(spec["model"])) as PackedScene
 	if scene == null:
@@ -1042,12 +1083,27 @@ func _attach_model(prop: StaticBody3D, spec: Dictionary) -> void:
 		model.position.y += -size.y * 0.5 - box.position.y
 
 
-## After a prop's meshes exist, nudge it inboard until its own bounding box clears the
-## section's canted wall at the box's bottom height (the wall slopes outward, so that is
-## the tight line). The nominal size is only a first guess - CRT parts and kit meshes can
-## reach past it.
+func _place_furnished_prop(prop: Node3D, spec: Dictionary) -> void:
+	if _interior_style() == "tube" and spec.has("service_bay"):
+		for bay: Dictionary in TubeLayout.service_bays():
+			if bay["name"] != spec["service_bay"]:
+				continue
+			var box: AABB = _prop_bounds(prop)
+			var side: float = float(bay["side"])
+			if spec.get("bay_wall", "outboard") == "fore":
+				prop.position.z += float(bay["center_z"]) - float(bay["length"]) * 0.5 + 0.02 - box.position.z
+				prop.position.x += float(bay["inner_x"]) + side * 0.65 - box.get_center().x
+			else:
+				var outboard: float = box.end.x if side > 0.0 else box.position.x
+				prop.position.x += float(bay["outer_x"]) - side * 0.02 - outboard
+		return
+	_settle_against_wall(prop)
+
+
+## Fit the union of mesh and collision bounds in either direction, including a nominal
+## position that undershoots the wall. Keep authored motion paths and deck tool racks fixed.
 func _settle_against_wall(prop: Node3D) -> void:
-	if _interior_style() != "tube":
+	if _interior_style() != "tube" or prop.name in ["PilotChair", "WallComputer", "SwitchBank", "GaugeCluster", "SevenSegment"]:
 		return
 	var section: Dictionary = _nearest_walkable(prop.position.z)
 	if section.is_empty():
@@ -1060,9 +1116,9 @@ func _settle_against_wall(prop: Node3D) -> void:
 	if box.size == Vector3.ZERO:
 		return
 	var outboard: float = maxf(box.position.x * side, box.end.x * side)
-	var wall_x: float = SectionHull.tube_half_width(radius, maxf(box.position.y, 0.0))
-	if outboard > wall_x + 0.02:
-		prop.position.x -= side * (outboard - wall_x - 0.02)
+	var wall_x: float = minf(SectionHull.tube_half_width(radius, maxf(box.position.y, 0.0)), SectionHull.tube_half_width(radius, box.end.y))
+	var shift: float = wall_x - 0.02 - outboard
+	prop.position.x += side * (minf(shift, 0.0) if prop is Carriable else shift)
 
 
 func _nearest_walkable(z: float) -> Dictionary:
@@ -1085,19 +1141,26 @@ func _nearest_walkable(z: float) -> Dictionary:
 func _prop_bounds(prop: Node3D) -> AABB:
 	var aabb: AABB = AABB()
 	var first: bool = true
-	for child: Node in prop.find_children("*", "MeshInstance3D", true, false):
+	for child: Node in prop.find_children("*", "Node3D", true, false):
 		var mesh: MeshInstance3D = child as MeshInstance3D
-		if mesh.mesh == null:
+		var collision: CollisionShape3D = child as CollisionShape3D
+		var bounds: AABB
+		if mesh != null and mesh.mesh != null:
+			bounds = mesh.get_aabb()
+		elif collision != null and collision.shape is BoxShape3D and not collision.disabled:
+			var size: Vector3 = (collision.shape as BoxShape3D).size
+			bounds = AABB(-size * 0.5, size)
+		else:
 			continue
 		# The layout is built off-tree, so global_transform does not accumulate here:
 		# walk the chain up to the layout root by hand, the prop's own transform included,
 		# so the bounds come out in layout space, comparable to the section wall widths.
 		var local: Transform3D = Transform3D.IDENTITY
-		var node: Node3D = mesh
+		var node: Node3D = child as Node3D
 		while node != null:
 			local = node.transform * local
 			node = node.get_parent() as Node3D
-		var box: AABB = local * mesh.get_aabb()
+		var box: AABB = local * bounds
 		if first:
 			aabb = box
 			first = false
@@ -1196,37 +1259,25 @@ func _build_door(spec: Dictionary) -> void:
 	slab.name = "Slab"
 	var leaf: Dictionary = _door_leaf(String(spec.get("door_style", DOOR_STYLE)))
 	var leaf_mesh: Mesh = leaf.get("mesh") as Mesh
-	if leaf_mesh != null:
-		var leaf_min: Vector3 = leaf["min"] as Vector3
-		var leaf_max: Vector3 = leaf["max"] as Vector3
-		var leaf_size: Vector3 = leaf_max - leaf_min
-		var pivot: Vector3 = Vector3((leaf_min.x + leaf_max.x) * 0.5, leaf_min.y, (leaf_min.z + leaf_max.z) * 0.5)
-		# Doorway boxes come in two conventions: (thickness, height, width) - the airlock's
-		# radial outer hatch - and (width, height, thickness) - the bulkhead doors. Normalize
-		# so the leaf's own width always runs across the doorway and its thickness through it.
+	if not leaf.is_empty():
+		var leaf_node: Node3D
+		if leaf_mesh != null:
+			var mesh_node: MeshInstance3D = MeshInstance3D.new()
+			mesh_node.mesh = leaf_mesh
+			leaf_node = mesh_node
+		else:
+			leaf_node = (leaf["prefab"] as PackedScene).instantiate() as Node3D
+		leaf_node.name = "Leaf"
+		var leaf_min: Vector3 = leaf["min"]
+		var leaf_size: Vector3 = (leaf["max"] as Vector3) - leaf_min
 		var thickness: float = minf(size.x, size.z)
 		var width: float = maxf(size.x, size.z)
 		var yaw: float = float(leaf["yaw"]) if size.x <= size.z else 0.0
-		var scale: Vector3 = Vector3(width / leaf_size.x, size.y / leaf_size.y, thickness / leaf_size.z)
-		# The leaf's bottom centre lands on the doorway box's bottom centre; the leaf node's
-		# own offset is rotated with it so either source origin works.
-		var rotated: Vector3 = Vector3(pivot.x * scale.x, 0.0, pivot.z * scale.z).rotated(Vector3.UP, deg_to_rad(yaw))
-		var mesh_node: MeshInstance3D = MeshInstance3D.new()
-		mesh_node.name = "Leaf"
-		mesh_node.mesh = leaf_mesh
-		mesh_node.rotation_degrees.y = yaw
-		mesh_node.scale = scale
-		mesh_node.position = Vector3(0.0, -size.y * 0.5, 0.0) - rotated
-		slab.add_child(mesh_node)
-	elif not leaf.is_empty():
-		# Multi-part authored leaf: the whole prefab is fitted, so its own materials stay.
-		var prefab: PackedScene = leaf["prefab"] as PackedScene
-		var root: Node3D = prefab.instantiate() as Node3D
-		root.name = "Leaf"
-		root.rotation_degrees.y = float(leaf["yaw"])
-		root.scale = Vector3(size.z / (float(leaf["max"].x) - float(leaf["min"].x)), size.y / (float(leaf["max"].y) - float(leaf["min"].y)), size.x / (float(leaf["max"].z) - float(leaf["min"].z)))
-		root.position = Vector3(0.0, -size.y * 0.5, 0.0)
-		slab.add_child(root)
+		leaf_node.rotation_degrees.y = yaw
+		leaf_node.scale = Vector3(width / leaf_size.x, size.y / leaf_size.y, thickness / leaf_size.z)
+		# Both single meshes and multipart prefabs land on the collider's centre.
+		leaf_node.position = -(leaf_node.basis * (leaf_min + leaf_size * 0.5))
+		slab.add_child(leaf_node)
 	else:
 		var slab_mesh: BoxMesh = BoxMesh.new()
 		slab_mesh.size = size
@@ -1290,6 +1341,8 @@ func _build_model_prop(spec: Dictionary) -> void:
 		return
 	var model: Node3D = scene.instantiate() as Node3D
 	model.name = "Model"
+	if spec.has("model_scale"):
+		model.scale = spec["model_scale"]
 	prop.add_child(model)
 	_props.add_child(prop)
 	var box: AABB = _local_bounds(prop)
@@ -1303,7 +1356,7 @@ func _build_model_prop(spec: Dictionary) -> void:
 		collider.shape = shape
 		collider.position = box.get_center()
 		prop.add_child(collider)
-	_settle_against_wall(prop)
+	_place_furnished_prop(prop, spec)
 
 
 ## The bounds of a prop's own meshes in the prop's local space (the layout-space variant is
