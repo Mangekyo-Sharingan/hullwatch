@@ -1,0 +1,24 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://tngvwet63j2s"]
+
+[sub_resource type="Gradient" id="Gradient_hero_roughness"]
+colors = PackedColorArray(0.92, 0.92, 0.92, 1, 1, 1, 1, 1)
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_hero_roughness"]
+noise_type = 3
+frequency = 0.04
+fractal_octaves = 2
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_hero_roughness"]
+width = 128
+height = 128
+noise = SubResource("FastNoiseLite_hero_roughness")
+color_ramp = SubResource("Gradient_hero_roughness")
+seamless = true
+
+[resource]
+albedo_color = Color(0.64, 0.6, 0.52, 1)
+metallic = 0.18
+roughness = 0.78
+roughness_texture = SubResource("NoiseTexture2D_hero_roughness")
+uv1_scale = Vector3(2, 2, 2)
+uv1_triplanar = true

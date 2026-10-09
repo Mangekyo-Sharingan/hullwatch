@@ -19,6 +19,9 @@ func _exit_tree() -> void:
 
 
 func _on_sim_event(event_name: StringName, payload: Dictionary) -> void:
+	if event_name == &"power_state_restored":
+		_sync_power()
+		return
 	if event_name not in [&"breaker_toggled", &"circuit_shed", &"circuit_restored"]:
 		return
 	if StringName(payload.get("circuit_id", &"")) != CIRCUIT_ID:

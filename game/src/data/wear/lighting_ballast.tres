@@ -32,8 +32,4 @@ component_id = &"lighting_ballast"
 display_name = "Lighting Ballast"
 wear_rate_per_hour = 0.0002
 failure_modes = Array[ExtResource("2")]([SubResource("FailureMode_ballast_open"), SubResource("FailureMode_ballast_short")])
-
 service_circuit = &"lighting"
-service_part = &"gasket"
-service_hours = 0.25
-service_quality = 0.75

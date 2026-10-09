@@ -149,6 +149,8 @@ func _on_day_changed(day: int) -> void:
 
 func _event_text(event_name: StringName, payload: Dictionary) -> String:
 	match event_name:
+		&"salvage_stowed", &"salvage_diagnosed", &"salvage_repaired", &"salvage_fitted", &"salvage_removed", &"salvage_scrapped":
+			return "%s: %s" % [String(event_name).replace("_", " ").to_upper(), String(payload.get("unit_id", ""))]
 		&"component_failed":
 			if StringName(payload.get("component_id", &"")) in [&"port_grid", &"port_cathode", &"starboard_grid", &"starboard_cathode", &"tank_uv"]:
 				return ""

@@ -106,6 +106,7 @@ const PROPS: Array[Dictionary] = [
 		"name": "ScrubberUnit",
 		"script": "res://src/interactables/scrubber_unit.gd",
 		"position": Vector3(-2.6, 0.6, -7.2),
+		"tube_position": Vector3(0.666, 0.6, -11.258),
 		"size": Vector3(0.5, 1.2, 1.0),
 		"model": "res://assets/models/hullwatch/machinery/hw_scrubber_unit.glb",
 		"material": MATERIAL_MACHINE_TEAL,
@@ -219,7 +220,8 @@ const PROPS: Array[Dictionary] = [
 		"name": "Bunk",
 		"script": "res://src/interactables/bunk.gd",
 		"position": Vector3(-4.6, 0.35, -11.5),
-		"tube_position": Vector3(-0.80, 0.35, -13.8),
+		# Keep the quarters pod approach clear on the port side.
+		"tube_position": Vector3(0.80, 0.35, -13.8),
 		"model_yaw": 0.0,
 		"model_scale": Vector3(0.85, 1.0, 1.0),
 		"size": Vector3(0.85, 0.7, 2.0),
@@ -241,6 +243,7 @@ const PROPS: Array[Dictionary] = [
 		"name": "O2CandleRack",
 		"script": "res://src/interactables/o2_candle.gd",
 		"position": Vector3(-2.5, 0.9, -6.8),
+		"tube_position": Vector3(1.723, 0.9, -11.165),
 		"size": Vector3(0.15, 0.3, 0.34),
 		"model": "res://assets/models/hullwatch/interior/hw_o2_rack.glb",
 		"model_mount": "wall",
@@ -291,6 +294,7 @@ const PROPS: Array[Dictionary] = [
 		"name": "ProbeAtmosphere",
 		"script": "res://src/interactables/diagnostic_probe.gd",
 		"position": Vector3(-3.8, 0.35, -7.2),
+		"tube_position": Vector3(1.4787, 1.45, -11.257692),
 		"size": Vector3(0.08, 0.29, 0.22),
 		"model": "res://assets/models/hullwatch/interior/hw_probe.glb",
 		"model_mount": "wall",
@@ -321,6 +325,7 @@ const PROPS: Array[Dictionary] = [
 		"name": "ProbeWater",
 		"script": "res://src/interactables/diagnostic_probe.gd",
 		"position": Vector3(4.31, 0.35, -1.9),
+		"tube_position": Vector3(1.40, 0.35, -5.3),
 		"size": Vector3(0.08, 0.29, 0.22),
 		"model": "res://assets/models/hullwatch/interior/hw_probe.glb",
 		"model_mount": "wall",
@@ -526,13 +531,13 @@ const MODEL_PROPS: Array[Dictionary] = [
 	{"name": "PilotChair", "model": "res://assets/models/hullwatch/cockpit/hw_pilot_chair.glb", "script": "res://src/interactables/pilot_chair.gd", "tube_position": Vector3(0.0, 0.0, -19.80), "rotation": Vector3(0.0, 180.0, 0.0), "size": Vector3(0.9, 1.55, 0.9), "collision": false},
 	# The dressing kit's pieces sit at hand-picked tube spots: the carry compresses a short
 	# section's props into its middle, where the room's own gear already stands.
-	{"name": "CrewLocker", "model": "res://assets/models/hullwatch/props/hw_locker.glb", "position": Vector3(-3.0, 0.0, -10.5), "tube_position": Vector3(0.962, 0.0, -13.5), "rotation": Vector3(0, -90, 0), "size": Vector3(0.5, 1.9, 0.6)},
+	{"name": "CrewLocker", "model": "res://assets/models/hullwatch/props/hw_locker.glb", "position": Vector3(-3.0, 0.0, -10.5), "tube_position": Vector3(-0.962, 0.0, -12.95), "rotation": Vector3(0, -90, 0), "size": Vector3(0.5, 1.9, 0.6)},
 	{"name": "MessTable", "model": "res://assets/models/hullwatch/props/hw_mess_table.glb", "position": Vector3(3.0, 0.0, -5.5), "tube_position": Vector3(-0.71, 0.0, -7.8), "rotation": Vector3(0, 90, 0), "size": Vector3(0.7, 0.75, 1.1)},
-	{"name": "FilterRack", "model": "res://assets/models/hullwatch/props/hw_filter_rack.glb", "position": Vector3(-2.5, 1.3, -6.5), "tube_position": Vector3(-1.331, 1.3, -10.3), "rotation": Vector3(0, 90, 0), "size": Vector3(0.3, 0.9, 0.7)},
+	{"name": "FilterRack", "model": "res://assets/models/hullwatch/props/hw_filter_rack.glb", "position": Vector3(-2.5, 1.3, -6.5), "tube_position": Vector3(1.331, 1.3, -10.3), "tube_rotation": Vector3(0, -90, 0), "rotation": Vector3(0, 90, 0), "size": Vector3(0.3, 0.9, 0.7)},
 	{"name": "ToolCart", "model": "res://assets/models/hullwatch/props/hw_tool_cart.glb", "position": Vector3(2.0, 0.0, 2.0), "tube_position": Vector3(1.008, 0.0, 1.6), "rotation": Vector3(0, -90, 0), "size": Vector3(0.5, 0.9, 0.7)},
 	{"name": "CrateStack", "model": "res://assets/models/hullwatch/props/hw_crate_stack.glb", "position": Vector3(-4.0, 0.0, -1.0), "tube_position": Vector3(0.728, 0.0, -2.6), "rotation": Vector3(0, -90, 0), "size": Vector3(0.6, 1.5, 1.0)},
 	{"name": "ShelfUnit", "model": "res://assets/models/hullwatch/props/hw_shelf_unit.glb", "position": Vector3(-4.5, 0.95, -0.5), "tube_position": Vector3(-1.028, 0.95, -4.0), "rotation": Vector3(0, 90, 0), "size": Vector3(0.4, 1.8, 1.0)},
-	{"name": "GalleyUnit", "model": "res://assets/models/hullwatch/props/hw_galley_unit.glb", "position": Vector3(4.0, 0.0, -5.0), "tube_position": Vector3(0.72, 0.0, -9.0), "rotation": Vector3(0, -90, 0), "size": Vector3(0.6, 0.9, 1.2)},
+	{"name": "GalleyUnit", "model": "res://assets/models/hullwatch/props/hw_galley_unit.glb", "position": Vector3(4.0, 0.0, -5.0), "tube_position": Vector3(-0.72, 0.0, -9.0), "tube_rotation": Vector3(0, 90, 0), "rotation": Vector3(0, -90, 0), "size": Vector3(0.6, 0.9, 1.2)},
 ]
 
 ## Atmosphere occupancy zones: Area3D + script + one BoxShape3D child named Shape.
@@ -832,6 +837,8 @@ func _carried(spec: Dictionary) -> Dictionary:
 		carried["position"] = _tube_platform_position(spec["position"])
 	else:
 		carried["position"] = _tube_position(spec["position"], spec.get("size", Vector3(0.6, 0.6, 0.6)))
+	if spec.has("tube_rotation"):
+		carried["rotation"] = spec["tube_rotation"]
 	if carried.has("crt"):
 		# The flat facings look at the room's far wall; on the chain the wall gear hugs a side
 		# wall, so the screens turn to face the centre lane instead.
@@ -849,7 +856,8 @@ func _tube_platform_position(flat: Vector3) -> Vector3:
 		return flat
 	var center_z: float = (TubeLayout.span(airlock).x + TubeLayout.span(airlock).y) * 0.5
 	var face: float = -(float(TubeLayout.sections()[airlock]["radius"]) + SectionHull.TUBE_BAND)
-	return Vector3(face - 1.4, flat.y, center_z + 0.4)
+	# Keep the straight hatch approach clear of the cargo port's standing-capsule footprint.
+	return Vector3(face - 1.4, flat.y, center_z + 1.2)
 
 
 func _build() -> void:
@@ -957,6 +965,8 @@ func _build_prop(spec: Dictionary) -> void:
 	elif has_model:
 		_attach_model(prop, spec)
 	_settle_against_wall(prop)
+	if _interior_style() == "tube" and prop.name in ["LogTerminal", "ContactConsole", "NavConsole", "ArchiveTerminal"]:
+		_add_cockpit_mount_plinth(prop)
 
 
 ## The authored console is deeper than the flat panel's collision slab; grow the shape to the
@@ -971,6 +981,27 @@ func _fit_crt_collision(prop: StaticBody3D) -> void:
 		return
 	box_shape.size = box.size
 	shape.position = box.get_center()
+
+
+func _add_cockpit_mount_plinth(prop: StaticBody3D) -> void:
+	var bounds: AABB = _local_bounds(prop)
+	if bounds.size == Vector3.ZERO:
+		return
+	var section: Dictionary = _nearest_walkable(prop.position.z)
+	if section.is_empty():
+		return
+	var side: float = signf(prop.position.x)
+	var outboard: float = maxf(bounds.position.x * side, bounds.end.x * side)
+	var wall_x: float = SectionHull.tube_half_width(float(section["radius"]), prop.position.y)
+	var depth: float = maxf(wall_x - absf(prop.position.x) - outboard - 0.012, 0.015)
+	var backing: BoxMesh = BoxMesh.new()
+	backing.size = Vector3(depth, bounds.size.y + 0.04, bounds.size.z)
+	var plate: MeshInstance3D = MeshInstance3D.new()
+	plate.name = "WallMountPlinth"
+	plate.mesh = backing
+	plate.material_override = _materials[MATERIAL_DARK_PLASTIC] as Material
+	plate.position = Vector3(side * (outboard + depth * 0.5), bounds.get_center().y, bounds.get_center().z)
+	prop.add_child(plate)
 
 
 ## Attaches an authored glTF to an interactive prop. The models are authored at their own

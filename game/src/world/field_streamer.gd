@@ -10,6 +10,8 @@ const META_KIND: StringName = &"kind"
 const META_ID: StringName = &"object_id"
 
 var _nodes: Dictionary = {}
+var _salvage_cases: Dictionary = {}
+var _sector_seed: int = -1
 var _accumulator: float = 0.0
 var _rock_material: StandardMaterial3D
 var _debris_material: StandardMaterial3D
@@ -45,6 +47,13 @@ func sync_now() -> void:
 	var sector: Node = _sector()
 	if sector == null or not sector.has_method(&"get_active_objects"):
 		return
+	var seed: int = int(sector.get("field_seed"))
+	if seed != _sector_seed:
+		for cached: Variant in _nodes.values():
+			if is_instance_valid(cached):
+				(cached as Node).free()
+		_nodes.clear()
+		_sector_seed = seed
 	var active: Array = sector.call("get_active_objects")
 	var ship: Vector3 = sector.call("get_ship_position")
 	var seen: Dictionary = {}
@@ -63,6 +72,7 @@ func sync_now() -> void:
 		if node != null and is_instance_valid(node):
 			node.free()
 		_nodes.erase(id)
+	_sync_salvage_cases(sector, ship)
 
 
 func _sector() -> Node:
@@ -73,6 +83,14 @@ func _sector() -> Node:
 
 
 func _spawn(entry: Dictionary) -> Node3D:
+	if StringName(entry.get("kind", &"")) == &"debris" and get_tree().get_first_node_in_group(&"salvage_system") != null:
+		var wreck: SalvageWreck = SalvageWreck.new()
+		wreck.name = "Object_" + String(entry["id"])
+		wreck.set_meta(META_KIND, "debris")
+		wreck.set_meta(META_ID, String(entry["id"]))
+		add_child(wreck)
+		wreck.build(entry)
+		return wreck
 	var body: SpaceObject = SpaceObject.new()
 	body.setup(entry)
 	var id: String = String(entry["id"])
@@ -109,6 +127,51 @@ func _spawn(entry: Dictionary) -> Node3D:
 	body.set_meta(META_ID, id)
 	add_child(body)
 	return body
+
+
+func _sync_salvage_cases(sector: Node, ship: Vector3) -> void:
+	var salvage: SalvageSystem = get_tree().get_first_node_in_group(&"salvage_system") as SalvageSystem
+	if salvage == null or salvage.definition == null:
+		return
+	var seen: Dictionary = {}
+	for unit: Dictionary in salvage.get_units():
+		var location: String = String(unit["location"])
+		if location not in ["world", "carried"]:
+			continue
+		if location == "world" and int(unit["sector_seed"]) != int(sector.get("field_seed")):
+			continue
+		var unit_id: String = String(unit["unit_id"])
+		seen[unit_id] = true
+		var cached: Variant = _salvage_cases.get(unit_id)
+		var item: SalvageCase = cached as SalvageCase if is_instance_valid(cached) else null
+		if item == null or not is_instance_valid(item):
+			item = SalvageCase.new()
+			item.name = "RecoveryCase_" + unit_id.replace(":", "_")
+			item.unit_id = unit_id
+			var mesh: MeshInstance3D = MeshInstance3D.new()
+			var box: BoxMesh = BoxMesh.new()
+			box.size = salvage.definition.case_size
+			mesh.mesh = box
+			mesh.material_override = _debris_material
+			item.add_child(mesh)
+			var shape: CollisionShape3D = CollisionShape3D.new()
+			var collision: BoxShape3D = BoxShape3D.new()
+			collision.size = box.size
+			shape.shape = collision
+			item.add_child(shape)
+			add_child(item)
+			_salvage_cases[unit_id] = item
+		if not item.is_carried():
+			var position: Dictionary = unit["position"]
+			item.position = Vector3(float(position.get("x", 0)), float(position.get("y", 0)), float(position.get("z", 0))) - ship
+	for unit_id: String in _salvage_cases.keys():
+		if seen.has(unit_id):
+			continue
+		var cached: Variant = _salvage_cases[unit_id]
+		var item: SalvageCase = cached as SalvageCase if is_instance_valid(cached) else null
+		if is_instance_valid(item):
+			item.queue_free()
+		_salvage_cases.erase(unit_id)
 
 
 func _build_materials() -> void:

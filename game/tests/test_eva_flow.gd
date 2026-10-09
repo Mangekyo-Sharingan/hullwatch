@@ -46,6 +46,11 @@ func _run() -> void:
 
 	outer.interact(null)
 	_check(outer.is_open(), "outer hatch opens on vacuum")
+	await create_timer(Door.SLIDE_DURATION_SECONDS + 0.1).timeout
+	_check(
+		_capsule_segment_clear(player, Vector2(0.0, -0.65), Vector2(-3.6, -0.65)),
+		"standing capsule can walk through the open radial hatch onto the EVA platform"
+	)
 	player.global_position = Vector3(-3.6, 0.2, -0.65)
 	await physics_frame
 	await physics_frame
@@ -107,3 +112,24 @@ func _check(condition: bool, label: String) -> void:
 	else:
 		_failures += 1
 		print("FAIL: ", label)
+
+
+func _capsule_segment_clear(player: CharacterBody3D, start: Vector2, finish: Vector2) -> bool:
+	var capsule: CapsuleShape3D = CapsuleShape3D.new()
+	capsule.radius = 0.24
+	capsule.height = 1.75
+	var query: PhysicsShapeQueryParameters3D = PhysicsShapeQueryParameters3D.new()
+	query.shape = capsule
+	query.collision_mask = 1
+	query.exclude = [player.get_rid()]
+	var space: PhysicsDirectSpaceState3D = player.get_world_3d().direct_space_state
+	var steps: int = ceili(start.distance_to(finish) / 0.12)
+	for step: int in steps + 1:
+		var point: Vector2 = start.lerp(finish, float(step) / float(maxi(steps, 1)))
+		query.transform = Transform3D(Basis(), Vector3(point.x, 0.925, point.y))
+		var overlaps: Array[Dictionary] = space.intersect_shape(query, 1)
+		if not overlaps.is_empty():
+			var blocker: Node = overlaps[0].get("collider") as Node
+			print("Capsule EVA path blocked at %s by %s" % [point, blocker.get_path() if blocker != null else "unknown"])
+			return false
+	return true

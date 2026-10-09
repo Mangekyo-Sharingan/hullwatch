@@ -3,6 +3,9 @@ class_name CargoPort
 extends Interactable
 
 func get_interaction_prompt() -> String:
+	var carried: Node = _carried_equipment(_first_player())
+	if carried != null:
+		return "Stow recovered equipment"
 	var player: Node = _first_player()
 	var canister: Node = _carried_canister(player)
 	if canister != null and not bool(canister.call("is_empty")):
@@ -12,6 +15,12 @@ func get_interaction_prompt() -> String:
 
 
 func _handle_interact(player: Node) -> void:
+	var equipment: Node = _carried_equipment(player)
+	if equipment != null:
+		var salvage: Node = _get_system(&"salvage_system")
+		if salvage != null and bool(salvage.call("stow_unit", String(equipment.call("get_unit_id")))):
+			player.call("consume_carried")
+		return
 	var canister: Node = _carried_canister(player)
 	if canister == null or bool(canister.call("is_empty")):
 		_emit_sim_event(&"procedure_error", {"reason": &"no_sample"})
@@ -42,3 +51,10 @@ func _carried_canister(player: Node) -> Node:
 	if item == null or not item.has_method(&"is_empty"):
 		return null
 	return item
+
+
+func _carried_equipment(player: Node) -> Node:
+	if player == null or not player.has_method("get_carried"):
+		return null
+	var item: Node = player.call("get_carried") as Node
+	return item if item != null and item.has_method("get_unit_id") else null

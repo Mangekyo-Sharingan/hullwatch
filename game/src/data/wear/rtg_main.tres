@@ -34,8 +34,4 @@ component_id = &"rtg_main"
 display_name = "Main RTG"
 wear_rate_per_hour = 0.0002
 failure_modes = Array[ExtResource("2")]([SubResource("FailureMode_rtg_degraded"), SubResource("FailureMode_rtg_open_circuit")])
-
 service_circuit = &"all_bus"
-service_part = &"gasket"
-service_hours = 0.25
-service_quality = 0.75

@@ -68,7 +68,13 @@ Walk the decks with a handheld torch and diagnostic scanner. Read physical panel
 8. **Escalate** — over days, wear outpaces repair capacity; the margin narrows.
 
 ### Voyage Loop (whole game)
-Multi-leg voyage across waypoints. Each leg = N days. Reaching a waypoint unlocks resupply caches (finite), salvage detours (risk/reward in fuel and time), and story beats. The final waypoint holds the answer to why the ship is empty — a grounded answer (mission failure, crew evacuation, decommission order), not a supernatural one.
+**Operator direction, 2026-10-09: open-ended isolated survival.** The player chooses
+travel, salvage, surveying and ship projects according to needs and curiosity.
+Waypoint legs are transport, not a compulsory campaign sequence. Finite caches,
+resource extraction, renewable production and ship capability support continued
+survival. There is no required final waypoint or authored campaign victory.
+Expanded activity content is planned in `docs/design/open_survival_direction_pass.md`;
+its proposed features and acceptance targets still need bounded design approval.
 
 ---
 
@@ -138,7 +144,7 @@ Design rule: every cascade is *traceable* by an attentive player. No randomness 
 
 - **Loss:** asphyxiation, hypothermia, hull breach, power death (battery = 0 with no generation), or unrecoverable cascade (soft-lock guard: mercy event rather than hard brick wall — e.g., emergency beacon burns your last fuel to reset the leg).
 - **Win (leg):** reach waypoint with ship intact; cache access.
-- **Win (game):** complete voyage; conclusion is authored, quiet, and ambiguous in meaning but not in mechanism.
+- **Long-term progress (supersedes campaign win, 2026-10-09):** sustain and improve the ship, discover opportunities, and choose new expeditions. No compulsory whole-voyage victory. Optional grounded narrative discoveries may exist without gating survival; loss/recovery policy remains to be confirmed.
 
 ---
 
@@ -264,11 +270,18 @@ Must-haves:
 | **M1 — Grey-box prototype** | Walkable module, interactables, power sim, one repair task, day cycle, placeholder audio | 10-minute day loop playable with no placeholder logic holes |
 | **M2 — Systems prototype** | Power/thermal/atmosphere interlinked, wear + failures, cascade, save/load, headless tests | Deterministic scenario tests pass; failures traceable in a test harness |
 | **M3 — Vertical slice** | Art pass on one module, audio direction, diegetic UI, nav/travel stub, one narrative beat | Vertical slice demo: 20–30 min, external playtester completes success test |
-| **M4 — Alpha** | Full small ship (5–6 modules), all systems, full procedure set, stores/economy, 3–5 waypoints | Content-complete; balance pass begins |
+| **M4 — Alpha** | Full small ship (5–6 modules), all systems, full procedure set, stores/economy, open survival activities and freely chosen destinations | Agreed survival activity set content-complete; balance pass begins |
 | **M5 — Beta** | Balance, performance, accessibility, save migration, localization prep | 60 fps target on mid hardware; no P1 bugs; playtest metrics stable |
 | **M6 — Release prep** | Steam page, build pipeline, store assets, demo build | Shipping checklist complete |
 
 Post-v1 expansion milestones **M7–M12** (open hull + EVA, deep field, materials/fabrication, ship modularity, destinations, polish) are tracked in `docs/EXPANSION_SPEC.md`.
+
+**M4 scope correction — operator-requested 2026-10-09:** open-ended survival
+supersedes the October 8 four-arrival campaign baseline and original 3–5-waypoint
+campaign target. Existing two destinations remain travel content, not required
+campaign stages. Expand meaningful player activities and ship capabilities.
+The proposed activity set, resource continuity and acceptance plan are in
+`docs/design/open_survival_direction_pass.md`; implementation is still planned.
 
 ### 8.3 Scope Guardrails (Non-Goals)
 
@@ -304,7 +317,7 @@ Post-v1 expansion milestones **M7–M12** (open hull + EVA, deep field, material
 1. Protagonist: silently-named operator with limited backstory, or blank slate? (Lean: minimal — a name on a locker.)
 2. EVA (exterior hull work) in v1? — **Resolved 2026-09-18: yes, expansion milestone M7** (airlock, tethered exterior work).
 3. Food/greenhouse fully simulated in v1 or abstracted as stores? — **Resolved: abstracted stores in v1; greenhouse becomes a buildable ship module in expansion M10.**
-4. Voyage length target: how many in-game days is the campaign? (Lean: 30–40 days, 3–5 legs.)
+4. **Resolved direction 2026-10-09:** open-ended survival, with no fixed campaign length or required number/order of arrivals. This supersedes October 8's four-leg Alpha baseline. Session pacing, activity content and resource availability remain to be designed.
 5. Death frequency target: how punishing? (Lean: loss is rare but *final-feeling*; mercy resets exist but cost progress.)
 6. Comms content: does a reply ever come? (Lean: yes, once, late, and it isn't what the player hoped — grounded, not cruel.)
 

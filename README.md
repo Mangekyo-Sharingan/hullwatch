@@ -1,13 +1,20 @@
 # Hullwatch
 
+**Project dashboard:** generate the local archive with `python3 tools/build_dashboard.py`,
+then open `docs/dashboard/index.html` for the full documentation, roadmap, pass history,
+and visual archive; [dashboard setup and automatic updates](docs/dashboard/README.md).
+
 A first-person ship-maintenance simulation about keeping a decaying long-haul vessel — and yourself — alive in the cold vacuum of space. Grounded dread, no monsters, no combat. The horror is entropy.
 
 - **Engine:** Godot 4.7.2 (local binary in `Engine/`)
 - **Language:** GDScript (typed)
 - **Spec:** [`docs/PRODUCTION_SPEC.md`](docs/PRODUCTION_SPEC.md) · expansion plan: [`docs/EXPANSION_SPEC.md`](docs/EXPANSION_SPEC.md)
-- **Status:** v0.11.0 released for playtest; early-access expansion in progress (M13 — the modular hull, now in the tube-interior and exterior-fitting passes)
+- **Status:** October 9 art and salvage playtest; open survival slices in progress (prior tagged playtest: v0.11.0)
 
 ## Play it
+
+[Download the current Windows playtest](releases/windows/2026-10-09/README.md).
+The executable includes the current art pass and useful-salvage prototype.
 
 ```powershell
 # From source (fastest)

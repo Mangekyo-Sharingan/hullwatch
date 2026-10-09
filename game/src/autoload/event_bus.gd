@@ -31,6 +31,7 @@ signal module_uninstalled(module_id: StringName, hardpoint_id: StringName)
 signal construction_started(module_id: StringName, hardpoint_id: StringName)
 signal machine_fitted(machine_id: StringName, socket_id: StringName)
 signal machine_removed(machine_id: StringName, socket_id: StringName)
+signal salvage_changed(unit_id: String)
 
 const LOG_LIMIT: int = 500
 

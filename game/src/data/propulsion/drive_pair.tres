@@ -1,34 +1,20 @@
-[gd_resource type="Resource" script_class="PropulsionConfig" load_steps=12 format=3]
+[gd_resource type="Resource" script_class="PropulsionConfig" format=3 uid="uid://bs5kn0r1wjnch"]
 
-[ext_resource type="Script" path="res://src/components/propulsion_config.gd" id="1_config"]
-[ext_resource type="Script" path="res://src/components/wear_component.gd" id="2_wear"]
-[ext_resource type="Script" path="res://src/components/failure_mode.gd" id="3_fault"]
+[ext_resource type="Script" uid="uid://cpu8t1miic78i" path="res://src/components/propulsion_config.gd" id="1_config"]
+[ext_resource type="Script" uid="uid://ng7r2qk1dktu" path="res://src/components/wear_component.gd" id="2_wear"]
+[ext_resource type="Script" uid="uid://ccebuvaam2wn4" path="res://src/components/failure_mode.gd" id="3_fault"]
 
 [sub_resource type="Resource" id="GridFault"]
 script = ExtResource("3_fault")
 id = &"grid_fouled"
 display_name = "Grid deposit bridging"
-max_condition = 0.6
 base_mtbf_hours = 350.0
-environmental_factors = {"heat": 2.0, "load": 1.5}
+max_condition = 0.6
+environmental_factors = {
+"heat": 2.0,
+"load": 1.5
+}
 symptoms = Array[StringName]([&"discharge_unstable"])
-
-[sub_resource type="Resource" id="CathodeFault"]
-script = ExtResource("3_fault")
-id = &"cathode_lead_open"
-display_name = "Cathode lead discontinuity"
-max_condition = 0.6
-base_mtbf_hours = 400.0
-environmental_factors = {"heat": 2.0}
-symptoms = Array[StringName]([&"neutralizer_offline"])
-
-[sub_resource type="Resource" id="UvFault"]
-script = ExtResource("3_fault")
-id = &"uv_connector_open"
-display_name = "UV assembly connector discontinuity"
-max_condition = 0.6
-base_mtbf_hours = 500.0
-symptoms = Array[StringName]([&"feed_recovery_stopped"])
 
 [sub_resource type="Resource" id="PortGrid"]
 script = ExtResource("2_wear")
@@ -36,6 +22,17 @@ component_id = &"port_grid"
 display_name = "Port service grid"
 wear_rate_per_hour = 0.0004
 failure_modes = Array[ExtResource("3_fault")]([SubResource("GridFault")])
+
+[sub_resource type="Resource" id="CathodeFault"]
+script = ExtResource("3_fault")
+id = &"cathode_lead_open"
+display_name = "Cathode lead discontinuity"
+base_mtbf_hours = 400.0
+max_condition = 0.6
+environmental_factors = {
+"heat": 2.0
+}
+symptoms = Array[StringName]([&"neutralizer_offline"])
 
 [sub_resource type="Resource" id="PortCathode"]
 script = ExtResource("2_wear")
@@ -57,6 +54,14 @@ component_id = &"starboard_cathode"
 display_name = "Starboard cathode lead"
 wear_rate_per_hour = 0.0003
 failure_modes = Array[ExtResource("3_fault")]([SubResource("CathodeFault")])
+
+[sub_resource type="Resource" id="UvFault"]
+script = ExtResource("3_fault")
+id = &"uv_connector_open"
+display_name = "UV assembly connector discontinuity"
+base_mtbf_hours = 500.0
+max_condition = 0.6
+symptoms = Array[StringName]([&"feed_recovery_stopped"])
 
 [sub_resource type="Resource" id="TankUv"]
 script = ExtResource("2_wear")

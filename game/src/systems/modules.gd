@@ -8,6 +8,7 @@ extends ShipSystem
 const REFUSAL_UNKNOWN_MODULE: StringName = &"unknown_module"
 const REFUSAL_ALREADY_INSTALLED: StringName = &"already_installed"
 const REFUSAL_HARDPOINT_OCCUPIED: StringName = &"hardpoint_occupied"
+const REFUSAL_HARDPOINT_CLEARANCE: StringName = &"hardpoint_clearance"
 const REFUSAL_MISSING_MATERIALS: StringName = &"missing_materials"
 const REFUSAL_NOT_INSTALLED: StringName = &"not_installed"
 const REFUSAL_ALREADY_BUILDING: StringName = &"already_building"
@@ -22,6 +23,11 @@ const EFFECT_CARGO: StringName = &"cargo"
 const EFFECT_POWER: StringName = &"power"
 const EFFECT_RECOVERY: StringName = &"recovery"
 const EFFECT_SOURCE: StringName = &"modules"
+# The generated pod shell is 3.6 m long along Z; these port mounts are 2.85 m apart.
+const PORT_POD_CLEARANCE_CONFLICTS: Dictionary = {
+	&"hp_quarters": &"hp_life_support",
+	&"hp_life_support": &"hp_quarters",
+}
 
 @export var catalog: Array[ShipModule] = []
 @export var machine_catalog: Array[ShipMachine] = []
@@ -38,12 +44,18 @@ var _machine_jobs: Dictionary = {}
 var _loaded_circuits: Array[StringName] = []
 ## Fractional rations waiting to be a whole one.
 var _ration_hours: float = 0.0
+# Only a notification snapshot; SalvageSystem owns these instances and their save state.
+var _salvage_fitted: Dictionary = {}
 
 
 func _ready() -> void:
 	system_id = &"modules"
 	add_to_group(&"module_system")
 	super._ready()
+	var bus: Node = _get_autoload(&"EventBus")
+	if bus != null and bus.has_signal(&"salvage_changed"):
+		bus.connect(&"salvage_changed", _on_salvage_changed)
+	_on_salvage_changed.call_deferred("")
 
 
 func get_catalog() -> Array[ShipModule]:
@@ -102,6 +114,9 @@ func can_install(module_id: StringName) -> StringName:
 		return REFUSAL_ALREADY_INSTALLED
 	if _installed.has(module.hardpoint_id) or _jobs.has(module.hardpoint_id):
 		return REFUSAL_HARDPOINT_OCCUPIED
+	var clearance_neighbor: StringName = StringName(PORT_POD_CLEARANCE_CONFLICTS.get(module.hardpoint_id, &""))
+	if clearance_neighbor != &"" and (_installed.has(clearance_neighbor) or _jobs.has(clearance_neighbor)):
+		return REFUSAL_HARDPOINT_CLEARANCE
 	var cargo: Node = _cargo_system()
 	if cargo == null:
 		return REFUSAL_MISSING_MATERIALS
@@ -158,6 +173,13 @@ func uninstall(module_id: StringName) -> bool:
 	if module == null or not is_installed(module_id):
 		emit_sim_event(&"module_uninstall_refused", {"module_id": String(module_id), "reason": String(REFUSAL_NOT_INSTALLED)})
 		return false
+	if not _teardown_fits_hold(module):
+		emit_sim_event(&"procedure_error", {"reason": &"salvage_hold_full"})
+		return false
+	var salvage: Node = _system(&"salvage_system")
+	if salvage != null and not bool(salvage.call(&"release_pod", module.hardpoint_id)):
+		emit_sim_event(&"module_uninstall_refused", {"module_id": String(module_id), "reason": "hold_full"})
+		return false
 	_installed.erase(module.hardpoint_id)
 	_release_machines(module.hardpoint_id)
 	_unregister_compartments(module)
@@ -170,6 +192,39 @@ func uninstall(module_id: StringName) -> bool:
 
 ## A pod that comes down takes its machines with it: everything in its sockets goes back to the
 ## hold, and a fitting still running is cancelled and refunded.
+func _teardown_fits_hold(module: ShipModule) -> bool:
+	var cargo: Node = _cargo_system()
+	if cargo == null:
+		return false
+	var capacity_lost: float = module.effect_amount if module.effect == EFFECT_CARGO else 0.0
+	var returned_units: float = 0.0
+	for amount: Variant in module.cost.values():
+		returned_units += maxf(float(amount), 0.0)
+	var prefix: String = String(module.hardpoint_id) + ":"
+	var all_machines: Dictionary = get_machines()
+	var salvage: Node = _system(&"salvage_system")
+	for socket: String in all_machines:
+		if not socket.begins_with(prefix):
+			continue
+		var machine: ShipMachine = get_machine(StringName(String(all_machines[socket])))
+		if machine != null and machine.effect == EFFECT_CARGO:
+			capacity_lost += machine.effect_amount
+		if salvage != null and String(salvage.call("get_unit_at", StringName(socket))) != "":
+			var definition: Resource = salvage.get("definition") as Resource
+			returned_units += float(definition.get("cargo_units"))
+		elif machine != null:
+			for amount: Variant in machine.cost.values():
+				returned_units += maxf(float(amount), 0.0)
+	for socket: StringName in _machine_jobs:
+		if String(socket).begins_with(prefix):
+			var job: Dictionary = _machine_jobs[socket]
+			var machine: ShipMachine = get_machine(StringName(job.get("machine_id", &"")))
+			if machine != null:
+				for amount: Variant in machine.cost.values():
+					returned_units += maxf(float(amount), 0.0)
+	return float(cargo.call("get_used_units")) + returned_units <= float(cargo.call("get_capacity_units")) - capacity_lost + 0.0001
+
+
 func _release_machines(hardpoint_id: StringName) -> void:
 	var prefix: String = String(hardpoint_id) + ":"
 	for socket_id: Variant in _machines.keys():
@@ -201,11 +256,17 @@ func get_machine(machine_id: StringName) -> ShipMachine:
 	for machine: ShipMachine in machine_catalog:
 		if machine != null and machine.machine_id == machine_id:
 			return machine
+	var salvage: Node = _system(&"salvage_system")
+	if salvage != null:
+		var units: Array = salvage.call(&"get_units") as Array
+		for unit: Dictionary in units:
+			if StringName(String(unit.get("machine_id", ""))) == machine_id:
+				return salvage.call(&"get_machine", String(unit.get("unit_id", ""))) as ShipMachine
 	return null
 
 
 func get_machine_at(socket_id: StringName) -> StringName:
-	return StringName(_machines.get(socket_id, &""))
+	return StringName(String(get_machines().get(String(socket_id), "")))
 
 
 func get_machine_job(socket_id: StringName) -> Dictionary:
@@ -216,7 +277,33 @@ func get_machines() -> Dictionary:
 	var fitted: Dictionary = {}
 	for socket_id: StringName in _machines:
 		fitted[String(socket_id)] = String(_machines[socket_id])
+	var salvage: Node = _system(&"salvage_system")
+	if salvage != null:
+		fitted.merge(salvage.call(&"get_fitted_machines") as Dictionary)
 	return fitted
+
+
+func _on_salvage_changed(_unit_id: String) -> void:
+	var salvage: Node = _system(&"salvage_system")
+	var fitted: Dictionary = {}
+	if salvage != null:
+		fitted = (salvage.call(&"get_fitted_machines") as Dictionary).duplicate()
+	var previous: Dictionary = _salvage_fitted
+	_salvage_fitted = fitted
+	_apply_effects()
+	# Live transfers emit their own machine events; restores need the socket announcements.
+	if _unit_id != "":
+		return
+	for socket_id: String in previous:
+		if previous[socket_id] != fitted.get(socket_id, ""):
+			var machine_id: StringName = StringName(String(previous[socket_id]))
+			emit_sim_event(&"machine_removed", {"machine_id": String(machine_id), "socket_id": socket_id})
+			_emit_typed(&"machine_removed", machine_id, StringName(socket_id))
+	for socket_id: String in fitted:
+		if fitted[socket_id] != previous.get(socket_id, ""):
+			var machine_id: StringName = StringName(String(fitted[socket_id]))
+			emit_sim_event(&"machine_fitted", {"machine_id": String(machine_id), "socket_id": socket_id})
+			_emit_typed(&"machine_fitted", machine_id, StringName(socket_id))
 
 
 ## Returns &"" when the machine can be fitted into that socket, else the refusal reason.
@@ -224,7 +311,7 @@ func can_fit_machine(machine_id: StringName, socket_id: StringName) -> StringNam
 	var machine: ShipMachine = get_machine(machine_id)
 	if machine == null or socket_id == &"":
 		return REFUSAL_UNKNOWN_MACHINE
-	if _machines.has(socket_id) or _machine_jobs.has(socket_id):
+	if get_machine_at(socket_id) != &"" or _machine_jobs.has(socket_id):
 		return REFUSAL_SLOT_OCCUPIED
 	var cargo: Node = _cargo_system()
 	if cargo == null:
@@ -260,6 +347,9 @@ func fit_machine(machine_id: StringName, socket_id: StringName) -> bool:
 
 ## Takes a machine back out (full refund). Vital machinery is not portable and refuses.
 func remove_machine(socket_id: StringName) -> bool:
+	var salvage: Node = _system(&"salvage_system")
+	if salvage != null and String(salvage.call(&"get_unit_at", socket_id)) != "":
+		return bool(salvage.call(&"remove_unit", socket_id))
 	var machine_id: StringName = get_machine_at(socket_id)
 	var machine: ShipMachine = get_machine(machine_id)
 	if machine == null:
@@ -324,8 +414,8 @@ func _apply_effects() -> void:
 				recovery += module.effect_amount
 		if module.circuit_id != &"" and module.power_load_w > 0.0:
 			circuit_loads[module.circuit_id] = float(circuit_loads.get(module.circuit_id, 0.0)) + module.power_load_w
-	for socket_id: StringName in _machines:
-		var machine: ShipMachine = get_machine(StringName(_machines[socket_id]))
+	for machine_id: Variant in get_machines().values():
+		var machine: ShipMachine = get_machine(StringName(String(machine_id)))
 		if machine == null:
 			continue
 		match machine.effect:
@@ -384,8 +474,8 @@ func get_effects() -> Dictionary:
 				summary["power_wh"] = float(summary["power_wh"]) + module.effect_amount
 			EFFECT_RECOVERY:
 				summary["recovery_per_hour"] = float(summary["recovery_per_hour"]) + module.effect_amount
-	for socket_id: StringName in _machines:
-		var machine: ShipMachine = get_machine(StringName(_machines[socket_id]))
+	for machine_id: Variant in get_machines().values():
+		var machine: ShipMachine = get_machine(StringName(String(machine_id)))
 		if machine == null:
 			continue
 		match machine.effect:
@@ -425,8 +515,8 @@ func _tick_effects(delta_hours: float) -> void:
 		if not _module_powered(module.circuit_id, module.power_load_w):
 			continue
 		_ration_hours += module.effect_amount * delta_hours / 24.0
-	for socket_id: StringName in _machines:
-		var machine: ShipMachine = get_machine(StringName(_machines[socket_id]))
+	for machine_id: Variant in _machines.values() + _salvage_fitted.values():
+		var machine: ShipMachine = get_machine(StringName(String(machine_id)))
 		if machine == null or machine.effect != EFFECT_RATIONS or machine.effect_amount <= 0.0:
 			continue
 		if not _module_powered(machine.circuit_id, machine.power_load_w):
@@ -515,12 +605,15 @@ func get_status() -> Dictionary:
 		"jobs": jobs,
 		"building_count": _jobs.size(),
 		"machines": get_machines(),
-		"machine_count": _machines.size(),
+		"machine_count": get_machines().size(),
 		"machine_jobs": _machine_jobs.size(),
 	}
 
 
 func save_state() -> Dictionary:
+	var built_machines: Dictionary = {}
+	for socket_id: StringName in _machines:
+		built_machines[String(socket_id)] = String(_machines[socket_id])
 	var jobs: Dictionary = {}
 	for hardpoint_id: StringName in _jobs:
 		var job: Dictionary = _jobs[hardpoint_id]
@@ -542,7 +635,7 @@ func save_state() -> Dictionary:
 		"state_version": 3,
 		"installed": get_status()["installed"],
 		"jobs": jobs,
-		"machines": get_machines(),
+		"machines": built_machines,
 		"machine_jobs": machine_jobs,
 	}
 
@@ -600,12 +693,13 @@ func load_state(state: Dictionary) -> void:
 		var module_id: StringName = StringName(_installed[hardpoint_id])
 		_emit_typed(&"module_installed", module_id, hardpoint_id)
 	# Same for machines, so sockets that were wired after the pods spawned pick them up.
-	for socket_id: StringName in _machines:
+	var restored_machines: Dictionary = get_machines()
+	for socket_id: String in restored_machines:
 		emit_sim_event(&"machine_fitted", {
-			"machine_id": String(_machines[socket_id]),
+			"machine_id": String(restored_machines[socket_id]),
 			"socket_id": String(socket_id),
 		})
-		_emit_typed(&"machine_fitted", StringName(_machines[socket_id]), socket_id)
+		_emit_typed(&"machine_fitted", StringName(String(restored_machines[socket_id])), StringName(socket_id))
 
 
 func _finish_job(hardpoint_id: StringName) -> void:

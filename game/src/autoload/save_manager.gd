@@ -2,14 +2,14 @@
 ## Autoload name: SaveManager. No class_name on purpose — it would conflict with the autoload.
 extends Node
 
-const SAVE_VERSION: int = 4
+const SAVE_VERSION: int = 5
 const SAVE_DIR: String = "user://saves"
 const SLOT_COUNT: int = 3
 const GAME_SCENE: String = "res://scenes/main.tscn"
 const MENU_SCENE: String = "res://scenes/main_menu.tscn"
 ## module_system loads first so module compartments exist before the life-support systems merge
 ## their saved per-compartment state into them.
-const SYSTEM_GROUPS: Array[StringName] = [&"module_system", &"power_system", &"atmosphere_system", &"stores_system", &"thermal_system", &"hull_system", &"nav_system", &"vitals_system", &"water_system", &"comms_system", &"airlock_system", &"sector_system", &"cargo_system", &"fabricator_system", &"computer_system", &"voice_guide_system"]
+const SYSTEM_GROUPS: Array[StringName] = [&"module_system", &"salvage_system", &"power_system", &"atmosphere_system", &"stores_system", &"thermal_system", &"hull_system", &"nav_system", &"vitals_system", &"water_system", &"comms_system", &"airlock_system", &"sector_system", &"cargo_system", &"fabricator_system", &"computer_system", &"voice_guide_system"]
 
 var _last_error: String = ""
 var _meta: Dictionary = {}
@@ -79,7 +79,7 @@ func load_from_dict(data: Dictionary) -> bool:
 			continue
 		var key: String = _system_key(system, group_name)
 		if not systems.has(key):
-			if group_name == &"computer_system":
+			if group_name in [&"computer_system", &"salvage_system"]:
 				system.call("load_state", {})
 			continue
 		system.call("load_state", systems[key])
@@ -339,6 +339,12 @@ func _migrate(data: Dictionary) -> Dictionary:
 			if not nav.has("propulsion"):
 				nav["propulsion"] = {}
 		data["save_version"] = 4
+		version = 4
+	if version == 4:
+		var systems: Dictionary = data.get("systems", {})
+		systems["salvage"] = {"system_id": "salvage", "state_version": 1, "units": {}}
+		data["systems"] = systems
+		data["save_version"] = 5
 	return data
 
 

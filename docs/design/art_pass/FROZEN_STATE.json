@@ -1,0 +1,45 @@
+{
+  "frozen_at_utc": "2026-10-01T02:23:56.755945+00:00",
+  "branch": "feat/starpath-art-pass-2026-10-01",
+  "head": "5303882f04a33bf4a50bf4a5a6ec9cecf8cda11f",
+  "art_status": "Paused by operator; no further implementation authorized in this planning turn",
+  "files": {
+    "game/tools/build_ship_geometry.gd": {
+      "bytes": 114957,
+      "sha256": "eecc080450ef8ddcf78f32fd0fa4637b84512df6922204f7f7a1f77cf20e6a31"
+    },
+    "game/scenes/ship_geometry.tscn": {
+      "bytes": 3080222,
+      "sha256": "88ee6eccb64855fe92c20e97edc1f00b87dc99d357a8215b8e273cbbbb09f5d3"
+    },
+    "game/tools/capture_screenshots.gd": {
+      "bytes": 20419,
+      "sha256": "3a95d1a051c4bb1df7a80874a317c6f904c5624821da3c998da2c539c7abcdd4"
+    },
+    "art/blender/build_hero_utilities.py": {
+      "bytes": 9890,
+      "sha256": "83013350734219c80c20836ada0b7c4e7c5ae3c111862efafaa13bd66d11f00a"
+    },
+    "art/blender/hero_utilities.blend": {
+      "bytes": 239560,
+      "sha256": "21c9f6da2a741fa31e02bbdbda986f758e2d920a69236515600fd24e295035ba"
+    },
+    "game/assets/models/hullwatch/interior/hw_utility_spine.glb": {
+      "bytes": 787384,
+      "sha256": "7937c082701d3ecde4ed57fcf5333b7483d80de54cb52c2d60022b5d70fa6ab3"
+    },
+    "game/assets/models/hullwatch/interior/hw_utility_spine.glb.import": {
+      "bytes": 1195,
+      "sha256": "b89d5df64fb5683ec0a7ead24928863b372e5fbb9a018c387b59dff58fa82369"
+    },
+    "game/tests/test_hero_cabins.gd": {
+      "bytes": 2747,
+      "sha256": "fa8e4b5de4120d8138cd4c414836dbde634a8d516bb69f80e5389f0c2fb2654f"
+    },
+    "game/tests/test_hero_cabins.gd.uid": {
+      "bytes": 20,
+      "sha256": "180bc111e873a9c6e03f08c9d5e3a26a24d006d7e43d35adbbdc7b773d62c3aa"
+    }
+  },
+  "validation": "Art validation incomplete. test_hero_cabins prints PASS with unexpected !is_inside_tree transform errors. Full art suite interrupted. Published pre-art checkpoint passed 88/88 suites."
+}

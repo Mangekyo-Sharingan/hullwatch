@@ -136,6 +136,8 @@ func _test_props_carry() -> void:
 		var outboard: float = -box.position.x if side < 0.0 else box.end.x
 		_check(outboard <= SectionHull.tube_half_width(radius, maxf(box.position.y, 0.0)) + 0.03, "carried prop clears the canted wall: " + prop_name)
 		_check(box.position.y >= -0.05, "carried prop sits above the deck: " + prop_name)
+	var computer_prop: Node3D = _props.get_node_or_null(^"ComputerProp") as Node3D
+	_check(computer_prop != null and computer_prop.get_script() == null and computer_prop.find_child("ComputerTerminal", true, false) == null, "galley computer remains passive set dressing")
 	for prop_name: String in PLATFORM_PROPS:
 		var prop: Node3D = _props.get_node_or_null(NodePath(prop_name)) as Node3D
 		if prop == null:
@@ -194,6 +196,15 @@ func _test_cockpit_instruments() -> void:
 			var outer: float = box.end.x if side == 0 else -box.position.x
 			_check(absf(SectionHull.tube_half_width(2.4, box.position.y) - outer) < 0.12, "%s mounts flush to the cockpit wall" % station_name)
 			_check(absf(station.position.y - 1.25) < 0.01 and station.position.z > previous_z and station.position.z >= cupola.x and station.position.z <= cupola.y, "%s follows the cupola station grid" % station_name)
+			if station_name == "CommsTerminal":
+				_check(station.get_node_or_null(^"WallMountPlinth") == null, "Comms station leaves its adjacent hull-service plate exposed")
+			elif station_name != "WallComputer":
+				var plate: MeshInstance3D = station.get_node_or_null(^"WallMountPlinth") as MeshInstance3D
+				_check(plate != null and plate.mesh is BoxMesh and plate.get_parent() == station, "%s has a wrapper-owned shallow mounting plinth" % station_name)
+				if plate != null:
+					var plate_bounds: AABB = _world_bounds(plate)
+					var plate_outboard: float = plate_bounds.end.x if side == 0 else -plate_bounds.position.x
+					_check(plate_outboard <= SectionHull.tube_half_width(2.4, maxf(plate_bounds.position.y, 0.0)) + 0.03, "%s plinth clears the wall profile" % station_name)
 			previous_z = station.position.z
 	var chair: PilotChair = _props.get_node_or_null(^"PilotChair") as PilotChair
 	_check(chair != null and chair.position.z >= cupola.x and chair.position.z < cupola.y, "pilot chair mounts inside the cupola")

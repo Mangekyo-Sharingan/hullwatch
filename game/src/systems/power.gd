@@ -483,6 +483,8 @@ func load_state(state: Dictionary) -> void:
 		var rng: RandomNumberGenerator = _wear_rng()
 		rng.state = int(state.get("wear_rng_state", rng.state))
 	_reapply_failed_effects()
+	# Sync physical indicators without logging restored state as an operator action.
+	emit_sim_event(&"power_state_restored")
 
 
 func get_wear_environment() -> Dictionary:

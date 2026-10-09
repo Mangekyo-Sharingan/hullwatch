@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="SalvageDefinition" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://src/components/salvage_definition.gd" id="1"]
+[ext_resource type="Resource" path="res://src/data/machines/machine_battery_cabinet.tres" id="2"]
+
+[resource]
+script = ExtResource("1")
+salvage_id = &"battery_recovery"
+machine = ExtResource("2")
+initial_condition = 0.35
+repaired_condition = 1.0
+repair_material = &"metal"
+repair_units = 1.0
+cargo_units = 6.0
+scrap_material = &"metal"
+scrap_units = 2.0
+case_size = Vector3(0.48, 0.36, 0.32)

@@ -61,7 +61,10 @@ func _cargo_lines(terminal: Node) -> PackedStringArray:
 		int(roundf(float(status["capacity_units"]))),
 	])
 	var materials: Dictionary = status["materials"]
-	if materials.is_empty():
+	var reservations: Dictionary = status.get("reserved_units", {})
+	if float(reservations.get(&"salvage", 0.0)) > 0.0:
+		lines.append("  RECOVERED EQUIPMENT %.0f UNITS" % float(reservations[&"salvage"]))
+	if materials.is_empty() and reservations.is_empty():
 		lines.append("  EMPTY")
 	else:
 		var kinds: Array = materials.keys()

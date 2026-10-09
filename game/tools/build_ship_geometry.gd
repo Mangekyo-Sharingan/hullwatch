@@ -12,6 +12,8 @@ const MATERIAL_XENON: String = "res://src/data/materials/mat_xenon_metal.tres"
 const MATERIAL_DARK_PLASTIC: String = "res://src/data/materials/mat_dark_plastic.tres"
 const MATERIAL_STRIP: String = "res://src/data/materials/mat_light_strip.tres"
 const MATERIAL_CONDUIT: String = "res://src/data/materials/mat_machined_metal.tres"
+const MATERIAL_HERO_FRAME: String = "res://src/data/materials/mat_hero_frame_paint.tres"
+const HERO_SECTIONS: PackedStringArray = ["cupola", "cockpit", "quarters", "life_support", "engine_bay_a", "engine_bay_b", "storage", "galley", "water_closet", "airlock"]
 const MATERIAL_WINDOW: String = "res://src/data/materials/mat_pressure_glass.tres"
 ## The authored solar array (Blender exterior kit): mount shoe, pylon, boom and panel in one
 ## model, authored on the generator's shoulder mount point with the boom outboard (+X).
@@ -268,7 +270,7 @@ func _initialize() -> void:
 
 
 func _load_materials() -> void:
-	for path: String in [MATERIAL_FLOOR, MATERIAL_XENON, MATERIAL_DARK_PLASTIC, MATERIAL_STRIP, MATERIAL_CONDUIT, MATERIAL_WINDOW]:
+	for path: String in [MATERIAL_FLOOR, MATERIAL_XENON, MATERIAL_DARK_PLASTIC, MATERIAL_STRIP, MATERIAL_CONDUIT, MATERIAL_WINDOW, MATERIAL_HERO_FRAME]:
 		var material: Material = load(path) as Material
 		if material == null:
 			_failures += 1
@@ -1286,6 +1288,7 @@ func _build_tube_fittings(hull: StaticBody3D, decks: Dictionary, collision: Arra
 	if TubeLayout.index_of("airlock") >= 0:
 		_add_tube_eva_deck(hull, decks, collision)
 		_add_tube_walkway(hull, decks, collision)
+	_build_hero_cabins(hull)
 	_add_tube_exterior_kit(hull)
 	_add_tube_ion_drives(hull)
 	_add_tube_throats(hull)
@@ -1473,6 +1476,42 @@ func _add_tube_throat(walls: Dictionary, floors: Dictionary, collision: Array[Ve
 			_add_quad(walls, Vector3(foot, 0.0, z_side), Vector3(top, lid, z_side), Vector3(out_x, lid, z_side), Vector3(out_x, 0.0, z_side), hint, collision)
 
 
+func _build_hero_cabins(hull: StaticBody3D) -> void:
+	for section_name: String in HERO_SECTIONS:
+		var index: int = TubeLayout.index_of(section_name)
+		var radius: float = float(TubeLayout.sections()[index]["radius"])
+		var span: Vector2 = TubeLayout.span(index)
+		var ring: PackedVector2Array = SectionHull.tube_section(radius)
+		for end: int in [0, 1]:
+			var z: float = span.x + 0.20 if end == 0 else span.y - 0.20
+			for facet: int in [2, 3, 4, 5, 6]:
+				var edge: Vector2 = ring[facet + 1] - ring[facet]
+				var inward: Vector2 = Vector2(-edge.y, edge.x).normalized()
+				var center: Vector2 = (ring[facet] + ring[facet + 1]) * 0.5 + inward * 0.055
+				var name: String = "HeroRib_%d_%d" % [end, facet]
+				var shadow_name: String = "HeroShadow_%d_%d" % [end, facet]
+				_add_dressing("Section_" + section_name, shadow_name, Vector3(center.x + inward.x * 0.035, center.y + inward.y * 0.035, z - 0.055), Vector3(0.13, edge.length(), 0.10), MATERIAL_DARK_PLASTIC)
+				var shadow: MeshInstance3D = _root.get_node(NodePath("Section_" + section_name + "/Dressing" + shadow_name)) as MeshInstance3D
+				shadow.rotation.z = atan2(-edge.x, edge.y)
+				_add_dressing("Section_" + section_name, name, Vector3(center.x, center.y, z), Vector3(0.085, edge.length(), 0.12), MATERIAL_HERO_FRAME)
+				var beam: MeshInstance3D = _root.get_node(NodePath("Section_" + section_name + "/Dressing" + name)) as MeshInstance3D
+				beam.rotation.z = atan2(-edge.x, edge.y)
+		for side: int in [-1, 1]:
+			var rail_x: float = float(side) * (SectionHull.tube_half_width(radius, 2.18) - 0.12)
+			_add_dressing("Section_" + section_name, "HeroCableTray_%d" % side, Vector3(rail_x, 2.08, (span.x + span.y) * 0.5), Vector3(0.18, 0.085, span.y - span.x - 0.84), MATERIAL_DARK_PLASTIC)
+			for end: int in [0, 1]:
+				var cap_z: float = span.x + 0.42 if end == 0 else span.y - 0.42
+				_add_dressing("Section_" + section_name, "HeroCableCap_%d_%d" % [side, end], Vector3(rail_x, 2.08, cap_z), Vector3(0.21, 0.10, 0.035), MATERIAL_CONDUIT)
+			for clip: int in 3:
+				var clip_z: float = lerpf(span.x + 0.5, span.y - 0.5, float(clip) * 0.5)
+				_add_dressing("Section_" + section_name, "HeroCableClip_%d_%d" % [side, clip], Vector3(rail_x, 2.035, clip_z), Vector3(0.21, 0.035, 0.035), MATERIAL_CONDUIT)
+			if section_name == "cockpit":
+				var x: float = float(side) * (SectionHull.tube_half_width(radius, 1.95) - 0.025)
+				for slot: int in [-1, 1]:
+					var z: float = (span.x + span.y) * 0.5 + float(slot) * 0.65
+					_add_hull_model(hull, "res://assets/models/hullwatch/interior/hw_utility_spine.glb", "HeroUtility_%d_%d" % [side, slot], Vector3(x, 1.4, z), Vector3(0.0, -float(side) * 90.0, 0.0))
+
+
 func _add_tube_cabin_light(hull: StaticBody3D, center_z: float) -> void:
 	var light: OmniLight3D = OmniLight3D.new()
 	light.name = "CabinLight%.1f" % center_z
@@ -1480,6 +1519,11 @@ func _add_tube_cabin_light(hull: StaticBody3D, center_z: float) -> void:
 	light.light_color = Color(1.0, 0.85, 0.65, 1.0)
 	light.light_energy = 1.2
 	light.omni_range = 5.5
+	var section: Dictionary = TubeLayout.section_at(center_z)
+	if HERO_SECTIONS.has(String(section.get("name", ""))):
+		light.light_color = Color(1.0, 0.74, 0.49, 1.0)
+		light.light_energy = 2.0
+		light.omni_range = 4.8
 	light.shadow_enabled = true
 	light.set_script(load(SCRIPT_CABIN_LIGHT) as Script)
 	hull.add_child(light)

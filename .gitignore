@@ -25,6 +25,9 @@ tools/godot-mcp/
 *.tmp
 *.log
 
+# Generated local documentation dashboard
+/docs/dashboard/index.html
+
 # Local reference material (screenshots, mood boards) — not distributed
 docs/reference/
 Reference/
