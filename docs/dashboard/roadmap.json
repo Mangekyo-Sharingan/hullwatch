@@ -1,7 +1,7 @@
 {
-  "title": "Hullwatch — factual roadmap and acceptance gates",
+  "title": "Hullwatch \u2014 factual roadmap and acceptance gates",
   "updated": "2026-10-09",
-  "summary": "Source-backed roadmap snapshot, not a fresh game validation. M0–M6 retain original acceptance targets; M7–M11 and M13 are documented as implemented, M12 has open playtest/performance gates, and M14 awaits operator review. All twelve art packets have implementation/report artifacts, with manual/platform/performance acceptance still open. Reported 89/89 is historical October 1 evidence, not October 8 validation. Published gameplay Windows cross-export and embedded-pack checks do not establish native Windows runtime; October 1 art is reported local/unpublished. Draft/pre-production, v0.10.0 checklist/current-build wording, v0.11.0 README and later handoff records conflict in age/scope; prototype history, current source and delivered packages are kept explicit. Narrative leanings remain unresolved; no deadlines or readiness percentage are inferred. October 9: operator replaces finite Alpha campaign with open survival; activity backlog is proposed, not approved implementation. October 9 execution: six activity directions approved and planned; salvage prototype in source, first technology and human review pending; parallel replenishment/persistence preparation complete.",
+  "summary": "Source-backed roadmap snapshot, not a fresh game validation. M0\u2013M6 retain original acceptance targets; M7\u2013M11 and M13 are documented as implemented, M12 has open playtest/performance gates, and M14 awaits operator review. All twelve art packets have implementation/report artifacts, with manual/platform/performance acceptance still open. Reported 89/89 is historical October 1 evidence, not October 8 validation. Published gameplay Windows cross-export and embedded-pack checks do not establish native Windows runtime; October 1 art is reported local/unpublished. Draft/pre-production, v0.10.0 checklist/current-build wording, v0.11.0 README and later handoff records conflict in age/scope; prototype history, current source and delivered packages are kept explicit. Narrative leanings remain unresolved; no deadlines or readiness percentage are inferred. October 9: operator replaces finite Alpha campaign with open survival; activity backlog is proposed, not approved implementation. October 9 execution: six activity directions approved and planned; salvage prototype in source, first technology and human review pending; parallel replenishment/persistence preparation complete.",
   "milestones": [
     {
       "id": "M0",
@@ -177,18 +177,18 @@
           ]
         },
         {
-          "title": "Collect tension, repair-satisfaction and chore-fatigue metrics from spec §8.5",
+          "title": "Collect tension, repair-satisfaction and chore-fatigue metrics from spec \u00a78.5",
           "status": "planned",
           "evidence": [
             {
               "path": "docs/PRODUCTION_SPEC.md",
-              "label": "Collect tension, repair-satisfaction and chore-fatigue metrics from spec §8.5"
+              "label": "Collect tension, repair-satisfaction and chore-fatigue metrics from spec \u00a78.5"
             }
           ]
         }
       ],
       "acceptance": [
-        "Vertical slice demo: 20–30 min, external playtester completes success test"
+        "Vertical slice demo: 20\u201330 min, external playtester completes success test"
       ]
     },
     {
@@ -249,12 +249,12 @@
           ]
         },
         {
-          "title": "Confirm campaign versus open survival scope — open survival chosen October 9",
+          "title": "Confirm campaign versus open survival scope \u2014 open survival chosen October 9",
           "status": "complete",
           "evidence": [
             {
               "path": "docs/PRODUCTION_SPEC.md",
-              "label": "Confirm original 3–5-waypoint content-complete target against current campaign scope"
+              "label": "Confirm original 3\u20135-waypoint content-complete target against current campaign scope"
             },
             {
               "path": "docs/design/alpha_campaign_scope_pass.md",
@@ -424,7 +424,7 @@
       "title": "EVA & open hull",
       "phase": "Early-access expansion",
       "status": "complete",
-      "summary": "M7.1–M7.7 landed: generated open hull, real airlock, suit, starfield, magnetic-boot exterior route, tether and EVA HUD/manual; saved round trip is covered by documented suites.",
+      "summary": "M7.1\u2013M7.7 landed: generated open hull, real airlock, suit, starfield, magnetic-boot exterior route, tether and EVA HUD/manual; saved round trip is covered by documented suites.",
       "evidence": [
         {
           "path": "docs/EXPANSION_SPEC.md",
@@ -433,7 +433,7 @@
       ],
       "tasks": [
         {
-          "title": "M7.1 — Airlock room: Generated `Airlock` space west of Storage (inner + outer doorway gaps), `compartment_airlock.tres`, layout tests updated",
+          "title": "M7.1 \u2014 Airlock room: Generated `Airlock` space west of Storage (inner + outer doorway gaps), `compartment_airlock.tres`, layout tests updated",
           "status": "complete",
           "evidence": [
             {
@@ -443,7 +443,7 @@
           ]
         },
         {
-          "title": "M7.2 — In-world wiring: Atmosphere/thermal/hull defs + `AirlockSystem` node + `circuit_airlock` in `main.tscn`; inner/outer doors wired with airlock ids; airlock zone + compartment link; control panel (ScrollMenu) + suit locker interactables; new `test_airlock_scene.gd`",
+          "title": "M7.2 \u2014 In-world wiring: Atmosphere/thermal/hull defs + `AirlockSystem` node + `circuit_airlock` in `main.tscn`; inner/outer doors wired with airlock ids; airlock zone + compartment link; control panel (ScrollMenu) + suit locker interactables; new `test_airlock_scene.gd`",
           "status": "complete",
           "evidence": [
             {
@@ -453,7 +453,7 @@
           ]
         },
         {
-          "title": "M7.3 — Polygonal hull form (interior): `HullProfile` utilities; `build_ship_geometry.gd` rewritten into the faceted prism language: plan polygons, mitered flush wall bands (no overlapping slabs or protruding edges), flat-bottom hexagonal corridor profile, doorways with jambs and lintels, trimesh collision from the same surfaces",
+          "title": "M7.3 \u2014 Polygonal hull form (interior): `HullProfile` utilities; `build_ship_geometry.gd` rewritten into the faceted prism language: plan polygons, mitered flush wall bands (no overlapping slabs or protruding edges), flat-bottom hexagonal corridor profile, doorways with jambs and lintels, trimesh collision from the same surfaces",
           "status": "complete",
           "evidence": [
             {
@@ -463,7 +463,7 @@
           ]
         },
         {
-          "title": "M7.4 — Exterior hull: Polygonal hull shell offset from the plan (opening at the outer door); perimeter catwalk + railings; ramp to the roof; EVA platform; hardpoint markers",
+          "title": "M7.4 \u2014 Exterior hull: Polygonal hull shell offset from the plan (opening at the outer door); perimeter catwalk + railings; ramp to the roof; EVA platform; hardpoint markers",
           "status": "complete",
           "evidence": [
             {
@@ -473,7 +473,7 @@
           ]
         },
         {
-          "title": "M7.5 — Space backdrop: Sky shader (stars + distant star/planet), sun light, environment swap; windowed captures",
+          "title": "M7.5 \u2014 Space backdrop: Sky shader (stars + distant star/planet), sun light, environment swap; windowed captures",
           "status": "complete",
           "evidence": [
             {
@@ -483,7 +483,7 @@
           ]
         },
         {
-          "title": "M7.6 — Tether & HUD: `toggle_tether` action; `TetherAnchor`/`TetherZone` auto-clip; player constraint + release/re-clip; HUD EVA readout (suit O2, tether distance, airlock state); toast reasons; manual EVA page",
+          "title": "M7.6 \u2014 Tether & HUD: `toggle_tether` action; `TetherAnchor`/`TetherZone` auto-clip; player constraint + release/re-clip; HUD EVA readout (suit O2, tether distance, airlock state); toast reasons; manual EVA page",
           "status": "complete",
           "evidence": [
             {
@@ -493,7 +493,7 @@
           ]
         },
         {
-          "title": "M7.7 — Verification: `test_eva_flow.gd` end-to-end; scene save/load incl. airlock + suit; captures 11–13 for docs; AGENTS/brain updates",
+          "title": "M7.7 \u2014 Verification: `test_eva_flow.gd` end-to-end; scene save/load incl. airlock + suit; captures 11\u201313 for docs; AGENTS/brain updates",
           "status": "complete",
           "evidence": [
             {
@@ -518,7 +518,7 @@
       "title": "Deep field",
       "phase": "Early-access expansion",
       "status": "complete",
-      "summary": "M8.1–M8.5 are reported complete: seeded ~2% occupied field, bounded streaming, scanner/console detection and fuel-gated 30 m standoff approach. Field-object captures remain explicitly deferred in the expansion spec.",
+      "summary": "M8.1\u2013M8.5 are reported complete: seeded ~2% occupied field, bounded streaming, scanner/console detection and fuel-gated 30 m standoff approach. Field-object captures remain explicitly deferred in the expansion spec.",
       "evidence": [
         {
           "path": "docs/EXPANSION_SPEC.md",
@@ -527,7 +527,7 @@
       ],
       "tasks": [
         {
-          "title": "M8.1 — Sector field sim: `SectorSystem`: seeded chunk corridor along the drift axis (~2% content), asteroid/debris/anomaly data objects, active stream list, contacts with enter/leave events, save/load",
+          "title": "M8.1 \u2014 Sector field sim: `SectorSystem`: seeded chunk corridor along the drift axis (~2% content), asteroid/debris/anomaly data objects, active stream list, contacts with enter/leave events, save/load",
           "status": "complete",
           "evidence": [
             {
@@ -537,7 +537,7 @@
           ]
         },
         {
-          "title": "M8.2 — Scene streaming: `FieldStreamer` binds visuals + collision to active objects (faceted asteroid meshes, anomaly placeholders), spawn/despawn leak-free, profiler budget",
+          "title": "M8.2 \u2014 Scene streaming: `FieldStreamer` binds visuals + collision to active objects (faceted asteroid meshes, anomaly placeholders), spawn/despawn leak-free, profiler budget",
           "status": "complete",
           "evidence": [
             {
@@ -547,7 +547,7 @@
           ]
         },
         {
-          "title": "M8.3 — Detection: Nav console `CONTACTS` list (range/bearing/kind), handheld scanner ping (HUD toast + nearest contact)",
+          "title": "M8.3 \u2014 Detection: Nav console `CONTACTS` list (range/bearing/kind), handheld scanner ping (HUD toast + nearest contact)",
           "status": "complete",
           "evidence": [
             {
@@ -557,7 +557,7 @@
           ]
         },
         {
-          "title": "M8.4 — Close approach: Hybrid traversal: manual approach burn in the nav console toward a contact (fuel + time), hold at standoff distance",
+          "title": "M8.4 \u2014 Close approach: Hybrid traversal: manual approach burn in the nav console toward a contact (fuel + time), hold at standoff distance",
           "status": "complete",
           "evidence": [
             {
@@ -567,7 +567,7 @@
           ]
         },
         {
-          "title": "M8.5 — Verification: 7-day end-to-end scenario, EVA reachability from standoff, captures, docs",
+          "title": "M8.5 \u2014 Verification: 7-day end-to-end scenario, EVA reachability from standoff, captures, docs",
           "status": "complete",
           "evidence": [
             {
@@ -588,7 +588,7 @@
         }
       ],
       "acceptance": [
-        "Same seed → identical field; density within 1–3% over 7 days; active set bounded; save/load reproduces it; `test_sector` green",
+        "Same seed \u2192 identical field; density within 1\u20133% over 7 days; active set bounded; save/load reproduces it; `test_sector` green",
         "Objects appear/leave as the ship drifts; node count bounded; scene profiler holds",
         "Contacts listed sorted by range; ping works from EVA; tests",
         "Approach closes range, costs fuel, clamps at standoff, refuses without fuel; tests",
@@ -600,7 +600,7 @@
       "title": "Materials & fabrication",
       "phase": "Early-access expansion",
       "status": "complete",
-      "summary": "M9.1–M9.5 are reported complete: finite mining/sample hauling, mass-limited cargo, power/material-gated fabrication and scanner anomaly salvage. A month-long mined-input repair scenario is documented; field-object captures remain deferred.",
+      "summary": "M9.1\u2013M9.5 are reported complete: finite mining/sample hauling, mass-limited cargo, power/material-gated fabrication and scanner anomaly salvage. A month-long mined-input repair scenario is documented; field-object captures remain deferred.",
       "evidence": [
         {
           "path": "docs/EXPANSION_SPEC.md",
@@ -609,7 +609,7 @@
       ],
       "tasks": [
         {
-          "title": "M9.1 — Cargo hold & materials: `CargoSystem`: ice/ore/metal/exotic units with a mass budget, add/consume API, events, save/load; status-panel CARGO section",
+          "title": "M9.1 \u2014 Cargo hold & materials: `CargoSystem`: ice/ore/metal/exotic units with a mass budget, add/consume API, events, save/load; status-panel CARGO section",
           "status": "complete",
           "evidence": [
             {
@@ -619,7 +619,7 @@
           ]
         },
         {
-          "title": "M9.2 — Mining runs: Cutter + sample canisters as carriables; streamed asteroids become mineable (`SpaceObject` interactable, finite seeded yields by kind); hull cargo port deposits canisters",
+          "title": "M9.2 \u2014 Mining runs: Cutter + sample canisters as carriables; streamed asteroids become mineable (`SpaceObject` interactable, finite seeded yields by kind); hull cargo port deposits canisters",
           "status": "complete",
           "evidence": [
             {
@@ -629,7 +629,7 @@
           ]
         },
         {
-          "title": "M9.3 — Fabricator: Workshop device (power-gated) with `.tres` recipes: ice → water filter / O2 candle, ore → CO2 filter, metal → sealant / gasket, exotic → parts; menu UI; consumes cargo, feeds stores",
+          "title": "M9.3 \u2014 Fabricator: Workshop device (power-gated) with `.tres` recipes: ice \u2192 water filter / O2 candle, ore \u2192 CO2 filter, metal \u2192 sealant / gasket, exotic \u2192 parts; menu UI; consumes cargo, feeds stores",
           "status": "complete",
           "evidence": [
             {
@@ -639,7 +639,7 @@
           ]
         },
         {
-          "title": "M9.4 — Anomaly salvage: Scanner interaction on anomalies yields exotic material and a logged event",
+          "title": "M9.4 \u2014 Anomaly salvage: Scanner interaction on anomalies yields exotic material and a logged event",
           "status": "complete",
           "evidence": [
             {
@@ -649,7 +649,7 @@
           ]
         },
         {
-          "title": "M9.5 — Verification: Long-run scenario: mine → fabricate → repair across days; captures; docs",
+          "title": "M9.5 \u2014 Verification: Long-run scenario: mine \u2192 fabricate \u2192 repair across days; captures; docs",
           "status": "complete",
           "evidence": [
             {
@@ -682,7 +682,7 @@
       "title": "Ship expansion",
       "phase": "Early-access expansion",
       "status": "complete",
-      "summary": "M10.1–M10.5 landed: four walk-in docks, seven pod kinds, saved timed nanite construction, full cancellation/teardown refunds and three machine sockets per pod. Step 11 adds an adjacent-pod overlap refusal; legacy saves containing both pods remain intact.",
+      "summary": "M10.1\u2013M10.5 landed: four walk-in docks, seven pod kinds, saved timed nanite construction, full cancellation/teardown refunds and three machine sockets per pod. Step 11 adds an adjacent-pod overlap refusal; legacy saves containing both pods remain intact.",
       "evidence": [
         {
           "path": "docs/EXPANSION_SPEC.md",
@@ -695,7 +695,7 @@
       ],
       "tasks": [
         {
-          "title": "M10.1 — Module framework: `ShipModule` resource (cost, hardpoint, pod recipe, compartment config) + `ModuleSystem` sim: install/uninstall per hardpoint, material cost out of `CargoSystem`, compartment register/unregister in atmosphere/thermal/hull, save/load; `remove_compartment` on the three sims; `module_installed`/`module_uninstalled` signals",
+          "title": "M10.1 \u2014 Module framework: `ShipModule` resource (cost, hardpoint, pod recipe, compartment config) + `ModuleSystem` sim: install/uninstall per hardpoint, material cost out of `CargoSystem`, compartment register/unregister in atmosphere/thermal/hull, save/load; `remove_compartment` on the three sims; `module_installed`/`module_uninstalled` signals",
           "status": "complete",
           "evidence": [
             {
@@ -705,7 +705,7 @@
           ]
         },
         {
-          "title": "M10.2 — Dock geometry: Four side-wall docks (quarter, life-support, galley, engine-bay walls), flush mount plates, generic `dock_pod` scene generated by the geometry tool (prism room, doorway through the hull band, caps, trimesh collision, compartment zone + link node); hardpoint markers relocate from the roof deck; deterministic regeneration + `test_module_geometry`",
+          "title": "M10.2 \u2014 Dock geometry: Four side-wall docks (quarter, life-support, galley, engine-bay walls), flush mount plates, generic `dock_pod` scene generated by the geometry tool (prism room, doorway through the hull band, caps, trimesh collision, compartment zone + link node); hardpoint markers relocate from the roof deck; deterministic regeneration + `test_module_geometry`",
           "status": "complete",
           "evidence": [
             {
@@ -715,7 +715,7 @@
           ]
         },
         {
-          "title": "M10.3 — Construction scene: Dock mount interactable (EVA): build menu with cost + build hours, install spawns the pod scene and swaps the plate for the open dock; uninstall reverses; scene save/load with a module standing; `test_module_scene`",
+          "title": "M10.3 \u2014 Construction scene: Dock mount interactable (EVA): build menu with cost + build hours, install spawns the pod scene and swaps the plate for the open dock; uninstall reverses; scene save/load with a module standing; `test_module_scene`",
           "status": "complete",
           "evidence": [
             {
@@ -725,7 +725,7 @@
           ]
         },
         {
-          "title": "M10.4 — Catalog & function: `.tres` catalog in `src/data/modules/`: greenhouse (renewable rations into stores), workshop (fabricator throughput), expanded storage (cargo capacity), aux battery (power capacity, new circuit), med bay (operator recovery); power/link wiring",
+          "title": "M10.4 \u2014 Catalog & function: `.tres` catalog in `src/data/modules/`: greenhouse (renewable rations into stores), workshop (fabricator throughput), expanded storage (cargo capacity), aux battery (power capacity, new circuit), med bay (operator recovery); power/link wiring",
           "status": "complete",
           "evidence": [
             {
@@ -735,7 +735,7 @@
           ]
         },
         {
-          "title": "M10.5 — Verification: Scenario: build greenhouse → rations appear over days; full-loop save/load; captures; manual page; docs",
+          "title": "M10.5 \u2014 Verification: Scenario: build greenhouse \u2192 rations appear over days; full-loop save/load; captures; manual page; docs",
           "status": "complete",
           "evidence": [
             {
@@ -748,7 +748,7 @@
       "acceptance": [
         "Install gating (unknown/duplicate/occupied/missing materials) tested; compartments appear and leave with install/uninstall; save/load restores installed set; `test_modules` green",
         "Pod doorway is walkable from the parent room; plate seals the dock when unbuilt; tool output byte-stable; layout suites green",
-        "Full build → walk in → tear down loop passes; save/load round trip with a module",
+        "Full build \u2192 walk in \u2192 tear down loop passes; save/load round trip with a module",
         "Each module's effect observable in its sim; catalog validation (unique ids/hardpoints, cost kinds exist)",
         "Loop passes headless; docs/captures updated"
       ]
@@ -873,12 +873,12 @@
           ]
         },
         {
-          "title": "Investigate 201.8 µs/tick against the 200 µs sim budget",
+          "title": "Investigate 201.8 \u00b5s/tick against the 200 \u00b5s sim budget",
           "status": "needs_review",
           "evidence": [
             {
               "path": "docs/design/art_pass/steps/12-final-validation-result.md",
-              "label": "Investigate 201.8 µs/tick against the 200 µs sim budget"
+              "label": "Investigate 201.8 \u00b5s/tick against the 200 \u00b5s sim budget"
             }
           ]
         },
@@ -902,7 +902,7 @@
       "title": "Modular hull in the reference language",
       "phase": "Early-access expansion",
       "status": "complete",
-      "summary": "M13.1–M13.5 are explicitly closed September 29: section shell, tube chain, 1.2 m radial docks, exterior route and standard 2.5 m single deck. Earlier raised ceilings, mezzanines and ladders were superseded.",
+      "summary": "M13.1\u2013M13.5 are explicitly closed September 29: section shell, tube chain, 1.2 m radial docks, exterior route and standard 2.5 m single deck. Earlier raised ceilings, mezzanines and ladders were superseded.",
       "evidence": [
         {
           "path": "docs/EXPANSION_SPEC.md",
@@ -911,7 +911,7 @@
       ],
       "tasks": [
         {
-          "title": "M13.1 — Section hull generator: `SectionHull` helpers in `src/world/` (lathe rings, drums, domes, ribs, flanges, radial ports) + the section table + collision generated from the same table; replaces the offset-polygon shell in `build_ship_geometry.gd`",
+          "title": "M13.1 \u2014 Section hull generator: `SectionHull` helpers in `src/world/` (lathe rings, drums, domes, ribs, flanges, radial ports) + the section table + collision generated from the same table; replaces the offset-polygon shell in `build_ship_geometry.gd`",
           "status": "complete",
           "evidence": [
             {
@@ -921,7 +921,7 @@
           ]
         },
         {
-          "title": "M13.2 — Tube interior: Each room becomes a section: circular deck plate, curved wall, bulkhead doorway at the flange, ladderway or crawl to the next section; corridor retires into the section chain (train layout)",
+          "title": "M13.2 \u2014 Tube interior: Each room becomes a section: circular deck plate, curved wall, bulkhead doorway at the flange, ladderway or crawl to the next section; corridor retires into the section chain (train layout)",
           "status": "complete",
           "evidence": [
             {
@@ -931,7 +931,7 @@
           ]
         },
         {
-          "title": "M13.3 — Radial docks & exterior fittings: Four docks as radial ports on their sections (pods hang perpendicular to the hull axis); airlock outer hatch, EVA platform, truss walkway with railings, tether anchors, cargo port re-mounted on the curved shell",
+          "title": "M13.3 \u2014 Radial docks & exterior fittings: Four docks as radial ports on their sections (pods hang perpendicular to the hull axis); airlock outer hatch, EVA platform, truss walkway with railings, tether anchors, cargo port re-mounted on the curved shell",
           "status": "complete",
           "evidence": [
             {
@@ -941,7 +941,7 @@
           ]
         },
         {
-          "title": "M13.4 — Slim interior profile: Keep one walkable deck per section at the standard 2.5 m cabin ceiling; remove the experimental raised ceilings, mezzanines and ladders",
+          "title": "M13.4 \u2014 Slim interior profile: Keep one walkable deck per section at the standard 2.5 m cabin ceiling; remove the experimental raised ceilings, mezzanines and ladders",
           "status": "complete",
           "evidence": [
             {
@@ -951,7 +951,7 @@
           ]
         },
         {
-          "title": "M13.5 — Verification: Captures, `test_scene_loop` with the new geometry, manual/manual-binder text, docs",
+          "title": "M13.5 \u2014 Verification: Captures, `test_scene_loop` with the new geometry, manual/manual-binder text, docs",
           "status": "complete",
           "evidence": [
             {
@@ -964,7 +964,7 @@
       "acceptance": [
         "Tool output deterministic; hull collides exactly where it renders; no room interior clips the shell; `test_hull_profile`/`test_hull_exterior` re-baselined and green",
         "Every room reachable on foot; doors at bulkheads; atmosphere/thermal/hull compartment defs follow the section volumes; layout suites green",
-        "Build → EVA → enter a pod on foot; tether clips; hull-exterior rays green",
+        "Build \u2192 EVA \u2192 enter a pod on foot; tether clips; hull-exterior rays green",
         "The room geometry, pressure volumes and occupancy zones agree; no generated prop bounds overlap; hull and layout suites green",
         "Full loop headless; captures reviewed; docs consistent"
       ]
@@ -974,7 +974,7 @@
       "title": "Xenonite ion propulsion",
       "phase": "Early-access expansion",
       "status": "needs_review",
-      "summary": "M14.1–M14.3 implementation is documented as integrated and verified October 1. Paired hardware, live wakes, dedicated drive feed, UV bus load, heat/degraded transit and tool-gated external service save correctly. M14.4 operator presentation review remains pending; five propulsion choices are closed.",
+      "summary": "M14.1\u2013M14.3 implementation is documented as integrated and verified October 1. Paired hardware, live wakes, dedicated drive feed, UV bus load, heat/degraded transit and tool-gated external service save correctly. M14.4 operator presentation review remains pending; five propulsion choices are closed.",
       "evidence": [
         {
           "path": "docs/EXPANSION_SPEC.md",
@@ -991,7 +991,7 @@
       ],
       "tasks": [
         {
-          "title": "M14.1 — Drive hardware: Authored paired aft cassettes on stern drum; maneuvering RCS distinct",
+          "title": "M14.1 \u2014 Drive hardware: Authored paired aft cassettes on stern drum; maneuvering RCS distinct",
           "status": "complete",
           "evidence": [
             {
@@ -1001,7 +1001,7 @@
           ]
         },
         {
-          "title": "M14.2 — Live drive readout: Independent xenon propellant and operational drive status; wakes follow actual cassette firing",
+          "title": "M14.2 \u2014 Live drive readout: Independent xenon propellant and operational drive status; wakes follow actual cassette firing",
           "status": "complete",
           "evidence": [
             {
@@ -1011,7 +1011,7 @@
           ]
         },
         {
-          "title": "M14.3 — System coupling: Data-driven dedicated tank output, UV bus load, existing engine-bay heat, degraded travel and operator service of external hardware",
+          "title": "M14.3 \u2014 System coupling: Data-driven dedicated tank output, UV bus load, existing engine-bay heat, degraded travel and operator service of external hardware",
           "status": "complete",
           "evidence": [
             {
@@ -1021,7 +1021,7 @@
           ]
         },
         {
-          "title": "M14.4 — Review: Updated aft/side EVA captures, operational manual and closed simulation decisions",
+          "title": "M14.4 \u2014 Review: Updated aft/side EVA captures, operational manual and closed simulation decisions",
           "status": "needs_review",
           "evidence": [
             {
@@ -1043,7 +1043,7 @@
       "title": "Shared ship computer and physical cockpit",
       "phase": "Gameplay passes",
       "status": "complete",
-      "summary": "September 28–29 reports describe one simulator-backed terminal OS, dated onboard log, remote control, physical folding wall blade, live wall banks, central pilot chair and mechanical state animations. Reported suite counts are historical.",
+      "summary": "September 28\u201329 reports describe one simulator-backed terminal OS, dated onboard log, remote control, physical folding wall blade, live wall banks, central pilot chair and mechanical state animations. Reported suite counts are historical.",
       "evidence": [
         {
           "path": ".wolf/STATUS.md",
@@ -1415,7 +1415,7 @@
       "title": "Starpath-inspired full-ship art: twelve packets",
       "phase": "Art passes",
       "status": "needs_review",
-      "summary": "Steps 01–11 and the Step 12 report are complete locally per October 1 sources; art is reported uncommitted/unpushed at that checkpoint. Implementation and agent capture review do not close final operator review, manual play, profiler or Windows gates. The 89/89 result is historical October 1 evidence, not current October 8 validation.",
+      "summary": "Steps 01\u201311 and the Step 12 report are complete locally per October 1 sources; art is reported uncommitted/unpushed at that checkpoint. Implementation and agent capture review do not close final operator review, manual play, profiler or Windows gates. The 89/89 result is historical October 1 evidence, not current October 8 validation.",
       "evidence": [
         {
           "path": "docs/design/art_pass/README.md",
@@ -1432,182 +1432,182 @@
       ],
       "tasks": [
         {
-          "title": "Step 01 — Trustworthy checkpoint and repaired imported-mesh bounds validation",
+          "title": "Step 01 \u2014 Trustworthy checkpoint and repaired imported-mesh bounds validation",
           "status": "complete",
           "evidence": [
             {
               "path": "docs/design/art_pass/steps/01-result.md",
-              "label": "Step 01 — Trustworthy checkpoint and repaired imported-mesh bounds validation"
+              "label": "Step 01 \u2014 Trustworthy checkpoint and repaired imported-mesh bounds validation"
             }
           ]
         },
         {
-          "title": "Step 02 — Measured hero layout and visual rubric",
+          "title": "Step 02 \u2014 Measured hero layout and visual rubric",
           "status": "complete",
           "evidence": [
             {
               "path": "docs/design/art_pass/steps/02-result.md",
-              "label": "Step 02 — Measured hero layout and visual rubric"
+              "label": "Step 02 \u2014 Measured hero layout and visual rubric"
             }
           ]
         },
         {
-          "title": "Step 03 — Layered pressure frames and cable routing",
+          "title": "Step 03 \u2014 Layered pressure frames and cable routing",
           "status": "complete",
           "evidence": [
             {
               "path": "docs/design/art_pass/steps/03-result.md",
-              "label": "Step 03 — Layered pressure frames and cable routing"
+              "label": "Step 03 \u2014 Layered pressure frames and cable routing"
             }
           ]
         },
         {
-          "title": "Step 04 — Original refined modular utility kit",
+          "title": "Step 04 \u2014 Original refined modular utility kit",
           "status": "complete",
           "evidence": [
             {
               "path": "docs/design/art_pass/steps/04-result.md",
-              "label": "Step 04 — Original refined modular utility kit"
+              "label": "Step 04 \u2014 Original refined modular utility kit"
             }
           ]
         },
         {
-          "title": "Step 05 — Working dense cockpit integration",
+          "title": "Step 05 \u2014 Working dense cockpit integration",
           "status": "complete",
           "evidence": [
             {
               "path": "docs/design/art_pass/steps/05-result.md",
-              "label": "Step 05 — Working dense cockpit integration"
+              "label": "Step 05 \u2014 Working dense cockpit integration"
             }
           ]
         },
         {
-          "title": "Step 06 — Restrained materials and wear",
+          "title": "Step 06 \u2014 Restrained materials and wear",
           "status": "complete",
           "evidence": [
             {
               "path": "docs/design/art_pass/steps/06-result.md",
-              "label": "Step 06 — Restrained materials and wear"
+              "label": "Step 06 \u2014 Restrained materials and wear"
             }
           ]
         },
         {
-          "title": "Step 07 — Practical lighting and breaker/save behavior",
+          "title": "Step 07 \u2014 Practical lighting and breaker/save behavior",
           "status": "complete",
           "evidence": [
             {
               "path": "docs/design/art_pass/steps/07-result.md",
-              "label": "Step 07 — Practical lighting and breaker/save behavior"
+              "label": "Step 07 \u2014 Practical lighting and breaker/save behavior"
             }
           ]
         },
         {
-          "title": "Step 08 — Adjoining quarters cabin and capsule-clear pod route",
+          "title": "Step 08 \u2014 Adjoining quarters cabin and capsule-clear pod route",
           "status": "complete",
           "evidence": [
             {
               "path": "docs/design/art_pass/steps/08-result.md",
-              "label": "Step 08 — Adjoining quarters cabin and capsule-clear pod route"
+              "label": "Step 08 \u2014 Adjoining quarters cabin and capsule-clear pod route"
             }
           ]
         },
         {
-          "title": "Step 09 — Hero acceptance evidence and seated light matrix",
+          "title": "Step 09 \u2014 Hero acceptance evidence and seated light matrix",
           "status": "complete",
           "evidence": [
             {
               "path": "docs/design/art_pass/steps/09-result.md",
-              "label": "Step 09 — Hero acceptance evidence and seated light matrix"
+              "label": "Step 09 \u2014 Hero acceptance evidence and seated light matrix"
             }
           ]
         },
         {
-          "title": "Step 10 — Interior room-by-room rollout",
+          "title": "Step 10 \u2014 Interior room-by-room rollout",
           "status": "complete",
           "evidence": [
             {
               "path": "docs/design/art_pass/steps/10-life-support-result.md",
-              "label": "Step 10 — Interior room-by-room rollout"
+              "label": "Step 10 \u2014 Interior room-by-room rollout"
             }
           ]
         },
         {
-          "title": "Step 11 — Exterior language, service access and adjacent-pod guard",
+          "title": "Step 11 \u2014 Exterior language, service access and adjacent-pod guard",
           "status": "complete",
           "evidence": [
             {
               "path": "docs/design/art_pass/steps/11-exterior-result.md",
-              "label": "Step 11 — Exterior language, service access and adjacent-pod guard"
+              "label": "Step 11 \u2014 Exterior language, service access and adjacent-pod guard"
             }
           ]
         },
         {
-          "title": "Step 12 — Final validation report and remaining manual/platform checks",
+          "title": "Step 12 \u2014 Final validation report and remaining manual/platform checks",
           "status": "needs_review",
           "evidence": [
             {
               "path": "docs/design/art_pass/steps/12-final-validation-result.md",
-              "label": "Step 12 — Final validation report and remaining manual/platform checks"
+              "label": "Step 12 \u2014 Final validation report and remaining manual/platform checks"
             }
           ]
         },
         {
-          "title": "Step 10 room — Life Support",
+          "title": "Step 10 room \u2014 Life Support",
           "status": "complete",
           "evidence": [
             {
               "path": "docs/design/art_pass/steps/10-life-support-result.md",
-              "label": "Step 10 room — Life Support"
+              "label": "Step 10 room \u2014 Life Support"
             }
           ]
         },
         {
-          "title": "Step 10 room — Engine Bay",
+          "title": "Step 10 room \u2014 Engine Bay",
           "status": "complete",
           "evidence": [
             {
               "path": "docs/design/art_pass/steps/10-engine-bay-result.md",
-              "label": "Step 10 room — Engine Bay"
+              "label": "Step 10 room \u2014 Engine Bay"
             }
           ]
         },
         {
-          "title": "Step 10 room — Storage",
+          "title": "Step 10 room \u2014 Storage",
           "status": "complete",
           "evidence": [
             {
               "path": "docs/design/art_pass/steps/10-storage-result.md",
-              "label": "Step 10 room — Storage"
+              "label": "Step 10 room \u2014 Storage"
             }
           ]
         },
         {
-          "title": "Step 10 room — Galley",
+          "title": "Step 10 room \u2014 Galley",
           "status": "complete",
           "evidence": [
             {
               "path": "docs/design/art_pass/steps/10-galley-result.md",
-              "label": "Step 10 room — Galley"
+              "label": "Step 10 room \u2014 Galley"
             }
           ]
         },
         {
-          "title": "Step 10 room — Water Closet",
+          "title": "Step 10 room \u2014 Water Closet",
           "status": "complete",
           "evidence": [
             {
               "path": "docs/design/art_pass/steps/10-water-closet-result.md",
-              "label": "Step 10 room — Water Closet"
+              "label": "Step 10 room \u2014 Water Closet"
             }
           ]
         },
         {
-          "title": "Step 10 room — Airlock",
+          "title": "Step 10 room \u2014 Airlock",
           "status": "complete",
           "evidence": [
             {
               "path": "docs/design/art_pass/steps/10-airlock-result.md",
-              "label": "Step 10 room — Airlock"
+              "label": "Step 10 room \u2014 Airlock"
             }
           ]
         },
@@ -1721,7 +1721,7 @@
       ],
       "tasks": [
         {
-          "title": "Build pipeline — Code signing (not needed until public release)",
+          "title": "Build pipeline \u2014 Code signing (not needed until public release)",
           "status": "planned",
           "evidence": [
             {
@@ -1731,7 +1731,7 @@
           ]
         },
         {
-          "title": "Build pipeline — Installer / installer branding",
+          "title": "Build pipeline \u2014 Installer / installer branding",
           "status": "planned",
           "evidence": [
             {
@@ -1741,7 +1741,7 @@
           ]
         },
         {
-          "title": "Game content — External playtest of current content (spec §8.5 success test: manual-only survival) — v0.6.0 round returned; v0.7.0-v0.10.0 rounds pending",
+          "title": "Game content \u2014 External playtest of current content (spec \u00a78.5 success test: manual-only survival) \u2014 v0.6.0 round returned; v0.7.0-v0.10.0 rounds pending",
           "status": "needs_review",
           "evidence": [
             {
@@ -1751,7 +1751,7 @@
           ]
         },
         {
-          "title": "Game content — Balance pass across a full 3-day session on real hardware",
+          "title": "Game content \u2014 Balance pass across a full 3-day session on real hardware",
           "status": "needs_review",
           "evidence": [
             {
@@ -1761,7 +1761,7 @@
           ]
         },
         {
-          "title": "Technical — Performance validation on mid-range hardware (profilers exist; real GPU run pending)",
+          "title": "Technical \u2014 Performance validation on mid-range hardware (profilers exist; real GPU run pending)",
           "status": "needs_review",
           "evidence": [
             {
@@ -1771,7 +1771,7 @@
           ]
         },
         {
-          "title": "Technical — Accessibility pass beyond settings (subtitles do not exist yet — most audio is diagnostic)",
+          "title": "Technical \u2014 Accessibility pass beyond settings (subtitles do not exist yet \u2014 most audio is diagnostic)",
           "status": "planned",
           "evidence": [
             {
@@ -1781,7 +1781,7 @@
           ]
         },
         {
-          "title": "Legal / credits — EULA / privacy policy if store-required",
+          "title": "Legal / credits \u2014 EULA / privacy policy if store-required",
           "status": "planned",
           "evidence": [
             {
@@ -1791,7 +1791,7 @@
           ]
         },
         {
-          "title": "Legal / credits — Third-party notices page in-game (nice-to-have)",
+          "title": "Legal / credits \u2014 Third-party notices page in-game (nice-to-have)",
           "status": "planned",
           "evidence": [
             {
@@ -1801,7 +1801,7 @@
           ]
         },
         {
-          "title": "Store — Real key art (capsules are still generated)",
+          "title": "Store \u2014 Real key art (capsules are still generated)",
           "status": "planned",
           "evidence": [
             {
@@ -1811,7 +1811,7 @@
           ]
         },
         {
-          "title": "Store — Steamworks (or itch.io) account + depot configuration",
+          "title": "Store \u2014 Steamworks (or itch.io) account + depot configuration",
           "status": "planned",
           "evidence": [
             {
@@ -1821,7 +1821,7 @@
           ]
         },
         {
-          "title": "Store — Trailer/animated capsule",
+          "title": "Store \u2014 Trailer/animated capsule",
           "status": "planned",
           "evidence": [
             {
@@ -1831,7 +1831,7 @@
           ]
         },
         {
-          "title": "Store — Age rating questionnaire",
+          "title": "Store \u2014 Age rating questionnaire",
           "status": "planned",
           "evidence": [
             {
@@ -1841,7 +1841,7 @@
           ]
         },
         {
-          "title": "Store — Final title (working title Hullwatch)",
+          "title": "Store \u2014 Final title (working title Hullwatch)",
           "status": "needs_review",
           "evidence": [
             {
@@ -1926,7 +1926,7 @@
       "evidence": [
         {
           "path": "docs/PRODUCTION_SPEC.md",
-          "label": "Narrative framework, voyage ending and unresolved §9 choices"
+          "label": "Narrative framework, voyage ending and unresolved \u00a79 choices"
         },
         {
           "path": "docs/EXPANSION_SPEC.md",
@@ -2588,6 +2588,69 @@
       "acceptance": [
         "Every gameplay resource/state has an explicit owner, transfer/persistence policy and validated conservation behavior."
       ]
+    },
+    {
+      "id": "WINDOWS_20261009",
+      "title": "October 9 Windows art and salvage playtest",
+      "phase": "Delivered builds",
+      "status": "complete",
+      "summary": "Source c982415 and dated LFS EXE/ZIP pushed on the art-pass branch. Native Windows/manual gameplay review remains open; this delivery does not close Alpha or EA gates. Downloads require repository access.",
+      "evidence": [
+        {
+          "path": "docs/design/windows_publication_2026-10-09.md",
+          "label": "Published checkpoint, checks and open review limits"
+        },
+        {
+          "path": "releases/windows/2026-10-09/README.md",
+          "label": "Windows downloads and controls"
+        },
+        {
+          "path": "docs/design/windows_playtest_2026-10-09_results.json",
+          "label": "Fresh 90/90 and embedded-pack checks"
+        }
+      ],
+      "tasks": [
+        {
+          "title": "Push exact art and salvage source checkpoint",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/windows_publication_2026-10-09.md",
+              "label": "Published checkpoint, checks and open review limits"
+            }
+          ]
+        },
+        {
+          "title": "Cross-export and publish EXE/ZIP with source identity and checksums",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "releases/windows/2026-10-09/README.md",
+              "label": "Windows downloads and controls"
+            }
+          ]
+        },
+        {
+          "title": "Fresh source and extracted-pack validation",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/windows_playtest_2026-10-09_results.json",
+              "label": "Fresh 90/90 and embedded-pack checks"
+            }
+          ]
+        },
+        {
+          "title": "Native Windows and continuous manual gameplay review",
+          "status": "needs_review",
+          "evidence": [
+            {
+              "path": "docs/design/windows_publication_2026-10-09.md",
+              "label": "Published checkpoint, checks and open review limits"
+            }
+          ]
+        }
+      ]
     }
   ],
   "gates": [
@@ -2663,7 +2726,7 @@
       "id": "PERFORMANCE",
       "title": "CPU budget and rendered mid-range performance",
       "status": "needs_review",
-      "summary": "Fresh October 9 profile_sim measures 201.0 µs/tick against 200 µs (FAIL); previous art 201.8 µs is historical. Simulation performance gate remains open. Rendered FPS/native hardware acceptance also remains pending.",
+      "summary": "Fresh October 9 profile_sim measures 201.0 \u00b5s/tick against 200 \u00b5s (FAIL); previous art 201.8 \u00b5s is historical. Simulation performance gate remains open. Rendered FPS/native hardware acceptance also remains pending.",
       "evidence": [
         {
           "path": "docs/design/art_pass/steps/12-final-validation-result.md",
@@ -2743,7 +2806,7 @@
         },
         {
           "path": "docs/PRODUCTION_SPEC.md",
-          "label": "§8.5 success metrics"
+          "label": "\u00a78.5 success metrics"
         },
         {
           "path": "docs/EXPANSION_SPEC.md",
