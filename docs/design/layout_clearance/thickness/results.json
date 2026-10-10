@@ -721,11 +721,20 @@
     ]
   },
   "delivery": {
-    "status": "local Windows candidate verified; publication pending"
+    "status": "published prerelease; downloaded hashes verified",
+    "tag": "v0.12.0-playtest.20261010.1",
+    "url": "https://github.com/Mangekyo-Sharingan/hullwatch/releases/tag/v0.12.0-playtest.20261010.1",
+    "published_at": "2026-10-10T14:26:57Z",
+    "draft": false,
+    "prerelease": true,
+    "tag_resolves_to_source": true,
+    "downloaded_checksums": "EXE, ZIP, VALIDATION.json all OK"
   },
   "open_gates": [
     "Operator visual/playthrough acceptance",
     "Native Windows execution",
     "Rendered performance"
-  ]
+  ],
+  "source_commit": "fcacf28fc0a77e7157736afd752393217361138e",
+  "dashboard_checks": "snapshot and desktop/mobile/offline browser pass"
 }

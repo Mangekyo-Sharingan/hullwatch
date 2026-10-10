@@ -9,11 +9,11 @@ A first-person ship-maintenance simulation about keeping a decaying long-haul ve
 - **Engine:** Godot 4.7.2 (local binary in `Engine/`)
 - **Language:** GDScript (typed)
 - **Spec:** [`docs/PRODUCTION_SPEC.md`](docs/PRODUCTION_SPEC.md) · expansion plan: [`docs/EXPANSION_SPEC.md`](docs/EXPANSION_SPEC.md)
-- **Status:** [October 9 merged-main playtest prerelease](https://github.com/Mangekyo-Sharingan/hullwatch/releases/tag/v0.12.0-playtest.20261009.2); open survival slices in progress (prior stable release: v0.11.0)
+- **Status:** [October 9 merged-main playtest prerelease](https://github.com/Mangekyo-Sharingan/hullwatch/releases/tag/v0.12.0-playtest.20261010.1); open survival slices in progress (prior stable release: v0.11.0)
 
 ## Play it
 
-[Download the current Windows playtest](https://github.com/Mangekyo-Sharingan/hullwatch/releases/tag/v0.12.0-playtest.20261009.2).
+[Download the current Windows playtest](https://github.com/Mangekyo-Sharingan/hullwatch/releases/tag/v0.12.0-playtest.20261010.1).
 Includes the ship art/salvage prototype and latest menu, settings and optional
 survey-orbit routes. Download `Hullwatch.exe` directly or extract the ZIP.
 

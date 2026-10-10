@@ -57,3 +57,10 @@ Windows EXE embedded-project checks**, deterministic geometry and six native
 rendered views pass. Independent mesh review: seven throats, 38 closed jamb
 solids, zero inboard profile violations or winding errors. Both service-bay
 render/collision meshes match.
+
+## Delivered build
+
+[Download the corrected Windows playtest](https://github.com/Mangekyo-Sharingan/hullwatch/releases/tag/v0.12.0-playtest.20261010.1).
+Published from `fcacf28` at 2026-10-10T14:26:57Z; EXE/ZIP/validation downloads
+match their hashes and the published tag resolves to the source. Native Windows
+gameplay remains an operator gate. Dashboard snapshot and browser checks pass.

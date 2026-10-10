@@ -1,7 +1,7 @@
 {
   "title": "Hullwatch — factual roadmap and acceptance gates",
   "updated": "2026-10-10",
-  "summary": "Open-ended survival development with separate implementation, validation, delivery and operator gates. Current main layout fixes are delivered as v0.12.0-playtest.20261009.2: source91/91 and EXE embedded-project7/7 pass, with rendered layout evidence. Alpha content, sustainable economy, broad persistence/recovery, native Windows gameplay, rendered performance and external balance remain open.",
+  "summary": "Open-ended survival development with distinct implementation, validation, delivered builds and operator gates. The October 10 wall-correction playtest is published: profile-following entrance jambs and real wall depth; source91/91 and actual EXE pack6/6 pass. Alpha content, sustainable economy, broad persistence/recovery, native Windows gameplay, rendered performance and external balance remain open.",
   "milestones": [
     {
       "id": "M0",
@@ -2893,7 +2893,7 @@
       "title": "Remove remaining flat wall projections",
       "phase": "Playtest feedback",
       "status": "needs_review",
-      "summary": "Remaining galley sheet traced to a straight diagonal throat jamb; shared profile-following 12cm solids remove it. Tube/bay entry bulkheads also gain real depth. Source91/91, actual EXE pack6/6, deterministic generator and six rendered captures pass; native Windows/operator acceptance remain open.",
+      "summary": "Remaining galley sheet traced to a straight diagonal throat jamb; shared profile-following 12cm solids remove it. Tube/bay entry bulkheads also gain real depth. Source91/91, actual EXE pack6/6, deterministic generator and six rendered captures pass; native Windows/operator acceptance remain open. Published v0.12.0-playtest.20261010.1 from fcacf28 with independently verified downloaded assets.",
       "evidence": [
         {
           "path": "docs/design/layout_clearance/thickness/README.md",
@@ -2949,7 +2949,7 @@
         },
         {
           "title": "Deliver updated Windows playtest",
-          "status": "in_progress",
+          "status": "complete",
           "evidence": [
             {
               "path": "docs/design/layout_clearance/thickness/README.md",
