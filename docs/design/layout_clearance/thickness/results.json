@@ -1,0 +1,731 @@
+{
+  "recorded_at": "2026-10-10T16:22:38.874231+02:00",
+  "base_commit": "0e664bd246555e692d93ce37df05acbe237e5d0c",
+  "corrections": [
+    "Profile-following closed throat jambs extruded away from opening",
+    "Separate tube/bay bulkhead faces with 12cm wall thickness"
+  ],
+  "source_suites": {
+    "passed": 91,
+    "total": 91,
+    "results": [
+      {
+        "suite": "test_airlock",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.7,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_airlock_scene",
+        "exit": 0,
+        "pass": true,
+        "seconds": 2.38,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_analogue_filter",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.51,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_anomaly_salvage",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.51,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_approach",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.61,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_atmosphere",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.42,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_audio",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.7,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_cabin_light",
+        "exit": 0,
+        "pass": true,
+        "seconds": 2.0,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_cargo",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.42,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_carry",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.51,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_cockpit_instrument_panel",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.41,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_comms",
+        "exit": 0,
+        "pass": true,
+        "seconds": 4.14,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_component_breadth",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.6,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_computer_log",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.52,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_computer_terminal",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.8,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_crt_panels",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.61,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_day_loop",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.51,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_destination_data",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.42,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_detection",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.51,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_diagnostics",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.6,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_diagnostics_api",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.52,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_door",
+        "exit": 0,
+        "pass": true,
+        "seconds": 2.38,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_eva_flow",
+        "exit": 0,
+        "pass": true,
+        "seconds": 2.84,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_fabricator",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.5,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_failures",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.5,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_field_streamer",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.6,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_footsteps",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.89,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_hero_cabins",
+        "exit": 0,
+        "pass": true,
+        "seconds": 1.91,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_hull",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.78,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_hull_exterior",
+        "exit": 0,
+        "pass": true,
+        "seconds": 1.55,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_hull_profile",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.51,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_humidity",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.43,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_interactables",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.51,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_interior_kit",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.88,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_localization",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.42,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_m11_voyage",
+        "exit": 0,
+        "pass": true,
+        "seconds": 96.59,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_m4_extras",
+        "exit": 0,
+        "pass": true,
+        "seconds": 3.96,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_m9_loop",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.51,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_machine_fitting",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.5,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_maintenance_isolation",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.51,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_manual",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.6,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_mining",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.51,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_module_catalog",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.97,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_module_effects",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.51,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_module_geometry",
+        "exit": 0,
+        "pass": true,
+        "seconds": 1.16,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_module_scene",
+        "exit": 0,
+        "pass": true,
+        "seconds": 2.1,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_modules",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.51,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_nav",
+        "exit": 0,
+        "pass": true,
+        "seconds": 3.4,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_new_watch_wear",
+        "exit": 0,
+        "pass": true,
+        "seconds": 1.83,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_o2_candle_stock",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.5,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_occupancy",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.51,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_operator_maintenance",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.51,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_pilot_chair",
+        "exit": 0,
+        "pass": true,
+        "seconds": 6.95,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_pilot_seat_flow",
+        "exit": 0,
+        "pass": true,
+        "seconds": 5.66,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_player",
+        "exit": 0,
+        "pass": true,
+        "seconds": 6.6,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_player_traversal",
+        "exit": 0,
+        "pass": true,
+        "seconds": 10.16,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_power",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.41,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_propulsion",
+        "exit": 0,
+        "pass": true,
+        "seconds": 6.86,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_rations",
+        "exit": 0,
+        "pass": true,
+        "seconds": 8.25,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_salvage",
+        "exit": 0,
+        "pass": true,
+        "seconds": 2.76,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_save_load",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.51,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_save_migration",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.42,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_scenario_cascade",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.6,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_scenario_humidity",
+        "exit": 0,
+        "pass": true,
+        "seconds": 1.34,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_scenario_power_night",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.59,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_scene_loop",
+        "exit": 0,
+        "pass": true,
+        "seconds": 5.18,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_scene_save_load",
+        "exit": 0,
+        "pass": true,
+        "seconds": 6.3,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_scroll_menu",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.41,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_seated_hud",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.42,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_sector",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.61,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_session_flow",
+        "exit": 0,
+        "pass": true,
+        "seconds": 3.31,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_session_menu",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.5,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_settings",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.6,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_ship_compartments",
+        "exit": 0,
+        "pass": true,
+        "seconds": 1.74,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_ship_layout",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.98,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_stores",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.41,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_survival_3day",
+        "exit": 0,
+        "pass": true,
+        "seconds": 22.45,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_tether",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.72,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_thermal",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.51,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_tool_kit",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.88,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_tube_layout",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.42,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_ui",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.69,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_ui_scale",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.7,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_vitals",
+        "exit": 0,
+        "pass": true,
+        "seconds": 2.56,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_voice_guide",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.5,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_walkway_clearance",
+        "exit": 0,
+        "pass": true,
+        "seconds": 1.44,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_wall_computer",
+        "exit": 0,
+        "pass": true,
+        "seconds": 1.16,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_water",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.6,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_wear_model",
+        "exit": 0,
+        "pass": true,
+        "seconds": 0.41,
+        "script_errors": 0
+      },
+      {
+        "suite": "test_world_layout",
+        "exit": 0,
+        "pass": true,
+        "seconds": 1.45,
+        "script_errors": 0
+      },
+      {
+        "suite": "smoke_test",
+        "exit": 0,
+        "pass": true,
+        "seconds": 1.81,
+        "script_errors": 0
+      }
+    ]
+  },
+  "regressions": {
+    "bulkhead_faces": "failed on prior geometry; passes corrected geometry",
+    "shoulder_height_throat_rays": "all four bay edge checks failed before; all pass after"
+  },
+  "focused_suites": [
+    "test_walkway_clearance",
+    "test_hull_exterior",
+    "test_module_scene",
+    "test_world_layout"
+  ],
+  "focused_results": "all exit0 and exact PASS",
+  "startup": {
+    "exit": 0,
+    "isolated": true
+  },
+  "generator_determinism": {
+    "game/scenes/ship_geometry.tscn": "bc3efb1e8676b05f80abd6659068cbfac54626f08aaf4c8862fe0a9be89d616e",
+    "game/scenes/world_layout.tscn": "e1617a0332740e1ddf2d456a1065e1124c3f1d84b22f5360a48c226da712322c",
+    "game/scenes/dock_pod.tscn": "29cede89743908e193f5ea0c080739c6ce71cf952e8aee98c6fbc0c7496d77c1"
+  },
+  "rendered_review": {
+    "driver": "native Wayland Forward+",
+    "exit": 0,
+    "views": 6,
+    "camera_setup": "same as comparison/capture_comparison.gd"
+  },
+  "independent_mesh_review": {
+    "shared_throats": 7,
+    "jamb_solids": 38,
+    "open_edges": 0,
+    "winding_errors": 0,
+    "profile_violations": 0,
+    "bulkhead_boundary_samples": 964,
+    "uncovered": 0,
+    "render_collision_match": true
+  },
+  "windows_export": {
+    "method": "Godot4.7.2 Linux cross-export Windows x64 release",
+    "exe_sha256": "e06bcb2d652f7c05214bfce8289bb50059c0933fc9eeebd0f29dc955ed94ff02",
+    "embedded_pack_checks": [
+      {
+        "check": "startup",
+        "exit": 0,
+        "passed": true
+      },
+      {
+        "check": "test_walkway_clearance",
+        "exit": 0,
+        "passed": true
+      },
+      {
+        "check": "test_hull_exterior",
+        "exit": 0,
+        "passed": true
+      },
+      {
+        "check": "test_module_scene",
+        "exit": 0,
+        "passed": true
+      },
+      {
+        "check": "test_player_traversal",
+        "exit": 0,
+        "passed": true
+      },
+      {
+        "check": "test_session_flow",
+        "exit": 0,
+        "passed": true
+      }
+    ]
+  },
+  "delivery": {
+    "status": "local Windows candidate verified; publication pending"
+  },
+  "open_gates": [
+    "Operator visual/playthrough acceptance",
+    "Native Windows execution",
+    "Rendered performance"
+  ]
+}

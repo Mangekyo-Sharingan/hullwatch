@@ -1,0 +1,110 @@
+{
+  "recorded_at": "2026-10-10T14:46:59.507704+02:00",
+  "before_commit": "418b03406db3fe3466221301d292e8c921eecde5",
+  "after_commit": "2ce57fd6ea2f2d725ebe864601801910db183c40",
+  "capture_exit": {
+    "before": 0,
+    "after": 0
+  },
+  "rendering": "native Wayland Forward+",
+  "camera_setup": "capture_comparison.gd",
+  "images": [
+    {
+      "path": "docs/design/layout_clearance/comparison/before/hull.png",
+      "sha256": "4df8dd711aa237cdd5e75c0baa2a784a5513fd1b37de0e1012ee2018e133f002",
+      "size": [
+        1600,
+        900
+      ]
+    },
+    {
+      "path": "docs/design/layout_clearance/comparison/after/hull.png",
+      "sha256": "2662d7245280518864a2d26106a82e181450d5e121a60c2980506fd8dbc23cb8",
+      "size": [
+        1600,
+        900
+      ]
+    },
+    {
+      "path": "docs/design/layout_clearance/comparison/before/cockpit_joint.png",
+      "sha256": "68989b30c6723770b59e5ee8d11fd443a34e5a7e1204773a276383575cbeb861",
+      "size": [
+        1600,
+        900
+      ]
+    },
+    {
+      "path": "docs/design/layout_clearance/comparison/after/cockpit_joint.png",
+      "sha256": "c5b71a34693ebda0012080eeec08ea31483d8efb6547e9ef5913eef075a5944d",
+      "size": [
+        1600,
+        900
+      ]
+    },
+    {
+      "path": "docs/design/layout_clearance/comparison/before/life_support_walkway.png",
+      "sha256": "fda78e03bd23750511b38d609e1609d40c5a3432d7e6dae701ba5c0549edb7be",
+      "size": [
+        1600,
+        900
+      ]
+    },
+    {
+      "path": "docs/design/layout_clearance/comparison/after/life_support_walkway.png",
+      "sha256": "2347693ab90b7ca9ef61e5e8b30f75ab79497f8bf3d824479de6952fcc2d0549",
+      "size": [
+        1600,
+        900
+      ]
+    },
+    {
+      "path": "docs/design/layout_clearance/comparison/before/galley_walkway.png",
+      "sha256": "e2dd8d45cf05ea98f47268fbf76553f571d828fa16c4f3c86b4e4d9c93aa25a4",
+      "size": [
+        1600,
+        900
+      ]
+    },
+    {
+      "path": "docs/design/layout_clearance/comparison/after/galley_walkway.png",
+      "sha256": "9a25b415aaf44d538b128de0ba4d6591967a29f8e154d9b2865d778c410647b3",
+      "size": [
+        1600,
+        900
+      ]
+    },
+    {
+      "path": "docs/design/layout_clearance/comparison/before/life_support_bay.png",
+      "sha256": "5604150be0b4689b4750809d5d53403e4a557c7e235966d9a5510b7b0a8a2dd1",
+      "size": [
+        1600,
+        900
+      ]
+    },
+    {
+      "path": "docs/design/layout_clearance/comparison/after/life_support_bay.png",
+      "sha256": "cfe06a718742d1f14f3a3e4731bbab3214f12b49854d5f48fb1317b8a2d282ba",
+      "size": [
+        1600,
+        900
+      ]
+    },
+    {
+      "path": "docs/design/layout_clearance/comparison/before/galley_bay.png",
+      "sha256": "5cc8af747ec962b2e1649bc38213dc3fac85a797a5275b58f18c92219ed21708",
+      "size": [
+        1600,
+        900
+      ]
+    },
+    {
+      "path": "docs/design/layout_clearance/comparison/after/galley_bay.png",
+      "sha256": "5d3390cbfb261ccf2f42e77193d233a38a94cf37124d8b8a59758ccc201ffacb",
+      "size": [
+        1600,
+        900
+      ]
+    }
+  ],
+  "scope": "Fresh rendered snapshots; no gameplay code changes or new simulator tests; prior 91/91 remains historical."
+}

@@ -76,3 +76,11 @@ SHA256SUMS and candidate VALIDATION.json are attached. Independently downloaded
 EXE, ZIP and validation hashes all match. The published tag resolves to the
 source commit. This supersedes `.1` for the layout fixes; native Windows/manual
 review remains open. Repository access is required for downloads.
+
+## Matching before / after views — 2026-10-10
+
+[Open the six comparison pairs](comparison/README.md). Twelve unedited 1600×900
+PNGs were freshly rendered from the prior and current playtest game trees using
+identical camera poses. Both capture processes exited 0. Source identity was
+independently checked. This documentation/capture pass changes no game code;
+the October 9 simulator checks remain historical evidence.

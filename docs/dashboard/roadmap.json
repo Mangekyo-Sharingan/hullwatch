@@ -1,6 +1,6 @@
 {
   "title": "Hullwatch — factual roadmap and acceptance gates",
-  "updated": "2026-10-09",
+  "updated": "2026-10-10",
   "summary": "Open-ended survival development with separate implementation, validation, delivery and operator gates. Current main layout fixes are delivered as v0.12.0-playtest.20261009.2: source91/91 and EXE embedded-project7/7 pass, with rendered layout evidence. Alpha content, sustainable economy, broad persistence/recovery, native Windows gameplay, rendered performance and external balance remain open.",
   "milestones": [
     {
@@ -2795,6 +2795,10 @@
         {
           "path": "docs/design/layout_clearance/results.json",
           "label": "Current validation and delivery evidence"
+        },
+        {
+          "path": "docs/design/layout_clearance/comparison/README.md",
+          "label": "Six matching before/after screenshot pairs, captured October 10"
         }
       ],
       "tasks": [
@@ -2865,6 +2869,109 @@
             {
               "path": "docs/design/layout_clearance/results.json",
               "label": "Current validation and delivery evidence"
+            }
+          ]
+        },
+        {
+          "title": "Capture matching prior/current playtest views for operator comparison",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/layout_clearance/comparison/README.md",
+              "label": "Six matching before/after screenshot pairs, captured October 10"
+            },
+            {
+              "path": "docs/design/layout_clearance/comparison/evidence.json",
+              "label": "Source identities, image hashes and fresh capture validation"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "BULKHEAD_THICKNESS_20261010",
+      "title": "Remove remaining flat wall projections",
+      "phase": "Playtest feedback",
+      "status": "needs_review",
+      "summary": "Remaining galley sheet traced to a straight diagonal throat jamb; shared profile-following 12cm solids remove it. Tube/bay entry bulkheads also gain real depth. Source91/91, actual EXE pack6/6, deterministic generator and six rendered captures pass; native Windows/operator acceptance remain open.",
+      "evidence": [
+        {
+          "path": "docs/design/layout_clearance/thickness/README.md",
+          "label": "Remaining flat-wall causes and matching views"
+        },
+        {
+          "path": "docs/design/layout_clearance/thickness/results.json",
+          "label": "Fresh validation and build delivery"
+        }
+      ],
+      "tasks": [
+        {
+          "title": "Remove diagonal galley/life-support throat intrusion",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/layout_clearance/thickness/README.md",
+              "label": "Remaining flat-wall causes and matching views"
+            },
+            {
+              "path": "docs/design/layout_clearance/thickness/results.json",
+              "label": "Fresh validation and build delivery"
+            }
+          ]
+        },
+        {
+          "title": "Give tube and bay entrance bulkheads actual wall depth",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/layout_clearance/thickness/README.md",
+              "label": "Remaining flat-wall causes and matching views"
+            },
+            {
+              "path": "docs/design/layout_clearance/thickness/results.json",
+              "label": "Fresh validation and build delivery"
+            }
+          ]
+        },
+        {
+          "title": "Validate profile, pressure seal, access and rendered views",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/layout_clearance/thickness/README.md",
+              "label": "Remaining flat-wall causes and matching views"
+            },
+            {
+              "path": "docs/design/layout_clearance/thickness/results.json",
+              "label": "Fresh validation and build delivery"
+            }
+          ]
+        },
+        {
+          "title": "Deliver updated Windows playtest",
+          "status": "in_progress",
+          "evidence": [
+            {
+              "path": "docs/design/layout_clearance/thickness/README.md",
+              "label": "Remaining flat-wall causes and matching views"
+            },
+            {
+              "path": "docs/design/layout_clearance/thickness/results.json",
+              "label": "Fresh validation and build delivery"
+            }
+          ]
+        },
+        {
+          "title": "Operator and native Windows gameplay acceptance",
+          "status": "needs_review",
+          "evidence": [
+            {
+              "path": "docs/design/layout_clearance/thickness/README.md",
+              "label": "Remaining flat-wall causes and matching views"
+            },
+            {
+              "path": "docs/design/layout_clearance/thickness/results.json",
+              "label": "Fresh validation and build delivery"
             }
           ]
         }

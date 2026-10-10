@@ -575,8 +575,10 @@ func _build_tube_interior() -> void:
 		var mid: float = (z0 + z1) * 0.5
 		var hatch_min: Vector2 = Vector2(-TubeLayout.HATCH_HALF_WIDTH, 0.0)
 		var hatch_max: Vector2 = Vector2(TubeLayout.HATCH_HALF_WIDTH, TubeLayout.HATCH_HEIGHT)
-		for facing: Vector3 in [Vector3(0.0, 0.0, -1.0), Vector3(0.0, 0.0, 1.0)]:
-			_add_tube_face(walls, ring_min, mid, hatch_min, hatch_max, facing, collision, z0 if facing.z < 0.0 else z1)
+		var face_front: float = mid - TubeLayout.WALL * 0.5
+		var face_back: float = mid + TubeLayout.WALL * 0.5
+		_add_tube_face(walls, ring_min, face_front, hatch_min, hatch_max, Vector3.FORWARD, collision, face_back)
+		_add_tube_face(walls, ring_min, face_back, hatch_min, hatch_max, Vector3.BACK, collision, face_back)
 		if neck_radius < radius_a - EPSILON:
 			_add_washer(walls, SectionHull.tube_section(radius_a), ring_min, z0, Vector3(0.0, 0.0, -1.0), collision)
 		if neck_radius < radius_b - EPSILON:
@@ -618,7 +620,10 @@ func _build_service_bays() -> void:
 		_add_quad(floors, Vector3(-half, 0.0, 0.0), Vector3(half, 0.0, 0.0), Vector3(half, 0.0, depth), Vector3(-half, 0.0, depth), Vector3.DOWN, [])
 		for facing: Vector3 in [Vector3.FORWARD, Vector3.BACK]:
 			_add_tube_face(walls, ring, depth, Vector2.ZERO, Vector2.ZERO, facing, collision, depth)
-			_add_tube_face(walls, ring, 0.0, Vector2(-TUBE_DOCK_DOOR_HALF, 0.0), Vector2(TUBE_DOCK_DOOR_HALF, 2.1), facing, collision, 0.0)
+		var opening_min: Vector2 = Vector2(-TUBE_DOCK_DOOR_HALF, 0.0)
+		var opening_max: Vector2 = Vector2(TUBE_DOCK_DOOR_HALF, 2.1)
+		_add_tube_face(walls, ring, 0.0, opening_min, opening_max, Vector3.FORWARD, collision, TubeLayout.WALL)
+		_add_tube_face(walls, ring, TubeLayout.WALL, opening_min, opening_max, Vector3.BACK, collision, TubeLayout.WALL)
 		var body: StaticBody3D = StaticBody3D.new()
 		body.name = "ServiceBay_" + String(bay["name"])
 		body.position = Vector3(float(bay["inner_x"]), 0.0, float(bay["center_z"]))
@@ -1525,8 +1530,33 @@ func _add_tube_throat(walls: Dictionary, floors: Dictionary, collision: Array[Ve
 	for hint: Vector3 in [Vector3.DOWN, Vector3.UP]:
 		_add_quad(walls, Vector3(top, lid, z_lo), Vector3(top, lid, z_hi), Vector3(out_x, lid, z_hi), Vector3(out_x, lid, z_lo), hint, collision)
 	for z_side: float in [z_lo, z_hi]:
-		for hint: Vector3 in [Vector3(0.0, 0.0, -1.0), Vector3(0.0, 0.0, 1.0)]:
-			_add_quad(walls, Vector3(foot, 0.0, z_side), Vector3(top, lid, z_side), Vector3(out_x, lid, z_side), Vector3(out_x, 0.0, z_side), hint, collision)
+		var away: float = -1.0 if z_side == z_lo else 1.0
+		var offset: Vector3 = Vector3(0.0, 0.0, away * TubeLayout.WALL)
+		var levels: Array[float] = [0.0, SectionHull.TUBE_WALL_BASE, SectionHull.TUBE_WALL_TOP, lid]
+		for band: int in levels.size() - 1:
+			var y0: float = levels[band]
+			var y1: float = levels[band + 1]
+			var polygon: PackedVector2Array = PackedVector2Array()
+			for point: Vector2 in [Vector2(outward * SectionHull.tube_half_width(radius, y0), y0), Vector2(outward * SectionHull.tube_half_width(radius, y1), y1), Vector2(out_x, y1), Vector2(out_x, y0)]:
+				if polygon.is_empty() or not polygon[-1].is_equal_approx(point):
+					polygon.append(point)
+			if polygon.size() > 1 and polygon[0].is_equal_approx(polygon[-1]):
+				polygon.resize(polygon.size() - 1)
+			if polygon.size() < 3 or absf(HullProfile.signed_area(polygon)) <= EPSILON:
+				continue
+			var triangles: PackedInt32Array = Geometry2D.triangulate_polygon(polygon)
+			for i: int in range(0, triangles.size(), 3):
+				var a: Vector3 = _xy(polygon[triangles[i]], z_side)
+				var b: Vector3 = _xy(polygon[triangles[i + 1]], z_side)
+				var c: Vector3 = _xy(polygon[triangles[i + 2]], z_side)
+				_add_tri(walls, a, b, c, Vector3(0.0, 0.0, -away), collision)
+				_add_tri(walls, a + offset, b + offset, c + offset, Vector3(0.0, 0.0, away), collision)
+			var orientation: float = signf(HullProfile.signed_area(polygon))
+			for edge: int in polygon.size():
+				var a: Vector2 = polygon[edge]
+				var b: Vector2 = polygon[(edge + 1) % polygon.size()]
+				var normal: Vector2 = _outward(a, b) * orientation
+				_add_quad(walls, _xy(a, z_side), _xy(b, z_side), _xy(b, z_side) + offset, _xy(a, z_side) + offset, Vector3(normal.x, normal.y, 0.0), collision)
 
 
 func _build_hero_cabins(hull: StaticBody3D) -> void:
