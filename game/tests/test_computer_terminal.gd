@@ -203,6 +203,7 @@ func _test_control_program() -> void:
 	var harness := SimHarness.new(self)
 	var circuits: Array[PowerCircuit] = [harness.make_circuit(&"lighting", 200.0, 2)]
 	var power: PowerSystem = harness.add_power(circuits)
+	_check(power.register_light(&"test_cabin", "TEST CABIN", 75.0), "control fixture registers with power")
 	var storage: CompartmentConfig = harness.make_compartment(&"storage", 40.0)
 	var lock_config: CompartmentConfig = harness.make_compartment(&"airlock", 8.0)
 	var defs: Array[CompartmentConfig] = [storage, lock_config]
@@ -240,6 +241,31 @@ func _test_control_program() -> void:
 	_check(power.is_breaker_on(&"lighting"), "breaker starts on")
 	_check(station.select_action(&"breaker:lighting"), "breaker row toggles the circuit")
 	_check(not power.is_breaker_on(&"lighting"), "breaker is off after the toggle")
+
+	_check(actions.has(&"page:lighting"), "control offers the lighting page")
+	_check(station.select_action(&"page:lighting"), "lighting page switches")
+	_check(station.get_actions().has(&"light:test_cabin"), "lighting page lists the registered fixture")
+	var lighting_readout: String = "\n".join(station.build_readout())
+	_check(lighting_readout.contains("CONTROL - LIGHTING") and lighting_readout.contains("LIGHTING CIRCUIT  0.0 W  OFF"), "lighting readout shows actual disconnected circuit demand")
+	_check(_action_label(station, &"light:test_cabin").contains("TEST CABIN  NO POWER  75.0 W"), "enabled fixture shows no power while breaker is off")
+	_check(station.select_action(&"light:test_cabin"), "light row switches the fixture off")
+	_check(not bool(power.get_lighting_status()[&"test_cabin"]["enabled"]), "fixture switch updates authoritative power state")
+	_check("\n".join(station.build_readout()).contains("TEST CABIN  OFF  75.0 W"), "disabled fixture readout shows off and rated watts")
+	_check(station.select_action(&"page:power") and station.select_action(&"breaker:lighting"), "breaker restores through existing power page")
+	_check(station.select_action(&"page:lighting") and station.select_action(&"light:test_cabin"), "light row restores the fixture")
+	lighting_readout = "\n".join(station.build_readout())
+	var lighting_circuit: Dictionary = power.get_status()["circuits"][&"lighting"]
+	_check(lighting_readout.contains("LIGHTING CIRCUIT  %.1f W  ON" % float(lighting_circuit["demand_w"])), "lighting readout uses actual circuit demand after toggle")
+	_check(lighting_readout.contains("TEST CABIN  ON  75.0 W"), "powered fixture shows on")
+	_check(not station.select_action(&"light:missing"), "unknown light action is refused")
+	if not station.is_open():
+		station.interact(null)
+	_check(station.is_open(), "lighting control menu opens")
+	power.register_light(&"added_pod", "ADDED POD", 25.0)
+	_check((station.get("_actions") as Array).has(&"light:added_pod"), "open menu gains installed fixture action through event")
+	power.unregister_light(&"added_pod")
+	_check(not (station.get("_actions") as Array).has(&"light:added_pod"), "open menu removes detached fixture action through event")
+	station.close()
 
 	_check(station.select_action(&"page:atmosphere"), "atmosphere page switches")
 	_check(station.get_actions().has(&"isolate:storage"), "atmosphere page lists the compartment valve")

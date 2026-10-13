@@ -3,6 +3,7 @@ class_name ControlProgram
 extends ComputerProgram
 
 const PAGE_POWER: StringName = &"power"
+const PAGE_LIGHTING: StringName = &"lighting"
 const PAGE_ATMOSPHERE: StringName = &"atmosphere"
 const PAGE_AIRLOCK: StringName = &"airlock"
 const PAGE_DOORS: StringName = &"doors"
@@ -12,18 +13,21 @@ const PAGE_ACTIONS: Array[StringName] = [
 	&"page:atmosphere",
 	&"page:airlock",
 	&"page:doors",
+	&"page:lighting",
 ]
 const PAGE_TITLES: Dictionary = {
 	&"page:power": "POWER",
 	&"page:atmosphere": "ATMOSPHERE",
 	&"page:airlock": "AIRLOCK",
 	&"page:doors": "HATCHES AND DOORS",
+	&"page:lighting": "LIGHTING",
 }
 const PAGE_IDS: Dictionary = {
 	&"page:power": PAGE_POWER,
 	&"page:atmosphere": PAGE_ATMOSPHERE,
 	&"page:airlock": PAGE_AIRLOCK,
 	&"page:doors": PAGE_DOORS,
+	&"page:lighting": PAGE_LIGHTING,
 }
 const CYCLE_LABELS: Dictionary = {
 	&"airlock:depressurize": "START DEPRESSURIZE",
@@ -43,6 +47,9 @@ func get_actions(terminal: Node) -> Array[StringName]:
 	if _page == PAGE_POWER:
 		for circuit_id: String in _circuit_ids(terminal):
 			actions.append(StringName("breaker:" + circuit_id))
+	elif _page == PAGE_LIGHTING:
+		for entry: Dictionary in _lighting_entries(terminal):
+			actions.append(StringName("light:" + String(entry["id"])))
 	elif _page == PAGE_ATMOSPHERE:
 		for compartment_id: String in _compartment_ids(terminal):
 			actions.append(StringName("isolate:" + compartment_id))
@@ -64,6 +71,9 @@ func get_action_label(terminal: Node, action: StringName) -> String:
 	var text: String = String(action)
 	if text.begins_with("breaker:"):
 		return _breaker_label(terminal, text.trim_prefix("breaker:"))
+	if text.begins_with("light:"):
+		var fixture: Dictionary = _lighting_status(terminal).get(StringName(text.trim_prefix("light:")), {})
+		return _light_label(fixture)
 	if text.begins_with("isolate:"):
 		return _isolation_label(terminal, text.trim_prefix("isolate:"))
 	if CYCLE_LABELS.has(action):
@@ -86,6 +96,8 @@ func build_readout(terminal: Node) -> PackedStringArray:
 	lines.append("CONTROL - %s" % _page_title())
 	if _page == PAGE_POWER:
 		lines.append_array(_power_lines(terminal))
+	elif _page == PAGE_LIGHTING:
+		lines.append_array(_lighting_lines(terminal))
 	elif _page == PAGE_ATMOSPHERE:
 		lines.append_array(_atmosphere_lines(terminal))
 	elif _page == PAGE_AIRLOCK:
@@ -102,6 +114,13 @@ func select_action(terminal: Node, action: StringName) -> bool:
 	var text: String = String(action)
 	if text.begins_with("breaker:"):
 		return _toggle_breaker(terminal, text.trim_prefix("breaker:"))
+	if text.begins_with("light:"):
+		var fixture_id: StringName = StringName(text.trim_prefix("light:"))
+		var fixture: Dictionary = _lighting_status(terminal).get(fixture_id, {})
+		var power: Node = _system(terminal, &"power_system")
+		if fixture.is_empty() or power == null or not power.has_method(&"set_light_enabled"):
+			return false
+		return bool(power.call("set_light_enabled", fixture_id, not bool(fixture.get("enabled", false))))
 	if text.begins_with("isolate:"):
 		return _toggle_isolation(terminal, text.trim_prefix("isolate:"))
 	if text.begins_with("airlock:"):
@@ -135,6 +154,24 @@ func _power_lines(terminal: Node) -> PackedStringArray:
 	for circuit_id: String in _circuit_ids(terminal):
 		lines.append("  %-11s %s" % [_circuit_label(circuit_id), _breaker_state(terminal, circuit_id)])
 	return lines
+
+
+func _lighting_lines(terminal: Node) -> PackedStringArray:
+	var lines: PackedStringArray = PackedStringArray()
+	var circuit: Dictionary = _circuit_status(terminal, "lighting")
+	lines.append("LIGHTING CIRCUIT  %.1f W  %s" % [float(circuit.get("demand_w", 0.0)), _breaker_state(terminal, "lighting")])
+	for entry: Dictionary in _lighting_entries(terminal):
+		lines.append(_light_label(entry["status"]))
+	if lines.size() == 1:
+		lines.append("NO LIGHTS ONLINE")
+	return lines
+
+
+func _light_label(fixture: Dictionary) -> String:
+	var state: String = "OFF"
+	if bool(fixture.get("enabled", false)):
+		state = "ON" if bool(fixture.get("powered", false)) else "NO POWER"
+	return "%s  %s  %.1f W" % [String(fixture.get("label", "LIGHT")), state, float(fixture.get("watts", 0.0))]
 
 
 func _atmosphere_lines(terminal: Node) -> PackedStringArray:
@@ -299,6 +336,18 @@ func _compartment_ids(terminal: Node) -> Array[String]:
 
 func _power_entries(terminal: Node) -> Array[Dictionary]:
 	return _entries(_power_status(terminal), "circuits")
+
+
+func _lighting_entries(terminal: Node) -> Array[Dictionary]:
+	return _entries({"fixtures": _lighting_status(terminal)}, "fixtures")
+
+
+func _lighting_status(terminal: Node) -> Dictionary:
+	var power: Node = _system(terminal, &"power_system")
+	if power == null or not power.has_method(&"get_lighting_status"):
+		return {}
+	var status: Dictionary = power.call("get_lighting_status")
+	return status
 
 
 func _atmosphere_entries(terminal: Node) -> Array[Dictionary]:

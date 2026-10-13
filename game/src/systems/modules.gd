@@ -641,6 +641,8 @@ func save_state() -> Dictionary:
 
 
 func load_state(state: Dictionary) -> void:
+	for module_id: StringName in get_installed_modules():
+		_unregister_compartments(get_module(module_id))
 	_installed.clear()
 	_jobs.clear()
 	var installed: Variant = state.get("installed", {})
@@ -688,6 +690,7 @@ func load_state(state: Dictionary) -> void:
 				"total": maxf(float((entry as Dictionary).get("total_hours", 0.0)), 0.0),
 			}
 	_apply_effects()
+	emit_sim_event(&"modules_state_restored")
 	# Re-announce restored modules so world-side mounts stand their pods up (scene load).
 	for hardpoint_id: StringName in _installed:
 		var module_id: StringName = StringName(_installed[hardpoint_id])

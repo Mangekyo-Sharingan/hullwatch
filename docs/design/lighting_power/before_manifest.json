@@ -1,0 +1,561 @@
+{
+	"display_driver": "Wayland",
+	"filter": {
+		"enabled": true,
+		"intensity": 1.0
+	},
+	"fov": 80.0,
+	"label": "before",
+	"lighting": "Native game fixtures; no lighting override; flashlight off",
+	"near": 0.05,
+	"renderer": "forward_plus",
+	"resolution": [
+		1600,
+		900
+	],
+	"simulation": "Paused fresh main scene; no manual ticks or save writes",
+	"states": {
+		"all_on": {
+			"fixtures": {},
+			"power": {
+				"battery_capacity_wh": 4000.0,
+				"battery_charge_wh": 4000.0,
+				"battery_fraction": 1.0,
+				"brownout": false,
+				"circuits": {
+					"airlock": {
+						"breaker_on": true,
+						"demand_w": 60.0,
+						"priority": 3,
+						"served": true,
+						"shed": false
+					},
+					"fabricator": {
+						"breaker_on": true,
+						"demand_w": 80.0,
+						"priority": 4,
+						"served": true,
+						"shed": false
+					},
+					"life_support": {
+						"breaker_on": true,
+						"demand_w": 120.0,
+						"priority": 0,
+						"served": true,
+						"shed": false
+					},
+					"lighting": {
+						"breaker_on": true,
+						"demand_w": 200.0,
+						"priority": 5,
+						"served": true,
+						"shed": false
+					},
+					"scrubber": {
+						"breaker_on": true,
+						"demand_w": 150.0,
+						"priority": 2,
+						"served": true,
+						"shed": false
+					},
+					"xenonite_uv": {
+						"breaker_on": true,
+						"demand_w": 30.0,
+						"priority": 3,
+						"served": true,
+						"shed": false
+					}
+				},
+				"demand_w": 640.0,
+				"generation_w": 500.0,
+				"load_w": 0.0,
+				"system_id": "power"
+			},
+			"registry_available": false,
+			"source_loads": {
+				"xenonite_uv": {
+					"propulsion": 30.0
+				}
+			},
+			"source_state": {
+				"battery_capacity_wh": 4000.0,
+				"battery_charge_wh": 4000.0,
+				"battery_max_discharge_w": 2000.0,
+				"breakers": {
+					"airlock": true,
+					"fabricator": true,
+					"life_support": true,
+					"lighting": true,
+					"scrubber": true,
+					"xenonite_uv": true
+				},
+				"brownout": false,
+				"failure_restore": {},
+				"generators": {
+					"rtg_main": 500.0
+				},
+				"load_overrides": {},
+				"maintenance_covers": {},
+				"served_w": 0.0,
+				"shed": {
+					"airlock": false,
+					"fabricator": false,
+					"life_support": false,
+					"lighting": false,
+					"scrubber": false,
+					"xenonite_uv": false
+				},
+				"state_version": 1,
+				"system_id": "power",
+				"wear": [
+					{
+						"component_id": "rtg_main",
+						"condition": 1.0,
+						"diagnosed": false,
+						"failed_mode": "",
+						"hours_operated": 0.0,
+						"load": 1.0,
+						"scanned": false
+					},
+					{
+						"component_id": "battery_main",
+						"condition": 1.0,
+						"diagnosed": false,
+						"failed_mode": "",
+						"hours_operated": 0.0,
+						"load": 1.0,
+						"scanned": false
+					},
+					{
+						"component_id": "lighting_ballast",
+						"condition": 1.0,
+						"diagnosed": false,
+						"failed_mode": "",
+						"hours_operated": 0.0,
+						"load": 1.0,
+						"scanned": false
+					}
+				],
+				"wear_rng_state": "-5295716080562260720"
+			}
+		}
+	},
+	"views": [
+		{
+			"area": "before_all_on_cabin_cockpit",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-17.0499992370605
+			],
+			"file": "before_all_on_cabin_cockpit_bow.png",
+			"flashlight": false,
+			"target": [
+				0.0,
+				1.54999995231628,
+				-18.0499992370605
+			],
+			"view": "bow"
+		},
+		{
+			"area": "before_all_on_cabin_cockpit",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-17.0499992370605
+			],
+			"file": "before_all_on_cabin_cockpit_stern.png",
+			"flashlight": false,
+			"target": [
+				0.0,
+				1.54999995231628,
+				-16.0499992370605
+			],
+			"view": "stern"
+		},
+		{
+			"area": "before_all_on_cabin_cockpit",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-17.0499992370605
+			],
+			"file": "before_all_on_cabin_cockpit_port.png",
+			"flashlight": false,
+			"target": [
+				-1.0,
+				1.54999995231628,
+				-17.0499992370605
+			],
+			"view": "port"
+		},
+		{
+			"area": "before_all_on_cabin_cockpit",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-17.0499992370605
+			],
+			"file": "before_all_on_cabin_cockpit_starboard.png",
+			"flashlight": false,
+			"target": [
+				1.0,
+				1.54999995231628,
+				-17.0499992370605
+			],
+			"view": "starboard"
+		},
+		{
+			"area": "before_all_on_cabin_cockpit",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-17.0499992370605
+			],
+			"file": "before_all_on_cabin_cockpit_ceiling.png",
+			"flashlight": false,
+			"target": [
+				0.0,
+				2.54999995231628,
+				-17.0499992370605
+			],
+			"view": "ceiling"
+		},
+		{
+			"area": "before_all_on_cabin_cockpit",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-17.0499992370605
+			],
+			"file": "before_all_on_cabin_cockpit_deck.png",
+			"flashlight": false,
+			"target": [
+				0.0,
+				0.549999952316284,
+				-17.0499992370605
+			],
+			"view": "deck"
+		},
+		{
+			"area": "before_all_on_cabin_galley",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-8.30000019073486
+			],
+			"file": "before_all_on_cabin_galley_bow.png",
+			"flashlight": false,
+			"target": [
+				0.0,
+				1.54999995231628,
+				-9.30000019073486
+			],
+			"view": "bow"
+		},
+		{
+			"area": "before_all_on_cabin_galley",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-8.30000019073486
+			],
+			"file": "before_all_on_cabin_galley_stern.png",
+			"flashlight": false,
+			"target": [
+				0.0,
+				1.54999995231628,
+				-7.30000019073486
+			],
+			"view": "stern"
+		},
+		{
+			"area": "before_all_on_cabin_galley",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-8.30000019073486
+			],
+			"file": "before_all_on_cabin_galley_port.png",
+			"flashlight": false,
+			"target": [
+				-1.0,
+				1.54999995231628,
+				-8.30000019073486
+			],
+			"view": "port"
+		},
+		{
+			"area": "before_all_on_cabin_galley",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-8.30000019073486
+			],
+			"file": "before_all_on_cabin_galley_starboard.png",
+			"flashlight": false,
+			"target": [
+				1.0,
+				1.54999995231628,
+				-8.30000019073486
+			],
+			"view": "starboard"
+		},
+		{
+			"area": "before_all_on_cabin_galley",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-8.30000019073486
+			],
+			"file": "before_all_on_cabin_galley_ceiling.png",
+			"flashlight": false,
+			"target": [
+				0.0,
+				2.54999995231628,
+				-8.30000019073486
+			],
+			"view": "ceiling"
+		},
+		{
+			"area": "before_all_on_cabin_galley",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-8.30000019073486
+			],
+			"file": "before_all_on_cabin_galley_deck.png",
+			"flashlight": false,
+			"target": [
+				0.0,
+				0.549999952316284,
+				-8.30000019073486
+			],
+			"view": "deck"
+		},
+		{
+			"area": "before_all_on_cabin_life_support",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-11.0499992370605
+			],
+			"file": "before_all_on_cabin_life_support_bow.png",
+			"flashlight": false,
+			"target": [
+				0.0,
+				1.54999995231628,
+				-12.0499992370605
+			],
+			"view": "bow"
+		},
+		{
+			"area": "before_all_on_cabin_life_support",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-11.0499992370605
+			],
+			"file": "before_all_on_cabin_life_support_stern.png",
+			"flashlight": false,
+			"target": [
+				0.0,
+				1.54999995231628,
+				-10.0499992370605
+			],
+			"view": "stern"
+		},
+		{
+			"area": "before_all_on_cabin_life_support",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-11.0499992370605
+			],
+			"file": "before_all_on_cabin_life_support_port.png",
+			"flashlight": false,
+			"target": [
+				-1.0,
+				1.54999995231628,
+				-11.0499992370605
+			],
+			"view": "port"
+		},
+		{
+			"area": "before_all_on_cabin_life_support",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-11.0499992370605
+			],
+			"file": "before_all_on_cabin_life_support_starboard.png",
+			"flashlight": false,
+			"target": [
+				1.0,
+				1.54999995231628,
+				-11.0499992370605
+			],
+			"view": "starboard"
+		},
+		{
+			"area": "before_all_on_cabin_life_support",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-11.0499992370605
+			],
+			"file": "before_all_on_cabin_life_support_ceiling.png",
+			"flashlight": false,
+			"target": [
+				0.0,
+				2.54999995231628,
+				-11.0499992370605
+			],
+			"view": "ceiling"
+		},
+		{
+			"area": "before_all_on_cabin_life_support",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-11.0499992370605
+			],
+			"file": "before_all_on_cabin_life_support_deck.png",
+			"flashlight": false,
+			"target": [
+				0.0,
+				0.549999952316284,
+				-11.0499992370605
+			],
+			"view": "deck"
+		},
+		{
+			"area": "before_all_on_cabin_engine_bay_b",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				5.15000009536743
+			],
+			"file": "before_all_on_cabin_engine_bay_b_bow.png",
+			"flashlight": false,
+			"target": [
+				0.0,
+				1.54999995231628,
+				4.15000009536743
+			],
+			"view": "bow"
+		},
+		{
+			"area": "before_all_on_cabin_engine_bay_b",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				5.15000009536743
+			],
+			"file": "before_all_on_cabin_engine_bay_b_stern.png",
+			"flashlight": false,
+			"target": [
+				0.0,
+				1.54999995231628,
+				6.15000009536743
+			],
+			"view": "stern"
+		},
+		{
+			"area": "before_all_on_cabin_engine_bay_b",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				5.15000009536743
+			],
+			"file": "before_all_on_cabin_engine_bay_b_port.png",
+			"flashlight": false,
+			"target": [
+				-1.0,
+				1.54999995231628,
+				5.15000009536743
+			],
+			"view": "port"
+		},
+		{
+			"area": "before_all_on_cabin_engine_bay_b",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				5.15000009536743
+			],
+			"file": "before_all_on_cabin_engine_bay_b_starboard.png",
+			"flashlight": false,
+			"target": [
+				1.0,
+				1.54999995231628,
+				5.15000009536743
+			],
+			"view": "starboard"
+		},
+		{
+			"area": "before_all_on_cabin_engine_bay_b",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				5.15000009536743
+			],
+			"file": "before_all_on_cabin_engine_bay_b_ceiling.png",
+			"flashlight": false,
+			"target": [
+				0.0,
+				2.54999995231628,
+				5.15000009536743
+			],
+			"view": "ceiling"
+		},
+		{
+			"area": "before_all_on_cabin_engine_bay_b",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				5.15000009536743
+			],
+			"file": "before_all_on_cabin_engine_bay_b_deck.png",
+			"flashlight": false,
+			"target": [
+				0.0,
+				0.549999952316284,
+				5.15000009536743
+			],
+			"view": "deck"
+		},
+		{
+			"area": "before_all_on_bay_life_support_service",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-11.0499992370605
+			],
+			"file": "before_all_on_bay_life_support_service_entry.png",
+			"flashlight": false,
+			"target": [
+				3.84800004959106,
+				1.20000004768372,
+				-11.0499992370605
+			],
+			"view": "entry"
+		},
+		{
+			"area": "before_all_on_bay_galley_service",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-8.30000019073486
+			],
+			"file": "before_all_on_bay_galley_service_entry.png",
+			"flashlight": false,
+			"target": [
+				-4.02400016784668,
+				1.20000004768372,
+				-8.30000019073486
+			],
+			"view": "entry"
+		}
+	]
+}

@@ -2,7 +2,7 @@
 ## Autoload name: SaveManager. No class_name on purpose — it would conflict with the autoload.
 extends Node
 
-const SAVE_VERSION: int = 6
+const SAVE_VERSION: int = 7
 const SAVE_DIR: String = "user://saves"
 const SLOT_COUNT: int = 3
 const GAME_SCENE: String = "res://scenes/main.tscn"
@@ -355,6 +355,13 @@ func _migrate(data: Dictionary) -> Dictionary:
 			nav["planet_discoveries"] = []
 		data["systems"] = systems
 		data["save_version"] = 6
+		version = 6
+	if version == 6:
+		var systems: Dictionary = data.get("systems", {})
+		if systems.has("power"):
+			var power: Dictionary = systems["power"]
+			power["light_enabled"] = {}
+		data["save_version"] = 7
 	return data
 
 

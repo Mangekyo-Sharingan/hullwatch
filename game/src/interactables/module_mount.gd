@@ -47,6 +47,14 @@ func _ready() -> void:
 		bus.connect(&"module_installed", _on_module_changed)
 		bus.connect(&"module_uninstalled", _on_module_changed)
 		bus.connect(&"construction_started", _on_module_changed)
+		bus.connect(&"sim_event", _on_sim_event)
+	_sync()
+
+
+func _on_sim_event(event_name: StringName, _payload: Dictionary) -> void:
+	if event_name != &"modules_state_restored" or not spawns:
+		return
+	_clear_pod()
 	_sync()
 
 
@@ -213,6 +221,8 @@ func _wire_pod(pod: Node3D) -> void:
 
 func _clear_pod() -> void:
 	if _pod != null and is_instance_valid(_pod):
+		# Detach now so fixture sources leave before replacement registration on load.
+		_pod.get_parent().remove_child(_pod)
 		_pod.queue_free()
 	_pod = null
 

@@ -4,6 +4,21 @@ const LIFE_SUPPORT_PATH: String = "res://src/data/power/circuit_life_support.tre
 const SCRUBBER_PATH: String = "res://src/data/power/circuit_scrubber.tres"
 const LIGHTING_PATH: String = "res://src/data/power/circuit_lighting.tres"
 
+
+class HumidityReportSpy extends AtmosphereSystem:
+	var report_calls: int = 0
+
+	func get_status() -> Dictionary:
+		report_calls += 1
+		return super.get_status()
+
+
+class GenericHumidity extends Node:
+	var report: Variant = {}
+
+	func get_status() -> Variant:
+		return report
+
 var _failures: int = 0
 var _brownout_count: int = 0
 var _restored_count: int = 0
@@ -35,6 +50,7 @@ func _initialize() -> void:
 	_test_brownout_and_restore()
 	_test_all_critical_deficit()
 	_test_determinism()
+	_test_humidity_readers()
 	_test_data_resources()
 	_test_invalid_inputs()
 
@@ -146,11 +162,41 @@ func _test_determinism() -> void:
 	_check(status_a == status_b, "determinism: identical status dictionaries")
 
 
+func _test_humidity_readers() -> void:
+	var power: PowerSystem = _spawn_power()
+	var atmosphere: HumidityReportSpy = HumidityReportSpy.new()
+	root.add_child(atmosphere)
+	var config: CompartmentConfig = CompartmentConfig.new()
+	config.compartment_id = &"humidity_probe"
+	atmosphere.add_compartment(config)
+	var state: Dictionary = atmosphere._compartments[&"humidity_probe"]
+	state["humidity_g"] = atmosphere.humidity_capacity_g * 0.75
+	_check(power._humidity_factor() == 0.75, "humidity: power reads live scalar without a report")
+	state["humidity_g"] = atmosphere.humidity_capacity_g * 0.25
+	_check(power._humidity_factor() == 0.25 and atmosphere.report_calls == 0, "humidity: next read reflects mutation with no report allocation")
+	atmosphere.remove_compartment(&"humidity_probe")
+	_check(power._humidity_factor() == 0.0, "humidity: removed compartment leaves zero")
+	atmosphere.free()
+	var generic: GenericHumidity = GenericHumidity.new()
+	root.add_child(generic)
+	generic.add_to_group(&"atmosphere_system")
+	generic.report = {"compartments": {"main": {"humidity_fraction": 1.5}, "storage": {"humidity_fraction": -1.0}, "invalid": "ignored"}}
+	_check(power._humidity_factor() == 1.0, "humidity: generic report fallback preserves maximum and clamp")
+	generic.report = {"compartments": {"main": {"humidity_fraction": 0.3}}}
+	_check(power._humidity_factor() == 0.3, "humidity: generic report fallback remains live")
+	for malformed: Variant in ["invalid", {}, {"compartments": "invalid"}]:
+		generic.report = malformed
+		_check(power._humidity_factor() == 0.0, "humidity: malformed generic report remains zero")
+	generic.free()
+	_check(power._humidity_factor() == 0.0, "humidity: absent atmosphere remains zero")
+	power.free()
+
+
 func _test_data_resources() -> void:
 	var expectations: Dictionary = {
 		LIFE_SUPPORT_PATH: {"id": &"life_support", "name": "Life Support", "load": 120.0, "priority": 0},
 		SCRUBBER_PATH: {"id": &"scrubber", "name": "CO2 Scrubber", "load": 150.0, "priority": 2},
-		LIGHTING_PATH: {"id": &"lighting", "name": "Lighting", "load": 200.0, "priority": 5},
+		LIGHTING_PATH: {"id": &"lighting", "name": "Lighting", "load": 0.0, "priority": 5},
 	}
 	for resource_path: String in expectations:
 		var circuit: PowerCircuit = load(resource_path)

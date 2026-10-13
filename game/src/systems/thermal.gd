@@ -339,6 +339,8 @@ func _is_heater_available(power: Node) -> bool:
 
 
 func _read_occupants(atmosphere: Node, compartment_id: StringName) -> int:
+	if atmosphere is AtmosphereSystem:
+		return (atmosphere as AtmosphereSystem).get_occupants(compartment_id)
 	if atmosphere == null or not atmosphere.has_method("get_compartment_status"):
 		return 0
 	if atmosphere.has_method("has_compartment") and not bool(atmosphere.call("has_compartment", compartment_id)):

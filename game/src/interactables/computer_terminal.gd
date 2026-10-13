@@ -50,6 +50,15 @@ func _ready() -> void:
 	call_deferred("_refresh_physical_display")
 	UiScale.connect_settings(self, _on_ui_scale_changed)
 	_apply_ui_scale()
+	var bus: Node = get_node_or_null(^"/root/EventBus")
+	if bus != null:
+		bus.connect(&"sim_event", _on_lighting_event)
+
+
+func _on_lighting_event(event_name: StringName, _payload: Dictionary) -> void:
+	if _open and event_name in [&"lighting_fixtures_changed", &"lighting_changed", &"power_state_restored", &"breaker_toggled", &"circuit_shed", &"circuit_restored", &"component_failed", &"component_repaired"]:
+		_refresh_menu()
+		_refresh_content()
 
 
 func get_interaction_prompt() -> String:

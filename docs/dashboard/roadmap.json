@@ -1,7 +1,7 @@
 {
   "title": "Hullwatch — factual roadmap and acceptance gates",
-  "updated": "2026-10-10",
-  "summary": "Open-ended survival development with distinct implementation, validation, delivered builds and operator gates. The October 10 wall-correction playtest is published: profile-following entrance jambs and real wall depth; source91/91 and actual EXE pack6/6 pass. Alpha content, sustainable economy, broad persistence/recovery, native Windows gameplay, rendered performance and external balance remain open.",
+  "updated": "2026-10-13",
+  "summary": "October12: interior gate and lighting implemented; simulation timing recovered with matched217.8->188.1us and repositoryprofiler3/3 PASSmedian184.9us vsunchanged200us. Exact10-day state/event equivalence and fresh92/92 pass. Current source local; October10 EXE predates these passes. Operator/native Windows, rendered FPS and survival economy/persistence remain open.",
   "milestones": [
     {
       "id": "M0",
@@ -359,6 +359,24 @@
             {
               "path": "docs/PRODUCTION_SPEC.md",
               "label": "Confirm no P1 bugs before beta acceptance"
+            }
+          ]
+        },
+        {
+          "title": "Recover fixed-tick simulation budget: three PASS runs, median184.9us vs200us",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/simulation_timing/README.md",
+              "label": "Controlled measurements and optimization scope"
+            },
+            {
+              "path": "docs/design/simulation_timing/results.json",
+              "label": "Fresh92/92 and three profiler PASS runs"
+            },
+            {
+              "path": "docs/design/simulation_timing/equivalence.json",
+              "label": "Exact ten-day state and ordered-event equivalence"
             }
           ]
         }
@@ -873,12 +891,16 @@
           ]
         },
         {
-          "title": "Investigate 201.8 µs/tick against the 200 µs sim budget",
-          "status": "needs_review",
+          "title": "Sim profiler budget investigation: current three-run gate PASS",
+          "status": "complete",
           "evidence": [
             {
-              "path": "docs/design/art_pass/steps/12-final-validation-result.md",
-              "label": "Investigate 201.8 µs/tick against the 200 µs sim budget"
+              "path": "docs/design/simulation_timing/README.md",
+              "label": "Fresh controlled timing acceptance"
+            },
+            {
+              "path": "docs/design/simulation_timing/results.json",
+              "label": "Three shipped PASS and exact state/event verification"
             }
           ]
         },
@@ -1722,12 +1744,16 @@
           ]
         },
         {
-          "title": "Sim profiler budget investigation",
-          "status": "needs_review",
+          "title": "Sim profiler budget investigation: current three-run gate PASS",
+          "status": "complete",
           "evidence": [
             {
-              "path": "docs/design/art_pass/steps/12-final-validation-result.md",
-              "label": "Sim profiler budget investigation"
+              "path": "docs/design/simulation_timing/README.md",
+              "label": "Fresh controlled timing acceptance"
+            },
+            {
+              "path": "docs/design/simulation_timing/results.json",
+              "label": "Three shipped PASS and exact state/event verification"
             }
           ]
         },
@@ -2975,6 +3001,349 @@
             }
           ]
         }
+      ]
+    },
+    {
+      "id": "INTERIOR_GATE",
+      "title": "Ship interior regression gate",
+      "phase": "Playtest feedback",
+      "status": "needs_review",
+      "summary": "Gate implementation complete; October12 pre-lighting139-view/38-area visual receipt accepted. Lighting pass reruns physical suite92/92; the old whole-ship visual receipt is historical after source changes. Native Windows/operator acceptance and refreshed EXE remain pending.",
+      "evidence": [
+        {
+          "path": "docs/design/interior_gate/README.md",
+          "label": "Commands, coverage and limits"
+        },
+        {
+          "path": "docs/design/interior_gate/results.json",
+          "label": "Fresh automated and visual result"
+        },
+        {
+          "path": "docs/design/interior_gate/review.json",
+          "label": "38-area Codex review receipt"
+        }
+      ],
+      "tasks": [
+        {
+          "title": "Repeatable geometry, capsule traversal and rendered evidence runner",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/interior_gate/README.md",
+              "label": "Commands, coverage and limits"
+            },
+            {
+              "path": "docs/design/interior_gate/results.json",
+              "label": "Fresh automated and visual result"
+            },
+            {
+              "path": "docs/design/interior_gate/review.json",
+              "label": "38-area Codex review receipt"
+            }
+          ]
+        },
+        {
+          "title": "Fix engine dock obstruction and buried pod panel; retain regressions",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/interior_gate/README.md",
+              "label": "Commands, coverage and limits"
+            },
+            {
+              "path": "docs/design/interior_gate/results.json",
+              "label": "Fresh automated and visual result"
+            },
+            {
+              "path": "docs/design/interior_gate/review.json",
+              "label": "38-area Codex review receipt"
+            }
+          ]
+        },
+        {
+          "title": "Fresh92/92 and 139-view/38-area Codex visual review",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/interior_gate/README.md",
+              "label": "Commands, coverage and limits"
+            },
+            {
+              "path": "docs/design/interior_gate/results.json",
+              "label": "Fresh automated and visual result"
+            },
+            {
+              "path": "docs/design/interior_gate/review.json",
+              "label": "38-area Codex review receipt"
+            }
+          ]
+        },
+        {
+          "title": "Native Windows and operator gameplay acceptance; deliver refreshed EXE",
+          "status": "needs_review",
+          "evidence": [
+            {
+              "path": "docs/design/interior_gate/README.md",
+              "label": "Commands, coverage and limits"
+            },
+            {
+              "path": "docs/design/interior_gate/results.json",
+              "label": "Fresh automated and visual result"
+            },
+            {
+              "path": "docs/design/interior_gate/review.json",
+              "label": "38-area Codex review receipt"
+            }
+          ]
+        }
+      ],
+      "acceptance": [
+        "Exact suite PASS and exit0; full source and evidence hashes match.",
+        "Every captured area has a completed visual receipt.",
+        "Operator and native Windows acceptance remain separately recorded."
+      ]
+    },
+    {
+      "id": "LIGHTING_POWER",
+      "title": "Lighting and electrical optimization",
+      "phase": "Playtest feedback",
+      "status": "needs_review",
+      "summary": "Implementation and assistant validation complete:14 base fixtures320W, two cabin lights off save50W, darker native scenes, saved independent choices. Operator/native Windows review and refreshed delivered build pending. Later timing pass closes the fixed-tick fixture budget; original lighting timing evidence remains historical.",
+      "evidence": [
+        {
+          "path": "docs/design/lighting_power/README.md",
+          "label": "Lighting controls, balance and scope"
+        },
+        {
+          "path": "docs/design/lighting_power/results.json",
+          "label": "Fresh tests, native frames, hashes and timing result"
+        },
+        {
+          "path": "docs/design/lighting_power/comparison/index.html",
+          "label": "Interactive native before/after comparison"
+        }
+      ],
+      "tasks": [
+        {
+          "title": "Audit brightness, light controls and actual shared-bus accounting",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/lighting_power/README.md",
+              "label": "Lighting controls, balance and scope"
+            },
+            {
+              "path": "docs/design/lighting_power/results.json",
+              "label": "Fresh tests, native frames, hashes and timing result"
+            },
+            {
+              "path": "docs/design/lighting_power/comparison/index.html",
+              "label": "Interactive native before/after comparison"
+            }
+          ]
+        },
+        {
+          "title": "Tune cabin/task lighting and meaningful selective-light power savings",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/lighting_power/README.md",
+              "label": "Lighting controls, balance and scope"
+            },
+            {
+              "path": "docs/design/lighting_power/results.json",
+              "label": "Fresh tests, native frames, hashes and timing result"
+            },
+            {
+              "path": "docs/design/lighting_power/comparison/index.html",
+              "label": "Interactive native before/after comparison"
+            }
+          ]
+        },
+        {
+          "title": "Verify power, deterministic save/load and matched rendered lighting views",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/lighting_power/README.md",
+              "label": "Lighting controls, balance and scope"
+            },
+            {
+              "path": "docs/design/lighting_power/results.json",
+              "label": "Fresh tests, native frames, hashes and timing result"
+            },
+            {
+              "path": "docs/design/lighting_power/comparison/index.html",
+              "label": "Interactive native before/after comparison"
+            }
+          ]
+        },
+        {
+          "title": "Operator brightness acceptance and native Windows build/playthrough",
+          "status": "needs_review",
+          "evidence": [
+            {
+              "path": "docs/design/lighting_power/README.md",
+              "label": "Lighting controls, balance and scope"
+            },
+            {
+              "path": "docs/design/lighting_power/results.json",
+              "label": "Fresh tests, native frames, hashes and timing result"
+            },
+            {
+              "path": "docs/design/lighting_power/comparison/index.html",
+              "label": "Interactive native before/after comparison"
+            }
+          ]
+        }
+      ],
+      "acceptance": [
+        "All lights can run simultaneously on a healthy ship.",
+        "Turning selected lights off yields useful, correctly accounted power savings.",
+        "Maintenance remains readable and the intended visual style is preserved.",
+        "Fresh validation and operator/build status are recorded separately."
+      ]
+    },
+    {
+      "id": "SIM_TIMING",
+      "title": "Recover simulation tick budget",
+      "phase": "EA performance",
+      "status": "complete",
+      "summary": "Identical-workload optimization lowers median217.8 to188.1us, with three repositoryprofiler PASS runs median184.9us. Budget200us unchanged;92/92 and exact state/event comparisons pass. Source only; not rendered FPS or Windows acceptance.",
+      "evidence": [
+        {
+          "path": "docs/design/simulation_timing/README.md",
+          "label": "Controlled measurements and optimization scope"
+        },
+        {
+          "path": "docs/design/simulation_timing/results.json",
+          "label": "Fresh92/92 and three profiler PASS runs"
+        },
+        {
+          "path": "docs/design/simulation_timing/equivalence.json",
+          "label": "Exact ten-day state and ordered-event equivalence"
+        }
+      ],
+      "tasks": [
+        {
+          "title": "Separate workload changes from code costs with controlled probes",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/simulation_timing/README.md",
+              "label": "Controlled measurements and optimization scope"
+            },
+            {
+              "path": "docs/design/simulation_timing/results.json",
+              "label": "Fresh92/92 and three profiler PASS runs"
+            },
+            {
+              "path": "docs/design/simulation_timing/equivalence.json",
+              "label": "Exact ten-day state and ordered-event equivalence"
+            }
+          ]
+        },
+        {
+          "title": "Remove report allocation and duplicate gas totals from hot tick reads",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/simulation_timing/README.md",
+              "label": "Controlled measurements and optimization scope"
+            },
+            {
+              "path": "docs/design/simulation_timing/results.json",
+              "label": "Fresh92/92 and three profiler PASS runs"
+            },
+            {
+              "path": "docs/design/simulation_timing/equivalence.json",
+              "label": "Exact ten-day state and ordered-event equivalence"
+            }
+          ]
+        },
+        {
+          "title": "Repeat profiler gate and prove identical state/events and full suite",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/simulation_timing/README.md",
+              "label": "Controlled measurements and optimization scope"
+            },
+            {
+              "path": "docs/design/simulation_timing/results.json",
+              "label": "Fresh92/92 and three profiler PASS runs"
+            },
+            {
+              "path": "docs/design/simulation_timing/equivalence.json",
+              "label": "Exact ten-day state and ordered-event equivalence"
+            }
+          ]
+        }
+      ],
+      "acceptance": [
+        "Three shipped profiler runs under unchanged200us budget.",
+        "Same seeds/inputs preserve all system states, clock and ordered events.",
+        "Current validation and delivery scope recorded separately from historical evidence."
+      ]
+    },
+    {
+      "id": "CHECKPOINT_20261013",
+      "title": "Push verified passes and deliver Windows playtest",
+      "phase": "Playtest delivery",
+      "status": "in_progress",
+      "summary": "Fresh October13 source92/92 and startup PASS; preparing source push and Windows cross-export. Embedded-project validation, publication and native Windows acceptance remain separate.",
+      "evidence": [
+        {
+          "path": "docs/design/checkpoint_2026-10-13/README.md",
+          "label": "October 13 source validation and dated build status"
+        }
+      ],
+      "tasks": [
+        {
+          "title": "Revalidate and push authorized passes",
+          "status": "in_progress",
+          "evidence": [
+            {
+              "path": "docs/design/checkpoint_2026-10-13/README.md",
+              "label": "October 13 source validation and dated build status"
+            }
+          ]
+        },
+        {
+          "title": "Cross-export Windows EXE and verify embedded project",
+          "status": "planned",
+          "evidence": [
+            {
+              "path": "docs/design/checkpoint_2026-10-13/README.md",
+              "label": "October 13 source validation and dated build status"
+            }
+          ]
+        },
+        {
+          "title": "Publish and independently verify downloaded release assets",
+          "status": "planned",
+          "evidence": [
+            {
+              "path": "docs/design/checkpoint_2026-10-13/README.md",
+              "label": "October 13 source validation and dated build status"
+            }
+          ]
+        },
+        {
+          "title": "Operator native Windows gameplay and brightness acceptance",
+          "status": "needs_review",
+          "evidence": [
+            {
+              "path": "docs/design/checkpoint_2026-10-13/README.md",
+              "label": "October 13 source validation and dated build status"
+            }
+          ]
+        }
+      ],
+      "acceptance": [
+        "Remote main contains reviewed source.",
+        "Actual EXE embedded project passes focused checks.",
+        "Published assets independently match SHA256; native Windows acceptance is recorded separately."
       ]
     }
   ],

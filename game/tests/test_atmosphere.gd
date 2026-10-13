@@ -22,6 +22,8 @@ func _run() -> void:
 
 	_test_initial_state()
 	_test_occupants()
+	_test_live_accessors()
+	_test_report_arithmetic()
 	_test_scrubber()
 	_test_filter()
 	_test_leak()
@@ -70,6 +72,77 @@ func _test_occupants() -> void:
 	_check(absf(actual_ppm - expected_ppm) / expected_ppm < 0.02, "CO2 rise matches analytic expectation within 2%")
 	var o2_fraction: float = float(status["o2_fraction"])
 	_check(o2_fraction < 0.21 and o2_fraction > 0.19, "O2 fraction drops modestly over 24h")
+
+
+func _test_live_accessors() -> void:
+	var system: AtmosphereSystem = AtmosphereSystem.new()
+	_check(system.get_occupants(&"missing") == 0, "occupancy: missing compartment returns zero")
+	_check(system.get_max_humidity_fraction() == 0.0, "humidity: empty system returns zero")
+	var config: CompartmentConfig = _make_config(&"main", MAIN_VOLUME)
+	config.initial_occupants = 2
+	system.add_compartment(config)
+	system.add_compartment(_make_config(&"storage", MAIN_VOLUME))
+	_check(system.get_occupants(&"main") == 2, "occupancy: initial count is live")
+	system.set_occupants(&"main", 3)
+	_check(system.get_occupants(&"main") == 3, "occupancy: changed count is live")
+	system.set_occupants(&"main", -1)
+	_check(system.get_occupants(&"main") == 0, "occupancy: setter clamps negative count")
+	system.set_occupants(&"main", 3)
+	var main_state: Dictionary = system._compartments[&"main"]
+	var storage_state: Dictionary = system._compartments[&"storage"]
+	main_state["humidity_g"] = system.humidity_capacity_g * 0.75
+	storage_state["humidity_g"] = system.humidity_capacity_g * 0.25
+	_check_max_humidity(system, 0.75, "live maximum")
+	var saved: Dictionary = JSON.parse_string(JSON.stringify(system.save_state()))
+	system.set_occupants(&"main", 0)
+	main_state["humidity_g"] = 0.0
+	system.load_state(saved)
+	_check(system.get_occupants(&"main") == 3, "occupancy: JSON restore returns saved count")
+	_check_max_humidity(system, 0.75, "JSON restore")
+	system.remove_compartment(&"main")
+	_check(system.get_occupants(&"main") == 0, "occupancy: removed compartment returns zero")
+	_check_max_humidity(system, 0.25, "removed maximum")
+	system.add_compartment(config)
+	_check(system.get_occupants(&"main") == 2, "occupancy: readded compartment uses fresh count")
+	main_state = system._compartments[&"main"]
+	main_state["humidity_g"] = system.humidity_capacity_g * 2.0
+	_check_max_humidity(system, 1.0, "readded maximum clamps high")
+	main_state["humidity_g"] = -10.0
+	storage_state["humidity_g"] = -20.0
+	_check_max_humidity(system, 0.0, "negative humidity clamps low")
+	main_state["humidity_g"] = 100.0
+	system.humidity_capacity_g = 0.0
+	_check_max_humidity(system, 0.0, "zero capacity")
+	system.free()
+
+
+func _check_max_humidity(system: AtmosphereSystem, expected: float, label: String) -> void:
+	var report_max: float = 0.0
+	var compartments: Dictionary = system.get_status()["compartments"]
+	for status: Dictionary in compartments.values():
+		report_max = maxf(report_max, float(status["humidity_fraction"]))
+	_check(is_equal_approx(system.get_max_humidity_fraction(), expected) and is_equal_approx(report_max, expected), "humidity: getter matches reports, " + label)
+
+
+func _test_report_arithmetic() -> void:
+	var system: AtmosphereSystem = AtmosphereSystem.new()
+	system.add_compartment(_make_config(&"main", MAIN_VOLUME))
+	var state: Dictionary = system._compartments[&"main"]
+	var cases: Array[Vector3] = [Vector3(21.0, 0.04, 78.96), Vector3.ZERO, Vector3(-2.0, 1.0, 5.0), Vector3(4.0, -2.0, 0.0), Vector3(1.0, 4.0, -3.0), Vector3(-1.0, -1.0, 0.0)]
+	for moles: Vector3 in cases:
+		state["n_o2"] = float(moles.x)
+		state["n_co2"] = float(moles.y)
+		state["n_n2"] = float(moles.z)
+		var total: float = maxf(float(state["n_o2"]) + float(state["n_co2"]) + float(state["n_n2"]), 0.0)
+		var pressure: float = total * AtmosphereSystem.R_GAS * AtmosphereSystem.TEMP_K / MAIN_VOLUME / AtmosphereSystem.PA_PER_KPA
+		var o2: float = clampf(float(state["n_o2"]) / total, 0.0, 1.0) if total > 0.0 else 0.0
+		var co2: float = float(state["n_co2"]) / total * 1e6 if total > 0.0 else 0.0
+		var status: Dictionary = system.get_compartment_status(&"main")
+		_check(float(status["pressure_kpa"]) == pressure and float(status["o2_fraction"]) == o2 and float(status["co2_ppm"]) == co2, "report: original arithmetic for %s" % moles)
+		_check(system._pressure_for(state) == pressure and system._o2_fraction_for(state) == o2 and system._co2_ppm_for(state) == co2, "helpers: default total matches arithmetic for %s" % moles)
+		_check(system._pressure_for(state, total) == pressure and system._o2_fraction_for(state, total) == o2 and system._co2_ppm_for(state, total) == co2, "helpers: explicit total matches arithmetic for %s" % moles)
+		_check(system._pressure_for(state, 0.0) == 0.0 and system._o2_fraction_for(state, 0.0) == 0.0 and system._co2_ppm_for(state, 0.0) == 0.0, "helpers: explicit zero preserves vacuum for %s" % moles)
+	system.free()
 
 
 func _test_scrubber() -> void:
@@ -246,8 +319,26 @@ func _test_signals() -> void:
 	_check(_pressure_signals == 1, "pressure signal emitted once above threshold")
 	_check(_atmosphere_signals >= 1, "atmosphere signal emitted above threshold")
 
+	var live: AtmosphereSystem = AtmosphereSystem.new()
+	live.add_compartment(_make_config(&"live", MAIN_VOLUME, 0.01))
+	var events: Array[Dictionary] = []
+	event_bus.connect(&"compartment_pressure_changed", func(id: StringName, _pressure: float) -> void:
+		if id == &"live":
+			live.add_gas_moles(id, 50.0, 2.0, 0.0)
+			events.append(live.get_compartment_status(id))
+	)
+	event_bus.connect(&"compartment_atmosphere_changed", func(id: StringName, o2: float, co2: float) -> void:
+		if id == &"live":
+			events.append({"o2_fraction": o2, "co2_ppm": co2})
+	)
+	live.sim_tick(1.0)
+	_check(events.size() == 2, "signals: pressure listener mutates gas before atmosphere event")
+	if events.size() == 2:
+		_check(events[0]["o2_fraction"] == events[1]["o2_fraction"] and events[0]["co2_ppm"] == events[1]["co2_ppm"], "signals: atmosphere event uses live gas after synchronous pressure callback")
+
 	root.remove_child(event_bus)
 	event_bus.free()
+	live.free()
 
 
 func _test_determinism() -> void:

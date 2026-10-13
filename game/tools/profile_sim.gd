@@ -21,7 +21,9 @@ func _run() -> void:
 	var lighting: PowerCircuit = load("res://src/data/power/circuit_lighting.tres")
 	var uv: PowerCircuit = load("res://src/data/power/circuit_xenonite_uv.tres")
 	var circuits: Array[PowerCircuit] = [life_support, scrubber_circuit, lighting, uv]
-	harness.add_power(circuits, 4000.0, {&"rtg_main": 500.0})
+	var power: PowerSystem = harness.add_power(circuits, 4000.0, {&"rtg_main": 500.0})
+	for fixture: int in 12:
+		power.register_light(StringName("fixture_%d" % fixture), "Fixture", (load("res://src/data/power/cabin_fixture.tres") as PowerCircuit).nominal_load_w)
 
 	var main_config: CompartmentConfig = load("res://src/data/atmosphere/compartment_main.tres")
 	var storage_config: CompartmentConfig = load("res://src/data/atmosphere/compartment_storage.tres")

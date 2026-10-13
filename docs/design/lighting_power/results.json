@@ -1,0 +1,391 @@
+{
+  "date": "2026-10-12",
+  "implementation": "complete",
+  "operator_review": "pending",
+  "native_windows": "not run",
+  "delivered_build": "No new EXE; October10 release lacks gate and lighting changes",
+  "source_checkpoint": "ef2eca1 plus current working-tree passes",
+  "local_packet": "build/lighting_power/2026-10-12-verified",
+  "capture": {
+    "before_exit": 0,
+    "before_views": 26,
+    "after_exit": 0,
+    "after_views": 60,
+    "matched_views": 26,
+    "fov": 80,
+    "resolution": [
+      1600,
+      900
+    ],
+    "filter": {
+      "enabled": true,
+      "intensity": 1.0
+    },
+    "native_driver": "Wayland",
+    "renderer": "forward_plus",
+    "flashlight": "off",
+    "paused_readout": "Demand is live; served load is0 before the first tick",
+    "image_sha256": {
+      "before_all_on_cabin_cockpit_bow.png": "bfdb2ba7e1fa2ff18c9c17cf5463a2986aabc2a926f49cea1a33734079235ccc",
+      "before_all_on_cabin_cockpit_stern.png": "bfb5288207c8c787b0904b137c07bf39e66aaf55317548cf015282c96c8eda33",
+      "before_all_on_cabin_cockpit_port.png": "8dd1f7e0c2360bed2c0e4fab8350478ac0f26929f3de77636fb5ceb91183fbcb",
+      "before_all_on_cabin_cockpit_starboard.png": "33612935162f0b08ef34989150b883e6ed2985a9cd4aee18a259ed3675767489",
+      "before_all_on_cabin_cockpit_ceiling.png": "83d69ff064c2c2d1d8fb6693cc112259fbb76263aba0abbb4f186880c1a4ce77",
+      "before_all_on_cabin_cockpit_deck.png": "34d77bc108d65423205b73c5a3c7253349fb307fa378bab38201945f19b47f4c",
+      "before_all_on_cabin_galley_bow.png": "e9832f19f1420eecedeb791397ae219b2aad0a9ffcfb074ffc966610817f74f9",
+      "before_all_on_cabin_galley_stern.png": "1305f4f0b58616b15d55c6f89c13ea460fb76a06943b18425640e3555df1b31a",
+      "before_all_on_cabin_galley_port.png": "b028a4d409cf5727f62604a25af8443ef5b529ea922d64ee3359a5aeaa3a7a35",
+      "before_all_on_cabin_galley_starboard.png": "ea1d1ba4eaa76beab7a6245e6ae8fd818e9c1549aceb843ae1b5e2f03c6511f2",
+      "before_all_on_cabin_galley_ceiling.png": "12489be4cd609b0821327a5ea6d7d2e42f31403aee81681e3e1acfe848ade291",
+      "before_all_on_cabin_galley_deck.png": "6e1091d1a79432ec0ef75e340cf9819428a1d774f9ad70e56db12923ea18e04e",
+      "before_all_on_cabin_life_support_bow.png": "e924c00d8c4a9b4a7477d527af472816de4c3aba069871be13c226549d7d5738",
+      "before_all_on_cabin_life_support_stern.png": "c59e159b3abd3465478c56ab0f8af88dc1bc6cdda810ac5e5da6f6b0f92c01d6",
+      "before_all_on_cabin_life_support_port.png": "1f351189cc9a887893de8a525cf6d5c7daefc7f2978e2049ea54f1eaab237983",
+      "before_all_on_cabin_life_support_starboard.png": "2a1b8d5afccc7d816d4fbccb9690689cb5f9b01812be2c52eb070618d8fd504b",
+      "before_all_on_cabin_life_support_ceiling.png": "2e37a4bb4abed29f620dd48c421edfe5c9bfb5e8448b39efff80b822e7ced51d",
+      "before_all_on_cabin_life_support_deck.png": "c6a595d6a45300b54fdc17bacd04d4f583d65d5c239c4a8bb3b1166205380de8",
+      "before_all_on_cabin_engine_bay_b_bow.png": "07ebe0068c2850b368228682b8c85e1a5980931ab80001b10d20fa2b2e2a93d9",
+      "before_all_on_cabin_engine_bay_b_stern.png": "e38b0fbcd3896b3edf9b7a86da1ac95f1d968ec095cf912401c4618f2fdc5368",
+      "before_all_on_cabin_engine_bay_b_port.png": "978e5fc185929d8abd60d7d4cf706495406109ab427b6acce13c41b95429533a",
+      "before_all_on_cabin_engine_bay_b_starboard.png": "b345fab6939e0dd14ba1958522cd054608a8478f013b88f0afb5bce71454e65c",
+      "before_all_on_cabin_engine_bay_b_ceiling.png": "d0cc2afb9536284162ed38ebc1e9d1588f2be8c7ad320f1d0556f965df7ebec8",
+      "before_all_on_cabin_engine_bay_b_deck.png": "94fc8f50dfdbbaabdcfecd1e7c96ea849f5371fb7c8095d234969b9b42c9c44b",
+      "before_all_on_bay_life_support_service_entry.png": "e25f949316505303f22d6b2273e2114f46e7502f0d59a00d3dfb2ed7369e3723",
+      "before_all_on_bay_galley_service_entry.png": "edf6503eebeac5b482449888705d1b719dfcb218da1bfdd395ddd0024bbba6d8",
+      "after_all_on_cabin_cockpit_bow.png": "3251f1ff18e5629ad5e6e893f23192d049187e7497bfa786aa954b6357f36adb",
+      "after_all_on_cabin_cockpit_stern.png": "5f07f56c391e4f948b12f4275f362cba212349900453feaeeef19ab94361da30",
+      "after_all_on_cabin_cockpit_port.png": "cd0eaa6b7e2d6c69c97ae51a5b917a73fa1694af228d358cd5ac881b15c5a9db",
+      "after_all_on_cabin_cockpit_starboard.png": "ac2a0fee163dac05174fba8a126b5de6b49c3f151e9de7079546e3dd061ff50a",
+      "after_all_on_cabin_cockpit_ceiling.png": "e2d359853f1f519ecdbf72933c3f9031ddb6763433878ea19743c43a95472799",
+      "after_all_on_cabin_cockpit_deck.png": "9335e189d46649bf19c9ba7c555bef7b4ed4795c26ee0b67d9029e5ed75be635",
+      "after_all_on_cabin_galley_bow.png": "5fdb33ac667b23ced0ccfe45917171c9d8149d01293826034c5baaff5cfbdc03",
+      "after_all_on_cabin_galley_stern.png": "7e25456eeb8b335ffd6ce7187198286bfc1424a614574a008fc0f015ba9438fb",
+      "after_all_on_cabin_galley_port.png": "7e351fec08fffb2dc6a915bf8b41cd10ecd0866c35a27b49a202c634bef061f2",
+      "after_all_on_cabin_galley_starboard.png": "0bc9e0457ff5962b4cb07a2041ac0f18343e643a989c6b43659d4c52f092b4b6",
+      "after_all_on_cabin_galley_ceiling.png": "c5561ee70542a9cf4f29b861835d71992444b048f6def5ed838033deb18a48ed",
+      "after_all_on_cabin_galley_deck.png": "fff64cfa11ff84a3f0bb93d55fbf6eb8587aa9665b287f2750cc2212824dd0ef",
+      "after_all_on_cabin_life_support_bow.png": "81b4ece09431da190a62fb04a327a1dfff088adb874a7e470b5a3adae62da784",
+      "after_all_on_cabin_life_support_stern.png": "c5385e847734868e3d26888a9d2a1963cfc3259c40b5bdffd1e8adfda7c89a82",
+      "after_all_on_cabin_life_support_port.png": "932b56585b0daa477fe5a63baf9840b9e6b47dade530d1fb3d24b5ec7b324c6b",
+      "after_all_on_cabin_life_support_starboard.png": "409e5e7da8674a7586389c9614388f913a1cc14f5cff6167960d9c91ed38ac63",
+      "after_all_on_cabin_life_support_ceiling.png": "3985d22a4ec201f2537e9601f957d7ce4249fcf5889476dc8ba93e9a72bed5e7",
+      "after_all_on_cabin_life_support_deck.png": "36758e76e4363bc8cc447a0fc5b0732d445d907fbf7f8047fb88e19152d0296a",
+      "after_all_on_cabin_engine_bay_b_bow.png": "80eae649b3bf8b3f6400a01ecb44b00341892b0a616ea532770ab2f47501ef1a",
+      "after_all_on_cabin_engine_bay_b_stern.png": "3bd5aa5218b8caf6e6142a0b7bfe637436111fdb5a660302aab396de9d1c3c18",
+      "after_all_on_cabin_engine_bay_b_port.png": "0b9a70b9fbe5647bd198b6456f3bd578053e9be038c88607dc06ede29c454b9e",
+      "after_all_on_cabin_engine_bay_b_starboard.png": "0fbe1f52098f7b2e684822298ac8562d44a63a885a52fe529880313355f60705",
+      "after_all_on_cabin_engine_bay_b_ceiling.png": "da72a09a705494276e0c199b816a59f12c541464b5fa004f78b277c9d2cdbfa6",
+      "after_all_on_cabin_engine_bay_b_deck.png": "cc223bf5d0f357575408d8cdd4c624bed31185ce59f915a5054dfe1761ace248",
+      "after_all_on_bay_life_support_service_entry.png": "ca3897fc1d700e222c663b7a4ee5db4c057605dbcca5b9b683afc668e7d4c5f6",
+      "after_all_on_bay_galley_service_entry.png": "bdeae3064e5dac599901715b10f254cf5820eebca4fd48bcadbd6a353511a05e",
+      "after_all_on_exterior_work_0_beam.png": "be7a3e0aa22700e665ec6b5dccd2b736b07f86db5142e373eb22649b3a0a1979",
+      "after_all_on_exterior_work_1_beam.png": "c17fb4bda23c6093aa341badc0713a1627d3a6adfc9e27635e54216d3195d2c5",
+      "after_selective_off_cabin_cockpit_bow.png": "139c7097e54c372252e79d1b0888338e7cc065782cf63816ec79a3b747f8ab5e",
+      "after_selective_off_cabin_cockpit_stern.png": "892388450c8759c4b3ec501486e79a736b9cbe9d1eb9a5a446e952514ed2e6cd",
+      "after_selective_off_cabin_cockpit_port.png": "e9d4272dad598615214cc1b25d72fdf913382b82b0b99ae1224e7fc5582648e6",
+      "after_selective_off_cabin_cockpit_starboard.png": "90a12a1955489c2211323b94f1a612ef54c66f90c2eab9b89ee3c112f35cfb79",
+      "after_selective_off_cabin_cockpit_ceiling.png": "b818a5f7cd711c7ff551cd907fac218160fe10156e0f7745da26b1915302d9c6",
+      "after_selective_off_cabin_cockpit_deck.png": "07f451dee2a3bd511c5ec04ae3b7c108d9d6283a56a437251dfaedddc62128c7",
+      "after_selective_off_cabin_galley_bow.png": "2002915866dfef0f7947cfb682b8efade1c2d971b0dc0c114dabd1a6b1bafcdd",
+      "after_selective_off_cabin_galley_stern.png": "c61294513ec987f6a6bcd7879fb78b1cb96c03068e92678e0c5dbcf3c39b7cdd",
+      "after_selective_off_cabin_galley_port.png": "42444a83a6c64048ee18f4f280613f179b3635921a919ca20c8f6f401761e7ae",
+      "after_selective_off_cabin_galley_starboard.png": "e8e31b274635abba786134ad6183d5b5a6a97d6ac5b7a4eac48cb83229ddb2ea",
+      "after_selective_off_cabin_galley_ceiling.png": "12131c0c1aa1ded51bc62416d064421d3966c486a91609097d8d65068d9d6301",
+      "after_selective_off_cabin_galley_deck.png": "7b3a29a2e8bdc1054f449329ba4aab77b0a87ae92fb67f33e0090bf62e7899ad",
+      "after_selective_off_cabin_life_support_bow.png": "5d44a4ab5d537636f1292d5bc798e643d9d7f0d5a99af1529ac246b07219158f",
+      "after_selective_off_cabin_life_support_stern.png": "2b5f6ac8bd0e0798c29002b7816db3e662157d16d9c4b62412fd7bde31aee503",
+      "after_selective_off_cabin_life_support_port.png": "405eaba9a155ad7a9b8dbf5c3318370cf8661da9c719056cd26d3fe7243a22cd",
+      "after_selective_off_cabin_life_support_starboard.png": "13e1766bfec56688e053da374799dc4cb0ff70aa09d7f18179b5af079b0a86c3",
+      "after_selective_off_cabin_life_support_ceiling.png": "9bbe3b7566dcec8bfd0af43a00ba774913c9bfb0450b5bdbf6c22ce6f55a63f6",
+      "after_selective_off_cabin_life_support_deck.png": "9f4f8655a7bdf5b14dcfe276ede541d3ba942b80cea30162c0452b49859fff35",
+      "after_selective_off_cabin_engine_bay_b_bow.png": "680a46f45aa44e8dec18c19843fd77b9b136c530479a0f460e0b844f12426109",
+      "after_selective_off_cabin_engine_bay_b_stern.png": "5ed2800c4dd5dd777ea4fec0353835128c54e9681213c6be2d2ad76c84a3abdf",
+      "after_selective_off_cabin_engine_bay_b_port.png": "870cad4c1d34f0c4dc7942a0bb15febf48f5b7a9a943bc93b9b88d7980e06e07",
+      "after_selective_off_cabin_engine_bay_b_starboard.png": "bdba6a88c9a6204b562bd6de7addc41c76c3788c3c158bc7c109ca270eecb468",
+      "after_selective_off_cabin_engine_bay_b_ceiling.png": "f3f3efcbdb8a84fbd21b89344a4c9ba10a3339183f6bf1b649d8a909e41a9815",
+      "after_selective_off_cabin_engine_bay_b_deck.png": "29ffd2509d7414777fe8822e5651aeebae79d545b38ca1fa385d282ace9e7e71",
+      "after_selective_off_bay_life_support_service_entry.png": "ee847d90ad11be3a094395c53fb9c3c1d0763651c580bf6ba385dc6e90103547",
+      "after_selective_off_bay_galley_service_entry.png": "9fdf26335aacf9585755050124d50463a139a45a5153bb03b3ab751ced3fdc2b",
+      "after_selective_off_exterior_work_0_beam.png": "406cc2c7f051a1b4db2453875322a5263ccba9df8e8c5927448ad0edbc1fd0c4",
+      "after_selective_off_exterior_work_1_beam.png": "2058950fcc0a17e8e091cf98517e03e5c656954c4276c0a45a42880fa4c03eb6",
+      "after_pod_on_entry.png": "6fb04e8d5471f97a314f7cc339d50d1fca4d86af481421fe64c9752bc280f738",
+      "after_pod_on_panel.png": "df94e7e36acf29dfd9609e211a1962eb4a1786f9707cbb44697fd4e11c82fdf8",
+      "after_pod_off_entry.png": "d29aae9f8b5ca9a0c2c92b8d79526f0a98919669db7294511344607cf15f047f",
+      "after_pod_off_panel.png": "fbe2d004efa9cbaba01fbb959f48a982188da3ee9b1f750391ed7b2508a3a013"
+    },
+    "brightness_metric": "Mean encoded grayscale pixel value, not a physical lux measurement",
+    "matches": [
+      {
+        "area": "cabin_cockpit",
+        "view": "bow",
+        "before": "before_all_on_cabin_cockpit_bow.png",
+        "after": "after_all_on_cabin_cockpit_bow.png",
+        "before_mean_encoded_luma": 30.58,
+        "after_mean_encoded_luma": 20.92
+      },
+      {
+        "area": "cabin_cockpit",
+        "view": "stern",
+        "before": "before_all_on_cabin_cockpit_stern.png",
+        "after": "after_all_on_cabin_cockpit_stern.png",
+        "before_mean_encoded_luma": 36.46,
+        "after_mean_encoded_luma": 29.47
+      },
+      {
+        "area": "cabin_cockpit",
+        "view": "port",
+        "before": "before_all_on_cabin_cockpit_port.png",
+        "after": "after_all_on_cabin_cockpit_port.png",
+        "before_mean_encoded_luma": 31.41,
+        "after_mean_encoded_luma": 23.24
+      },
+      {
+        "area": "cabin_cockpit",
+        "view": "starboard",
+        "before": "before_all_on_cabin_cockpit_starboard.png",
+        "after": "after_all_on_cabin_cockpit_starboard.png",
+        "before_mean_encoded_luma": 31.22,
+        "after_mean_encoded_luma": 22.94
+      },
+      {
+        "area": "cabin_cockpit",
+        "view": "ceiling",
+        "before": "before_all_on_cabin_cockpit_ceiling.png",
+        "after": "after_all_on_cabin_cockpit_ceiling.png",
+        "before_mean_encoded_luma": 27.99,
+        "after_mean_encoded_luma": 20.41
+      },
+      {
+        "area": "cabin_cockpit",
+        "view": "deck",
+        "before": "before_all_on_cabin_cockpit_deck.png",
+        "after": "after_all_on_cabin_cockpit_deck.png",
+        "before_mean_encoded_luma": 29.55,
+        "after_mean_encoded_luma": 22.56
+      },
+      {
+        "area": "cabin_galley",
+        "view": "bow",
+        "before": "before_all_on_cabin_galley_bow.png",
+        "after": "after_all_on_cabin_galley_bow.png",
+        "before_mean_encoded_luma": 33.26,
+        "after_mean_encoded_luma": 23.02
+      },
+      {
+        "area": "cabin_galley",
+        "view": "stern",
+        "before": "before_all_on_cabin_galley_stern.png",
+        "after": "after_all_on_cabin_galley_stern.png",
+        "before_mean_encoded_luma": 40.57,
+        "after_mean_encoded_luma": 32.65
+      },
+      {
+        "area": "cabin_galley",
+        "view": "port",
+        "before": "before_all_on_cabin_galley_port.png",
+        "after": "after_all_on_cabin_galley_port.png",
+        "before_mean_encoded_luma": 32.84,
+        "after_mean_encoded_luma": 23.75
+      },
+      {
+        "area": "cabin_galley",
+        "view": "starboard",
+        "before": "before_all_on_cabin_galley_starboard.png",
+        "after": "after_all_on_cabin_galley_starboard.png",
+        "before_mean_encoded_luma": 34.82,
+        "after_mean_encoded_luma": 25.13
+      },
+      {
+        "area": "cabin_galley",
+        "view": "ceiling",
+        "before": "before_all_on_cabin_galley_ceiling.png",
+        "after": "after_all_on_cabin_galley_ceiling.png",
+        "before_mean_encoded_luma": 28.89,
+        "after_mean_encoded_luma": 20.13
+      },
+      {
+        "area": "cabin_galley",
+        "view": "deck",
+        "before": "before_all_on_cabin_galley_deck.png",
+        "after": "after_all_on_cabin_galley_deck.png",
+        "before_mean_encoded_luma": 28.51,
+        "after_mean_encoded_luma": 20.38
+      },
+      {
+        "area": "cabin_life_support",
+        "view": "bow",
+        "before": "before_all_on_cabin_life_support_bow.png",
+        "after": "after_all_on_cabin_life_support_bow.png",
+        "before_mean_encoded_luma": 33.92,
+        "after_mean_encoded_luma": 23.59
+      },
+      {
+        "area": "cabin_life_support",
+        "view": "stern",
+        "before": "before_all_on_cabin_life_support_stern.png",
+        "after": "after_all_on_cabin_life_support_stern.png",
+        "before_mean_encoded_luma": 41.94,
+        "after_mean_encoded_luma": 34.63
+      },
+      {
+        "area": "cabin_life_support",
+        "view": "port",
+        "before": "before_all_on_cabin_life_support_port.png",
+        "after": "after_all_on_cabin_life_support_port.png",
+        "before_mean_encoded_luma": 29.04,
+        "after_mean_encoded_luma": 21.7
+      },
+      {
+        "area": "cabin_life_support",
+        "view": "starboard",
+        "before": "before_all_on_cabin_life_support_starboard.png",
+        "after": "after_all_on_cabin_life_support_starboard.png",
+        "before_mean_encoded_luma": 34.29,
+        "after_mean_encoded_luma": 25.35
+      },
+      {
+        "area": "cabin_life_support",
+        "view": "ceiling",
+        "before": "before_all_on_cabin_life_support_ceiling.png",
+        "after": "after_all_on_cabin_life_support_ceiling.png",
+        "before_mean_encoded_luma": 30.56,
+        "after_mean_encoded_luma": 21.98
+      },
+      {
+        "area": "cabin_life_support",
+        "view": "deck",
+        "before": "before_all_on_cabin_life_support_deck.png",
+        "after": "after_all_on_cabin_life_support_deck.png",
+        "before_mean_encoded_luma": 28.08,
+        "after_mean_encoded_luma": 20.08
+      },
+      {
+        "area": "cabin_engine_bay_b",
+        "view": "bow",
+        "before": "before_all_on_cabin_engine_bay_b_bow.png",
+        "after": "after_all_on_cabin_engine_bay_b_bow.png",
+        "before_mean_encoded_luma": 32.12,
+        "after_mean_encoded_luma": 21.65
+      },
+      {
+        "area": "cabin_engine_bay_b",
+        "view": "stern",
+        "before": "before_all_on_cabin_engine_bay_b_stern.png",
+        "after": "after_all_on_cabin_engine_bay_b_stern.png",
+        "before_mean_encoded_luma": 40.84,
+        "after_mean_encoded_luma": 32.35
+      },
+      {
+        "area": "cabin_engine_bay_b",
+        "view": "port",
+        "before": "before_all_on_cabin_engine_bay_b_port.png",
+        "after": "after_all_on_cabin_engine_bay_b_port.png",
+        "before_mean_encoded_luma": 30.4,
+        "after_mean_encoded_luma": 21.55
+      },
+      {
+        "area": "cabin_engine_bay_b",
+        "view": "starboard",
+        "before": "before_all_on_cabin_engine_bay_b_starboard.png",
+        "after": "after_all_on_cabin_engine_bay_b_starboard.png",
+        "before_mean_encoded_luma": 27.13,
+        "after_mean_encoded_luma": 19.64
+      },
+      {
+        "area": "cabin_engine_bay_b",
+        "view": "ceiling",
+        "before": "before_all_on_cabin_engine_bay_b_ceiling.png",
+        "after": "after_all_on_cabin_engine_bay_b_ceiling.png",
+        "before_mean_encoded_luma": 26.15,
+        "after_mean_encoded_luma": 18.9
+      },
+      {
+        "area": "cabin_engine_bay_b",
+        "view": "deck",
+        "before": "before_all_on_cabin_engine_bay_b_deck.png",
+        "after": "after_all_on_cabin_engine_bay_b_deck.png",
+        "before_mean_encoded_luma": 23.31,
+        "after_mean_encoded_luma": 18.13
+      },
+      {
+        "area": "bay_life_support_service",
+        "view": "entry",
+        "before": "before_all_on_bay_life_support_service_entry.png",
+        "after": "after_all_on_bay_life_support_service_entry.png",
+        "before_mean_encoded_luma": 33.49,
+        "after_mean_encoded_luma": 25.17
+      },
+      {
+        "area": "bay_galley_service",
+        "view": "entry",
+        "before": "before_all_on_bay_galley_service_entry.png",
+        "after": "after_all_on_bay_galley_service_entry.png",
+        "before_mean_encoded_luma": 31.94,
+        "after_mean_encoded_luma": 24.59
+      }
+    ],
+    "visual_review": "Codex reviewed all86 native frames through grouped galleries; human brightness acceptance remains pending",
+    "metadata_erratum": "Retained AFTER manifest blanket no-manual-ticks phrase predates the pod fixture extension: pod shots advance ModuleSystem8.1h only; no power ticks or save writes. Future capture script metadata is corrected. Original manifest and all PNGs preserved."
+  },
+  "power": {
+    "generation_w": 500,
+    "battery_capacity_wh": 4000,
+    "before_lighting_w": 200,
+    "before_total_demand_w": 640,
+    "all_on_lighting_w": 320,
+    "all_on_total_demand_w": 760,
+    "selective_lighting_w": 75,
+    "selective_total_demand_w": 515,
+    "two_cabin_lights_off_saving_w": 50,
+    "two_cabin_lights_off_one_hour_saving_wh": 50,
+    "fixed_load_all_on_battery_hours": 15.385,
+    "all_on_feasibility": "Real simulator serves all fourteen base fixtures for one hour without shedding; endurance arithmetic assumes unchanged loads and no failures."
+  },
+  "validation": {
+    "full_suites": "92/92 PASS",
+    "full_suite_log": "/tmp/hullwatch-lighting-full-verified.log",
+    "lighting_log": "/tmp/hullwatch-lighting-cabin-final.log",
+    "native_capture_log": "/tmp/hullwatch-lighting-after-verified.log",
+    "simulation_profile": {
+      "result": "FAIL",
+      "usec_per_tick": 209.3,
+      "budget": 200,
+      "ticks": 144000,
+      "log": "/tmp/hullwatch-lighting-profile-clean.log",
+      "scope": "Profiler uses twelve registered cabin fixtures; no rendered FPS claim."
+    }
+  },
+  "save": {
+    "global_version": 7,
+    "power_state_version": 2,
+    "migration": "v6 enables missing preferences and converts ballast effects to selected live demand"
+  },
+  "review_notes": {
+    "cabin_cockpit": "Six directions in three states reviewed. Warm pool and instrument panels remain readable; adjacent unused cabins darken without washing out the cockpit.",
+    "cabin_galley": "Six directions in three states reviewed. Reduced warm wash preserves wall texture and furnishings; off state visibly darkens the room and its authored emitter.",
+    "cabin_life_support": "Six directions in three states reviewed. Machinery bay and central passage remain readable with selected cockpit/life-support lights on.",
+    "cabin_engine_bay_b": "Six directions in three states reviewed. Door/repair fixtures and mottled walls remain readable all-on; off state removes lamp glow and beam.",
+    "bay_life_support_service": "Three matched entry views reviewed; maintenance faces remain readable with this bay retained in selective lighting.",
+    "bay_galley_service": "Three matched entry views reviewed; warmth is reduced while the terminal and furniture remain visible; selective off removes the local warm pool.",
+    "exterior_work_0": "On/off beam views reviewed; airlock pressure leaf and work deck illuminated when on and darkened when off.",
+    "exterior_work_1": "On/off views reviewed; the camera targets a nearby hull surface, demonstrating the beam contribution. This is not a broad EVA readability acceptance test.",
+    "utility_pod": "Two entry and two panel views reviewed without torch. New warm pod fixture exposes pads/service panel; off state darkens the room while retaining existing ambient reflection."
+  },
+  "generator_determinism": "PASS: all three scene files regenerate byte-for-byte",
+  "scene_sha256": {
+    "game/scenes/ship_geometry.tscn": "742d81108a3b57d013e98efbbf3d4b17ced6eea7da3257c3ec69d17ca90fcc65",
+    "game/scenes/dock_pod.tscn": "e8327f0d3329d916987af457f176fb02e1928c7f633a0f9ad1f0a7a77f9452d1",
+    "game/scenes/world_layout.tscn": "db428d66abff38d80ae80e5fa0fbcf676a4c2ceec3c42f5015644a10a342d8da"
+  },
+  "source_sha256": "7d40824964f26b752dd6e66c0e3d37b671ff74012921f3a4a28beae51ad97f6e",
+  "source_sha256_scope": "Working tree at evidence write, before capture-only metadata wording correction; game visuals and mechanics unchanged by that correction.",
+  "completion_audit": {
+    "brightness_and_style": "PASS:26 exact camera pairs darker; all86 native views inspected; warm maintenance areas readable",
+    "healthy_all_on_and_energy_savings": "PASS:test_cabin_light real14 fixtures/all-on hour/exact50Wh saved",
+    "individual_controls_and_live_hardware": "PASS:cabin_light/computer_terminal; real pod build/removal/restoration and exterior beams",
+    "deterministic_save_load_and_migration": "PASS:same-input states and genuine fresh-scene JSON v7/v6 fault tests",
+    "fixed_tick_simulator_ownership": "PASS:PowerSystem owns preferences/source demand; event-driven fixtures, battery changes only in sim_tick",
+    "evidence_and_delivery_boundaries": "PASS:README/results/status/roadmap; operator and native Windows pending; no new EXE",
+    "performance": "Separate open EA gate:209.3us vs200us FAIL; no rendered FPS claim"
+  }
+}

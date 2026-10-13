@@ -92,6 +92,7 @@ func _run_scenario(attentive: bool, hours: float = SCENARIO_HOURS) -> Array[Dict
 	var lighting: PowerCircuit = load("res://src/data/power/circuit_lighting.tres")
 	var circuits: Array[PowerCircuit] = [life_support, scrubber_circuit, lighting]
 	var power: PowerSystem = harness.add_power(circuits, 4000.0, {&"rtg_main": 500.0})
+	power.set_circuit_source_load(&"lighting", &"scenario_lamps", (load("res://src/data/power/cabin_fixture.tres") as PowerCircuit).nominal_load_w * 8.0)
 
 	var stores: Stores = harness.add_stores({&"food_ration": 6})
 	var main_config: CompartmentConfig = load("res://src/data/atmosphere/compartment_main.tres")

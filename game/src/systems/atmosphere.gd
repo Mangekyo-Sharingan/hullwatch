@@ -92,6 +92,17 @@ func get_compartment_status(compartment_id: StringName) -> Dictionary:
 	return _status_for(_compartments[compartment_id])
 
 
+func get_occupants(compartment_id: StringName) -> int:
+	return int(_compartments[compartment_id]["occupants"]) if _compartments.has(compartment_id) else 0
+
+
+func get_max_humidity_fraction() -> float:
+	var highest: float = 0.0
+	for state: Dictionary in _compartments.values():
+		highest = maxf(highest, _humidity_fraction_for(state))
+	return highest
+
+
 func set_occupants(compartment_id: StringName, count: int) -> void:
 	var state: Dictionary = _require_state(compartment_id, "set_occupants")
 	if state.is_empty():
@@ -474,11 +485,12 @@ func _emit_changes(compartment_id: StringName) -> void:
 
 func _status_for(state: Dictionary) -> Dictionary:
 	var config: CompartmentConfig = state["config"]
+	var total: float = _total_moles(state)
 	return {
 		"compartment_id": config.compartment_id,
-		"pressure_kpa": _pressure_for(state),
-		"o2_fraction": _o2_fraction_for(state),
-		"co2_ppm": _co2_ppm_for(state),
+		"pressure_kpa": _pressure_for(state, total),
+		"o2_fraction": _o2_fraction_for(state, total),
+		"co2_ppm": _co2_ppm_for(state, total),
 		"occupants": state["occupants"],
 		"scrubber_powered": state["scrubber_powered"],
 		"scrubber_efficiency": state["scrubber_efficiency"],
@@ -523,20 +535,24 @@ func _total_moles(state: Dictionary) -> float:
 	return maxf(float(state["n_o2"]) + float(state["n_co2"]) + float(state["n_n2"]), 0.0)
 
 
-func _pressure_for(state: Dictionary) -> float:
+func _pressure_for(state: Dictionary, total: float = -1.0) -> float:
 	var config: CompartmentConfig = state["config"]
-	return _total_moles(state) * R_GAS * TEMP_K / config.volume_m3 / PA_PER_KPA
+	if total < 0.0:
+		total = _total_moles(state)
+	return total * R_GAS * TEMP_K / config.volume_m3 / PA_PER_KPA
 
 
-func _o2_fraction_for(state: Dictionary) -> float:
-	var total: float = _total_moles(state)
+func _o2_fraction_for(state: Dictionary, total: float = -1.0) -> float:
+	if total < 0.0:
+		total = _total_moles(state)
 	if total <= 0.0:
 		return 0.0
 	return clampf(float(state["n_o2"]) / total, 0.0, 1.0)
 
 
-func _co2_ppm_for(state: Dictionary) -> float:
-	var total: float = _total_moles(state)
+func _co2_ppm_for(state: Dictionary, total: float = -1.0) -> float:
+	if total < 0.0:
+		total = _total_moles(state)
 	if total <= 0.0:
 		return 0.0
 	return float(state["n_co2"]) / total * 1e6

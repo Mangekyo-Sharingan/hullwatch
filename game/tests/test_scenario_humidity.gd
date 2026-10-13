@@ -20,6 +20,8 @@ func _run() -> void:
 	var lighting: PowerCircuit = load("res://src/data/power/circuit_lighting.tres")
 	var circuits: Array[PowerCircuit] = [life_support, scrubber_circuit, lighting]
 	var power: PowerSystem = harness.add_power(circuits, 4000.0, {&"rtg_main": 500.0})
+	# The scenario retains its original eight-lamp fixture, now charged as hardware.
+	power.set_circuit_source_load(&"lighting", &"scenario_lamps", (load("res://src/data/power/cabin_fixture.tres") as PowerCircuit).nominal_load_w * 8.0)
 	power.battery_max_discharge_w = 0.0
 	var rtg_wear: WearComponent = load("res://src/data/wear/rtg_main.tres") as WearComponent
 	var power_wear: Array[WearComponent] = [rtg_wear]

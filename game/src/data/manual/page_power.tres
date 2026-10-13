@@ -11,6 +11,10 @@ PRIORITY ORDER (least critical sheds first)
   LIFE SUPPORT is never shed
   LIGHTING sheds before the SCRUBBER
 
+CABIN LIGHTS. SHIP CONTROL / LIGHTING switches each cabin, service bay, installed pod and exterior work light separately. Cabin and pod fixtures draw 25 W each; the two exterior work lights draw 10 W each. Two unused cabin lights off save 50 Wh per hour. The master LIGHTING breaker still isolates them all; restoring it preserves your individual choices.
+
+ALL LIGHTS ON is possible while the battery covers demand above the RTG's 500 W output. On the bare ship the twelve interior fixtures and two exterior beams draw 320 W. Switch off unused rooms to stretch the battery; keep maintenance spaces lit and use the handheld torch for dark rooms.
+
 BROWNOUT. If the battery empties, everything except priority 0 drops. Take non-essential circuits offline at the breaker panel before that happens.
 
 WHEN A CIRCUIT IS SHED it will not return on its own while demand stays high. Repair the cause: worn components derate the RTG, and a derated RTG cannot carry the ship."

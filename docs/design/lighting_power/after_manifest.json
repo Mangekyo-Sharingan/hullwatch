@@ -1,0 +1,1737 @@
+{
+	"display_driver": "Wayland",
+	"filter": {
+		"enabled": true,
+		"intensity": 1.0
+	},
+	"fov": 80.0,
+	"label": "after",
+	"lighting": "Native game fixtures; no lighting override; flashlight off",
+	"near": 0.05,
+	"renderer": "forward_plus",
+	"resolution": [
+		1600,
+		900
+	],
+	"simulation": "Paused fresh main scene; no manual ticks or save writes",
+	"states": {
+		"all_on": {
+			"fixtures": {
+				"ServiceBay_galley_service": {
+					"enabled": true,
+					"label": "GALLEY SERVICE",
+					"powered": true,
+					"watts": 25.0
+				},
+				"ServiceBay_life_support_service": {
+					"enabled": true,
+					"label": "LIFE SUPPORT SERVICE",
+					"powered": true,
+					"watts": 25.0
+				},
+				"airlock": {
+					"enabled": true,
+					"label": "AIRLOCK",
+					"powered": true,
+					"watts": 25.0
+				},
+				"cockpit": {
+					"enabled": true,
+					"label": "COCKPIT",
+					"powered": true,
+					"watts": 25.0
+				},
+				"cupola": {
+					"enabled": true,
+					"label": "CUPOLA",
+					"powered": true,
+					"watts": 25.0
+				},
+				"engine_bay_a": {
+					"enabled": true,
+					"label": "ENGINE BAY A",
+					"powered": true,
+					"watts": 25.0
+				},
+				"engine_bay_b": {
+					"enabled": true,
+					"label": "ENGINE BAY B",
+					"powered": true,
+					"watts": 25.0
+				},
+				"exterior_work_0": {
+					"enabled": true,
+					"label": "EXTERIOR WORK 1",
+					"powered": true,
+					"watts": 10.0
+				},
+				"exterior_work_1": {
+					"enabled": true,
+					"label": "EXTERIOR WORK 2",
+					"powered": true,
+					"watts": 10.0
+				},
+				"galley": {
+					"enabled": true,
+					"label": "GALLEY",
+					"powered": true,
+					"watts": 25.0
+				},
+				"life_support": {
+					"enabled": true,
+					"label": "LIFE SUPPORT",
+					"powered": true,
+					"watts": 25.0
+				},
+				"quarters": {
+					"enabled": true,
+					"label": "QUARTERS",
+					"powered": true,
+					"watts": 25.0
+				},
+				"storage": {
+					"enabled": true,
+					"label": "STORAGE",
+					"powered": true,
+					"watts": 25.0
+				},
+				"water_closet": {
+					"enabled": true,
+					"label": "WATER CLOSET",
+					"powered": true,
+					"watts": 25.0
+				}
+			},
+			"power": {
+				"battery_capacity_wh": 4000.0,
+				"battery_charge_wh": 4000.0,
+				"battery_fraction": 1.0,
+				"brownout": false,
+				"circuits": {
+					"airlock": {
+						"breaker_on": true,
+						"demand_w": 60.0,
+						"priority": 3,
+						"served": true,
+						"shed": false
+					},
+					"fabricator": {
+						"breaker_on": true,
+						"demand_w": 80.0,
+						"priority": 4,
+						"served": true,
+						"shed": false
+					},
+					"life_support": {
+						"breaker_on": true,
+						"demand_w": 120.0,
+						"priority": 0,
+						"served": true,
+						"shed": false
+					},
+					"lighting": {
+						"breaker_on": true,
+						"demand_w": 320.0,
+						"priority": 5,
+						"served": true,
+						"shed": false
+					},
+					"scrubber": {
+						"breaker_on": true,
+						"demand_w": 150.0,
+						"priority": 2,
+						"served": true,
+						"shed": false
+					},
+					"xenonite_uv": {
+						"breaker_on": true,
+						"demand_w": 30.0,
+						"priority": 3,
+						"served": true,
+						"shed": false
+					}
+				},
+				"demand_w": 760.0,
+				"generation_w": 500.0,
+				"load_w": 0.0,
+				"system_id": "power"
+			},
+			"registry_available": true,
+			"source_loads": {
+				"lighting": {
+					"ServiceBay_life_support_service": 25.0,
+					"cockpit": 25.0,
+					"life_support": 25.0
+				},
+				"xenonite_uv": {
+					"propulsion": 30.0
+				}
+			},
+			"source_state": {
+				"battery_capacity_wh": 4000.0,
+				"battery_charge_wh": 4000.0,
+				"battery_max_discharge_w": 2000.0,
+				"breakers": {
+					"airlock": true,
+					"fabricator": true,
+					"life_support": true,
+					"lighting": true,
+					"scrubber": true,
+					"xenonite_uv": true
+				},
+				"brownout": false,
+				"failure_restore": {},
+				"generators": {
+					"rtg_main": 500.0
+				},
+				"light_enabled": {
+					"ServiceBay_galley_service": true,
+					"ServiceBay_life_support_service": true,
+					"airlock": true,
+					"cockpit": true,
+					"cupola": true,
+					"engine_bay_a": true,
+					"engine_bay_b": true,
+					"exterior_work_0": true,
+					"exterior_work_1": true,
+					"galley": true,
+					"life_support": true,
+					"quarters": true,
+					"storage": true,
+					"water_closet": true
+				},
+				"load_overrides": {},
+				"maintenance_covers": {},
+				"served_w": 0.0,
+				"shed": {
+					"airlock": false,
+					"fabricator": false,
+					"life_support": false,
+					"lighting": false,
+					"scrubber": false,
+					"xenonite_uv": false
+				},
+				"state_version": 2,
+				"system_id": "power",
+				"wear": [
+					{
+						"component_id": "rtg_main",
+						"condition": 1.0,
+						"diagnosed": false,
+						"failed_mode": "",
+						"hours_operated": 0.0,
+						"load": 1.0,
+						"scanned": false
+					},
+					{
+						"component_id": "battery_main",
+						"condition": 1.0,
+						"diagnosed": false,
+						"failed_mode": "",
+						"hours_operated": 0.0,
+						"load": 1.0,
+						"scanned": false
+					},
+					{
+						"component_id": "lighting_ballast",
+						"condition": 1.0,
+						"diagnosed": false,
+						"failed_mode": "",
+						"hours_operated": 0.0,
+						"load": 1.0,
+						"scanned": false
+					}
+				],
+				"wear_rng_state": "-5295716080562260720"
+			}
+		},
+		"pod_off": {
+			"fixtures": {
+				"Pod_hp_quarters/PodLight": {
+					"enabled": false,
+					"label": "QUARTERS POD",
+					"powered": false,
+					"watts": 25.0
+				},
+				"ServiceBay_galley_service": {
+					"enabled": false,
+					"label": "GALLEY SERVICE",
+					"powered": false,
+					"watts": 25.0
+				},
+				"ServiceBay_life_support_service": {
+					"enabled": true,
+					"label": "LIFE SUPPORT SERVICE",
+					"powered": true,
+					"watts": 25.0
+				},
+				"airlock": {
+					"enabled": false,
+					"label": "AIRLOCK",
+					"powered": false,
+					"watts": 25.0
+				},
+				"cockpit": {
+					"enabled": true,
+					"label": "COCKPIT",
+					"powered": true,
+					"watts": 25.0
+				},
+				"cupola": {
+					"enabled": false,
+					"label": "CUPOLA",
+					"powered": false,
+					"watts": 25.0
+				},
+				"engine_bay_a": {
+					"enabled": false,
+					"label": "ENGINE BAY A",
+					"powered": false,
+					"watts": 25.0
+				},
+				"engine_bay_b": {
+					"enabled": false,
+					"label": "ENGINE BAY B",
+					"powered": false,
+					"watts": 25.0
+				},
+				"exterior_work_0": {
+					"enabled": false,
+					"label": "EXTERIOR WORK 1",
+					"powered": false,
+					"watts": 10.0
+				},
+				"exterior_work_1": {
+					"enabled": false,
+					"label": "EXTERIOR WORK 2",
+					"powered": false,
+					"watts": 10.0
+				},
+				"galley": {
+					"enabled": false,
+					"label": "GALLEY",
+					"powered": false,
+					"watts": 25.0
+				},
+				"life_support": {
+					"enabled": true,
+					"label": "LIFE SUPPORT",
+					"powered": true,
+					"watts": 25.0
+				},
+				"quarters": {
+					"enabled": false,
+					"label": "QUARTERS",
+					"powered": false,
+					"watts": 25.0
+				},
+				"storage": {
+					"enabled": false,
+					"label": "STORAGE",
+					"powered": false,
+					"watts": 25.0
+				},
+				"water_closet": {
+					"enabled": false,
+					"label": "WATER CLOSET",
+					"powered": false,
+					"watts": 25.0
+				}
+			},
+			"power": {
+				"battery_capacity_wh": 4000.0,
+				"battery_charge_wh": 4000.0,
+				"battery_fraction": 1.0,
+				"brownout": false,
+				"circuits": {
+					"airlock": {
+						"breaker_on": true,
+						"demand_w": 60.0,
+						"priority": 3,
+						"served": true,
+						"shed": false
+					},
+					"fabricator": {
+						"breaker_on": true,
+						"demand_w": 80.0,
+						"priority": 4,
+						"served": true,
+						"shed": false
+					},
+					"life_support": {
+						"breaker_on": true,
+						"demand_w": 120.0,
+						"priority": 0,
+						"served": true,
+						"shed": false
+					},
+					"lighting": {
+						"breaker_on": true,
+						"demand_w": 75.0,
+						"priority": 5,
+						"served": true,
+						"shed": false
+					},
+					"scrubber": {
+						"breaker_on": true,
+						"demand_w": 150.0,
+						"priority": 2,
+						"served": true,
+						"shed": false
+					},
+					"xenonite_uv": {
+						"breaker_on": true,
+						"demand_w": 30.0,
+						"priority": 3,
+						"served": true,
+						"shed": false
+					}
+				},
+				"demand_w": 515.0,
+				"generation_w": 500.0,
+				"load_w": 0.0,
+				"system_id": "power"
+			}
+		},
+		"pod_on": {
+			"fixtures": {
+				"Pod_hp_quarters/PodLight": {
+					"enabled": true,
+					"label": "QUARTERS POD",
+					"powered": true,
+					"watts": 25.0
+				},
+				"ServiceBay_galley_service": {
+					"enabled": false,
+					"label": "GALLEY SERVICE",
+					"powered": false,
+					"watts": 25.0
+				},
+				"ServiceBay_life_support_service": {
+					"enabled": true,
+					"label": "LIFE SUPPORT SERVICE",
+					"powered": true,
+					"watts": 25.0
+				},
+				"airlock": {
+					"enabled": false,
+					"label": "AIRLOCK",
+					"powered": false,
+					"watts": 25.0
+				},
+				"cockpit": {
+					"enabled": true,
+					"label": "COCKPIT",
+					"powered": true,
+					"watts": 25.0
+				},
+				"cupola": {
+					"enabled": false,
+					"label": "CUPOLA",
+					"powered": false,
+					"watts": 25.0
+				},
+				"engine_bay_a": {
+					"enabled": false,
+					"label": "ENGINE BAY A",
+					"powered": false,
+					"watts": 25.0
+				},
+				"engine_bay_b": {
+					"enabled": false,
+					"label": "ENGINE BAY B",
+					"powered": false,
+					"watts": 25.0
+				},
+				"exterior_work_0": {
+					"enabled": false,
+					"label": "EXTERIOR WORK 1",
+					"powered": false,
+					"watts": 10.0
+				},
+				"exterior_work_1": {
+					"enabled": false,
+					"label": "EXTERIOR WORK 2",
+					"powered": false,
+					"watts": 10.0
+				},
+				"galley": {
+					"enabled": false,
+					"label": "GALLEY",
+					"powered": false,
+					"watts": 25.0
+				},
+				"life_support": {
+					"enabled": true,
+					"label": "LIFE SUPPORT",
+					"powered": true,
+					"watts": 25.0
+				},
+				"quarters": {
+					"enabled": false,
+					"label": "QUARTERS",
+					"powered": false,
+					"watts": 25.0
+				},
+				"storage": {
+					"enabled": false,
+					"label": "STORAGE",
+					"powered": false,
+					"watts": 25.0
+				},
+				"water_closet": {
+					"enabled": false,
+					"label": "WATER CLOSET",
+					"powered": false,
+					"watts": 25.0
+				}
+			},
+			"power": {
+				"battery_capacity_wh": 4000.0,
+				"battery_charge_wh": 4000.0,
+				"battery_fraction": 1.0,
+				"brownout": false,
+				"circuits": {
+					"airlock": {
+						"breaker_on": true,
+						"demand_w": 60.0,
+						"priority": 3,
+						"served": true,
+						"shed": false
+					},
+					"fabricator": {
+						"breaker_on": true,
+						"demand_w": 80.0,
+						"priority": 4,
+						"served": true,
+						"shed": false
+					},
+					"life_support": {
+						"breaker_on": true,
+						"demand_w": 120.0,
+						"priority": 0,
+						"served": true,
+						"shed": false
+					},
+					"lighting": {
+						"breaker_on": true,
+						"demand_w": 100.0,
+						"priority": 5,
+						"served": true,
+						"shed": false
+					},
+					"scrubber": {
+						"breaker_on": true,
+						"demand_w": 150.0,
+						"priority": 2,
+						"served": true,
+						"shed": false
+					},
+					"xenonite_uv": {
+						"breaker_on": true,
+						"demand_w": 30.0,
+						"priority": 3,
+						"served": true,
+						"shed": false
+					}
+				},
+				"demand_w": 540.0,
+				"generation_w": 500.0,
+				"load_w": 0.0,
+				"system_id": "power"
+			}
+		},
+		"selective_off": {
+			"fixtures": {
+				"ServiceBay_galley_service": {
+					"enabled": false,
+					"label": "GALLEY SERVICE",
+					"powered": false,
+					"watts": 25.0
+				},
+				"ServiceBay_life_support_service": {
+					"enabled": true,
+					"label": "LIFE SUPPORT SERVICE",
+					"powered": true,
+					"watts": 25.0
+				},
+				"airlock": {
+					"enabled": false,
+					"label": "AIRLOCK",
+					"powered": false,
+					"watts": 25.0
+				},
+				"cockpit": {
+					"enabled": true,
+					"label": "COCKPIT",
+					"powered": true,
+					"watts": 25.0
+				},
+				"cupola": {
+					"enabled": false,
+					"label": "CUPOLA",
+					"powered": false,
+					"watts": 25.0
+				},
+				"engine_bay_a": {
+					"enabled": false,
+					"label": "ENGINE BAY A",
+					"powered": false,
+					"watts": 25.0
+				},
+				"engine_bay_b": {
+					"enabled": false,
+					"label": "ENGINE BAY B",
+					"powered": false,
+					"watts": 25.0
+				},
+				"exterior_work_0": {
+					"enabled": false,
+					"label": "EXTERIOR WORK 1",
+					"powered": false,
+					"watts": 10.0
+				},
+				"exterior_work_1": {
+					"enabled": false,
+					"label": "EXTERIOR WORK 2",
+					"powered": false,
+					"watts": 10.0
+				},
+				"galley": {
+					"enabled": false,
+					"label": "GALLEY",
+					"powered": false,
+					"watts": 25.0
+				},
+				"life_support": {
+					"enabled": true,
+					"label": "LIFE SUPPORT",
+					"powered": true,
+					"watts": 25.0
+				},
+				"quarters": {
+					"enabled": false,
+					"label": "QUARTERS",
+					"powered": false,
+					"watts": 25.0
+				},
+				"storage": {
+					"enabled": false,
+					"label": "STORAGE",
+					"powered": false,
+					"watts": 25.0
+				},
+				"water_closet": {
+					"enabled": false,
+					"label": "WATER CLOSET",
+					"powered": false,
+					"watts": 25.0
+				}
+			},
+			"power": {
+				"battery_capacity_wh": 4000.0,
+				"battery_charge_wh": 4000.0,
+				"battery_fraction": 1.0,
+				"brownout": false,
+				"circuits": {
+					"airlock": {
+						"breaker_on": true,
+						"demand_w": 60.0,
+						"priority": 3,
+						"served": true,
+						"shed": false
+					},
+					"fabricator": {
+						"breaker_on": true,
+						"demand_w": 80.0,
+						"priority": 4,
+						"served": true,
+						"shed": false
+					},
+					"life_support": {
+						"breaker_on": true,
+						"demand_w": 120.0,
+						"priority": 0,
+						"served": true,
+						"shed": false
+					},
+					"lighting": {
+						"breaker_on": true,
+						"demand_w": 75.0,
+						"priority": 5,
+						"served": true,
+						"shed": false
+					},
+					"scrubber": {
+						"breaker_on": true,
+						"demand_w": 150.0,
+						"priority": 2,
+						"served": true,
+						"shed": false
+					},
+					"xenonite_uv": {
+						"breaker_on": true,
+						"demand_w": 30.0,
+						"priority": 3,
+						"served": true,
+						"shed": false
+					}
+				},
+				"demand_w": 515.0,
+				"generation_w": 500.0,
+				"load_w": 0.0,
+				"system_id": "power"
+			},
+			"registry_available": true,
+			"source_loads": {
+				"lighting": {
+					"ServiceBay_life_support_service": 25.0,
+					"cockpit": 25.0,
+					"life_support": 25.0
+				},
+				"xenonite_uv": {
+					"propulsion": 30.0
+				}
+			},
+			"source_state": {
+				"battery_capacity_wh": 4000.0,
+				"battery_charge_wh": 4000.0,
+				"battery_max_discharge_w": 2000.0,
+				"breakers": {
+					"airlock": true,
+					"fabricator": true,
+					"life_support": true,
+					"lighting": true,
+					"scrubber": true,
+					"xenonite_uv": true
+				},
+				"brownout": false,
+				"failure_restore": {},
+				"generators": {
+					"rtg_main": 500.0
+				},
+				"light_enabled": {
+					"ServiceBay_galley_service": false,
+					"ServiceBay_life_support_service": true,
+					"airlock": false,
+					"cockpit": true,
+					"cupola": false,
+					"engine_bay_a": false,
+					"engine_bay_b": false,
+					"exterior_work_0": false,
+					"exterior_work_1": false,
+					"galley": false,
+					"life_support": true,
+					"quarters": false,
+					"storage": false,
+					"water_closet": false
+				},
+				"load_overrides": {},
+				"maintenance_covers": {},
+				"served_w": 0.0,
+				"shed": {
+					"airlock": false,
+					"fabricator": false,
+					"life_support": false,
+					"lighting": false,
+					"scrubber": false,
+					"xenonite_uv": false
+				},
+				"state_version": 2,
+				"system_id": "power",
+				"wear": [
+					{
+						"component_id": "rtg_main",
+						"condition": 1.0,
+						"diagnosed": false,
+						"failed_mode": "",
+						"hours_operated": 0.0,
+						"load": 1.0,
+						"scanned": false
+					},
+					{
+						"component_id": "battery_main",
+						"condition": 1.0,
+						"diagnosed": false,
+						"failed_mode": "",
+						"hours_operated": 0.0,
+						"load": 1.0,
+						"scanned": false
+					},
+					{
+						"component_id": "lighting_ballast",
+						"condition": 1.0,
+						"diagnosed": false,
+						"failed_mode": "",
+						"hours_operated": 0.0,
+						"load": 1.0,
+						"scanned": false
+					}
+				],
+				"wear_rng_state": "-5295716080562260720"
+			}
+		}
+	},
+	"views": [
+		{
+			"area": "after_all_on_cabin_cockpit",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-17.0499992370605
+			],
+			"file": "after_all_on_cabin_cockpit_bow.png",
+			"flashlight": false,
+			"target": [
+				0.0,
+				1.54999995231628,
+				-18.0499992370605
+			],
+			"view": "bow"
+		},
+		{
+			"area": "after_all_on_cabin_cockpit",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-17.0499992370605
+			],
+			"file": "after_all_on_cabin_cockpit_stern.png",
+			"flashlight": false,
+			"target": [
+				0.0,
+				1.54999995231628,
+				-16.0499992370605
+			],
+			"view": "stern"
+		},
+		{
+			"area": "after_all_on_cabin_cockpit",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-17.0499992370605
+			],
+			"file": "after_all_on_cabin_cockpit_port.png",
+			"flashlight": false,
+			"target": [
+				-1.0,
+				1.54999995231628,
+				-17.0499992370605
+			],
+			"view": "port"
+		},
+		{
+			"area": "after_all_on_cabin_cockpit",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-17.0499992370605
+			],
+			"file": "after_all_on_cabin_cockpit_starboard.png",
+			"flashlight": false,
+			"target": [
+				1.0,
+				1.54999995231628,
+				-17.0499992370605
+			],
+			"view": "starboard"
+		},
+		{
+			"area": "after_all_on_cabin_cockpit",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-17.0499992370605
+			],
+			"file": "after_all_on_cabin_cockpit_ceiling.png",
+			"flashlight": false,
+			"target": [
+				0.0,
+				2.54999995231628,
+				-17.0499992370605
+			],
+			"view": "ceiling"
+		},
+		{
+			"area": "after_all_on_cabin_cockpit",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-17.0499992370605
+			],
+			"file": "after_all_on_cabin_cockpit_deck.png",
+			"flashlight": false,
+			"target": [
+				0.0,
+				0.549999952316284,
+				-17.0499992370605
+			],
+			"view": "deck"
+		},
+		{
+			"area": "after_all_on_cabin_galley",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-8.30000019073486
+			],
+			"file": "after_all_on_cabin_galley_bow.png",
+			"flashlight": false,
+			"target": [
+				0.0,
+				1.54999995231628,
+				-9.30000019073486
+			],
+			"view": "bow"
+		},
+		{
+			"area": "after_all_on_cabin_galley",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-8.30000019073486
+			],
+			"file": "after_all_on_cabin_galley_stern.png",
+			"flashlight": false,
+			"target": [
+				0.0,
+				1.54999995231628,
+				-7.30000019073486
+			],
+			"view": "stern"
+		},
+		{
+			"area": "after_all_on_cabin_galley",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-8.30000019073486
+			],
+			"file": "after_all_on_cabin_galley_port.png",
+			"flashlight": false,
+			"target": [
+				-1.0,
+				1.54999995231628,
+				-8.30000019073486
+			],
+			"view": "port"
+		},
+		{
+			"area": "after_all_on_cabin_galley",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-8.30000019073486
+			],
+			"file": "after_all_on_cabin_galley_starboard.png",
+			"flashlight": false,
+			"target": [
+				1.0,
+				1.54999995231628,
+				-8.30000019073486
+			],
+			"view": "starboard"
+		},
+		{
+			"area": "after_all_on_cabin_galley",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-8.30000019073486
+			],
+			"file": "after_all_on_cabin_galley_ceiling.png",
+			"flashlight": false,
+			"target": [
+				0.0,
+				2.54999995231628,
+				-8.30000019073486
+			],
+			"view": "ceiling"
+		},
+		{
+			"area": "after_all_on_cabin_galley",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-8.30000019073486
+			],
+			"file": "after_all_on_cabin_galley_deck.png",
+			"flashlight": false,
+			"target": [
+				0.0,
+				0.549999952316284,
+				-8.30000019073486
+			],
+			"view": "deck"
+		},
+		{
+			"area": "after_all_on_cabin_life_support",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-11.0499992370605
+			],
+			"file": "after_all_on_cabin_life_support_bow.png",
+			"flashlight": false,
+			"target": [
+				0.0,
+				1.54999995231628,
+				-12.0499992370605
+			],
+			"view": "bow"
+		},
+		{
+			"area": "after_all_on_cabin_life_support",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-11.0499992370605
+			],
+			"file": "after_all_on_cabin_life_support_stern.png",
+			"flashlight": false,
+			"target": [
+				0.0,
+				1.54999995231628,
+				-10.0499992370605
+			],
+			"view": "stern"
+		},
+		{
+			"area": "after_all_on_cabin_life_support",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-11.0499992370605
+			],
+			"file": "after_all_on_cabin_life_support_port.png",
+			"flashlight": false,
+			"target": [
+				-1.0,
+				1.54999995231628,
+				-11.0499992370605
+			],
+			"view": "port"
+		},
+		{
+			"area": "after_all_on_cabin_life_support",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-11.0499992370605
+			],
+			"file": "after_all_on_cabin_life_support_starboard.png",
+			"flashlight": false,
+			"target": [
+				1.0,
+				1.54999995231628,
+				-11.0499992370605
+			],
+			"view": "starboard"
+		},
+		{
+			"area": "after_all_on_cabin_life_support",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-11.0499992370605
+			],
+			"file": "after_all_on_cabin_life_support_ceiling.png",
+			"flashlight": false,
+			"target": [
+				0.0,
+				2.54999995231628,
+				-11.0499992370605
+			],
+			"view": "ceiling"
+		},
+		{
+			"area": "after_all_on_cabin_life_support",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-11.0499992370605
+			],
+			"file": "after_all_on_cabin_life_support_deck.png",
+			"flashlight": false,
+			"target": [
+				0.0,
+				0.549999952316284,
+				-11.0499992370605
+			],
+			"view": "deck"
+		},
+		{
+			"area": "after_all_on_cabin_engine_bay_b",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				5.15000009536743
+			],
+			"file": "after_all_on_cabin_engine_bay_b_bow.png",
+			"flashlight": false,
+			"target": [
+				0.0,
+				1.54999995231628,
+				4.15000009536743
+			],
+			"view": "bow"
+		},
+		{
+			"area": "after_all_on_cabin_engine_bay_b",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				5.15000009536743
+			],
+			"file": "after_all_on_cabin_engine_bay_b_stern.png",
+			"flashlight": false,
+			"target": [
+				0.0,
+				1.54999995231628,
+				6.15000009536743
+			],
+			"view": "stern"
+		},
+		{
+			"area": "after_all_on_cabin_engine_bay_b",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				5.15000009536743
+			],
+			"file": "after_all_on_cabin_engine_bay_b_port.png",
+			"flashlight": false,
+			"target": [
+				-1.0,
+				1.54999995231628,
+				5.15000009536743
+			],
+			"view": "port"
+		},
+		{
+			"area": "after_all_on_cabin_engine_bay_b",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				5.15000009536743
+			],
+			"file": "after_all_on_cabin_engine_bay_b_starboard.png",
+			"flashlight": false,
+			"target": [
+				1.0,
+				1.54999995231628,
+				5.15000009536743
+			],
+			"view": "starboard"
+		},
+		{
+			"area": "after_all_on_cabin_engine_bay_b",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				5.15000009536743
+			],
+			"file": "after_all_on_cabin_engine_bay_b_ceiling.png",
+			"flashlight": false,
+			"target": [
+				0.0,
+				2.54999995231628,
+				5.15000009536743
+			],
+			"view": "ceiling"
+		},
+		{
+			"area": "after_all_on_cabin_engine_bay_b",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				5.15000009536743
+			],
+			"file": "after_all_on_cabin_engine_bay_b_deck.png",
+			"flashlight": false,
+			"target": [
+				0.0,
+				0.549999952316284,
+				5.15000009536743
+			],
+			"view": "deck"
+		},
+		{
+			"area": "after_all_on_bay_life_support_service",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-11.0499992370605
+			],
+			"file": "after_all_on_bay_life_support_service_entry.png",
+			"flashlight": false,
+			"target": [
+				3.84800004959106,
+				1.20000004768372,
+				-11.0499992370605
+			],
+			"view": "entry"
+		},
+		{
+			"area": "after_all_on_bay_galley_service",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-8.30000019073486
+			],
+			"file": "after_all_on_bay_galley_service_entry.png",
+			"flashlight": false,
+			"target": [
+				-4.02400016784668,
+				1.20000004768372,
+				-8.30000019073486
+			],
+			"view": "entry"
+		},
+		{
+			"area": "after_all_on_exterior_work_0",
+			"eye": [
+				-4.55999994277954,
+				1.71000003814697,
+				0.350000023841858
+			],
+			"file": "after_all_on_exterior_work_0_beam.png",
+			"flashlight": false,
+			"target": [
+				-0.559999942779541,
+				0.509999990463257,
+				-0.650000512599945
+			],
+			"view": "beam"
+		},
+		{
+			"area": "after_all_on_exterior_work_1",
+			"eye": [
+				-3.24000000953674,
+				1.71000003814697,
+				-8.15999984741211
+			],
+			"file": "after_all_on_exterior_work_1_beam.png",
+			"flashlight": false,
+			"target": [
+				-3.23999977111816,
+				0.509999990463257,
+				-5.15999984741211
+			],
+			"view": "beam"
+		},
+		{
+			"area": "after_selective_off_cabin_cockpit",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-17.0499992370605
+			],
+			"file": "after_selective_off_cabin_cockpit_bow.png",
+			"flashlight": false,
+			"target": [
+				0.0,
+				1.54999995231628,
+				-18.0499992370605
+			],
+			"view": "bow"
+		},
+		{
+			"area": "after_selective_off_cabin_cockpit",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-17.0499992370605
+			],
+			"file": "after_selective_off_cabin_cockpit_stern.png",
+			"flashlight": false,
+			"target": [
+				0.0,
+				1.54999995231628,
+				-16.0499992370605
+			],
+			"view": "stern"
+		},
+		{
+			"area": "after_selective_off_cabin_cockpit",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-17.0499992370605
+			],
+			"file": "after_selective_off_cabin_cockpit_port.png",
+			"flashlight": false,
+			"target": [
+				-1.0,
+				1.54999995231628,
+				-17.0499992370605
+			],
+			"view": "port"
+		},
+		{
+			"area": "after_selective_off_cabin_cockpit",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-17.0499992370605
+			],
+			"file": "after_selective_off_cabin_cockpit_starboard.png",
+			"flashlight": false,
+			"target": [
+				1.0,
+				1.54999995231628,
+				-17.0499992370605
+			],
+			"view": "starboard"
+		},
+		{
+			"area": "after_selective_off_cabin_cockpit",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-17.0499992370605
+			],
+			"file": "after_selective_off_cabin_cockpit_ceiling.png",
+			"flashlight": false,
+			"target": [
+				0.0,
+				2.54999995231628,
+				-17.0499992370605
+			],
+			"view": "ceiling"
+		},
+		{
+			"area": "after_selective_off_cabin_cockpit",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-17.0499992370605
+			],
+			"file": "after_selective_off_cabin_cockpit_deck.png",
+			"flashlight": false,
+			"target": [
+				0.0,
+				0.549999952316284,
+				-17.0499992370605
+			],
+			"view": "deck"
+		},
+		{
+			"area": "after_selective_off_cabin_galley",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-8.30000019073486
+			],
+			"file": "after_selective_off_cabin_galley_bow.png",
+			"flashlight": false,
+			"target": [
+				0.0,
+				1.54999995231628,
+				-9.30000019073486
+			],
+			"view": "bow"
+		},
+		{
+			"area": "after_selective_off_cabin_galley",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-8.30000019073486
+			],
+			"file": "after_selective_off_cabin_galley_stern.png",
+			"flashlight": false,
+			"target": [
+				0.0,
+				1.54999995231628,
+				-7.30000019073486
+			],
+			"view": "stern"
+		},
+		{
+			"area": "after_selective_off_cabin_galley",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-8.30000019073486
+			],
+			"file": "after_selective_off_cabin_galley_port.png",
+			"flashlight": false,
+			"target": [
+				-1.0,
+				1.54999995231628,
+				-8.30000019073486
+			],
+			"view": "port"
+		},
+		{
+			"area": "after_selective_off_cabin_galley",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-8.30000019073486
+			],
+			"file": "after_selective_off_cabin_galley_starboard.png",
+			"flashlight": false,
+			"target": [
+				1.0,
+				1.54999995231628,
+				-8.30000019073486
+			],
+			"view": "starboard"
+		},
+		{
+			"area": "after_selective_off_cabin_galley",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-8.30000019073486
+			],
+			"file": "after_selective_off_cabin_galley_ceiling.png",
+			"flashlight": false,
+			"target": [
+				0.0,
+				2.54999995231628,
+				-8.30000019073486
+			],
+			"view": "ceiling"
+		},
+		{
+			"area": "after_selective_off_cabin_galley",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-8.30000019073486
+			],
+			"file": "after_selective_off_cabin_galley_deck.png",
+			"flashlight": false,
+			"target": [
+				0.0,
+				0.549999952316284,
+				-8.30000019073486
+			],
+			"view": "deck"
+		},
+		{
+			"area": "after_selective_off_cabin_life_support",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-11.0499992370605
+			],
+			"file": "after_selective_off_cabin_life_support_bow.png",
+			"flashlight": false,
+			"target": [
+				0.0,
+				1.54999995231628,
+				-12.0499992370605
+			],
+			"view": "bow"
+		},
+		{
+			"area": "after_selective_off_cabin_life_support",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-11.0499992370605
+			],
+			"file": "after_selective_off_cabin_life_support_stern.png",
+			"flashlight": false,
+			"target": [
+				0.0,
+				1.54999995231628,
+				-10.0499992370605
+			],
+			"view": "stern"
+		},
+		{
+			"area": "after_selective_off_cabin_life_support",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-11.0499992370605
+			],
+			"file": "after_selective_off_cabin_life_support_port.png",
+			"flashlight": false,
+			"target": [
+				-1.0,
+				1.54999995231628,
+				-11.0499992370605
+			],
+			"view": "port"
+		},
+		{
+			"area": "after_selective_off_cabin_life_support",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-11.0499992370605
+			],
+			"file": "after_selective_off_cabin_life_support_starboard.png",
+			"flashlight": false,
+			"target": [
+				1.0,
+				1.54999995231628,
+				-11.0499992370605
+			],
+			"view": "starboard"
+		},
+		{
+			"area": "after_selective_off_cabin_life_support",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-11.0499992370605
+			],
+			"file": "after_selective_off_cabin_life_support_ceiling.png",
+			"flashlight": false,
+			"target": [
+				0.0,
+				2.54999995231628,
+				-11.0499992370605
+			],
+			"view": "ceiling"
+		},
+		{
+			"area": "after_selective_off_cabin_life_support",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-11.0499992370605
+			],
+			"file": "after_selective_off_cabin_life_support_deck.png",
+			"flashlight": false,
+			"target": [
+				0.0,
+				0.549999952316284,
+				-11.0499992370605
+			],
+			"view": "deck"
+		},
+		{
+			"area": "after_selective_off_cabin_engine_bay_b",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				5.15000009536743
+			],
+			"file": "after_selective_off_cabin_engine_bay_b_bow.png",
+			"flashlight": false,
+			"target": [
+				0.0,
+				1.54999995231628,
+				4.15000009536743
+			],
+			"view": "bow"
+		},
+		{
+			"area": "after_selective_off_cabin_engine_bay_b",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				5.15000009536743
+			],
+			"file": "after_selective_off_cabin_engine_bay_b_stern.png",
+			"flashlight": false,
+			"target": [
+				0.0,
+				1.54999995231628,
+				6.15000009536743
+			],
+			"view": "stern"
+		},
+		{
+			"area": "after_selective_off_cabin_engine_bay_b",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				5.15000009536743
+			],
+			"file": "after_selective_off_cabin_engine_bay_b_port.png",
+			"flashlight": false,
+			"target": [
+				-1.0,
+				1.54999995231628,
+				5.15000009536743
+			],
+			"view": "port"
+		},
+		{
+			"area": "after_selective_off_cabin_engine_bay_b",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				5.15000009536743
+			],
+			"file": "after_selective_off_cabin_engine_bay_b_starboard.png",
+			"flashlight": false,
+			"target": [
+				1.0,
+				1.54999995231628,
+				5.15000009536743
+			],
+			"view": "starboard"
+		},
+		{
+			"area": "after_selective_off_cabin_engine_bay_b",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				5.15000009536743
+			],
+			"file": "after_selective_off_cabin_engine_bay_b_ceiling.png",
+			"flashlight": false,
+			"target": [
+				0.0,
+				2.54999995231628,
+				5.15000009536743
+			],
+			"view": "ceiling"
+		},
+		{
+			"area": "after_selective_off_cabin_engine_bay_b",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				5.15000009536743
+			],
+			"file": "after_selective_off_cabin_engine_bay_b_deck.png",
+			"flashlight": false,
+			"target": [
+				0.0,
+				0.549999952316284,
+				5.15000009536743
+			],
+			"view": "deck"
+		},
+		{
+			"area": "after_selective_off_bay_life_support_service",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-11.0499992370605
+			],
+			"file": "after_selective_off_bay_life_support_service_entry.png",
+			"flashlight": false,
+			"target": [
+				3.84800004959106,
+				1.20000004768372,
+				-11.0499992370605
+			],
+			"view": "entry"
+		},
+		{
+			"area": "after_selective_off_bay_galley_service",
+			"eye": [
+				0.0,
+				1.54999995231628,
+				-8.30000019073486
+			],
+			"file": "after_selective_off_bay_galley_service_entry.png",
+			"flashlight": false,
+			"target": [
+				-4.02400016784668,
+				1.20000004768372,
+				-8.30000019073486
+			],
+			"view": "entry"
+		},
+		{
+			"area": "after_selective_off_exterior_work_0",
+			"eye": [
+				-4.55999994277954,
+				1.71000003814697,
+				0.350000023841858
+			],
+			"file": "after_selective_off_exterior_work_0_beam.png",
+			"flashlight": false,
+			"target": [
+				-0.559999942779541,
+				0.509999990463257,
+				-0.650000512599945
+			],
+			"view": "beam"
+		},
+		{
+			"area": "after_selective_off_exterior_work_1",
+			"eye": [
+				-3.24000000953674,
+				1.71000003814697,
+				-8.15999984741211
+			],
+			"file": "after_selective_off_exterior_work_1_beam.png",
+			"flashlight": false,
+			"target": [
+				-3.23999977111816,
+				0.509999990463257,
+				-5.15999984741211
+			],
+			"view": "beam"
+		},
+		{
+			"area": "after_pod_on",
+			"eye": [
+				-3.65000009536743,
+				1.54999995231628,
+				-13.8999996185303
+			],
+			"file": "after_pod_on_entry.png",
+			"flashlight": false,
+			"target": [
+				-6.65000009536743,
+				1.10000002384186,
+				-13.8999996185303
+			],
+			"view": "entry"
+		},
+		{
+			"area": "after_pod_on",
+			"eye": [
+				-5.44999980926514,
+				1.54999995231628,
+				-13.8999996185303
+			],
+			"file": "after_pod_on_panel.png",
+			"flashlight": false,
+			"target": [
+				-5.15000057220459,
+				1.29999995231628,
+				-15.2999992370605
+			],
+			"view": "panel"
+		},
+		{
+			"area": "after_pod_off",
+			"eye": [
+				-3.65000009536743,
+				1.54999995231628,
+				-13.8999996185303
+			],
+			"file": "after_pod_off_entry.png",
+			"flashlight": false,
+			"target": [
+				-6.65000009536743,
+				1.10000002384186,
+				-13.8999996185303
+			],
+			"view": "entry"
+		},
+		{
+			"area": "after_pod_off",
+			"eye": [
+				-5.44999980926514,
+				1.54999995231628,
+				-13.8999996185303
+			],
+			"file": "after_pod_off_panel.png",
+			"flashlight": false,
+			"target": [
+				-5.15000057220459,
+				1.29999995231628,
+				-15.2999992370605
+			],
+			"view": "panel"
+		}
+	]
+}

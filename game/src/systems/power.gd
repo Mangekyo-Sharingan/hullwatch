@@ -21,6 +21,10 @@ var _breaker_on: Dictionary = {}
 var _shed: Dictionary = {}
 var _load_overrides: Dictionary = {}
 var _source_loads: Dictionary = {}
+var _source_totals: Dictionary = {}
+var _lights: Dictionary = {}
+var _light_enabled: Dictionary = {}
+var _lighting_factor: float = 1.0
 var _capacity_sources: Dictionary = {}
 var _brownout_active: bool = false
 var _served_w: float = 0.0
@@ -339,10 +343,46 @@ func _sort_restore_first(a: StringName, b: StringName) -> bool:
 
 
 func _get_effective_load(circuit_id: StringName) -> float:
+	var factor: float = _lighting_factor if circuit_id == &"lighting" else 1.0
 	if _load_overrides.has(circuit_id):
-		return float(_load_overrides[circuit_id]) + _source_load(circuit_id)
+		return (float(_load_overrides[circuit_id]) + _source_load(circuit_id)) * factor
 	var circuit: PowerCircuit = _circuits[circuit_id]
-	return circuit.nominal_load_w + _source_load(circuit_id)
+	return (circuit.nominal_load_w + _source_load(circuit_id)) * factor
+
+
+func register_light(fixture_id: StringName, label: String, watts: float) -> bool:
+	if fixture_id == &"" or _lights.has(fixture_id) or not has_circuit(&"lighting") or not is_finite(watts) or watts <= 0.0:
+		return false
+	_lights[fixture_id] = {"label": label, "watts": watts}
+	set_circuit_source_load(&"lighting", fixture_id, watts if bool(_light_enabled.get(String(fixture_id), true)) else 0.0)
+	emit_sim_event(&"lighting_fixtures_changed")
+	return true
+
+
+func unregister_light(fixture_id: StringName) -> void:
+	_lights.erase(fixture_id)
+	set_circuit_source_load(&"lighting", fixture_id, 0.0)
+	emit_sim_event(&"lighting_fixtures_changed")
+
+
+func set_light_enabled(fixture_id: StringName, enabled: bool) -> bool:
+	if not _lights.has(fixture_id):
+		return false
+	_light_enabled[String(fixture_id)] = enabled
+	set_circuit_source_load(&"lighting", fixture_id, float(_lights[fixture_id]["watts"]) if enabled else 0.0)
+	emit_sim_event(&"lighting_changed", {"fixture_id": fixture_id, "enabled": enabled})
+	return true
+
+
+func is_light_powered(fixture_id: StringName) -> bool:
+	return _lights.has(fixture_id) and bool(_light_enabled.get(String(fixture_id), true)) and is_breaker_on(&"lighting") and not is_circuit_shed(&"lighting") and _lighting_factor > 0.0
+
+
+func get_lighting_status() -> Dictionary:
+	var status: Dictionary = {}
+	for fixture_id: StringName in _lights:
+		status[fixture_id] = {"label": _lights[fixture_id]["label"], "watts": float(_lights[fixture_id]["watts"]) * _lighting_factor, "enabled": bool(_light_enabled.get(String(fixture_id), true)), "powered": is_light_powered(fixture_id)}
+	return status
 
 
 ## Fittings (modules, machines) draw on top of a circuit's own load. Sources are not saved:
@@ -351,22 +391,32 @@ func set_circuit_source_load(circuit_id: StringName, source_id: StringName, watt
 	if not _circuits.has(circuit_id):
 		push_error("PowerSystem.set_circuit_source_load: unknown circuit_id '%s'." % String(circuit_id))
 		return
+	if source_id == &"" or not is_finite(watts):
+		push_error("PowerSystem.set_circuit_source_load: source_id must be non-empty and watts finite.")
+		return
 	if watts <= 0.0:
 		if _source_loads.has(circuit_id):
 			(_source_loads[circuit_id] as Dictionary).erase(source_id)
+			_refresh_source_total(circuit_id)
 		return
 	if not _source_loads.has(circuit_id):
 		_source_loads[circuit_id] = {}
 	(_source_loads[circuit_id] as Dictionary)[source_id] = watts
+	_refresh_source_total(circuit_id)
 
 
 func _source_load(circuit_id: StringName) -> float:
+	return float(_source_totals.get(circuit_id, 0.0))
+
+
+func _refresh_source_total(circuit_id: StringName) -> void:
+	# Hardware changes rarely; avoid summing every fixture on every bus query/tick.
 	var total: float = 0.0
 	var sources: Variant = _source_loads.get(circuit_id, {})
 	if sources is Dictionary:
 		for value: Variant in (sources as Dictionary).values():
 			total += float(value)
-	return total
+	_source_totals[circuit_id] = total
 
 
 ## Extra battery capacity contributed by installed hardware (aux battery modules). The base
@@ -434,7 +484,8 @@ func save_state() -> Dictionary:
 		generator_values[String(generator_id)] = float(generators[generator_id])
 	return {
 		"system_id": String(system_id),
-		"state_version": 1,
+		"state_version": 2,
+		"light_enabled": _light_enabled.duplicate(),
 		"maintenance_covers": maintenance_covers.duplicate(),
 		"battery_charge_wh": battery_charge_wh,
 		"battery_capacity_wh": battery_capacity_wh,
@@ -453,6 +504,15 @@ func save_state() -> Dictionary:
 
 func load_state(state: Dictionary) -> void:
 	restore_maintenance_covers(state)
+	_light_enabled.clear()
+	var saved_lights: Variant = state.get("light_enabled", {})
+	if saved_lights is Dictionary:
+		for key: Variant in saved_lights:
+			if key is String and saved_lights[key] is bool:
+				_light_enabled[key] = saved_lights[key]
+	for fixture_id: StringName in _lights:
+		set_circuit_source_load(&"lighting", fixture_id, float(_lights[fixture_id]["watts"]) if bool(_light_enabled.get(String(fixture_id), true)) else 0.0)
+	_lighting_factor = 1.0
 	if state.has("battery_capacity_wh"):
 		battery_capacity_wh = maxf(float(state.get("battery_capacity_wh", battery_capacity_wh)), 0.0)
 	if state.has("battery_max_discharge_w"):
@@ -479,6 +539,10 @@ func load_state(state: Dictionary) -> void:
 	_served_w = float(state.get("served_w", 0.0))
 	_load_wear(state.get("wear", []))
 	_load_failure_restore(state.get("failure_restore", {}))
+	# Older ballast saves stored a fixed wattage; live fixtures now scale with selection.
+	if int(state.get("state_version", 1)) < 2 and _failure_restore.has(&"lighting_ballast"):
+		_load_overrides.erase(&"lighting")
+		_failure_restore.erase(&"lighting_ballast")
 	if state.has("wear_rng_state"):
 		var rng: RandomNumberGenerator = _wear_rng()
 		rng.state = int(state.get("wear_rng_state", rng.state))
@@ -551,6 +615,8 @@ func _load_factor() -> float:
 
 func _humidity_factor() -> float:
 	var atmosphere: Node = _first_node_in_group(&"atmosphere_system")
+	if atmosphere is AtmosphereSystem:
+		return (atmosphere as AtmosphereSystem).get_max_humidity_fraction()
 	if atmosphere == null or not atmosphere.has_method(&"get_status"):
 		return 0.0
 	var status: Variant = atmosphere.call("get_status")
@@ -593,13 +659,11 @@ func _apply_failure_effect(component: WearComponent, failure_mode_id: StringName
 				_failure_restore[component.component_id] = {"kind": "battery_max_discharge_w", "value": battery_max_discharge_w}
 			battery_max_discharge_w = float(_failure_restore[component.component_id]["value"]) * 0.5
 		&"ballast_open":
-			if not _failure_restore.has(component.component_id):
-				_failure_restore[component.component_id] = {"kind": "load_override", "target": "lighting", "value": _get_effective_load(&"lighting")}
-			_load_overrides[&"lighting"] = 0.0
+			_failure_restore[component.component_id] = {"kind": "lighting_failure", "value": 1.0}
+			_lighting_factor = 0.0
 		&"ballast_short":
-			if not _failure_restore.has(component.component_id):
-				_failure_restore[component.component_id] = {"kind": "load_override", "target": "lighting", "value": _get_effective_load(&"lighting")}
-			_load_overrides[&"lighting"] = float(_failure_restore[component.component_id]["value"]) * 1.5
+			_failure_restore[component.component_id] = {"kind": "lighting_failure", "value": 1.0}
+			_lighting_factor = 1.5
 		_:
 			pass
 
@@ -622,6 +686,8 @@ func _restore_failure_effect(component_id: StringName) -> void:
 		return
 	var restore: Dictionary = _failure_restore[component_id]
 	match String(restore.get("kind", "")):
+		"lighting_failure":
+			_lighting_factor = 1.0
 		"generator":
 			var generator_key: Variant = _find_generator_key(StringName(String(restore.get("target", ""))))
 			if generator_key != null:

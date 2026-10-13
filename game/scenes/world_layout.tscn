@@ -1131,16 +1131,16 @@ shape = SubResource("BoxShape3D_o3kp7")
 transform = Transform3D(0.8, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.35, 0)
 
 [node name="HullPatch" type="StaticBody3D" parent="Props"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.394, 1.2, 5.581613)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.394, 1.2, 5.7)
 script = ExtResource("27_rv5bu")
 compartment_id = &"engine_bay"
 
 [node name="Shape" type="CollisionShape3D" parent="Props/HullPatch"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.013499986, 0.3, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.013499994, 0.3, 0)
 shape = SubResource("BoxShape3D_sguak")
 
 [node name="Model" type="Node3D" parent="Props/HullPatch" instance=ExtResource("28_jqscp")]
-transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0.046999987, 0, 0)
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -0.04699999, 0, 0)
 
 [node name="O2CandleRack" type="StaticBody3D" parent="Props"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.753, 1.65, -11.049999)
@@ -1228,16 +1228,16 @@ shape = SubResource("BoxShape3D_wvrig")
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0.03999999, 0, 0)
 
 [node name="ProbeHull" type="StaticBody3D" parent="Props"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.404, 0.35, 5.525484)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.404, 0.6, 5.7)
 script = ExtResource("35_5qyyk")
 system_group = &"hull_system"
 
 [node name="Shape" type="CollisionShape3D" parent="Props/ProbeHull"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.007499993, 0.13499999, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.007499993, 0.13499999, 0)
 shape = SubResource("BoxShape3D_n30ts")
 
 [node name="Model" type="Node3D" parent="Props/ProbeHull" instance=ExtResource("36_soyol")]
-transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0.03999999, 0, 0)
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -0.03999999, 0, 0)
 
 [node name="ProbeWater" type="StaticBody3D" parent="Props"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.6999999, 0.35, -5.3)

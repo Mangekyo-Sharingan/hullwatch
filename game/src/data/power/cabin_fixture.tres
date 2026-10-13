@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="PowerCircuit" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/components/power_circuit.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+circuit_id = &"cabin_fixture"
+display_name = "Cabin fixture"
+nominal_load_w = 25.0
+priority = 5

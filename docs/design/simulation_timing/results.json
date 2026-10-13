@@ -1,0 +1,137 @@
+{
+  "recorded_at": "2026-10-12T21:33:59.888401+02:00",
+  "source_checkpoint": "ef2eca1 plus existing local gate/lighting passes and this timing fix",
+  "engine": "Godot4.7.2 stable Linux headless",
+  "cpu": "AMD Ryzen5 2600 Six-Core Processor",
+  "budget_usec_per_tick": 200.0,
+  "workload": {
+    "hours": 240,
+    "ticks": 144000,
+    "systems": 8,
+    "compartments": 2,
+    "lighting_sources": 12,
+    "fixture_watts": 25.0,
+    "lighting_total_watts": 300.0,
+    "generation_watts": 500.0,
+    "battery_wh": 4000.0,
+    "method": "Sequential fresh isolated projects and user-data roots; same scene-free harness/data/RNG/signal setup. No overlapping Godot benchmarks/tests."
+  },
+  "controlled": {
+    "before": [
+      {
+        "usec_per_tick": 216.1,
+        "passed": false,
+        "script_errors": 0
+      },
+      {
+        "usec_per_tick": 217.8,
+        "passed": false,
+        "script_errors": 0
+      },
+      {
+        "usec_per_tick": 219.4,
+        "passed": false,
+        "script_errors": 0
+      }
+    ],
+    "after": [
+      {
+        "usec_per_tick": 177.9,
+        "passed": true,
+        "script_errors": 0
+      },
+      {
+        "usec_per_tick": 189.6,
+        "passed": true,
+        "script_errors": 0
+      },
+      {
+        "usec_per_tick": 188.1,
+        "passed": true,
+        "script_errors": 0
+      }
+    ],
+    "before_median_us": 217.8,
+    "after_median_us": 188.1,
+    "reduction_percent": 13.64,
+    "before_scope": "Pre-optimization working tree, including lighting changes",
+    "after_scope": "Only atmosphere/power/thermal scalar/report changes",
+    "older_power_only_probe": {
+      "usec_per_tick": 215.6,
+      "passed": false,
+      "script_errors": 0
+    },
+    "historical_200w_load_probe": {
+      "usec_per_tick": 211.3,
+      "passed": false,
+      "script_errors": 0
+    },
+    "older_probe_limits": "Single probes; HEAD substitutes PowerSystem only, not a whole older game. Historical load uses8x25W with current pre-optimization core. Neither establishes a precise causal split or directly reproduces historical machine conditions."
+  },
+  "shipped_profiler": {
+    "runs": [
+      {
+        "run": 1,
+        "exit": 0,
+        "usec_per_tick": 178.7,
+        "passed": true
+      },
+      {
+        "run": 2,
+        "exit": 0,
+        "usec_per_tick": 187.8,
+        "passed": true
+      },
+      {
+        "run": 3,
+        "exit": 0,
+        "usec_per_tick": 184.9,
+        "passed": true
+      }
+    ],
+    "median_us": 184.9,
+    "command": "./Engine/Godot_v4.7.2-stable_linux.x86_64 --headless --path game --script res://tools/profile_sim.gd",
+    "all_passed": true
+  },
+  "equivalence": "Three10-day runs match pre-optimization current2: all eight system states, clock and189827 ordered events, exactly; see equivalence.json",
+  "full_suite": {
+    "passed": 92,
+    "total": 92,
+    "log": "/tmp/hullwatch-timing-full-suite.log"
+  },
+  "focused": {
+    "power": "exit0 PASS:test_power",
+    "atmosphere": "agent exit0 PASS:test_atmosphere",
+    "thermal": "agent exit0 PASS:test_thermal"
+  },
+  "diagnostic_breakdown_us_instrumented": {
+    "power": 49.113,
+    "atmosphere": 19.787,
+    "thermal": 37.441,
+    "nav": 23.195,
+    "stores": 0.274,
+    "hull": 12.176,
+    "water": 29.442,
+    "vitals": 44.058
+  },
+  "diagnostic_limits": "Temporary per-system clocks add overhead; sums include nested work and synchronous callbacks. Not used for pass/fail or fair timing comparisons. No instrumentation added to gameplay.",
+  "source_sha256": {
+    "game/src/systems/atmosphere.gd": "81114442ab40390643cf11236e2de6645701ebbc3cc1abb546fa82e7cb504b02",
+    "game/src/systems/thermal.gd": "2c8aee0fcbad9f6fd2f956783fcb110a539ba46ebc4aab1b63b823cac3e5a0bf",
+    "game/src/systems/power.gd": "fe74f54ade0218cfd4efd4230846789416f2cc76bd5b05af781157213e3d437d",
+    "game/tools/profile_sim.gd": "33250b3bb1df01ebaaaaf982be7429ff01f3385dea635305cf1701ff33a3b651",
+    "game/tests/test_atmosphere.gd": "414f132e511b693711264b2135948efdc70b3f3ec5d69b52252d12da158c44d4",
+    "game/tests/test_thermal.gd": "d2eb72e4c72e78312d2fbf583404f2ebb736193322f85ee693de2b61c40c96d9",
+    "game/tests/test_power.gd": "35867d77f92bff976fe8f811b6bd4f7b36b332468319ed3acf5ee91459ef0c34"
+  },
+  "source_before_sha256": {
+    "game/src/systems/atmosphere.gd": "8f0b879c4f8e66dd50099bcd745919e7e1511f6460095ef7562d33bee98b6729",
+    "game/src/systems/thermal.gd": "968ab4cd3ade8b13d98c750c5512df57b3f2d78b3bd74e61e10ed74d2631c038",
+    "game/src/systems/power.gd": "c3994fdbe8058418c489fd368f701a7faf6f833f28a35da10e775bf0ea53fc28"
+  },
+  "scope": "Fixed-tick benchmark fixture; not rendered FPS or native Windows validation",
+  "delivery": "Local source changes; no commit/push, EXE build or release in this task",
+  "startup": "exit0, no script errors",
+  "diff_check": "exit0",
+  "documentation_dashboard": "Updated roadmap tasks/evidence; collector check run after final writes"
+}

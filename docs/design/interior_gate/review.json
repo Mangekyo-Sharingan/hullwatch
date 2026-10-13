@@ -1,0 +1,196 @@
+{
+  "packet_sha256": "a5060427a2ff35dc7e21ab14aa040c15a16e6079eefaca477acc0d45d25f269b",
+  "reviewer": "Codex visual review \u2014 2026-10-12",
+  "areas": [
+    {
+      "id": "bay_galley_service",
+      "decision": "pass",
+      "notes": "Entry, counter service and return views show joined wall/ceiling facets; table remains beside the apron and no diagonal jamb sheet projects into the lane."
+    },
+    {
+      "id": "bay_life_support_service",
+      "decision": "pass",
+      "notes": "Entry and return jambs follow the faceted cabin; scrubber/reclaimer sit on the outboard wall and the central apron remains clear."
+    },
+    {
+      "id": "cabin_airlock",
+      "decision": "pass",
+      "notes": "All six views reviewed: inner hatches, outer pressure leaf, suit locker, ceiling and floor are coherent; equipment remains beside the central passage."
+    },
+    {
+      "id": "cabin_cockpit",
+      "decision": "pass",
+      "notes": "All six views reviewed: two wall instrument banks, bulkheads, ceiling runs and deck join correctly; pilot chair occupies the next section rather than this aisle."
+    },
+    {
+      "id": "cabin_cupola",
+      "decision": "pass",
+      "notes": "Six views cover forward viewport, pilot chair and wall consoles. The camera is on the chair-side lane; bulkhead depth and ceiling/deck joins are visible without an inboard sheet."
+    },
+    {
+      "id": "cabin_engine_bay_a",
+      "decision": "pass",
+      "notes": "Six views show the two bulkheads, ceiling and side-mounted machinery; deck aisle remains visible and wall fittings do not form projecting structural sheets."
+    },
+    {
+      "id": "cabin_engine_bay_b",
+      "decision": "pass",
+      "notes": "Six views show a clear starboard dock mouth and the hull patch/probe on the opposite wall; the relocated pair no longer occupies the doorway."
+    },
+    {
+      "id": "cabin_galley",
+      "decision": "pass",
+      "notes": "Six views cover both axial doors, service bay, terminal furniture and floor/ceiling. The corrected bay jamb follows the wall profile; furniture is intentional and off the axial aisle."
+    },
+    {
+      "id": "cabin_life_support",
+      "decision": "pass",
+      "notes": "Six views show clear axial passage, closed unused dock and the outboard machinery bay; jambs join wall facets without a diagonal sheet."
+    },
+    {
+      "id": "cabin_quarters",
+      "decision": "pass",
+      "notes": "Six views show bed/locker beside the axial route, bounded dock mouth and uninterrupted ceiling/deck joins. Furniture is bulky but the verified lane is clear."
+    },
+    {
+      "id": "cabin_storage",
+      "decision": "pass",
+      "notes": "Six views show shelves, cargo fixtures and floor tools at the sides; both bulkheads and floor joins remain coherent without exposed pressure-wall edges."
+    },
+    {
+      "id": "cabin_water_closet",
+      "decision": "pass",
+      "notes": "Six views cover both bulkheads, sparse side fittings, lamp and deck; wall profile is continuous and no protruding structural sheet is visible."
+    },
+    {
+      "id": "dock_hp_engine_bay",
+      "decision": "pass",
+      "notes": "Unused mount plate closes the dock; wall facets and jambs bound the entrance and the moved repair fixtures are absent from the approach."
+    },
+    {
+      "id": "dock_hp_galley",
+      "decision": "pass",
+      "notes": "Unused mount is behind intentional lectern/terminal furniture; bounded doorway and profile-following jambs are visible. Installed fixture routes are separately verified around the furniture."
+    },
+    {
+      "id": "dock_hp_life_support",
+      "decision": "pass",
+      "notes": "Closed mount and stepped floor/roof facets form a coherent entrance; no inward diagonal sheet is visible."
+    },
+    {
+      "id": "dock_hp_quarters",
+      "decision": "pass",
+      "notes": "Closed mount is beside locker/manual furniture; jambs and wall facets remain joined, with installed fixed throat crossings checked separately."
+    },
+    {
+      "id": "fitted_battery_cabinet",
+      "decision": "pass",
+      "notes": "Entry and flashlight service views show three separate cabinets on their socket pads; wall/roof remain enclosed and the front service apron is open."
+    },
+    {
+      "id": "fitted_cargo_rack",
+      "decision": "pass",
+      "notes": "Three rack models are visible across the socket bank; their shelves project intentionally into the bank, with the front walking apron preserved."
+    },
+    {
+      "id": "fitted_grow_rack",
+      "decision": "pass",
+      "notes": "Three grow racks fit the socket row without reaching the ceiling or closing the front apron; shelf rails are intentional machine geometry, not pressure-wall sheets."
+    },
+    {
+      "id": "fitted_med_bed",
+      "decision": "pass",
+      "notes": "Three bed units remain within the socket bank; top rails and separate pads are visible and front apron remains free. Fixed-height physical routes supplement the images."
+    },
+    {
+      "id": "fitted_scrubber_spare",
+      "decision": "pass",
+      "notes": "Three bolted scrubbers sit below the ceiling with a visible front service apron; no wall/cabinet clipping is apparent. Fixture removes them only by pod teardown."
+    },
+    {
+      "id": "fitted_work_bench",
+      "decision": "pass",
+      "notes": "Three benches line the socket bank; worktops and drawers are intentional model surfaces, with a clear apron and joined room envelope."
+    },
+    {
+      "id": "joint_airlock",
+      "decision": "pass",
+      "notes": "Both open-side and closed-side views inspected: pressure leaf fills its frame when closed, stows when open, and bulkhead ends have visible depth beside the equipment."
+    },
+    {
+      "id": "joint_cockpit",
+      "decision": "pass",
+      "notes": "Open/closed views on both sides show coherent doorway lining and a fitted leaf; nearby bed and wall panels are furniture rather than projecting wall sheets."
+    },
+    {
+      "id": "joint_cupola",
+      "decision": "pass",
+      "notes": "Four views show the cupola/cockpit bulkhead and door leaf from both directions; bore depth remains inside the joint and chair-side hardware stays separate."
+    },
+    {
+      "id": "joint_engine_bay_a",
+      "decision": "pass",
+      "notes": "Four views show both engine sections through the open hatch and the closed leaf seating in its frame; sill/deck and bulkhead depth remain joined."
+    },
+    {
+      "id": "joint_galley",
+      "decision": "pass",
+      "notes": "Four open/closed views show galley/water-closet lining and leaf fit; sill faces and bulkhead edges have depth without a stray diagonal across the lane."
+    },
+    {
+      "id": "joint_life_support",
+      "decision": "pass",
+      "notes": "Four views show the machinery bay and galley furniture beside the joined axial hatch; open leaf stows and closed leaf fits the frame."
+    },
+    {
+      "id": "joint_quarters",
+      "decision": "pass",
+      "notes": "Both sides reviewed open/closed: bed and locker remain separate from the bulkhead, whose side face and floor sill are bounded by the joint."
+    },
+    {
+      "id": "joint_storage",
+      "decision": "pass",
+      "notes": "Both sides of the authored inner airlock leaf fit the frame in closed views; open views retain a clear lined bore beside shelves and suit equipment."
+    },
+    {
+      "id": "joint_water_closet",
+      "decision": "pass",
+      "notes": "Four views show the door leaf seating correctly and shelf/cargo props beside the passage; no exposed pressure-skin edge or stray sheet is visible."
+    },
+    {
+      "id": "pod_aux_battery",
+      "decision": "pass",
+      "notes": "Final entry, return and panel views reviewed with player flashlight: the service panel is exposed on the inset wall and the doorway/roof/floor joins are intact."
+    },
+    {
+      "id": "pod_expanded_storage",
+      "decision": "pass",
+      "notes": "Final three views show the corrected exposed panel, bare socket pads and a bounded return passage to the galley; no hidden panel or stray pressure sheet remains."
+    },
+    {
+      "id": "pod_greenhouse",
+      "decision": "pass",
+      "notes": "Final three views show the exposed panel, open socket row and lined return doorway. Bare-pod darkness is a lighting follow-up, not a missing-surface defect."
+    },
+    {
+      "id": "pod_med_bay",
+      "decision": "pass",
+      "notes": "Final three views show the exposed panel and bounded room envelope; flashlight inspection reveals the pad row and return hatch without geometry intrusions."
+    },
+    {
+      "id": "pod_storage_pod",
+      "decision": "pass",
+      "notes": "Final entry, return and panel views show the panel exposed against the inset wall, a bounded doorway and bare socket pads; no projecting structural sheet is visible."
+    },
+    {
+      "id": "pod_utility_pod",
+      "decision": "pass",
+      "notes": "Final three bare-room views show the corrected panel and room joins; the filled six-model loadouts are reviewed separately and the entrance remains bounded."
+    },
+    {
+      "id": "pod_workshop",
+      "decision": "pass",
+      "notes": "Final three views show the exposed panel and return passage to life support; room facets are coherent under the existing player flashlight."
+    }
+  ]
+}

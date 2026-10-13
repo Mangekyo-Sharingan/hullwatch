@@ -6,5 +6,5 @@
 script = ExtResource("1")
 circuit_id = &"lighting"
 display_name = "Lighting"
-nominal_load_w = 200.0
+nominal_load_w = 0.0
 priority = 5

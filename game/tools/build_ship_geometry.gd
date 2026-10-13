@@ -355,6 +355,17 @@ func _build_dock_pod() -> Node3D:
 	pod.add_child(link)
 	_add_machine_sockets(pod, room)
 	_add_pod_panel(pod)
+	var light: OmniLight3D = OmniLight3D.new()
+	light.name = "PodLight"
+	light.position = Vector3(2.0, 2.75, 0.0)
+	light.light_color = Color(1.0, 0.85, 0.65, 1.0)
+	light.light_energy = 0.7
+	light.omni_range = 4.0
+	light.shadow_enabled = true
+	light.set_script(load(SCRIPT_CABIN_LIGHT) as Script)
+	light.set(&"fixture_model", NodePath("../PodRoom/PodLamp"))
+	pod.add_child(light)
+	_add_hull_model(room, "res://assets/models/hullwatch/exterior/hw_ceiling_lamp.glb", "PodLamp", Vector3(2.0, CEILING_BOTTOM, 0.0), Vector3.ZERO, 0.8)
 	return pod
 
 
@@ -368,7 +379,7 @@ func _add_pod_panel(pod: Node3D) -> void:
 		return
 	var panel: StaticBody3D = StaticBody3D.new()
 	panel.name = "ServicePanel"
-	panel.position = Vector3(2.0, 1.3, 1.58)
+	panel.position = Vector3(2.0, 1.3, POD_MAX.y - PROFILE_ROOM_L[2].y)
 	panel.rotation_degrees = Vector3(0, 180, 0)
 	var model: Node3D = scene.instantiate() as Node3D
 	model.name = "Model"
@@ -378,6 +389,7 @@ func _add_pod_panel(pod: Node3D) -> void:
 	var collider: CollisionShape3D = CollisionShape3D.new()
 	collider.name = "Shape"
 	collider.shape = shape
+	collider.position.z = shape.size.z * 0.5
 	panel.add_child(collider)
 	pod.add_child(panel)
 
@@ -1392,6 +1404,11 @@ func _add_tube_exterior_kit(hull: StaticBody3D) -> void:
 		beam.spot_range = 12.0
 		beam.spot_angle = 42.0
 		beam.shadow_enabled = false
+		beam.set_script(load(SCRIPT_CABIN_LIGHT) as Script)
+		beam.set(&"fixture_id", StringName("exterior_work_%d" % i))
+		beam.set(&"fixture_label", "EXTERIOR WORK %d" % (i + 1))
+		beam.set(&"fixture_config", load("res://src/data/power/work_fixture.tres"))
+		beam.set(&"fixture_model", NodePath("../Model"))
 		fitting.add_child(beam)
 	var rail_spots: Array[Vector3] = [
 		Vector3(-3.6, 0.0, -6.0), Vector3(-3.6, 0.0, -8.0),
@@ -1600,15 +1617,19 @@ func _add_tube_cabin_light(hull: StaticBody3D, center_z: float) -> void:
 	light.name = "CabinLight%.1f" % center_z
 	light.position = Vector3(0.0, 2.15, center_z)
 	light.light_color = Color(1.0, 0.85, 0.65, 1.0)
-	light.light_energy = 1.2
-	light.omni_range = 5.5
+	light.light_energy = 0.65
+	light.omni_range = 4.5
 	var section: Dictionary = TubeLayout.section_at(center_z)
 	if HERO_SECTIONS.has(String(section.get("name", ""))):
 		light.light_color = Color(1.0, 0.74, 0.49, 1.0)
-		light.light_energy = 2.0
-		light.omni_range = 4.8
+		light.light_energy = 0.9
+		light.omni_range = 4.2
 	light.shadow_enabled = true
 	light.set_script(load(SCRIPT_CABIN_LIGHT) as Script)
+	var fixture_id: String = String(hull.name) if String(hull.name).begins_with("ServiceBay_") else String(section.get("name", ""))
+	light.set(&"fixture_id", StringName(fixture_id))
+	light.set(&"fixture_label", fixture_id.trim_prefix("ServiceBay_").replace("_", " ").to_upper())
+	light.set(&"fixture_model", NodePath("../" + ("CabinLamp%.1f" % center_z).replace(".", "_")))
 	hull.add_child(light)
 	# The visible fixture, scaled to sit between the ceiling pipes (x = +/- 0.34).
 	_add_hull_model(hull, "res://assets/models/hullwatch/exterior/hw_ceiling_lamp.glb", "CabinLamp%.1f" % center_z, Vector3(0.0, SectionHull.TUBE_CEILING, center_z), Vector3.ZERO, 0.8)

@@ -5,6 +5,28 @@ var _sim_events: Array[Dictionary] = []
 var _spawned: Array[Node] = []
 
 
+class AtmosphereReportSpy extends AtmosphereSystem:
+	var report_calls: int = 0
+
+	func get_compartment_status(compartment_id: StringName) -> Dictionary:
+		report_calls += 1
+		return super.get_compartment_status(compartment_id)
+
+
+class GenericAtmosphere extends Node:
+	var report: Variant = {"occupants": 4}
+	var report_calls: int = 0
+
+	func get_compartment_status(_compartment_id: StringName) -> Variant:
+		report_calls += 1
+		return report
+
+
+class GuardedAtmosphere extends GenericAtmosphere:
+	func has_compartment(compartment_id: StringName) -> bool:
+		return compartment_id == &"main"
+
+
 func _initialize() -> void:
 	_run()
 
@@ -22,6 +44,7 @@ func _run() -> void:
 	_test_heater_holds_target()
 	_test_freezing_without_heater()
 	_test_occupant_heat()
+	_test_occupancy_paths()
 	_test_power_interlock()
 	_test_determinism()
 	_test_save_load()
@@ -75,6 +98,43 @@ func _test_occupant_heat() -> void:
 	var empty_temperature: float = _run_unheated(_make_config(&"main", 21.0, 0))
 	_check(occupied_temperature > empty_temperature, "occupants end warmer than unoccupied")
 	_check(occupied_temperature - empty_temperature > 1.0, "occupant heat difference is meaningful")
+	_despawn_all()
+
+
+func _test_occupancy_paths() -> void:
+	var atmosphere: AtmosphereReportSpy = AtmosphereReportSpy.new()
+	var config: CompartmentConfig = _make_config(&"main", 21.0, 2)
+	atmosphere.compartment_defs = [config]
+	_spawn(atmosphere)
+	var system: ThermalSystem = _spawn_thermal(config)
+	system.sim_tick(ThermalSystem.MAX_STEP_HOURS)
+	_check(int(system.get_compartment_status(&"main")["occupants"]) == 2, "typed occupancy: tick reads live count")
+	atmosphere.set_occupants(&"main", 5)
+	system.sim_tick(ThermalSystem.MAX_STEP_HOURS)
+	_check(int(system.get_compartment_status(&"main")["occupants"]) == 5, "typed occupancy: next tick reads changed count")
+	atmosphere.remove_compartment(&"main")
+	system.sim_tick(ThermalSystem.MAX_STEP_HOURS)
+	_check(int(system.get_compartment_status(&"main")["occupants"]) == 0, "typed occupancy: removed room reads zero")
+	_check(system._read_occupants(atmosphere, &"missing") == 0, "typed occupancy: unknown room reads zero")
+	_check(atmosphere.report_calls == 0, "typed occupancy: no full compartment report requested")
+	var generic: GenericAtmosphere = GenericAtmosphere.new()
+	_check(system._read_occupants(generic, &"main") == 4, "generic occupancy: report fallback without has_compartment")
+	generic.report = {"occupants": 2.9}
+	_check(system._read_occupants(generic, &"main") == 2, "generic occupancy: report count converts to int")
+	generic.report = {"occupants": -2}
+	_check(system._read_occupants(generic, &"main") == -2, "generic occupancy: existing negative count semantics retained")
+	generic.report = {}
+	_check(system._read_occupants(generic, &"main") == 0, "generic occupancy: missing count reads zero")
+	generic.report = "invalid"
+	_check(system._read_occupants(generic, &"main") == 0, "generic occupancy: non-dictionary report reads zero")
+	var guarded: GuardedAtmosphere = GuardedAtmosphere.new()
+	_check(system._read_occupants(guarded, &"missing") == 0 and guarded.report_calls == 0, "generic occupancy: absent room skips report")
+	_check(system._read_occupants(guarded, &"main") == 4 and guarded.report_calls == 1, "generic occupancy: present room requests report")
+	var bare: Node = Node.new()
+	_check(system._read_occupants(bare, &"main") == 0 and system._read_occupants(null, &"main") == 0, "generic occupancy: absent method and null read zero")
+	bare.free()
+	guarded.free()
+	generic.free()
 	_despawn_all()
 
 

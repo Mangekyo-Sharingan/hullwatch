@@ -1,0 +1,142 @@
+{
+  "recorded_at": "2026-10-12T10:34:00.245172+02:00",
+  "source_sha256": "b6c2e9e857d0461d809a6fb3a910cf38f761e48410017dfe5a5e3beda540d28e",
+  "checks": [
+    {
+      "check": "import",
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "check": "startup",
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "check": "test_interior_gate",
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "check": "test_walkway_clearance",
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "check": "test_world_layout",
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "check": "test_hull_exterior",
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "check": "test_player_traversal",
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "check": "test_module_scene",
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "check": "test_door",
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "check": "test_hero_cabins",
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "check": "test_machine_fitting",
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "check": "capture",
+      "exit": 0,
+      "passed": true
+    }
+  ],
+  "checks_passed": true,
+  "visual_review": "pass",
+  "gate_passed": true,
+  "scope": "Physical/visual interior only; does not replace native Windows or human gameplay acceptance",
+  "packet_sha256": "a5060427a2ff35dc7e21ab14aa040c15a16e6079eefaca477acc0d45d25f269b",
+  "areas": [
+    "bay_galley_service",
+    "bay_life_support_service",
+    "cabin_airlock",
+    "cabin_cockpit",
+    "cabin_cupola",
+    "cabin_engine_bay_a",
+    "cabin_engine_bay_b",
+    "cabin_galley",
+    "cabin_life_support",
+    "cabin_quarters",
+    "cabin_storage",
+    "cabin_water_closet",
+    "dock_hp_engine_bay",
+    "dock_hp_galley",
+    "dock_hp_life_support",
+    "dock_hp_quarters",
+    "fitted_battery_cabinet",
+    "fitted_cargo_rack",
+    "fitted_grow_rack",
+    "fitted_med_bed",
+    "fitted_scrubber_spare",
+    "fitted_work_bench",
+    "joint_airlock",
+    "joint_cockpit",
+    "joint_cupola",
+    "joint_engine_bay_a",
+    "joint_galley",
+    "joint_life_support",
+    "joint_quarters",
+    "joint_storage",
+    "joint_water_closet",
+    "pod_aux_battery",
+    "pod_expanded_storage",
+    "pod_greenhouse",
+    "pod_med_bay",
+    "pod_storage_pod",
+    "pod_utility_pod",
+    "pod_workshop"
+  ],
+  "captures": 139,
+  "review_errors": [],
+  "date": "2026-10-12",
+  "full_suite": {
+    "passed": 92,
+    "total": 92,
+    "log": "/tmp/hullwatch-interior-gate-final-full-suites.log"
+  },
+  "coverage": {
+    "checks": 6061,
+    "pressure_rays": 4096,
+    "bidirectional_passages": 78,
+    "shared_throats": 7,
+    "catalog_loadouts": 6,
+    "copies_per_loadout": 3
+  },
+  "runner_selfcheck": "PASS: test_interior_gate_runner",
+  "independent_runner_probes": {
+    "passed": 37,
+    "total": 37
+  },
+  "generators": "Deterministic rerun: all three generated scene hashes unchanged",
+  "local_packet": "build/interior_gate/2026-10-12-final-reviewed",
+  "findings": [
+    "Moved HullPatch and ProbeHull to opposite engine-bay wall: fixed dock throat was obstructed.",
+    "Mounted pod ServicePanel on the inset interior wall and aligned its collider: panel was buried behind pressure skin."
+  ],
+  "operator_review": "pending",
+  "native_windows_execution": "not run",
+  "delivered_build": "No new EXE; published October 10 playtest predates these fixes",
+  "source_checkpoint": "ef2eca1 plus current working-tree pass"
+}

@@ -67,7 +67,7 @@ func _test_route_costs() -> void:
 func _test_uv_bus() -> void:
 	var power: PowerSystem = _power()
 	var nav: NavSystem = _nav()
-	_check(is_equal_approx(power.get_total_demand_w(), 640.0), "UV: nominal bus demand is 640 W")
+	_check(is_equal_approx(power.get_total_demand_w(), 740.0), "UV: nominal bus demand with twelve fixtures is 740 W")
 	power.battery_charge_wh = 0.0
 	power.sim_tick(0.01)
 	_check(is_equal_approx(power.get_total_load_w(), 440.0), "empty battery: lighting shedding leaves 440 W")
@@ -462,6 +462,8 @@ func _power() -> PowerSystem:
 	for name: String in ["life_support", "scrubber", "lighting", "airlock", "fabricator", "xenonite_uv"]:
 		power.circuit_defs.append(load("res://src/data/power/circuit_%s.tres" % name) as PowerCircuit)
 	_spawn(power)
+	for fixture: int in 12:
+		power.register_light(StringName("fixture_%d" % fixture), "Fixture", (load("res://src/data/power/cabin_fixture.tres") as PowerCircuit).nominal_load_w)
 	return power
 
 
