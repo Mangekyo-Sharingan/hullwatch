@@ -3736,6 +3736,52 @@
         "The exported identity matches its published tag; development builds do not claim a release version.",
         "A menu action opens the exact GitHub release page without downloading or installing."
       ]
+    },
+    {
+      "id": "MANIFEST_UPDATER",
+      "title": "In-client manifest download, install and restart",
+      "phase": "Playtest delivery",
+      "status": "in_progress",
+      "summary": "Operator-approved full embedded-build replacement: verified GitHub manifests/payloads, staged transfers, cancellable menu, atomic helpers/previous backup and stable Deck restart wrapper. Source implementation and protocol checks complete; clean export, native integration and delivery verification in progress.",
+      "evidence": [
+        {
+          "path": "docs/design/manifest_updater/README.md",
+          "label": "Protocol, player flow, installation/recovery and validation boundaries"
+        }
+      ],
+      "tasks": [
+        {
+          "title": "Manifest contract, authenticated digests and staged download/controller",
+          "status": "complete"
+        },
+        {
+          "title": "Trusted Windows/Linux helpers, previous backup and idempotent recovery",
+          "status": "in_progress"
+        },
+        {
+          "title": "Stable Deck launcher and build-generated manifest/identity",
+          "status": "complete"
+        },
+        {
+          "title": "Clean current source/exported checks and native update/restart scenario",
+          "status": "in_progress"
+        },
+        {
+          "title": "Publish/download-verify bootstrap Windows and Deck packages",
+          "status": "planned"
+        },
+        {
+          "title": "Native Windows and actual Deck/Steam/power-loss review",
+          "status": "needs_review"
+        }
+      ],
+      "acceptance": [
+        "A user-selected main-menu update downloads a compatible full build and restarts through an external helper.",
+        "Unverified/partial data cannot replace the installed game; cancellation and failure retain ordinary play.",
+        "The previous executable is retained and interrupted recovery is idempotent.",
+        "Saves/settings paths and the Deck Steam shortcut remain stable.",
+        "Published exact source/artifact identity is verified; hardware review remains distinct."
+      ]
     }
   ],
   "gates": [

@@ -46,7 +46,9 @@ func _ready() -> void:
 		if manager != null and not String(manager.call("get_last_error")).is_empty():
 			_show_error(manager)
 		get_node(^"/root/UpdateChecker").connect(&"check_finished", _on_update_checked)
+		get_node(^"/root/UpdateChecker").connect(&"download_progressed", _on_update_progress)
 		_on_update_checked()
+		get_node(^"/root/UpdateChecker").call("acknowledge_startup")
 
 
 func get_menu() -> ScrollMenu:
@@ -150,6 +152,14 @@ func select_action(index: int) -> void:
 			_quit_game()
 		&"update":
 			OS.shell_open(String(get_node(^"/root/UpdateChecker").get("release_url")))
+		&"download_update":
+			_page = &"update"
+			_refresh()
+			get_node(^"/root/UpdateChecker").call("start_update")
+		&"cancel_update":
+			get_node(^"/root/UpdateChecker").call("cancel_update")
+			_page = &"root"
+			_refresh()
 		_:
 			var slot: int = String(action).get_slice(":", 1).to_int()
 			var summary: Dictionary = _slot_summary(slot)
@@ -224,7 +234,12 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _back() -> void:
 	_message.text = ""
-	if _page == &"overwrite":
+	if _page == &"update":
+		if get_node(^"/root/UpdateChecker").get("status") == &"installing":
+			return
+		get_node(^"/root/UpdateChecker").call("cancel_update")
+		_page = &"root"
+	elif _page == &"overwrite":
 		_page = &"new"
 	elif _page == &"delete_confirm":
 		_page = &"delete"
@@ -277,7 +292,15 @@ func _show_error(manager: Node) -> void:
 func _refresh() -> void:
 	_ids.clear()
 	_actions.clear()
-	if _page in [&"new", &"load", &"delete"]:
+	if _page == &"update":
+		var checker: Node = get_node(^"/root/UpdateChecker")
+		if checker.get("status") in [&"downloading", &"verifying"]:
+			_add_action(&"cancel_update", "CANCEL DOWNLOAD")
+		elif bool(checker.call("can_download")):
+			_add_action(&"download_update", "RETRY UPDATE")
+		if checker.get("status") != &"installing":
+			_add_action(&"back", "BACK")
+	elif _page in [&"new", &"load", &"delete"]:
 		for slot: int in range(1, SLOT_COUNT + 1):
 			_add_action(StringName("slot:%d" % slot), _slot_label(_slot_summary(slot)))
 		_add_action(&"back", "BACK")
@@ -302,7 +325,10 @@ func _refresh() -> void:
 		_add_action(&"load", "LOAD WATCH")
 		_add_action(&"settings", "SETTINGS")
 		_add_action(&"delete", "DELETE WATCH")
-		if get_node(^"/root/UpdateChecker").get("status") == &"available":
+		var checker: Node = get_node(^"/root/UpdateChecker")
+		if bool(checker.call("can_download")):
+			_add_action(&"download_update", "DOWNLOAD UPDATE AND RESTART")
+		elif checker.get("status") == &"available":
 			_add_action(&"update", "VIEW UPDATE ON GITHUB")
 		_add_action(&"quit", "QUIT")
 	var title: String = "WATCH PAUSED" if pause_mode else "WATCH CONTROL"
@@ -316,6 +342,8 @@ func _refresh() -> void:
 		title = "DELETE WATCH"
 	elif _page == &"delete_confirm":
 		title = "CONFIRM DELETION"
+	elif _page == &"update":
+		title = "UPDATING HULLWATCH"
 	_menu.setup(title, _actions)
 	_menu.set_hint("WHEEL / ARROWS: BROWSE\nCLICK / WHEEL CLICK / ENTER: SELECT    ESC: BACK")
 	_style_rows()
@@ -334,11 +362,16 @@ func _on_update_checked() -> void:
 	var checker: Node = get_node(^"/root/UpdateChecker")
 	var tag: String = String(checker.get("installed_tag"))
 	_version_label.text = ("VERSION %s\n" % tag if not tag.is_empty() else "") + String(checker.call("get_status_text"))
-	if _page == &"root":
+	if _page in [&"root", &"update"]:
 		var index: int = _menu.get_highlighted_index()
 		var selected: StringName = _ids[index] if index >= 0 and index < _ids.size() else &"continue"
 		_refresh()
 		_menu.set_highlighted_index(maxi(0, _ids.find(selected)))
+
+
+func _on_update_progress(_received_bytes: int, _total_bytes: int) -> void:
+	var checker: Node = get_node(^"/root/UpdateChecker")
+	_version_label.text = "VERSION %s\n%s" % [String(checker.get("installed_tag")), String(checker.call("get_status_text"))]
 
 
 func _build_ui() -> void:
