@@ -1,0 +1,172 @@
+{
+  "date": "2026-10-13",
+  "source_commit": "72b5181278b8b90d2751541c471d48a045c9e167",
+  "release_tag": "v0.12.0-steamdeck-playtest.20261013.2",
+  "platform_channel": "steamdeck",
+  "engine": "4.7.2.stable.official.ed1daf0bf",
+  "save_version": 8,
+  "source_suites": {
+    "passed": 94,
+    "total": 94,
+    "evidence": "docs/design/update_checker/source_suites.json"
+  },
+  "exported_project": {
+    "elf_sha256": "87d924ec289663b259235aff6e975068687dde526207e74a9c4f8960888861a2",
+    "checks": [
+      {
+        "check": "startup",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_update_checker",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_steam_deck_ui",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_cabin_light",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_computer_terminal",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_save_migration",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_interior_gate",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_power",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_player_traversal",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_salvage",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_session_flow",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_mining",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_sector",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_modules",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_machine_fitting",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_module_effects",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      }
+    ]
+  },
+  "embedded_identity": {
+    "passed": true,
+    "tag": "v0.12.0-steamdeck-playtest.20261013.2",
+    "channel": "steamdeck"
+  },
+  "menu_render": {
+    "passed": true,
+    "views": 6,
+    "resolution": [
+      1280,
+      800
+    ],
+    "ui_scales": [
+      1.0,
+      1.4
+    ],
+    "renderer": "mobile",
+    "reviewed": [
+      "available/default and max scale",
+      "current/native Deck final frame"
+    ],
+    "fixture_notice": "Future sequence .10 is simulated; no newer real release existed during capture."
+  },
+  "startup_network": {
+    "source_live_anonymous_GitHub": "PASS: old Windows identity .1 detects actual newer .2",
+    "native_release_observed_up_to_date": true
+  },
+  "native_release": {
+    "run_on_linux_host": true,
+    "rendered_menu_movie_frames": 90,
+    "relocated_directory_with_spaces": true
+  },
+  "known_limits": [
+    "Native Windows execution and actual Deck/Steam browser, controls, FPS and suspend review remain pending.",
+    "Existing shutdown ObjectDB warnings persist.",
+    "Windows PowerShell helper authored but not executed on Linux; cross-export uses equivalent temporary identity stamping.",
+    "First concurrent Forward+ menu capture timed out; separate retry passed all six views."
+  ],
+  "sha256": {
+    "Hullwatch.x86_64": "87d924ec289663b259235aff6e975068687dde526207e74a9c4f8960888861a2",
+    "Hullwatch-SteamDeck.tar.gz": "110a58299d2586f45056d7c7ca0341fb6a97a1659a0ce212eb4d1711494d9bf6"
+  }
+}

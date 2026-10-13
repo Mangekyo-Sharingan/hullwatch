@@ -1,5 +1,7 @@
 # Steam Deck playtest delivery — October 13
 
+Latest package includes the startup checker: [Deck20261013.2](https://github.com/Mangekyo-Sharingan/hullwatch/releases/tag/v0.12.0-steamdeck-playtest.20261013.2); see [current validation/delivery](../update_checker/README.md). The original port checkpoint below remains historical.
+
 [Download the native playtest](https://github.com/Mangekyo-Sharingan/hullwatch/releases/tag/v0.12.0-steamdeck-playtest.20261013.1) · [Setup and controls](../../STEAM_DECK_PLAYTEST.md)
 
 Delivered on the separate `playtest/steamdeck` branch; game source
