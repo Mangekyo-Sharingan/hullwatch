@@ -1,0 +1,154 @@
+{
+  "source_commit": "756fd95aa8ac1dd445888dd1dac86faec9ba1008",
+  "release_tag": "v0.12.0-playtest.20261013.5",
+  "save_version": 8,
+  "updater_protocol": 1,
+  "source_suites": {
+    "passed": 94,
+    "total": 94
+  },
+  "exported_project": {
+    "exe_sha256": "e7b14c1cbb07ffe4c2a92f040ba763015862dc1e5115f42ec9be878d2c77987a",
+    "pck_sha256": "ec7aa6362beeb80fed011a7ee28dc4b916dcbb9aa8adc43e9c41915f7bf27948",
+    "pck_offset": 109135872,
+    "pck_size": 81015364,
+    "checks": [
+      {
+        "check": "startup",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_manifest_updater",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_update_checker",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_cabin_light",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_computer_terminal",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_save_migration",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_interior_gate",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_power",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_player_traversal",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_salvage",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_session_flow",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_mining",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_sector",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_modules",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_machine_fitting",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_module_effects",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      }
+    ]
+  },
+  "installer_checks": {
+    "total": 47,
+    "passed": 46,
+    "skipped": 1,
+    "host": "Linux + temporary PowerShell7.6.6",
+    "remaining": "native Windows File.Replace sharing-violation test"
+  },
+  "payload_sha256": "e7b14c1cbb07ffe4c2a92f040ba763015862dc1e5115f42ec9be878d2c77987a",
+  "native_update_integration": {
+    "passed": true,
+    "installed_tag": "v0.12.0-steamdeck-playtest.20261013.4",
+    "installed_sha256": "8a6d916c6ddfea78a5ab7b338c8c43f0efb384f049c504bf014d60a0de6b63d7",
+    "source_commit": "9ac234b9e77d58fda43294f4d4f733189050a304",
+    "previous_retained": true,
+    "wrapper_still_running": true,
+    "fixture": "Native old client with temporary automatic menu selection; actual GitHub manifest/CDN download and trusted helper install/restart",
+    "userdata_isolated": true,
+    "platform": "Linux/Deck profile on development host, controlled old-client UI automation"
+  },
+  "hardware_review": [
+    "native Windows",
+    "actual Steam Deck/Game Mode/browser/control/suspend",
+    "physical power-loss durability"
+  ]
+}

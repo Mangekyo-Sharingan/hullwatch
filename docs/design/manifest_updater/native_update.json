@@ -1,0 +1,10 @@
+{
+  "passed": true,
+  "installed_tag": "v0.12.0-steamdeck-playtest.20261013.4",
+  "installed_sha256": "8a6d916c6ddfea78a5ab7b338c8c43f0efb384f049c504bf014d60a0de6b63d7",
+  "source_commit": "9ac234b9e77d58fda43294f4d4f733189050a304",
+  "previous_retained": true,
+  "wrapper_still_running": true,
+  "fixture": "Native old client with temporary automatic menu selection; actual GitHub manifest/CDN download and trusted helper install/restart",
+  "userdata_isolated": true
+}
