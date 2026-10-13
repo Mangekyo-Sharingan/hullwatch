@@ -16,7 +16,7 @@ on a profile. [Godot renderer documentation](https://docs.godotengine.org/en/sta
 ## 1. Get the native package
 
 Download **Hullwatch-SteamDeck.tar.gz** and its adjacent **SHA256SUMS** from
-[the Steam Deck playtest release](https://github.com/Mangekyo-Sharingan/hullwatch/releases/tag/v0.12.0-steamdeck-playtest.20261013.1). The Windows October 13
+[the Steam Deck playtest release](https://github.com/Mangekyo-Sharingan/hullwatch/releases/tag/v0.12.0-steamdeck-playtest.20261013.2). The Windows October 13
 release's EXE/ZIP is a different package. Do not rename or launch its EXE for
 this native test. The branch is `playtest/steamdeck`; the dated release identifies the exact source.
 
@@ -30,13 +30,13 @@ XDG data directory). It must include `linux_release.x86_64`.
 From the isolated `playtest/steamdeck` checkout:
 
 ```sh
-python3 tools/build_steam_deck.py --engine /absolute/path/to/Godot_v4.7.2-stable_linux.x86_64
+python3 tools/build_steam_deck.py --engine /absolute/path/to/Godot_v4.7.2-stable_linux.x86_64 --release-tag v0.12.0-steamdeck-playtest.20261013.2
 ```
 
 On the current developer host the exact command is:
 
 ```sh
-python3 tools/build_steam_deck.py --engine /home/uru/Projekt/OperationSpacer/Engine/Godot_v4.7.2-stable_linux.x86_64
+python3 tools/build_steam_deck.py --engine /home/uru/Projekt/OperationSpacer/Engine/Godot_v4.7.2-stable_linux.x86_64 --release-tag v0.12.0-steamdeck-playtest.20261013.2
 ```
 
 The build uses temporary XDG userdata for Godot import/export and links the
@@ -338,3 +338,15 @@ item on the device; host tests cannot close these items.
 Formal Steam hardware compatibility is a separate Valve review. This manual
 layout still shows keyboard/mouse prompts and does not establish Verified status.
 [Valve compatibility review](https://partner.steamgames.com/doc/steamhardware/compat?l=english)
+
+## Startup update notices
+
+A release-tagged build checks the public GitHub release list once per launch,
+with an eight-second timeout. The main menu shows its exact installed version
+and offers VIEW UPDATE ON GITHUB when a newer compatible package exists. Steam
+Deck and Windows playtests are separate channels; stable releases qualify only
+with a compatible package. The link opens the release page for a manual update.
+Failed/offline checks leave the game playable. Development builds without
+`--release-tag` do not check automatically. This checker first ships in
+`v0.12.0-steamdeck-playtest.20261013.2`; earlier archives cannot acquire it
+without installing a new build. Back up saves before changing versions.

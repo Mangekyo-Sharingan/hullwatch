@@ -17,6 +17,7 @@ var _view: Control
 var _message: Label
 var _wordmark: Label
 var _subtitle: Label
+var _version_label: Label
 
 
 func _ready() -> void:
@@ -44,6 +45,8 @@ func _ready() -> void:
 		var manager: Node = _manager()
 		if manager != null and not String(manager.call("get_last_error")).is_empty():
 			_show_error(manager)
+		get_node(^"/root/UpdateChecker").connect(&"check_finished", _on_update_checked)
+		_on_update_checked()
 
 
 func get_menu() -> ScrollMenu:
@@ -145,6 +148,8 @@ func select_action(index: int) -> void:
 				close()
 		&"quit":
 			_quit_game()
+		&"update":
+			OS.shell_open(String(get_node(^"/root/UpdateChecker").get("release_url")))
 		_:
 			var slot: int = String(action).get_slice(":", 1).to_int()
 			var summary: Dictionary = _slot_summary(slot)
@@ -297,6 +302,8 @@ func _refresh() -> void:
 		_add_action(&"load", "LOAD WATCH")
 		_add_action(&"settings", "SETTINGS")
 		_add_action(&"delete", "DELETE WATCH")
+		if get_node(^"/root/UpdateChecker").get("status") == &"available":
+			_add_action(&"update", "VIEW UPDATE ON GITHUB")
 		_add_action(&"quit", "QUIT")
 	var title: String = "WATCH PAUSED" if pause_mode else "WATCH CONTROL"
 	if _page == &"new":
@@ -321,6 +328,17 @@ func _add_action(action: StringName, label: String) -> void:
 
 func _quit_game() -> void:
 	get_tree().quit()
+
+
+func _on_update_checked() -> void:
+	var checker: Node = get_node(^"/root/UpdateChecker")
+	var tag: String = String(checker.get("installed_tag"))
+	_version_label.text = ("VERSION %s\n" % tag if not tag.is_empty() else "") + String(checker.call("get_status_text"))
+	if _page == &"root":
+		var index: int = _menu.get_highlighted_index()
+		var selected: StringName = _ids[index] if index >= 0 and index < _ids.size() else &"continue"
+		_refresh()
+		_menu.set_highlighted_index(maxi(0, _ids.find(selected)))
 
 
 func _build_ui() -> void:
@@ -370,6 +388,13 @@ func _build_ui() -> void:
 	_message.add_theme_font_size_override("font_size", UiScale.size(self, 14))
 	CrtPanel.style_label(_message, CrtPanel.PHOSPHOR_AMBER)
 	column.add_child(_message)
+	if not pause_mode:
+		_version_label = Label.new()
+		_version_label.name = "BuildVersion"
+		_version_label.custom_minimum_size.x = 420.0
+		_version_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		_version_label.add_theme_color_override("font_color", Color(0.72, 0.76, 0.7))
+		column.add_child(_version_label)
 	CrtPanel.add_overlay(_menu)
 	UiScale.connect_settings(self, _on_ui_scale_changed)
 	_on_ui_scale_changed(&"ui_scale", null)
@@ -387,4 +412,5 @@ func _on_ui_scale_changed(key: StringName, _value: Variant) -> void:
 		if _wordmark != null:
 			_wordmark.add_theme_font_size_override("font_size", UiScale.size(self, 44))
 			_subtitle.add_theme_font_size_override("font_size", UiScale.size(self, 14))
+			_version_label.add_theme_font_size_override("font_size", UiScale.size(self, 12))
 		_style_rows()

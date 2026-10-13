@@ -4,6 +4,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 from pathlib import Path
 import shutil
 import subprocess
@@ -17,7 +18,10 @@ VERSION = "4.7.2.stable"
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--engine", default=os.environ.get("GODOT_BIN", str(ROOT / "Engine/Godot_v4.7.2-stable_linux.x86_64")))
+    parser.add_argument("--release-tag", default="", help="Exact GitHub release tag; empty builds have no update check")
     args = parser.parse_args()
+    if args.release_tag and not re.fullmatch(r"v[0-9]{1,6}\.[0-9]{1,6}\.[0-9]{1,6}(?:-steamdeck-playtest\.[0-9]{8}\.[0-9]{1,6})?", args.release_tag):
+        parser.error("Use a Steam Deck playtest tag or stable vX.Y.Z tag")
     engine = Path(args.engine).expanduser().resolve()
     if not engine.is_file() or not os.access(engine, os.X_OK):
         parser.error("Use --engine /absolute/path/to/Godot_v4.7.2-stable_linux.x86_64")
@@ -40,8 +44,14 @@ def main():
         package = Path(staging) / "Hullwatch-SteamDeck"
         package.mkdir()
         binary = package / "Hullwatch.x86_64"
-        for options in (["--import"], ["--export-release", "Linux Steam Deck", str(binary)]):
-            subprocess.run([str(engine), "--headless", "--path", str(ROOT / "game"), *options], cwd=ROOT, env=engine_env, check=True)
+        identity = ROOT / "game/src/data/build_version.json"
+        original_identity = identity.read_bytes()
+        try:
+            identity.write_text(json.dumps({"release_tag": args.release_tag}) + "\n", encoding="utf-8")
+            for options in (["--import"], ["--export-release", "Linux Steam Deck", str(binary)]):
+                subprocess.run([str(engine), "--headless", "--path", str(ROOT / "game"), *options], cwd=ROOT, env=engine_env, check=True)
+        finally:
+            identity.write_bytes(original_identity)
         if binary.read_bytes()[:5] != b"\x7fELF\x02":
             raise RuntimeError("Export is not a 64-bit Linux ELF")
         binary.chmod(0o755)
@@ -50,7 +60,7 @@ def main():
         launcher.chmod(0o755)
         shutil.copyfile(ROOT / "docs/STEAM_DECK_PLAYTEST.md", package / "README.md")
         (package / "SOURCE_COMMIT").write_text(commit + "\n")
-        (package / "BUILD_INFO.json").write_text(json.dumps({"engine": version, "source_commit": commit, "source_status": dirty.splitlines(), "save_version": 8, "profile": "1280x800/mobile/30fps; Steam Input keyboard+mouse; hardware pending"}, indent=2) + "\n")
+        (package / "BUILD_INFO.json").write_text(json.dumps({"engine": version, "source_commit": commit, "source_status": dirty.splitlines(), "save_version": 8, "release_tag": args.release_tag, "profile": "1280x800/mobile/30fps; Steam Input keyboard+mouse; hardware pending"}, indent=2) + "\n")
         for path in package.iterdir():
             if path not in (binary, launcher):
                 path.chmod(0o644)
