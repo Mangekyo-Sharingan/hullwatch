@@ -8,6 +8,7 @@ const BASE_FONT_SIZE: int = 15
 
 var _menu: ScrollMenu
 var _content: Label
+var _content_scroll: ScrollContainer
 var _root: HBoxContainer
 
 
@@ -34,6 +35,8 @@ func close() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if PanelDismiss.should_dismiss(event, is_open()):
 		close()
+		get_viewport().set_input_as_handled()
+	elif is_open() and PanelDismiss.scroll_readout(event, _content_scroll):
 		get_viewport().set_input_as_handled()
 
 
@@ -111,6 +114,7 @@ func _on_page_selected(index: int) -> void:
 func _refresh_content() -> void:
 	if _content != null:
 		_content.text = "\n".join(build_readout())
+		_content_scroll.scroll_vertical = 0
 
 
 func _apply_ui_scale() -> void:
@@ -148,7 +152,7 @@ func _ensure_ui() -> void:
 	if not _menu.option_selected.is_connected(_on_page_selected):
 		_menu.option_selected.connect(_on_page_selected)
 	var content_panel := PanelContainer.new()
-	content_panel.custom_minimum_size = Vector2(430.0, 0.0)
+	content_panel.custom_minimum_size = Vector2(430.0, 440.0)
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.09, 0.085, 0.07, 0.62)
 	style.border_color = Color(0.62, 0.5, 0.25, 0.9)
@@ -156,10 +160,17 @@ func _ensure_ui() -> void:
 	style.set_content_margin_all(18.0)
 	content_panel.add_theme_stylebox_override("panel", style)
 	row.add_child(content_panel)
+	_content_scroll = ScrollContainer.new()
+	_content_scroll.name = "ReadoutScroll"
+	_content_scroll.custom_minimum_size = Vector2(394.0, 400.0)
+	_content_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	content_panel.add_child(_content_scroll)
 	_content = Label.new()
 	_content.name = "PageContent"
+	_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_content.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_content.add_theme_font_size_override("font_size", UiScale.size(self, BASE_FONT_SIZE))
 	CrtPanel.style_label(_content, CrtPanel.PHOSPHOR_AMBER)
-	content_panel.add_child(_content)
+	_content_scroll.add_child(_content)
 	CrtPanel.add_overlay(content_panel)
 	_root = row

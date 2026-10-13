@@ -32,6 +32,7 @@ var _items: Array[Dictionary] = []
 var _first_action: int = 0
 var _menu: ScrollMenu
 var _content: Label
+var _content_scroll: ScrollContainer
 var _root: HBoxContainer
 var _ui: CanvasLayer
 var _open: bool = false
@@ -184,6 +185,8 @@ func _handle_interact(_player: Node) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if PanelDismiss.should_dismiss(event, is_open()):
 		close()
+		get_viewport().set_input_as_handled()
+	elif is_open() and PanelDismiss.scroll_readout(event, _content_scroll):
 		get_viewport().set_input_as_handled()
 
 
@@ -342,6 +345,7 @@ func _ensure_ui() -> void:
 	panel.add_theme_stylebox_override("panel", style)
 	row.add_child(panel)
 	var scroll := ScrollContainer.new()
+	_content_scroll = scroll
 	scroll.name = "ReadoutScroll"
 	scroll.custom_minimum_size = Vector2(420.0, 400.0)
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED

@@ -3545,6 +3545,87 @@
         "Actual EXE embedded project passes focused checks.",
         "Published assets independently match SHA256; native Windows acceptance is recorded separately."
       ]
+    },
+    {
+      "id": "STEAM_DECK_PORT",
+      "title": "Steam Deck and Big Picture playtest",
+      "phase": "Platform playtest",
+      "status": "in_progress",
+      "summary": "Dedicatedisolatedbranch nativeLinuxx86_64,1280x800Mobile30cap, portableonePlaylauncher andmanualSteamInputsetup. Responsive/scrolledreadouts; parent93/93. Commit-specificbundle/deliveryverify inprogress; actualhardware/Steam integration/FPS remainopen.",
+      "evidence": [
+        {
+          "path": "docs/design/steam_deck/README.md",
+          "label": "Isolated Deck branch implementation,93/93 and validation boundaries"
+        },
+        {
+          "path": "docs/STEAM_DECK_PLAYTEST.md",
+          "label": "One-time Steam import, singlePlay launch and complete control/setupguide"
+        }
+      ],
+      "tasks": [
+        {
+          "title": "NativeLinuxexport, portablelauncher and full Steam/BigPicture setupguide",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/steam_deck/README.md",
+              "label": "Isolated Deck branch implementation,93/93 and validation boundaries"
+            },
+            {
+              "path": "docs/STEAM_DECK_PLAYTEST.md",
+              "label": "One-time Steam import, singlePlay launch and complete control/setupguide"
+            }
+          ]
+        },
+        {
+          "title": "Fix1280x800readability and verify source regression",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/steam_deck/README.md",
+              "label": "Isolated Deck branch implementation,93/93 and validation boundaries"
+            },
+            {
+              "path": "docs/STEAM_DECK_PLAYTEST.md",
+              "label": "One-time Steam import, singlePlay launch and complete control/setupguide"
+            }
+          ]
+        },
+        {
+          "title": "Rebuildcommittedsource, verifyactualbundle andpushDeckbranch/release",
+          "status": "in_progress",
+          "evidence": [
+            {
+              "path": "docs/design/steam_deck/README.md",
+              "label": "Isolated Deck branch implementation,93/93 and validation boundaries"
+            },
+            {
+              "path": "docs/STEAM_DECK_PLAYTEST.md",
+              "label": "One-time Steam import, singlePlay launch and complete control/setupguide"
+            }
+          ]
+        },
+        {
+          "title": "ActualSteamDeck/GameMode/BigPicture controls,performance andsuspendreview",
+          "status": "needs_review",
+          "evidence": [
+            {
+              "path": "docs/design/steam_deck/README.md",
+              "label": "Isolated Deck branch implementation,93/93 and validation boundaries"
+            },
+            {
+              "path": "docs/STEAM_DECK_PLAYTEST.md",
+              "label": "One-time Steam import, singlePlay launch and complete control/setupguide"
+            }
+          ]
+        }
+      ],
+      "acceptance": [
+        "NonSteamimportfollowedbyonePlaylaunch afterone-timeconfiguration.",
+        "BundlednativeELF startswithouteditor/runtimeinstall.",
+        "Explicitbindingscoverallmandatoryactions; viewportreadoutsremainaccessible.",
+        "Exactsource/publishedhashes recorded; hardwareacceptanceis separate."
+      ]
     }
   ],
   "gates": [

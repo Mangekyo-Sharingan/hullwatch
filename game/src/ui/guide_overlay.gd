@@ -26,7 +26,7 @@ var _fading_out: bool = false
 
 
 func _ready() -> void:
-	layer = 15
+	layer = 11
 	_build_ui()
 	_apply_ui_scale()
 	UiScale.connect_settings(self, _on_ui_scale_changed)
