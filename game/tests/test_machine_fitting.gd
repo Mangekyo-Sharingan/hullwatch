@@ -4,6 +4,7 @@
 extends SceneTree
 
 var _failures: int = 0
+var _last_refusal: StringName = &""
 
 
 func _initialize() -> void:
@@ -17,6 +18,10 @@ func _run() -> void:
 		event_bus = load("res://src/autoload/event_bus.gd").new()
 		event_bus.name = &"EventBus"
 		root.add_child(event_bus)
+	event_bus.connect(&"sim_event", func(event_name: StringName, payload: Dictionary) -> void:
+		if event_name == &"procedure_error":
+			_last_refusal = StringName(payload.get("reason", &""))
+	)
 
 	var cargo: CargoSystem = CargoSystem.new()
 	cargo.capacity_units = 2000.0
@@ -80,7 +85,17 @@ func _run() -> void:
 	_check(modules.fit_machine(&"grow_rack", &"hp_quarters:1"), "a second socket takes another rack")
 	modules.sim_tick(5.1)
 	_check(is_equal_approx(float(modules.get_effects()["rations_per_day"]), 4.0), "machines stack")
+	var capacity_before: float = cargo.capacity_units
+	cargo.capacity_units = cargo.get_used_units() + 3.0
+	var modules_before: Dictionary = modules.save_state()
+	var cargo_before: Dictionary = cargo.get_materials()
+	_check(not modules.remove_machine(&"hp_quarters:1"), "removal refuses a partially fitting full refund")
+	_check(modules.save_state() == modules_before and cargo.get_materials() == cargo_before, "refused removal preserves machine and all stock")
+	_check(is_equal_approx(power.get_circuit_load(&"life_support"), 300.0), "refused removal preserves live draw")
+	cargo.capacity_units = capacity_before
 	_check(modules.remove_machine(&"hp_quarters:1"), "a portable machine comes back out")
+	cargo_before = cargo.get_materials()
+	_check(not modules.remove_machine(&"hp_quarters:1") and cargo.get_materials() == cargo_before, "repeat removal cannot refund twice")
 	_check(is_equal_approx(float(modules.get_effects()["rations_per_day"]), 2.0), "removal takes the effect with it")
 	_check(is_equal_approx(power.get_circuit_load(&"life_support"), 210.0), "removal clears the draw")
 
@@ -89,6 +104,12 @@ func _run() -> void:
 	_check(modules.fit_machine(&"cargo_rack", &"hp_quarters:1"), "the same pod takes a cargo rack")
 	modules.sim_tick(4.1)
 	_check(is_equal_approx(cargo.get_capacity_units(), capacity + 25.0), "the rack adds hold space")
+	cargo.capacity_units = cargo.get_used_units()
+	modules_before = modules.save_state()
+	cargo_before = cargo.get_materials()
+	_check(not modules.remove_machine(&"hp_quarters:1"), "storage removal checks refund against final smaller capacity")
+	_check(modules.save_state() == modules_before and cargo.get_materials() == cargo_before, "refused storage shrink preserves cargo and fitting")
+	cargo.capacity_units = capacity_before
 
 	# Vital machinery is bolted down.
 	_check(modules.fit_machine(&"scrubber_spare", &"hp_quarters:2"), "a spare scrubber can be fitted")
@@ -106,8 +127,16 @@ func _run() -> void:
 	_check(StringName(String(modules.call("can_fit_machine", &"work_bench", &"hp_quarters:1"))) == &"slot_occupied", "an occupied socket refuses")
 	_check(modules.fit_machine(&"med_bed", &"hp_galley:0"), "a fitting can start in a free socket")
 	_check(not modules.remove_machine(&"hp_galley:0"), "a socket mid-fit reports nothing to remove")
+	cargo.capacity_units = cargo.get_used_units() - 25.0 + 3.0
+	modules_before = modules.save_state()
+	cargo_before = cargo.get_materials()
+	_check(not modules.cancel_machine_fit(&"hp_galley:0"), "fitting cancellation refuses an incomplete aggregate refund")
+	_check(modules.save_state() == modules_before and cargo.get_materials() == cargo_before, "refused fitting cancellation keeps paid job and stock")
+	cargo.capacity_units = capacity_before
 	_check(modules.cancel_machine_fit(&"hp_galley:0"), "a running fitting can be cancelled")
 	_check(is_equal_approx(cargo.get_units(&"metal"), metal_before), "cancelling refunds the material")
+	cargo_before = cargo.get_materials()
+	_check(not modules.cancel_machine_fit(&"hp_galley:0") and cargo.get_materials() == cargo_before, "repeat fitting cancellation cannot refund twice")
 
 	# Save/load with machines fitted and one fitting in flight.
 	_check(modules.fit_machine(&"work_bench", &"hp_galley:0"), "a bench fitting starts")
@@ -125,12 +154,35 @@ func _run() -> void:
 
 	# Pod teardown takes its own machines with it and leaves the other pod alone.
 	var metal_at_teardown: float = cargo.get_units(&"metal")
+	cargo.capacity_units = cargo.get_used_units()
+	modules_before = modules.save_state()
+	cargo_before = cargo.get_materials()
+	_check(not modules.uninstall(&"utility_pod"), "pod teardown checks all refunds against capacity after cargo rack removal")
+	_check(modules.save_state() == modules_before and cargo.get_materials() == cargo_before, "refused aggregate teardown keeps all machines and stock")
+	cargo.capacity_units = capacity_before
 	_check(modules.uninstall(&"utility_pod"), "the pod tears down with machines inside")
 	_check(modules.get_machine_at(&"hp_quarters:0") == &"", "the pod's machines go with it")
 	_check(is_equal_approx(float(modules.get_effects()["rations_per_day"]), 0.0), "the racks stop growing")
 	_check(is_equal_approx(cargo.get_capacity_units(), capacity), "the cargo rack's space goes too")
 	_check(cargo.get_units(&"metal") > metal_at_teardown - 0.001, "the machines are refunded with the pod")
 	_check(modules.get_installed_at(&"hp_galley") == &"storage_pod", "the other pod is untouched")
+
+	_check(modules.fit_machine(&"battery_cabinet", &"hp_galley:1"), "built battery fitting starts")
+	modules.sim_tick(7.0)
+	var base_wh: float = power.get_battery_capacity_wh() - modules.get_machine(&"battery_cabinet").effect_amount
+	power.battery_charge_wh = base_wh + 1.0
+	modules_before = modules.save_state()
+	cargo_before = cargo.get_materials()
+	_check(not modules.remove_machine(&"hp_galley:1"), "built battery removal refuses excess stored charge")
+	_check(_last_refusal == &"battery_capacity_in_use", "built removal reports battery capacity cause")
+	_check(not modules.uninstall(&"storage_pod"), "pod teardown refuses excess charge from built battery")
+	_check(_last_refusal == &"battery_capacity_in_use", "built pod teardown reports battery capacity cause")
+	_check(modules.save_state() == modules_before and cargo.get_materials() == cargo_before and power.battery_charge_wh == base_wh + 1.0, "energy refusal preserves fitting, refund and charge")
+	power.battery_charge_wh = base_wh - 1.0
+	_check(modules.remove_machine(&"hp_galley:1"), "spending charge permits built battery removal retry")
+	_check(power.battery_charge_wh == base_wh - 1.0 and power.get_battery_capacity_wh() == base_wh, "built battery removal preserves exact energy")
+	cargo_before = cargo.get_materials()
+	_check(not modules.remove_machine(&"hp_galley:1") and cargo.get_materials() == cargo_before, "built battery refunds exactly once")
 
 	if _failures == 0:
 		print("PASS: test_machine_fitting")

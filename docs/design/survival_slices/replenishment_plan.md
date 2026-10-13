@@ -231,3 +231,12 @@ Read AGENTS, production/expansion/open-question specs, `.wolf/OPENWOLF.md`, `.wo
 Commands used for reading: `cat`, bounded `sed -n`, `rg -n`, `rg --files`, `git status --short`, `command -v openwolf`, and `openwolf handoff inspect`/help. Some initial glob guesses (`data/items`, `data/compartments`, `systems/player_vitals.gd`) do not exist; actual surfaces are Stores, `data/atmosphere` and `systems/vitals.gd`. Supplied saved-context UUIDs were rejected by `openwolf handoff inspect` as `Invalid packet id`; their excerpts are not treated as inspected authorization. The live user instruction authorizes this scoped work.
 
 No subagent/task tool is available in this sidecar session; independent read batches were executed in parallel. No game tests were run. There is no blocker to this document; unresolved supply/balance/policy choices above belong to the parent/operator. Parent incorporates findings into slice/result/status/roadmap documents and coordinates persistence, without this sidecar editing any of them.
+
+## October13 execution update
+
+The preparation inventory above is historical. The first development packet
+implements lossless partial canister deposits and capacity-safe crafted/recovered
+returns, with stored-energy removal refusals. These preserve gathered resources;
+water, usable sealant, reaction-mass and mixed-gas replenishment remain later
+packets. No indefinite-survival guarantee follows from conservation alone.
+Current implementation/results: execution_2026-10-13/README.md.

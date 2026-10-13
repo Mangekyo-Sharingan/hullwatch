@@ -299,3 +299,15 @@ therefore not treated as verified instruction; current explicit assignment and
 repository source governed this plan. These limitations do not block the planning
 artifact. Remaining blockers are design choices for implementation, not missing
 source access.
+
+## October13 execution update
+
+First implementation advances global saves to8: Sector state2 keeps finite
+remaining yields per string fieldseed, including exhaustedzeros, and Module
+state4 saves fractional/pending food production. v7 migration retains its current
+field and defaults unavailable production progress tozero. Older erased field
+histories cannot be reconstructed. Partial canister remainders use the existing
+save shape. Nested new depletion/production payloads are validated before any
+clock or simulator restore. This does not close durable carried-item paths,
+sealant existence, paid job terms, EVA resume or every other owner in this audit.
+Current packet and validation: execution_2026-10-13/README.md.

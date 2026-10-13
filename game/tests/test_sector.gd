@@ -16,6 +16,7 @@ func _run() -> void:
 	_test_stream_bounds()
 	_test_contacts()
 	_test_save_load()
+	_test_field_depletion()
 	_finish()
 
 
@@ -125,6 +126,69 @@ func _test_save_load() -> void:
 	_check(is_equal_approx(b.get_encounter_frequency(&"asteroid_frequency"), expected_asteroid_frequency), "save/load keeps current player field-rate preference over legacy slot data")
 	_check(is_equal_approx(b.get_encounter_frequency(&"anomaly_frequency"), expected_anomaly_frequency), "save/load keeps current player anomaly preference over legacy slot data")
 	_check(not a.save_state().has("asteroid_frequency") and not a.save_state().has("anomaly_frequency"), "new sector saves leave global encounter preferences in settings")
+	a.free()
+	b.free()
+
+
+func _test_field_depletion() -> void:
+	var a: SectorSystem = _make_sector(20260918)
+	a.sim_tick(1.0 / 600.0)
+	for step: int in 168:
+		if not a.get_active_objects().is_empty():
+			break
+		a.sim_tick(1.0)
+	var objects: Array[Dictionary] = a.get_active_objects()
+	_check(not objects.is_empty(), "depletion: seeded field supplies a real deposit")
+	if objects.is_empty():
+		a.free()
+		return
+	var contact: Dictionary = objects[0]
+	var id: String = String(contact["id"])
+	var original: float = a.get_remaining_yield(id)
+	var first_seed: int = a.field_seed
+	var first_drift: float = a.get_drift_distance()
+	var paid: float = a.record_mined(id, original / 2.0)
+	var snapshot: Dictionary = a.save_state()
+	_check(is_equal_approx(paid, original / 2.0), "depletion: extraction debits the real deposit")
+	_check(a.record_mined(id, NAN) == 0.0 and a.record_mined(id, INF) == 0.0 and a.record_mined("unknown", 1.0) == 0.0 and a.save_state() == snapshot, "depletion: invalid or unknown extraction changes no stock")
+	a.sim_tick(20.0)
+	a.load_state(JSON.parse_string(JSON.stringify(snapshot)))
+	_check(is_equal_approx(a.get_remaining_yield(id), original - paid), "depletion: stream-out and JSON reload retain partial deposit")
+	var second_seed: int = first_seed + 1
+	var second_yield: float = 0.0
+	for attempt: int in 1000:
+		a._on_destination_arrived(&"other", &"star", second_seed, &"", 0.0, {})
+		a.sim_tick(first_drift / a.drift_speed_m_per_hour if first_drift > 0.0 else 0.001)
+		second_yield = a.get_remaining_yield(id)
+		if second_yield > 0.0:
+			break
+		second_seed += 1
+	_check(second_yield > 0.0, "depletion: another seeded field contains the same coordinate ID")
+	var second_paid: float = a.record_mined(id, second_yield)
+	_check(second_paid > 0.0 and is_equal_approx(second_paid, second_yield) and a.get_remaining_yield(id) == 0.0, "depletion: second field's deposit exhausts independently")
+	a._on_destination_arrived(&"first", &"star", first_seed, &"", 0.0, {})
+	a.sim_tick(first_drift / a.drift_speed_m_per_hour if first_drift > 0.0 else 0.001)
+	_check(is_equal_approx(a.get_remaining_yield(id), original - paid), "depletion: A to B to A does not replenish the first deposit")
+	a._on_settings_changed(&"asteroid_frequency", 0.0)
+	a._on_settings_changed(&"asteroid_frequency", 1.0)
+	_check(is_equal_approx(a.get_remaining_yield(id), original - paid), "depletion: rebuilding encounters does not reset extraction")
+	var saved: Dictionary = JSON.parse_string(JSON.stringify(a.save_state()))
+	var b: SectorSystem = _make_sector(1)
+	b.load_state(saved)
+	_check(b.save_state() == a.save_state(), "depletion: fresh simulator preserves every field claim")
+	b._on_destination_arrived(&"other", &"star", second_seed, &"", 0.0, {})
+	var second_claims: Dictionary = b.save_state()["mined_fields"].get(str(second_seed), {})
+	_check(b.get_remaining_yield(id) == 0.0 and second_claims.has(id), "depletion: exhausted zero survives save and return")
+	var legacy: Dictionary = snapshot.duplicate(true)
+	legacy["state_version"] = 1
+	legacy["mined"] = {id: original - paid}
+	legacy.erase("mined_fields")
+	b.load_state(legacy)
+	_check(is_equal_approx(b.get_remaining_yield(id), original - paid) and (b.save_state()["mined_fields"] as Dictionary).size() == 1, "depletion: legacy map belongs only to its saved field and replaces stale claims")
+	b.field_seed = 9007199254740993
+	var wide: Dictionary = JSON.parse_string(JSON.stringify(b.save_state()))
+	b.load_state(wide)
+	_check(b.field_seed == 9007199254740993, "depletion: string seed retains 64-bit identity through JSON")
 	a.free()
 	b.free()
 

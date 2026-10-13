@@ -180,6 +180,9 @@ func _test_hud_feedback() -> void:
 	event_bus.call("emit_event", &"procedure_error", {"reason": &"no_tool", "system": &"power_system"})
 	await process_frame
 	_check(hud.call("get_message_text") == "NO DIAGNOSTIC TOOL CARRIED", "hud explains a refused probe")
+	event_bus.call("emit_event", &"procedure_error", {"reason": &"battery_capacity_in_use"})
+	await process_frame
+	_check(hud.call("get_message_text") == "USE STORED ENERGY BEFORE REMOVING BATTERY CAPACITY", "hud explains stored-energy refusal without claiming the cargo hold is full")
 
 	event_bus.call("emit_event", &"message_received", {"message_id": &"msg_control_ack", "sender": "Mission Control"})
 	await process_frame

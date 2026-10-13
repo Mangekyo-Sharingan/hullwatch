@@ -150,27 +150,46 @@ func fit_unit(unit_id: String, socket_id: StringName, tool: StringName = &"") ->
 
 func remove_unit(socket_id: StringName) -> bool:
 	var unit_id: String = get_unit_at(socket_id)
-	var cargo: Node = _system(&"cargo_system")
-	if unit_id.is_empty() or cargo == null or float(cargo.call("get_free_units")) < definition.cargo_units:
+	var modules: Node = _system(&"module_system")
+	var machine: ShipMachine = get_machine(unit_id)
+	if machine == null or modules == null:
 		return _refuse(&"salvage_hold_full", unit_id)
-	_units[unit_id]["location"] = "stowed"
-	_units[unit_id]["socket_id"] = ""
-	_changed(unit_id, &"salvage_removed")
-	_emit_machine(&"machine_removed", unit_id, socket_id)
+	var refusal: StringName = StringName(modules.call("_return_refusal", definition.cargo_units, machine.effect_amount if machine.effect == &"cargo" else 0.0, machine.effect_amount if machine.effect == &"power" else 0.0))
+	if refusal != &"":
+		return _refuse(refusal, unit_id)
+	_return_units([get_unit(unit_id)])
 	return true
 
 
 func release_pod(hardpoint_id: StringName) -> bool:
-	var targets: Array[StringName] = []
+	var targets: Array[Dictionary] = []
 	for unit: Dictionary in get_units(&"fitted"):
 		if String(unit["socket_id"]).begins_with(String(hardpoint_id) + ":"):
-			targets.append(StringName(unit["socket_id"]))
-	var cargo: Node = _system(&"cargo_system")
-	if not targets.is_empty() and (cargo == null or float(cargo.call("get_free_units")) < definition.cargo_units * targets.size()):
+			targets.append(unit)
+	if targets.is_empty():
+		return true
+	var modules: Node = _system(&"module_system")
+	var module: ShipModule = modules.call("get_module", modules.call("get_installed_at", hardpoint_id)) as ShipModule if modules != null else null
+	if module == null:
 		return _refuse(&"salvage_hold_full", "")
-	for socket_id: StringName in targets:
-		remove_unit(socket_id)
+	var refusal: StringName = StringName(modules.call("_teardown_refusal", module))
+	if refusal != &"":
+		return _refuse(refusal, "")
+	_return_units(targets)
 	return true
+
+
+func _return_units(units: Array[Dictionary]) -> void:
+	# Every ownership change precedes notifications; no later per-unit preflight can fail.
+	for unit: Dictionary in units:
+		var unit_id: String = String(unit["unit_id"])
+		_units[unit_id]["location"] = "stowed"
+		_units[unit_id]["socket_id"] = ""
+	_refresh_cargo()
+	for unit: Dictionary in units:
+		var unit_id: String = String(unit["unit_id"])
+		_changed(unit_id, &"salvage_removed")
+		_emit_machine(&"machine_removed", unit_id, StringName(unit["socket_id"]))
 
 
 func scrap_unit(unit_id: String) -> bool:

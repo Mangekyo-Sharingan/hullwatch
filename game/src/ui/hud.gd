@@ -20,6 +20,7 @@ const PROCEDURE_ERROR_TEXT: Dictionary = {
 	&"isolate_salvage_first": "ISOLATE THE RECOVERY SUPPLY FIRST",
 	&"needs_wrench": "A WRENCH IS REQUIRED",
 	&"salvage_hold_full": "MAKE ROOM IN THE CARGO HOLD FIRST",
+	&"battery_capacity_in_use": "USE STORED ENERGY BEFORE REMOVING BATTERY CAPACITY",
 	&"salvage_diagnosis_needs_multimeter": "STOW THE UNIT AND CARRY A MULTIMETER",
 	&"diagnose_salvage_first": "DIAGNOSE THE RECOVERED UNIT FIRST",
 	&"missing_repair_material": "NOT ENOUGH REPAIR MATERIAL IN THE HOLD",

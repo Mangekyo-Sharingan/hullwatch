@@ -27,7 +27,7 @@ var _contact_ids: Dictionary = {}
 var _offset: Vector3 = Vector3.ZERO
 var _holding: bool = false
 var _approach_target_id: String = ""
-var _mined: Dictionary = {}
+var _mined_fields: Dictionary = {}
 var asteroid_frequency: float = 1.0
 var anomaly_frequency: float = 1.0
 
@@ -207,7 +207,6 @@ func _on_destination_arrived(_destination_id: StringName, _kind: StringName, nex
 	_offset = Vector3.ZERO
 	_holding = false
 	_approach_target_id = ""
-	_mined.clear()
 	_base_chunk = -999999
 	_contact_ids.clear()
 	_rebuild_active()
@@ -270,8 +269,9 @@ func _make_object(cx: int, cy: int, cz: int, axis: Vector3, right: Vector3, up: 
 
 ## Remaining extractable units for an object id; unknown ids read as zero.
 func get_remaining_yield(object_id: String) -> float:
-	if _mined.has(object_id):
-		return float(_mined[object_id])
+	var mined: Dictionary = _mined_fields.get(str(field_seed), {})
+	if mined.has(object_id):
+		return float(mined[object_id])
 	for entry: Dictionary in _active:
 		if String(entry["id"]) == object_id:
 			return float(entry.get("yield_units", 0.0))
@@ -280,11 +280,15 @@ func get_remaining_yield(object_id: String) -> float:
 
 ## Records extraction; clamps at zero and returns the units actually removed.
 func record_mined(object_id: String, units: float) -> float:
-	if units <= 0.0:
+	if not is_finite(units) or units <= 0.0:
 		return 0.0
 	var remaining: float = get_remaining_yield(object_id)
 	var removed: float = minf(units, remaining)
-	_mined[object_id] = maxf(remaining - removed, 0.0)
+	if removed > 0.0:
+		var field: String = str(field_seed)
+		if not _mined_fields.has(field):
+			_mined_fields[field] = {}
+		_mined_fields[field][object_id] = maxf(remaining - removed, 0.0)
 	return removed
 
 
@@ -304,13 +308,13 @@ func _update_contacts() -> void:
 func save_state() -> Dictionary:
 	return {
 		"system_id": String(system_id),
-		"state_version": 1,
-		"field_seed": field_seed,
+		"state_version": 2,
+		"field_seed": str(field_seed),
 		"drift_distance_m": _drift_distance_m,
 		"offset": {"x": _offset.x, "y": _offset.y, "z": _offset.z},
 		"holding": _holding,
 		"approach_target_id": _approach_target_id,
-		"mined": _mined.duplicate(),
+		"mined_fields": _mined_fields.duplicate(true),
 	}
 
 
@@ -325,10 +329,21 @@ func load_state(state: Dictionary) -> void:
 	)
 	_holding = bool(state.get("holding", false))
 	_approach_target_id = String(state.get("approach_target_id", ""))
-	_mined.clear()
-	var mined: Dictionary = state.get("mined", {})
-	for key: Variant in mined:
-		_mined[String(key)] = maxf(float(mined[key]), 0.0)
+	_mined_fields.clear()
+	var fields: Variant = state.get("mined_fields", {})
+	if int(state.get("state_version", 1)) < 2:
+		fields = {str(field_seed): state.get("mined", {})}
+	if fields is Dictionary:
+		for field: Variant in fields:
+			var mined: Variant = fields[field]
+			if not (field is String) or not (mined is Dictionary):
+				continue
+			var restored: Dictionary = {}
+			for key: Variant in mined:
+				var units: Variant = mined[key]
+				if key is String and (units is int or units is float) and is_finite(float(units)) and float(units) >= 0.0:
+					restored[key] = float(units)
+			_mined_fields[field] = restored
 	_base_chunk = int(floor(_drift_distance_m / CHUNK_SIZE_M))
 	_rebuild_active()
 	_contact_ids.clear()

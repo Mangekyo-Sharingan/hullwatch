@@ -33,7 +33,7 @@ func _handle_interact(player: Node) -> void:
 	if accepted <= 0.0:
 		_emit_sim_event(&"procedure_error", {"reason": &"cargo_full"})
 		return
-	canister.call("unload")
+	canister.call("remove_amount", accepted)
 	_emit_sim_event(&"sample_stowed", {"kind": String(load["kind"]), "units": accepted})
 
 

@@ -31,20 +31,33 @@ func get_load_units() -> float:
 
 ## Loads up to the canister capacity; returns the units taken.
 func load_amount(kind: StringName, units: float) -> float:
-	if not is_empty() or units <= 0.0:
+	if not is_empty() or not is_finite(units) or units <= 0.0 or not CargoSystem.KNOWN_KINDS.has(kind):
+		return 0.0
+	if not is_finite(capacity_units) or capacity_units < 0.0:
 		return 0.0
 	var taken: float = minf(units, capacity_units)
+	if taken <= 0.0:
+		return 0.0
 	_kind = kind
 	_units = taken
 	_emit_sim_event(&"canister_loaded", {"kind": String(kind), "units": taken, "item_id": get_item_id()})
 	return taken
 
 
+func remove_amount(units: float) -> float:
+	if not is_finite(units) or units <= 0.0 or is_empty():
+		return 0.0
+	var removed: float = minf(units, _units)
+	_units -= removed
+	if is_empty():
+		_kind = &""
+	return removed
+
+
 ## Empties the canister; returns what it held.
 func unload() -> Dictionary:
 	var load: Dictionary = get_load()
-	_kind = &""
-	_units = 0.0
+	remove_amount(_units)
 	return load
 
 

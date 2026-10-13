@@ -156,10 +156,13 @@ func cancel_build(hardpoint_id: StringName) -> bool:
 		emit_sim_event(&"procedure_error", {"reason": String(REFUSAL_NO_BUILD_JOB), "hardpoint_id": String(hardpoint_id)})
 		return false
 	var job: Dictionary = _jobs[hardpoint_id]
-	_jobs.erase(hardpoint_id)
 	var module: ShipModule = get_module(StringName(job.get("module_id", &"")))
-	if module != null:
-		_refund(module)
+	var refusal: StringName = REFUSAL_UNKNOWN_MODULE if module == null else _return_refusal(_cost_units(module.cost))
+	if refusal != &"":
+		emit_sim_event(&"procedure_error", {"reason": refusal})
+		return false
+	_jobs.erase(hardpoint_id)
+	_refund(module)
 	emit_sim_event(&"construction_cancelled", {
 		"module_id": String(job.get("module_id", &"")),
 		"hardpoint_id": String(hardpoint_id),
@@ -173,8 +176,9 @@ func uninstall(module_id: StringName) -> bool:
 	if module == null or not is_installed(module_id):
 		emit_sim_event(&"module_uninstall_refused", {"module_id": String(module_id), "reason": String(REFUSAL_NOT_INSTALLED)})
 		return false
-	if not _teardown_fits_hold(module):
-		emit_sim_event(&"procedure_error", {"reason": &"salvage_hold_full"})
+	var refusal: StringName = _teardown_refusal(module)
+	if refusal != &"":
+		emit_sim_event(&"procedure_error", {"reason": refusal})
 		return false
 	var salvage: Node = _system(&"salvage_system")
 	if salvage != null and not bool(salvage.call(&"release_pod", module.hardpoint_id)):
@@ -192,14 +196,10 @@ func uninstall(module_id: StringName) -> bool:
 
 ## A pod that comes down takes its machines with it: everything in its sockets goes back to the
 ## hold, and a fitting still running is cancelled and refunded.
-func _teardown_fits_hold(module: ShipModule) -> bool:
-	var cargo: Node = _cargo_system()
-	if cargo == null:
-		return false
+func _teardown_refusal(module: ShipModule) -> StringName:
 	var capacity_lost: float = module.effect_amount if module.effect == EFFECT_CARGO else 0.0
-	var returned_units: float = 0.0
-	for amount: Variant in module.cost.values():
-		returned_units += maxf(float(amount), 0.0)
+	var power_lost: float = module.effect_amount if module.effect == EFFECT_POWER else 0.0
+	var returned_units: float = _cost_units(module.cost)
 	var prefix: String = String(module.hardpoint_id) + ":"
 	var all_machines: Dictionary = get_machines()
 	var salvage: Node = _system(&"salvage_system")
@@ -207,22 +207,53 @@ func _teardown_fits_hold(module: ShipModule) -> bool:
 		if not socket.begins_with(prefix):
 			continue
 		var machine: ShipMachine = get_machine(StringName(String(all_machines[socket])))
-		if machine != null and machine.effect == EFFECT_CARGO:
+		if machine == null:
+			return REFUSAL_UNKNOWN_MACHINE
+		if machine.effect == EFFECT_CARGO:
 			capacity_lost += machine.effect_amount
+		elif machine.effect == EFFECT_POWER:
+			power_lost += machine.effect_amount
 		if salvage != null and String(salvage.call("get_unit_at", StringName(socket))) != "":
 			var definition: Resource = salvage.get("definition") as Resource
 			returned_units += float(definition.get("cargo_units"))
-		elif machine != null:
-			for amount: Variant in machine.cost.values():
-				returned_units += maxf(float(amount), 0.0)
+		else:
+			returned_units += _cost_units(machine.cost)
 	for socket: StringName in _machine_jobs:
 		if String(socket).begins_with(prefix):
 			var job: Dictionary = _machine_jobs[socket]
 			var machine: ShipMachine = get_machine(StringName(job.get("machine_id", &"")))
-			if machine != null:
-				for amount: Variant in machine.cost.values():
-					returned_units += maxf(float(amount), 0.0)
-	return float(cargo.call("get_used_units")) + returned_units <= float(cargo.call("get_capacity_units")) - capacity_lost + 0.0001
+			if machine == null:
+				return REFUSAL_UNKNOWN_MACHINE
+			returned_units += _cost_units(machine.cost)
+	return _return_refusal(returned_units, capacity_lost, power_lost)
+
+
+func _cost_units(cost: Dictionary) -> float:
+	var total: float = 0.0
+	for amount: Variant in cost.values():
+		if not (amount is int or amount is float) or not is_finite(float(amount)) or float(amount) < 0.0:
+			return INF
+		total += float(amount)
+	return total
+
+
+func _return_refusal(returned_units: float, capacity_lost: float = 0.0, power_lost: float = 0.0) -> StringName:
+	var cargo: Node = _cargo_system()
+	if cargo == null or not is_finite(returned_units) or returned_units < 0.0 or not is_finite(capacity_lost) or capacity_lost < 0.0 or not is_finite(power_lost) or power_lost < 0.0:
+		return &"salvage_hold_full"
+	var final_used: float = float(cargo.call("get_used_units")) + returned_units
+	var final_capacity: float = float(cargo.call("get_capacity_units")) - capacity_lost
+	if not is_finite(final_used) or not is_finite(final_capacity) or final_used > final_capacity:
+		return &"salvage_hold_full"
+	if power_lost > 0.0:
+		var power: Node = _system(&"power_system")
+		if power == null:
+			return &"battery_capacity_in_use"
+		var charge: float = float((power.call("get_status") as Dictionary).get("battery_charge_wh", INF))
+		var remaining_wh: float = float(power.call("get_battery_capacity_wh")) - power_lost
+		if not is_finite(charge) or not is_finite(remaining_wh) or charge < 0.0 or charge > remaining_wh:
+			return &"battery_capacity_in_use"
+	return &""
 
 
 func _release_machines(hardpoint_id: StringName) -> void:
@@ -358,6 +389,10 @@ func remove_machine(socket_id: StringName) -> bool:
 	if not machine.portable:
 		emit_sim_event(&"procedure_error", {"reason": String(REFUSAL_NOT_PORTABLE), "machine_id": String(machine_id)})
 		return false
+	var refusal: StringName = _return_refusal(_cost_units(machine.cost), machine.effect_amount if machine.effect == EFFECT_CARGO else 0.0, machine.effect_amount if machine.effect == EFFECT_POWER else 0.0)
+	if refusal != &"":
+		emit_sim_event(&"procedure_error", {"reason": refusal, "socket_id": String(socket_id)})
+		return false
 	_machines.erase(socket_id)
 	_apply_effects()
 	_refund_machine(machine)
@@ -371,10 +406,13 @@ func cancel_machine_fit(socket_id: StringName) -> bool:
 		emit_sim_event(&"procedure_error", {"reason": String(REFUSAL_NO_BUILD_JOB), "socket_id": String(socket_id)})
 		return false
 	var job: Dictionary = _machine_jobs[socket_id]
-	_machine_jobs.erase(socket_id)
 	var machine: ShipMachine = get_machine(StringName(job.get("machine_id", &"")))
-	if machine != null:
-		_refund_machine(machine)
+	var refusal: StringName = REFUSAL_UNKNOWN_MACHINE if machine == null else _return_refusal(_cost_units(machine.cost))
+	if refusal != &"":
+		emit_sim_event(&"procedure_error", {"reason": refusal, "socket_id": String(socket_id)})
+		return false
+	_machine_jobs.erase(socket_id)
+	_refund_machine(machine)
 	emit_sim_event(&"machine_fit_cancelled", {
 		"machine_id": String(job.get("machine_id", &"")),
 		"socket_id": String(socket_id),
@@ -632,7 +670,8 @@ func save_state() -> Dictionary:
 		}
 	return {
 		"system_id": String(system_id),
-		"state_version": 3,
+		"state_version": 4,
+		"ration_hours": _ration_hours,
 		"installed": get_status()["installed"],
 		"jobs": jobs,
 		"machines": built_machines,
@@ -641,6 +680,8 @@ func save_state() -> Dictionary:
 
 
 func load_state(state: Dictionary) -> void:
+	var ration_hours: Variant = state.get("ration_hours", 0.0)
+	_ration_hours = float(ration_hours) if (ration_hours is int or ration_hours is float) and is_finite(float(ration_hours)) and float(ration_hours) >= 0.0 else 0.0
 	for module_id: StringName in get_installed_modules():
 		_unregister_compartments(get_module(module_id))
 	_installed.clear()

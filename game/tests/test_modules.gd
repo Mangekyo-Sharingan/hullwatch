@@ -70,6 +70,13 @@ func _run() -> void:
 	_check(modules.get_installed_modules() == ([&"greenhouse", &"med_bay"] as Array[StringName]), "installed list is stable")
 
 	var saved: Dictionary = modules.save_state()
+	var capacity_before: float = cargo.capacity_units
+	cargo.capacity_units = cargo.get_used_units()
+	var cargo_before: Dictionary = cargo.get_materials()
+	_check(not modules.uninstall(&"greenhouse"), "full hold refuses teardown")
+	_check(modules.save_state() == saved and cargo.get_materials() == cargo_before, "refused teardown preserves stock and installed state")
+	_check(atmosphere.has_compartment(&"greenhouse"), "refused teardown keeps its compartment")
+	cargo.capacity_units = capacity_before
 
 	_check(modules.uninstall(&"greenhouse"), "uninstall succeeds")
 	_check(is_equal_approx(cargo.get_units(&"metal"), 10.0), "teardown refunds the full metal cost")
@@ -84,10 +91,17 @@ func _run() -> void:
 	cargo.consume_material(&"metal", 10.0)
 	cargo.add_material(&"metal", 4.0)
 	_check(modules.start_build(&"greenhouse"), "a rebuild starts again")
+	cargo.capacity_units = cargo.get_used_units() + 5.0
+	var pending: Dictionary = modules.save_state()
+	cargo_before = cargo.get_materials()
+	_check(not modules.cancel_build(&"hp_quarters"), "cancellation refuses when aggregate refund cannot fit")
+	_check(modules.save_state() == pending and cargo.get_materials() == cargo_before, "refused cancellation preserves paid job and every material")
+	cargo.capacity_units = capacity_before
 	_check(modules.cancel_build(&"hp_quarters"), "a running build can be cancelled")
 	_check(is_equal_approx(cargo.get_units(&"metal"), 4.0), "cancelling refunds the committed metal")
 	_check(modules.get_job(&"hp_quarters").is_empty() and not modules.is_installed(&"greenhouse"), "a cancelled build leaves nothing behind")
 	_check(not modules.cancel_build(&"hp_quarters"), "cancelling nothing refuses")
+	_check(is_equal_approx(cargo.get_units(&"metal"), 4.0), "repeat cancellation cannot refund twice")
 
 	modules.load_state(saved)
 	_check(modules.get_installed_modules() == ([&"greenhouse", &"med_bay"] as Array[StringName]), "load restores the installed set")

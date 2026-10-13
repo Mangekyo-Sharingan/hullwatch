@@ -6,6 +6,7 @@ const CANISTER_CAPACITY: float = 6.0
 
 var _failures: int = 0
 var _errors: Array[Dictionary] = []
+var _stowed: Array[Dictionary] = []
 
 
 func _initialize() -> void:
@@ -82,6 +83,8 @@ func _run() -> void:
 	_check(_errors.is_empty(), "the cargo port stows the load")
 	_check(is_equal_approx(cargo.get_units(StringName(String(entry["resource"]))), CANISTER_CAPACITY), "cargo holds the stowed units")
 	_check(bool(canister.call("is_empty")), "the canister empties on stowing")
+	_test_partial_stow(player, canister, port, cargo, StringName(String(entry["resource"])))
+	_test_canister_boundaries(canister)
 
 	var saved: Dictionary = sector.save_state()
 	var restored: SectorSystem = SectorSystem.new()
@@ -99,9 +102,82 @@ func _run() -> void:
 	_finish()
 
 
+func _test_partial_stow(player: Node, canister: SampleCanister, port: CargoPort, cargo: CargoSystem, kind: StringName) -> void:
+	_check(is_equal_approx(canister.load_amount(kind, CANISTER_CAPACITY), CANISTER_CAPACITY), "reload for partial transfer")
+	cargo.add_material(CargoSystem.KIND_METAL, cargo.get_free_units() - 1.25)
+	var total: float = cargo.get_used_units() + canister.get_load_units()
+	var held_before: float = cargo.get_units(kind)
+	_errors.clear()
+	_stowed.clear()
+	port.interact(player)
+	_check(_errors.is_empty(), "near-full hold accepts a partial load")
+	_check(is_equal_approx(cargo.get_units(kind) - held_before, 1.25), "hold accepts exactly the available fractional room")
+	_check(is_equal_approx(canister.get_load_units(), 4.75) and canister.get_load_kind() == kind, "partial stow preserves remainder and kind")
+	_check(is_equal_approx(cargo.get_used_units() + canister.get_load_units(), total), "partial stow conserves total material")
+	_check(_stowed.size() == 1 and is_equal_approx(float(_stowed[0]["units"]), 1.25) and StringName(_stowed[0]["kind"]) == kind, "stow event reports accepted amount and kind")
+
+	var restored: SampleCanister = SampleCanister.new()
+	root.add_child(restored)
+	restored.load_state(JSON.parse_string(JSON.stringify(canister.save_state())) as Dictionary)
+	_check(is_equal_approx(restored.get_load_units(), 4.75) and restored.get_load_kind() == kind, "JSON save/load preserves remaining units and kind")
+	restored.free()
+
+	for attempt: int in 3:
+		_errors.clear()
+		port.interact(player)
+		_check(_error_reason(&"cargo_full"), "full hold refuses retry %d" % attempt)
+		_check(is_equal_approx(canister.get_load_units(), 4.75) and canister.get_load_kind() == kind and is_equal_approx(cargo.get_used_units() + canister.get_load_units(), total), "full hold retry preserves material %d" % attempt)
+	_check(_stowed.size() == 1, "full hold retries emit no successful stows")
+
+	_check(cargo.consume_material(CargoSystem.KIND_METAL, 4.75), "clear exactly enough room for remainder")
+	held_before = cargo.get_units(kind)
+	_errors.clear()
+	port.interact(player)
+	_check(_errors.is_empty() and canister.is_empty() and canister.get_load_kind() == &"", "retry transfers exact remainder and clears kind")
+	_check(is_equal_approx(cargo.get_units(kind) - held_before, 4.75), "all remaining sampled material arrives exactly once")
+	_check(is_equal_approx(cargo.get_used_units() + canister.get_load_units(), total - 4.75), "retry conserves material after room is cleared")
+	_check(_stowed.size() == 2 and is_equal_approx(float(_stowed[1]["units"]), 4.75), "retry event reports exact remaining amount")
+	var used_before: float = cargo.get_used_units()
+	_errors.clear()
+	port.interact(player)
+	_check(_error_reason(&"no_sample") and is_equal_approx(cargo.get_used_units(), used_before) and _stowed.size() == 2, "empty retry cannot duplicate material")
+
+	for material: StringName in CargoSystem.KNOWN_KINDS:
+		cargo.consume_material(material, cargo.get_units(material))
+	cargo.capacity_units = 0.0
+	canister.load_amount(kind, 2.0)
+	_errors.clear()
+	port.interact(player)
+	_check(_error_reason(&"cargo_full") and is_equal_approx(canister.get_load_units(), 2.0) and canister.get_load_kind() == kind and cargo.get_used_units() == 0.0 and _stowed.size() == 2, "zero-capacity receiver preserves load")
+	canister.unload()
+
+
+func _test_canister_boundaries(canister: SampleCanister) -> void:
+	canister.load_amount(CargoSystem.KIND_ICE, 3.5)
+	for invalid: float in [NAN, -1.0, 0.0, INF, -INF]:
+		_check(canister.remove_amount(invalid) == 0.0 and canister.get_load_units() == 3.5 and canister.get_load_kind() == CargoSystem.KIND_ICE, "invalid removal leaves stock unchanged: %s" % invalid)
+	_check(canister.remove_amount(1.25) == 1.25 and canister.get_load_units() == 2.25 and canister.get_load_kind() == CargoSystem.KIND_ICE, "partial removal returns actual amount and retains kind")
+	_check(canister.remove_amount(9.0) == 2.25 and canister.is_empty() and canister.get_load_kind() == &"", "overdraw removes only held stock and clears kind")
+	_check(canister.remove_amount(1.0) == 0.0, "empty removal returns zero")
+	for invalid: float in [NAN, -1.0, 0.0, INF, -INF]:
+		_check(canister.load_amount(CargoSystem.KIND_ICE, invalid) == 0.0 and canister.is_empty() and canister.get_load_kind() == &"", "invalid load leaves canister empty: %s" % invalid)
+	for kind: StringName in [&"", &"unknown"]:
+		_check(canister.load_amount(kind, 1.0) == 0.0 and canister.is_empty() and canister.get_load_kind() == &"", "invalid material kind is refused")
+	for capacity: float in [NAN, -1.0, 0.0, INF, -INF]:
+		canister.capacity_units = capacity
+		_check(canister.load_amount(CargoSystem.KIND_ICE, 1.0) == 0.0 and canister.is_empty() and canister.get_load_kind() == &"", "invalid or zero capacity takes no stock: %s" % capacity)
+	canister.capacity_units = CANISTER_CAPACITY
+	_check(canister.load_amount(CargoSystem.KIND_ICE, 9.0) == CANISTER_CAPACITY, "valid load remains capacity bounded")
+	_check(canister.load_amount(CargoSystem.KIND_ORE, 1.0) == 0.0 and canister.get_load_kind() == CargoSystem.KIND_ICE and canister.get_load_units() == CANISTER_CAPACITY, "loaded canister refuses replacement")
+	var unloaded: Dictionary = canister.unload()
+	_check(unloaded["kind"] == CargoSystem.KIND_ICE and float(unloaded["units"]) == CANISTER_CAPACITY and canister.is_empty() and canister.get_load_kind() == &"", "unload keeps its return contract and clears stock")
+
+
 func _on_sim_event(event_name: StringName, payload: Dictionary) -> void:
 	if event_name == &"procedure_error":
 		_errors.append(payload)
+	elif event_name == &"sample_stowed":
+		_stowed.append(payload)
 
 
 func _error_reason(reason: StringName) -> bool:

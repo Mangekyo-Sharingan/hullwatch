@@ -2,7 +2,7 @@
 ## Autoload name: SaveManager. No class_name on purpose — it would conflict with the autoload.
 extends Node
 
-const SAVE_VERSION: int = 7
+const SAVE_VERSION: int = 8
 const SAVE_DIR: String = "user://saves"
 const SLOT_COUNT: int = 3
 const GAME_SCENE: String = "res://scenes/main.tscn"
@@ -298,6 +298,22 @@ func _validate_save(data: Dictionary) -> bool:
 				for opened: Variant in covers.values():
 					if not (opened is bool):
 						return false
+	var systems: Dictionary = data.get("systems", {})
+	var modules: Dictionary = systems.get("modules", {})
+	var remainder: Variant = modules.get("ration_hours", 0.0)
+	if not (remainder is int or remainder is float) or not is_finite(float(remainder)) or float(remainder) < 0.0:
+		return false
+	var sector: Dictionary = systems.get("sector", {})
+	var fields: Variant = sector.get("mined_fields", {})
+	if not (fields is Dictionary):
+		return false
+	if sector.has("mined") and not _valid_deposit_stock(sector["mined"]):
+		return false
+	for field: Variant in fields:
+		if not (field is String) or not String(field).is_valid_int() or str(int(field)) != field:
+			return false
+		if not _valid_deposit_stock(fields[field]):
+			return false
 	var meta: Dictionary = data.get("meta", {})
 	var clock: Dictionary = data.get("clock", {})
 	for key: String in ["created_unix", "play_hours", "day"]:
@@ -307,6 +323,16 @@ func _validate_save(data: Dictionary) -> bool:
 	var seconds: Variant = clock.get("sim_seconds", 0.0)
 	if not (seconds is int or seconds is float) or not is_finite(float(seconds)):
 		return false
+	return true
+
+
+func _valid_deposit_stock(mined: Variant) -> bool:
+	if not (mined is Dictionary):
+		return false
+	for contact: Variant in mined:
+		var units: Variant = mined[contact]
+		if not (contact is String) or String(contact).is_empty() or not (units is int or units is float) or not is_finite(float(units)) or float(units) < 0.0:
+			return false
 	return true
 
 
@@ -362,6 +388,20 @@ func _migrate(data: Dictionary) -> Dictionary:
 			var power: Dictionary = systems["power"]
 			power["light_enabled"] = {}
 		data["save_version"] = 7
+		version = 7
+	if version == 7:
+		var systems: Dictionary = data.get("systems", {})
+		if systems.has("sector"):
+			var sector: Dictionary = systems["sector"]
+			sector["mined_fields"] = {str(int(sector.get("field_seed", 20260918))): sector.get("mined", {}).duplicate()}
+			sector["field_seed"] = str(int(sector.get("field_seed", 20260918)))
+			sector["state_version"] = 2
+			sector.erase("mined")
+		if systems.has("modules"):
+			var modules: Dictionary = systems["modules"]
+			modules["ration_hours"] = 0.0
+			modules["state_version"] = 4
+		data["save_version"] = 8
 	return data
 
 

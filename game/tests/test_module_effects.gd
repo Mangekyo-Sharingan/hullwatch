@@ -95,7 +95,14 @@ func _run() -> void:
 	var base_battery: float = power.get_battery_capacity_wh()
 	_build(modules, &"aux_battery")
 	_check(is_equal_approx(power.get_battery_capacity_wh(), base_battery + 2400.0), "an aux battery adds 2400 Wh")
-	modules.uninstall(&"aux_battery")
+	power.battery_charge_wh = base_battery + 1.0
+	var before_teardown: Dictionary = modules.save_state()
+	var stock_before: Dictionary = cargo.get_materials()
+	_check(not modules.uninstall(&"aux_battery"), "battery pod refuses capacity shrink below stored charge")
+	_check(modules.save_state() == before_teardown and cargo.get_materials() == stock_before and power.battery_charge_wh == base_battery + 1.0, "refused battery pod teardown preserves stock, effects and Wh")
+	power.battery_charge_wh = base_battery - 1.0
+	_check(modules.uninstall(&"aux_battery"), "battery pod retry succeeds after spending charge")
+	_check(power.battery_charge_wh == base_battery - 1.0, "battery pod teardown loses no Wh")
 	_check(is_equal_approx(power.get_battery_capacity_wh(), base_battery), "teardown returns battery capacity")
 
 	# Med bay: faster recovery.
@@ -109,6 +116,7 @@ func _run() -> void:
 
 	var summary: Dictionary = modules.get_effects()
 	_check(is_equal_approx(float(summary["cargo_units"]), 0.0) and is_equal_approx(float(summary["power_wh"]), 0.0), "nothing is left contributing")
+	_test_ration_restore(modules, stores, power)
 
 	if _failures == 0:
 		print("PASS: test_module_effects")
@@ -116,6 +124,61 @@ func _run() -> void:
 	else:
 		print("FAILURES: ", _failures)
 		quit(1)
+
+
+func _test_ration_restore(modules: ModuleSystem, stores: Stores, power: PowerSystem) -> void:
+	root.get_node("SimClock").call("set_paused", true)
+	_build(modules, &"greenhouse")
+	var legacy: Dictionary = modules.save_state()
+	legacy.erase("ration_hours")
+	legacy["state_version"] = 3
+	modules.load_state(legacy)
+	_check(float(modules.save_state()["ration_hours"]) == 0.0, "legacy load replaces preceding production remainder with zero")
+	modules.sim_tick(3.0)
+	var checkpoint: Dictionary = JSON.parse_string(JSON.stringify({"modules": modules.save_state(), "stores": stores.save_state()})) as Dictionary
+	var production: Dictionary = checkpoint["modules"]
+	_check(int(production["state_version"]) == 4 and float(production["ration_hours"]) == 0.375, "JSON stores module v4 fractional production")
+	var food_at_save: int = stores.get_count(&"food_ration")
+	modules.sim_tick(6.25)
+	var continued: Dictionary = modules.save_state()
+	var food_continued: int = stores.get_count(&"food_ration")
+	_check(food_continued == food_at_save + 1 and float(continued["ration_hours"]) == 0.15625, "uninterrupted production crosses one whole output boundary")
+	modules.load_state(production)
+	stores.load_state(checkpoint["stores"])
+	_check(float(modules.save_state()["ration_hours"]) == 0.375, "same-node JSON load replaces newer remainder")
+	modules.sim_tick(6.25)
+	_check(stores.get_count(&"food_ration") == food_continued and modules.save_state() == continued, "same-node restoration matches uninterrupted output and continuation")
+	var catalog: Array[ShipModule] = modules.catalog
+	modules.free()
+	var fresh: ModuleSystem = ModuleSystem.new()
+	fresh.catalog = catalog
+	root.add_child(fresh)
+	fresh.load_state(production)
+	stores.load_state(checkpoint["stores"])
+	fresh.sim_tick(6.25)
+	_check(stores.get_count(&"food_ration") == food_continued and fresh.save_state() == continued, "fresh-node JSON restoration matches uninterrupted output and continuation")
+	stores.remove_from_group(&"stores_system")
+	fresh.sim_tick(24.0)
+	var pending: Dictionary = JSON.parse_string(JSON.stringify(fresh.save_state())) as Dictionary
+	_check(float(pending["ration_hours"]) == 3.15625, "absent Stores retains whole pending output and fraction")
+	fresh.sim_tick(4.0)
+	fresh.load_state(pending)
+	_check(float(fresh.save_state()["ration_hours"]) == 3.15625, "JSON restore retains complete pending production without truncation")
+	stores.add_to_group(&"stores_system")
+	power.set_breaker(&"life_support", false)
+	fresh.sim_tick(1.0)
+	_check(stores.get_count(&"food_ration") == food_continued + 3 and float(fresh.save_state()["ration_hours"]) == 0.15625, "returning Stores receives pending wholes even with growth power off")
+	fresh.sim_tick(1.0)
+	_check(stores.get_count(&"food_ration") == food_continued + 3, "pending production delivers exactly once")
+	fresh.load_state(pending)
+	fresh.load_state(legacy)
+	_check(float(fresh.save_state()["ration_hours"]) == 0.0, "legacy reload clears old pending whole output too")
+	for invalid: Variant in [-1.0, INF, NAN, "invalid"]:
+		var malformed: Dictionary = production.duplicate(true)
+		malformed["ration_hours"] = invalid
+		fresh.load_state(malformed)
+		_check(float(fresh.save_state()["ration_hours"]) == 0.0, "invalid production remainder resets to finite nonnegative zero")
+	power.set_breaker(&"life_support", true)
 
 
 func _build(modules: ModuleSystem, module_id: StringName) -> void:

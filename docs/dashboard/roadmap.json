@@ -2256,7 +2256,7 @@
       "title": "Useful salvage",
       "phase": "Open survival Alpha",
       "status": "in_progress",
-      "summary": "Common salvage mechanics implemented and tested with a provisional battery fixture. First technology choice, manual continuous EVA route and final art/balance acceptance remain pending.",
+      "summary": "Common salvage mechanics implemented and tested with a provisional battery fixture. First technology choice, manual continuous EVA route and final art/balance acceptance remain pending. October13 recovered unit/capacity removal and compound pod conservation validated; battery remains provisional until operator choice.",
       "evidence": [
         {
           "path": "docs/design/survival_slices/01-useful-salvage.md",
@@ -2265,6 +2265,14 @@
         {
           "path": "docs/design/survival_slices/README.md",
           "label": "Interaction map"
+        },
+        {
+          "path": "docs/design/survival_slices/execution_2026-10-13/README.md",
+          "label": "First survival implementation, disjoint ownership and resource invariants"
+        },
+        {
+          "path": "docs/design/survival_slices/execution_2026-10-13/full_suite_results.json",
+          "label": "Fresh integrated92/92 after conservation/persistence"
         }
       ],
       "tasks": [
@@ -2328,8 +2336,8 @@
       "id": "SURVIVAL_REFIT",
       "title": "Ship specialization",
       "phase": "Open survival Alpha",
-      "status": "planned",
-      "summary": "Operator-approved activity direction; bounded plan written. Implementation and acceptance remain planned.",
+      "status": "in_progress",
+      "summary": "Operator-approved activity direction; bounded plan written. Implementation and acceptance remain planned. October13 first implementation validated92/92: equipment/refund safety, lossless deposits, finite per-field depletion and food remainder. Broader content, resource replenishment and whole-game persistence remain in progress; nativeWindows/operator pending.",
       "evidence": [
         {
           "path": "docs/design/survival_slices/02-ship-specialization.md",
@@ -2338,6 +2346,14 @@
         {
           "path": "docs/design/survival_slices/README.md",
           "label": "Interaction map"
+        },
+        {
+          "path": "docs/design/survival_slices/execution_2026-10-13/README.md",
+          "label": "First survival implementation, disjoint ownership and resource invariants"
+        },
+        {
+          "path": "docs/design/survival_slices/execution_2026-10-13/full_suite_results.json",
+          "label": "Fresh integrated92/92 after conservation/persistence"
         }
       ],
       "tasks": [
@@ -2348,6 +2364,20 @@
             {
               "path": "docs/design/survival_slices/02-ship-specialization.md",
               "label": "Implementation steps and acceptance"
+            }
+          ]
+        },
+        {
+          "title": "02A capacity-safe refunds and equipment returns",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/survival_slices/execution_2026-10-13/README.md",
+              "label": "First survival implementation, disjoint ownership and resource invariants"
+            },
+            {
+              "path": "docs/design/survival_slices/execution_2026-10-13/full_suite_results.json",
+              "label": "Fresh integrated92/92 after conservation/persistence"
             }
           ]
         },
@@ -2593,12 +2623,20 @@
       "id": "SURVIVAL_SUPPLY",
       "title": "Replenishment paths",
       "phase": "Open survival foundations",
-      "status": "planned",
-      "summary": "Parallel preparation complete across current game state/resources. Bounded implementation packets remain planned; slice-01 save/conservation fixes are documented separately.",
+      "status": "in_progress",
+      "summary": "Parallel preparation complete across current game state/resources. Bounded implementation packets remain planned; slice-01 save/conservation fixes are documented separately. October13 first implementation validated92/92: equipment/refund safety, lossless deposits, finite per-field depletion and food remainder. Broader content, resource replenishment and whole-game persistence remain in progress; nativeWindows/operator pending.",
       "evidence": [
         {
           "path": "docs/design/survival_slices/replenishment_plan.md",
           "label": "Source inventory, gaps and staged implementation"
+        },
+        {
+          "path": "docs/design/survival_slices/execution_2026-10-13/README.md",
+          "label": "First survival implementation, disjoint ownership and resource invariants"
+        },
+        {
+          "path": "docs/design/survival_slices/execution_2026-10-13/full_suite_results.json",
+          "label": "Fresh integrated92/92 after conservation/persistence"
         }
       ],
       "tasks": [
@@ -2609,6 +2647,20 @@
             {
               "path": "docs/design/survival_slices/replenishment_plan.md",
               "label": "Preparation complete"
+            }
+          ]
+        },
+        {
+          "title": "Lossless partial mining deposits and exact return accounting",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/survival_slices/execution_2026-10-13/README.md",
+              "label": "First survival implementation, disjoint ownership and resource invariants"
+            },
+            {
+              "path": "docs/design/survival_slices/execution_2026-10-13/full_suite_results.json",
+              "label": "Fresh integrated92/92 after conservation/persistence"
             }
           ]
         },
@@ -2641,12 +2693,20 @@
       "id": "SURVIVAL_SAVE",
       "title": "Whole-game persistence",
       "phase": "Open survival foundations",
-      "status": "planned",
-      "summary": "Parallel preparation complete across current game state/resources. Bounded implementation packets remain planned; slice-01 save/conservation fixes are documented separately.",
+      "status": "in_progress",
+      "summary": "Parallel preparation complete across current game state/resources. Bounded implementation packets remain planned; slice-01 save/conservation fixes are documented separately. October13 first implementation validated92/92: equipment/refund safety, lossless deposits, finite per-field depletion and food remainder. Broader content, resource replenishment and whole-game persistence remain in progress; nativeWindows/operator pending.",
       "evidence": [
         {
           "path": "docs/design/survival_slices/persistence_plan.md",
           "label": "Source inventory, gaps and staged implementation"
+        },
+        {
+          "path": "docs/design/survival_slices/execution_2026-10-13/README.md",
+          "label": "First survival implementation, disjoint ownership and resource invariants"
+        },
+        {
+          "path": "docs/design/survival_slices/execution_2026-10-13/full_suite_results.json",
+          "label": "Fresh integrated92/92 after conservation/persistence"
         }
       ],
       "tasks": [
@@ -2657,6 +2717,20 @@
             {
               "path": "docs/design/survival_slices/persistence_plan.md",
               "label": "Preparation complete"
+            }
+          ]
+        },
+        {
+          "title": "Per-field depletion and pending food production withv8 migration",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/survival_slices/execution_2026-10-13/README.md",
+              "label": "First survival implementation, disjoint ownership and resource invariants"
+            },
+            {
+              "path": "docs/design/survival_slices/execution_2026-10-13/full_suite_results.json",
+              "label": "Fresh integrated92/92 after conservation/persistence"
             }
           ]
         },
