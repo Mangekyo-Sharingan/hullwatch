@@ -10,6 +10,7 @@ import shutil
 import subprocess
 import tarfile
 import tempfile
+from write_update_manifest import manifest as update_manifest
 
 ROOT = Path(__file__).resolve().parents[1]
 VERSION = "4.7.2.stable"
@@ -47,7 +48,7 @@ def main():
         identity = ROOT / "game/src/data/build_version.json"
         original_identity = identity.read_bytes()
         try:
-            identity.write_text(json.dumps({"release_tag": args.release_tag}) + "\n", encoding="utf-8")
+            identity.write_text(json.dumps({"release_tag": args.release_tag, "source_commit": commit, "channel": "steamdeck", "updater_protocol": 1}) + "\n", encoding="utf-8")
             for options in (["--import"], ["--export-release", "Linux Steam Deck", str(binary)]):
                 subprocess.run([str(engine), "--headless", "--path", str(ROOT / "game"), *options], cwd=ROOT, env=engine_env, check=True)
         finally:
@@ -58,11 +59,13 @@ def main():
         launcher = package / "Hullwatch.sh"
         shutil.copyfile(ROOT / "tools/steam_deck_launcher.sh", launcher)
         launcher.chmod(0o755)
+        shutil.copyfile(ROOT / "game/tools/updater/apply_update.sh", package / "Hullwatch-Updater.sh")
+        (package / "Hullwatch-Updater.sh").chmod(0o755)
         shutil.copyfile(ROOT / "docs/STEAM_DECK_PLAYTEST.md", package / "README.md")
         (package / "SOURCE_COMMIT").write_text(commit + "\n")
-        (package / "BUILD_INFO.json").write_text(json.dumps({"engine": version, "source_commit": commit, "source_status": dirty.splitlines(), "save_version": 8, "release_tag": args.release_tag, "profile": "1280x800/mobile/30fps; Steam Input keyboard+mouse; hardware pending"}, indent=2) + "\n")
+        (package / "BUILD_INFO.json").write_text(json.dumps({"engine": version, "source_commit": commit, "source_status": dirty.splitlines(), "save_version": 8, "release_tag": args.release_tag, "updater_protocol": 1, "profile": "1280x800/mobile/30fps; Steam Input keyboard+mouse; hardware pending"}, indent=2) + "\n")
         for path in package.iterdir():
-            if path not in (binary, launcher):
+            if path not in (binary, launcher, package / "Hullwatch-Updater.sh"):
                 path.chmod(0o644)
         sums = "".join(f"{hashlib.sha256(path.read_bytes()).hexdigest()}  {path.name}\n" for path in sorted(package.iterdir()))
         (package / "SHA256SUMS").write_text(sums)
@@ -78,6 +81,10 @@ def main():
         os.replace(archive, output / archive.name)
         final_archive = output / archive.name
         (output / "SHA256SUMS").write_text(f"{hashlib.sha256(final_archive.read_bytes()).hexdigest()}  {archive.name}\n")
+    if args.release_tag:
+        info = update_manifest(destination / "Hullwatch.x86_64", args.release_tag, "steamdeck", commit)
+        (output / "UPDATE_STEAMDECK.json").write_text(json.dumps(info, indent=2) + "\n")
+        shutil.copyfile(destination / "Hullwatch.x86_64", output / "Hullwatch.x86_64")
     print(f"Built: {final_archive}")
     if dirty:
         print("Working-tree build: SOURCE_COMMIT is the base; BUILD_INFO.json lists uncommitted paths. Rebuild after commit for delivery.")

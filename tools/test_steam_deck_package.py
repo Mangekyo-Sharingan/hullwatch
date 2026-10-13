@@ -15,7 +15,7 @@ def check(archive):
         assert all(Path(m.name).parts[0] == "Hullwatch-SteamDeck" and ".." not in Path(m.name).parts for m in members), "Unsafe archive paths"
         files = {m.name.split("/", 1)[1]: tar.extractfile(m).read() for m in members if m.isfile()}
         modes = {m.name.split("/", 1)[1]: m.mode for m in members if m.isfile()}
-        required = {"Hullwatch.x86_64", "Hullwatch.sh", "README.md", "SOURCE_COMMIT", "BUILD_INFO.json", "SHA256SUMS"}
+        required = {"Hullwatch.x86_64", "Hullwatch.sh", "README.md", "SOURCE_COMMIT", "BUILD_INFO.json", "SHA256SUMS", "Hullwatch-Updater.sh"}
         assert required <= files.keys(), "Missing required package file"
         assert files["Hullwatch.x86_64"][:5] == b"\x7fELF\x02", "Not ELF64"
         assert files["Hullwatch.x86_64"][18:20] == b"\x3e\x00", "Not x86_64"
