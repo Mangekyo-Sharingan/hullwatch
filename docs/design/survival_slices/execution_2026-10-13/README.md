@@ -91,3 +91,9 @@ the earlier candidate and its native captures are superseded delivery evidence.
 
 Corrected-source final92/92 and isolated startup PASS. The174.7us profile above
 measures the same unchanged runtime/data; the two later edits affect test loaders.
+
+## Follow-up delivery
+
+The corrected exported project passes14/14 embedded checks;60 native Linux views
+are captured from its actual PCK. Source2ed3aed is the20261013.2 Windows playtest.
+[Exact delivery and open gates](../../checkpoint_2026-10-13/survival_delivery.md).

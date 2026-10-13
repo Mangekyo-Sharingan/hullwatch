@@ -2273,6 +2273,10 @@
         {
           "path": "docs/design/survival_slices/execution_2026-10-13/full_suite_results.json",
           "label": "Fresh integrated92/92 after conservation/persistence"
+        },
+        {
+          "path": "docs/design/checkpoint_2026-10-13/survival_delivery.md",
+          "label": "Delivered20261013.2, source2ed3aed,92/92,14/14 and60 exported native captures"
         }
       ],
       "tasks": [
@@ -2337,7 +2341,7 @@
       "title": "Ship specialization",
       "phase": "Open survival Alpha",
       "status": "in_progress",
-      "summary": "Operator-approved activity direction; bounded plan written. Implementation and acceptance remain planned. October13 first implementation validated92/92: equipment/refund safety, lossless deposits, finite per-field depletion and food remainder. Broader content, resource replenishment and whole-game persistence remain in progress; nativeWindows/operator pending.",
+      "summary": "Operator-approved activity direction; bounded plan written. Implementation and acceptance remain planned. October13 first implementation validated92/92: equipment/refund safety, lossless deposits, finite per-field depletion and food remainder. Broader content, resource replenishment and whole-game persistence remain in progress; nativeWindows/operator pending. Firstpacket delivered20261013.2, globalv8. Expandedloadouts/refill pathways/whole-game physical persistence and operator acceptance remain scheduled.",
       "evidence": [
         {
           "path": "docs/design/survival_slices/02-ship-specialization.md",
@@ -2354,6 +2358,10 @@
         {
           "path": "docs/design/survival_slices/execution_2026-10-13/full_suite_results.json",
           "label": "Fresh integrated92/92 after conservation/persistence"
+        },
+        {
+          "path": "docs/design/checkpoint_2026-10-13/survival_delivery.md",
+          "label": "Delivered20261013.2, source2ed3aed,92/92,14/14 and60 exported native captures"
         }
       ],
       "tasks": [
@@ -2383,7 +2391,7 @@
         },
         {
           "title": "Implement the bounded player activity and connect its live resource/system consequences",
-          "status": "planned",
+          "status": "in_progress",
           "evidence": [
             {
               "path": "docs/design/survival_slices/02-ship-specialization.md",
@@ -2398,6 +2406,16 @@
             {
               "path": "docs/design/survival_slices/02-ship-specialization.md",
               "label": "Acceptance criteria"
+            }
+          ]
+        },
+        {
+          "title": "Deliver first conservation/persistence packet in tested Windows playtest",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/checkpoint_2026-10-13/survival_delivery.md",
+              "label": "Delivered20261013.2, source2ed3aed,92/92,14/14 and60 exported native captures"
             }
           ]
         }
@@ -2624,7 +2642,7 @@
       "title": "Replenishment paths",
       "phase": "Open survival foundations",
       "status": "in_progress",
-      "summary": "Parallel preparation complete across current game state/resources. Bounded implementation packets remain planned; slice-01 save/conservation fixes are documented separately. October13 first implementation validated92/92: equipment/refund safety, lossless deposits, finite per-field depletion and food remainder. Broader content, resource replenishment and whole-game persistence remain in progress; nativeWindows/operator pending.",
+      "summary": "Parallel preparation complete across current game state/resources. Bounded implementation packets remain planned; slice-01 save/conservation fixes are documented separately. October13 first implementation validated92/92: equipment/refund safety, lossless deposits, finite per-field depletion and food remainder. Broader content, resource replenishment and whole-game persistence remain in progress; nativeWindows/operator pending. Firstpacket delivered20261013.2, globalv8. Expandedloadouts/refill pathways/whole-game physical persistence and operator acceptance remain scheduled.",
       "evidence": [
         {
           "path": "docs/design/survival_slices/replenishment_plan.md",
@@ -2637,6 +2655,10 @@
         {
           "path": "docs/design/survival_slices/execution_2026-10-13/full_suite_results.json",
           "label": "Fresh integrated92/92 after conservation/persistence"
+        },
+        {
+          "path": "docs/design/checkpoint_2026-10-13/survival_delivery.md",
+          "label": "Delivered20261013.2, source2ed3aed,92/92,14/14 and60 exported native captures"
         }
       ],
       "tasks": [
@@ -2683,6 +2705,16 @@
               "label": "Acceptance plan"
             }
           ]
+        },
+        {
+          "title": "Deliver first conservation/persistence packet in tested Windows playtest",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/checkpoint_2026-10-13/survival_delivery.md",
+              "label": "Delivered20261013.2, source2ed3aed,92/92,14/14 and60 exported native captures"
+            }
+          ]
         }
       ],
       "acceptance": [
@@ -2694,7 +2726,7 @@
       "title": "Whole-game persistence",
       "phase": "Open survival foundations",
       "status": "in_progress",
-      "summary": "Parallel preparation complete across current game state/resources. Bounded implementation packets remain planned; slice-01 save/conservation fixes are documented separately. October13 first implementation validated92/92: equipment/refund safety, lossless deposits, finite per-field depletion and food remainder. Broader content, resource replenishment and whole-game persistence remain in progress; nativeWindows/operator pending.",
+      "summary": "Parallel preparation complete across current game state/resources. Bounded implementation packets remain planned; slice-01 save/conservation fixes are documented separately. October13 first implementation validated92/92: equipment/refund safety, lossless deposits, finite per-field depletion and food remainder. Broader content, resource replenishment and whole-game persistence remain in progress; nativeWindows/operator pending. Firstpacket delivered20261013.2, globalv8. Expandedloadouts/refill pathways/whole-game physical persistence and operator acceptance remain scheduled.",
       "evidence": [
         {
           "path": "docs/design/survival_slices/persistence_plan.md",
@@ -2707,6 +2739,10 @@
         {
           "path": "docs/design/survival_slices/execution_2026-10-13/full_suite_results.json",
           "label": "Fresh integrated92/92 after conservation/persistence"
+        },
+        {
+          "path": "docs/design/checkpoint_2026-10-13/survival_delivery.md",
+          "label": "Delivered20261013.2, source2ed3aed,92/92,14/14 and60 exported native captures"
         }
       ],
       "tasks": [
@@ -2751,6 +2787,16 @@
             {
               "path": "docs/design/survival_slices/persistence_plan.md",
               "label": "Acceptance plan"
+            }
+          ]
+        },
+        {
+          "title": "Deliver first conservation/persistence packet in tested Windows playtest",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/checkpoint_2026-10-13/survival_delivery.md",
+              "label": "Delivered20261013.2, source2ed3aed,92/92,14/14 and60 exported native captures"
             }
           ]
         }
@@ -3082,7 +3128,7 @@
       "title": "Ship interior regression gate",
       "phase": "Playtest feedback",
       "status": "needs_review",
-      "summary": "Gate implementation complete; October12 pre-lighting139-view/38-area visual receipt accepted. Lighting pass reruns physical suite92/92; the old whole-ship visual receipt is historical after source changes. Native Windows/operator acceptance and refreshed EXE remain pending. October13 source checkpoint e59500c delivered in prerelease20261013.1 with9/9 embedded-project checks; nativeWindows/operator acceptance remains open.",
+      "summary": "Gate implementation complete; October12 pre-lighting139-view/38-area visual receipt accepted. Lighting pass reruns physical suite92/92; the old whole-ship visual receipt is historical after source changes. Native Windows/operator acceptance and refreshed EXE remain pending. October13 source checkpoint e59500c delivered in prerelease20261013.1 with9/9 embedded-project checks; nativeWindows/operator acceptance remains open. Final20261013.2 again passes physical interior suite from actual EXE.60 Linux exported-project views captured, six reviewed; no new139-view currentvisualreceipt claimed.",
       "evidence": [
         {
           "path": "docs/design/interior_gate/README.md",
@@ -3099,6 +3145,10 @@
         {
           "path": "docs/design/checkpoint_2026-10-13/validation.json",
           "label": "Published source identity,9/9 embedded checks and downloaded hashes"
+        },
+        {
+          "path": "docs/design/checkpoint_2026-10-13/survival_delivery.md",
+          "label": "Delivered20261013.2, source2ed3aed,92/92,14/14 and60 exported native captures"
         }
       ],
       "tasks": [
@@ -3139,7 +3189,7 @@
           ]
         },
         {
-          "title": "Fresh92/92 and 139-view/38-area Codex visual review",
+          "title": "October12 pre-lighting92/92 and139-view/38-area assistant visual review",
           "status": "complete",
           "evidence": [
             {
@@ -3157,7 +3207,7 @@
           ]
         },
         {
-          "title": "Native Windows and operator gameplay acceptance; deliver refreshed EXE",
+          "title": "Native Windows and operator gameplay acceptance",
           "status": "needs_review",
           "evidence": [
             {
@@ -3173,6 +3223,16 @@
               "label": "38-area Codex review receipt"
             }
           ]
+        },
+        {
+          "title": "Deliver current interior physics checks in follow-up EXE",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/checkpoint_2026-10-13/survival_delivery.md",
+              "label": "Delivered20261013.2, source2ed3aed,92/92,14/14 and60 exported native captures"
+            }
+          ]
         }
       ],
       "acceptance": [
@@ -3186,7 +3246,7 @@
       "title": "Lighting and electrical optimization",
       "phase": "Playtest feedback",
       "status": "needs_review",
-      "summary": "Implementation and assistant validation complete:14 base fixtures320W, two cabin lights off save50W, darker native scenes, saved independent choices. Operator/native Windows review and refreshed delivered build pending. Later timing pass closes the fixed-tick fixture budget; original lighting timing evidence remains historical. October13 source checkpoint e59500c delivered in prerelease20261013.1 with9/9 embedded-project checks; nativeWindows/operator acceptance remains open. October13 follow-up stops low-battery restoration chatter;48hwatch,92/92 and173.9us profile PASS. Latest follow-up build pending.",
+      "summary": "Darker14-fixture lighting320W, saved switches, meaningful50W savings for two cabins, visible bus/Wh budget and stable low-battery restoration implemented. Repeated48h+6h watch,92/92,174.7us and14/14 embedded checks PASS. Delivered20261013.2. Operator brightness/nativeWindows/renderedFPS remain open.",
       "evidence": [
         {
           "path": "docs/design/lighting_power/README.md",
@@ -3207,6 +3267,10 @@
         {
           "path": "docs/design/lighting_power/tuning_2026-10-13.md",
           "label": "Stable48h shedding/restoration, budgetreadouts and fresh92/92 validation"
+        },
+        {
+          "path": "docs/design/checkpoint_2026-10-13/survival_delivery.md",
+          "label": "Delivered20261013.2, source2ed3aed,92/92,14/14 and60 exported native captures"
         }
       ],
       "tasks": [
@@ -3289,6 +3353,16 @@
             {
               "path": "docs/design/lighting_power/comparison/index.html",
               "label": "Interactive native before/after comparison"
+            }
+          ]
+        },
+        {
+          "title": "Deliver tested tuning in follow-up Windows playtest",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/checkpoint_2026-10-13/survival_delivery.md",
+              "label": "Delivered20261013.2, source2ed3aed,92/92,14/14 and60 exported native captures"
             }
           ]
         }
@@ -3387,7 +3461,7 @@
       "title": "Push verified passes and deliver Windows playtest",
       "phase": "Playtest delivery",
       "status": "needs_review",
-      "summary": "Source e59500c pushed; fresh92/92,182.1us profiler and9/9 actualEXE embedded checks PASS. Publishedv0.12.0-playtest.20261013.1; independentdownload hashes/ZIPidentity PASS. NativeWindows/operatoracceptance pending.",
+      "summary": "Both dated checkpoints published. Recommended20261013.2 uses2ed3aed withv8 saves, stablepower and firstsurvivalpacket;92/92 source,14/14 actualEXE checks,60 nativeLinuxcaptures and174.7us fixture PASS. Downloadhashverification and nativeWindows/operator acceptance recorded separately.",
       "evidence": [
         {
           "path": "docs/design/checkpoint_2026-10-13/README.md",
@@ -3396,6 +3470,10 @@
         {
           "path": "docs/design/checkpoint_2026-10-13/validation.json",
           "label": "Published source identity,9/9 embedded checks and downloaded hashes"
+        },
+        {
+          "path": "docs/design/checkpoint_2026-10-13/survival_delivery.md",
+          "label": "Delivered20261013.2, source2ed3aed,92/92,14/14 and60 exported native captures"
         }
       ],
       "tasks": [
@@ -3438,6 +3516,16 @@
             {
               "path": "docs/design/checkpoint_2026-10-13/validation.json",
               "label": "Published source identity,9/9 embedded checks and downloaded hashes"
+            }
+          ]
+        },
+        {
+          "title": "Deliver survival/power follow-up20261013.2 from corrected exported fixtures",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/checkpoint_2026-10-13/survival_delivery.md",
+              "label": "Delivered20261013.2, source2ed3aed,92/92,14/14 and60 exported native captures"
             }
           ]
         },

@@ -1,0 +1,861 @@
+{
+  "date": "2026-10-13",
+  "source_commit": "2ed3aed32b2c54c1e31737a0adde2a4d72a58caf",
+  "tag": "v0.12.0-playtest.20261013.2",
+  "engine": "Godot4.7.2 stable Linux",
+  "export": "Windows Desktop release x86_64 embedded PCK",
+  "save_version": 8,
+  "native_windows": "pending operator check",
+  "rendered_windows_performance": "not measured",
+  "source_suites": [
+    {
+      "suite": "test_airlock",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.71,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_airlock_scene",
+      "exit": 0,
+      "pass": true,
+      "seconds": 2.58,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_analogue_filter",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.53,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_anomaly_salvage",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.52,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_approach",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.71,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_atmosphere",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.52,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_audio",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.72,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_cabin_light",
+      "exit": 0,
+      "pass": true,
+      "seconds": 5.1,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_cargo",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.43,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_carry",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.62,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_cockpit_instrument_panel",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.42,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_comms",
+      "exit": 0,
+      "pass": true,
+      "seconds": 4.25,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_component_breadth",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.71,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_computer_log",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.53,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_computer_terminal",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.8,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_crt_panels",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.72,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_day_loop",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.61,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_destination_data",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.44,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_detection",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.62,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_diagnostics",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.62,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_diagnostics_api",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.52,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_door",
+      "exit": 0,
+      "pass": true,
+      "seconds": 2.4,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_eva_flow",
+      "exit": 0,
+      "pass": true,
+      "seconds": 2.95,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_fabricator",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.52,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_failures",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.6,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_field_streamer",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.71,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_footsteps",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.91,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_hero_cabins",
+      "exit": 0,
+      "pass": true,
+      "seconds": 2.21,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_hull",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.8,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_hull_exterior",
+      "exit": 0,
+      "pass": true,
+      "seconds": 1.74,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_hull_profile",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.53,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_humidity",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.42,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_interactables",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.53,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_interior_gate",
+      "exit": 0,
+      "pass": true,
+      "seconds": 14.73,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_interior_kit",
+      "exit": 0,
+      "pass": true,
+      "seconds": 1.0,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_localization",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.42,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_m11_voyage",
+      "exit": 0,
+      "pass": true,
+      "seconds": 60.76,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_m4_extras",
+      "exit": 0,
+      "pass": true,
+      "seconds": 4.16,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_m9_loop",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.62,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_machine_fitting",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.61,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_maintenance_isolation",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.52,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_manual",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.61,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_mining",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.52,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_module_catalog",
+      "exit": 0,
+      "pass": true,
+      "seconds": 1.09,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_module_effects",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.61,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_module_geometry",
+      "exit": 0,
+      "pass": true,
+      "seconds": 1.28,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_module_scene",
+      "exit": 0,
+      "pass": true,
+      "seconds": 2.31,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_modules",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.51,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_nav",
+      "exit": 0,
+      "pass": true,
+      "seconds": 3.59,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_new_watch_wear",
+      "exit": 0,
+      "pass": true,
+      "seconds": 2.12,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_o2_candle_stock",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.52,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_occupancy",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.52,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_operator_maintenance",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.62,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_pilot_chair",
+      "exit": 0,
+      "pass": true,
+      "seconds": 6.96,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_pilot_seat_flow",
+      "exit": 0,
+      "pass": true,
+      "seconds": 5.97,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_player",
+      "exit": 0,
+      "pass": true,
+      "seconds": 6.58,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_player_traversal",
+      "exit": 0,
+      "pass": true,
+      "seconds": 10.36,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_power",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.52,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_propulsion",
+      "exit": 0,
+      "pass": true,
+      "seconds": 7.34,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_rations",
+      "exit": 0,
+      "pass": true,
+      "seconds": 7.6,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_salvage",
+      "exit": 0,
+      "pass": true,
+      "seconds": 3.32,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_save_load",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.63,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_save_migration",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.53,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_scenario_cascade",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.71,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_scenario_humidity",
+      "exit": 0,
+      "pass": true,
+      "seconds": 1.38,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_scenario_power_night",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.73,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_scene_loop",
+      "exit": 0,
+      "pass": true,
+      "seconds": 5.02,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_scene_save_load",
+      "exit": 0,
+      "pass": true,
+      "seconds": 6.98,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_scroll_menu",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.52,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_seated_hud",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.64,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_sector",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.62,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_session_flow",
+      "exit": 0,
+      "pass": true,
+      "seconds": 3.52,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_session_menu",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.62,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_settings",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.61,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_ship_compartments",
+      "exit": 0,
+      "pass": true,
+      "seconds": 2.11,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_ship_layout",
+      "exit": 0,
+      "pass": true,
+      "seconds": 1.17,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_stores",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.54,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_survival_3day",
+      "exit": 0,
+      "pass": true,
+      "seconds": 20.21,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_tether",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.76,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_thermal",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.63,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_tool_kit",
+      "exit": 0,
+      "pass": true,
+      "seconds": 1.01,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_tube_layout",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.53,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_ui",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.8,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_ui_scale",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.71,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_vitals",
+      "exit": 0,
+      "pass": true,
+      "seconds": 2.48,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_voice_guide",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.62,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_walkway_clearance",
+      "exit": 0,
+      "pass": true,
+      "seconds": 1.74,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_wall_computer",
+      "exit": 0,
+      "pass": true,
+      "seconds": 1.26,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_water",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.71,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_wear_model",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.43,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_world_layout",
+      "exit": 0,
+      "pass": true,
+      "seconds": 1.55,
+      "script_errors": 0
+    },
+    {
+      "suite": "smoke_test",
+      "exit": 0,
+      "pass": true,
+      "seconds": 2.11,
+      "script_errors": 0
+    }
+  ],
+  "embedded_project": {
+    "exe_sha256": "ab4b496daaa78d00c2f6c634b8c57596b4323cc97302d2cff938465a03f1da80",
+    "pck_sha256": "4a35acc6a0968bc0a7273756a30eb5053af7382e8b83abe29d960d027a992185",
+    "pck_offset": 109135872,
+    "pck_size": 80960788,
+    "checks": [
+      {
+        "check": "startup",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_cabin_light",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_computer_terminal",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_save_migration",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_interior_gate",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_power",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_player_traversal",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_salvage",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_session_flow",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_mining",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_sector",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_modules",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_machine_fitting",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_module_effects",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      }
+    ]
+  },
+  "profile_sim": {
+    "passed": true,
+    "microseconds_per_tick": 174.7,
+    "limit": 200,
+    "mode": "sequential headless 8-system fixture; not rendered FPS"
+  },
+  "native_exported_project_capture": {
+    "engine": "Linux Godot4.7.2",
+    "project": "actual EXE extracted pack in an empty directory",
+    "display_driver": "Wayland",
+    "renderer": "forward_plus",
+    "captured_views": 60,
+    "capture_exit": 0,
+    "exact_marker": "PASS: capture_lighting_pass (after, 60 views)",
+    "simulation": "Paused fresh main scene; after pod inspection advances module construction only; no power ticks or save writes",
+    "png_sha256": {
+      "after_all_on_bay_galley_service_entry.png": "53cf4ff170acd6fe64f3293d079e0c761eb347313c2ee0265db71fcb5946e3bd",
+      "after_all_on_bay_life_support_service_entry.png": "2803590f7c2ec107427a47f0fb498d79bb6307a111d4bfc81dff4dab69cb15cb",
+      "after_all_on_cabin_cockpit_bow.png": "216e5c3ae39614f45d78b6f7cb7357f22b2f51d90d0afe771d3882c6a382c97d",
+      "after_all_on_cabin_cockpit_ceiling.png": "2b769d4bc2c0a3b9de75e13357d81e66318fe2cd3f343ef8143924136ae91987",
+      "after_all_on_cabin_cockpit_deck.png": "9968e5a80a9539232426ba056ee827b367f09c25b476eb2e574453499c0af587",
+      "after_all_on_cabin_cockpit_port.png": "4679e83e797216c63399a48d26ce7388459d510b6f28b06ce58eb53f5fe4f91c",
+      "after_all_on_cabin_cockpit_starboard.png": "d2218868d8ee9e0dde54b3ed1971318b4c25263cb120b1b9d3100f761dff3ed8",
+      "after_all_on_cabin_cockpit_stern.png": "ae4a4e432c1d1c622445ca9c649d9bd1e59c5a24b0ed849f0c4e8eba361be575",
+      "after_all_on_cabin_engine_bay_b_bow.png": "3eb62535891e60dfc274c6a5d74dd05c7093339572e0788cf55cca11aa715452",
+      "after_all_on_cabin_engine_bay_b_ceiling.png": "fa10f33de0be6c885c0197477fa2244f4ae3dc02bc35d4006800fae857af4105",
+      "after_all_on_cabin_engine_bay_b_deck.png": "5b6273c597ac8b26721febe6864ca4e23adbd0df53e5a85028f297c14a4b4852",
+      "after_all_on_cabin_engine_bay_b_port.png": "37cadde13051ead1374edc5b412c853bf198669e9137ca75508689db689f5d08",
+      "after_all_on_cabin_engine_bay_b_starboard.png": "c2e1280dfe2b725085ea581f93e6ee8cbcd7a54862ecf7da93b84ea7948608fd",
+      "after_all_on_cabin_engine_bay_b_stern.png": "34fac3b677bd3a45ad269bb59263dcd3a44c80ea0addf22f898dd4f6f09f2d9e",
+      "after_all_on_cabin_galley_bow.png": "e1bcaa9825eb04db9587a37b97c219136b4ff69936662fa6cdc5291f2f589ee2",
+      "after_all_on_cabin_galley_ceiling.png": "b26e0416ba1b60489abcda2d0591d5c4b163b7a179c041c6e08219ee6cdaf75a",
+      "after_all_on_cabin_galley_deck.png": "a0e49dfaa8e9a1bbf9f596301ef5184afc00367b2d8c81119d8a416e892f8200",
+      "after_all_on_cabin_galley_port.png": "2a2e52e2bad2a6476e8cf7a68d016475d4469d735e8c024f39bc0bfcb4ae237f",
+      "after_all_on_cabin_galley_starboard.png": "6589bc0a5cf41c663175f59fa7edc2afcef31398efd69e7c01c75c8949356654",
+      "after_all_on_cabin_galley_stern.png": "7962869abb142694909225adf8214fcf784c91412fd26cc454f6db89f1ae6941",
+      "after_all_on_cabin_life_support_bow.png": "36c4385988ac1316603c6694a9befaddde9e9403aefa58afaa6f9389d929885d",
+      "after_all_on_cabin_life_support_ceiling.png": "b4850d56c3665341299f324b44b04865e850886efea5c227d5b46c5b1c47eb41",
+      "after_all_on_cabin_life_support_deck.png": "21faa58b7d6dcfcb4a9175d9236570bd86c6e3a613696d0e37473981277f2fce",
+      "after_all_on_cabin_life_support_port.png": "31908b203e87d263aae1c195c575829a4ee2656c92793d49fd8fcd0650846948",
+      "after_all_on_cabin_life_support_starboard.png": "0ada552e60518ff0626794e92a36024d2fc77d6de62a90227ce580a9e50415fd",
+      "after_all_on_cabin_life_support_stern.png": "19ae35085962166bad1b3754d9e056e9d05fa78dabc3b9ee0db8e69c72329272",
+      "after_all_on_exterior_work_0_beam.png": "a10be43e5209b4c635ae1c5b917f1b151f911483e28401f3b1a2d08d5ccc3a48",
+      "after_all_on_exterior_work_1_beam.png": "2357dca342078dc99ee10992285cccdfd5e39a14114984430d7d457ad81ea574",
+      "after_pod_off_entry.png": "9212f0f9e1128aa7a6d5ea918a74bb0dfe8fdb1b55f610d5db973ae3dd0676bd",
+      "after_pod_off_panel.png": "b6d44dc35899ac51f9cf0405fe727b3ebe447d28007ad463a897eb0f5f62085e",
+      "after_pod_on_entry.png": "1c4705221cb6a9f838ac12082a73f4e9e0e2c4fe945bb1b84079d13569d4d7a8",
+      "after_pod_on_panel.png": "42f42a4df6ed308b14d192655e87b86394e947b4c7142886a7367446700aed98",
+      "after_selective_off_bay_galley_service_entry.png": "e46b6580e40fd000cdc8249fce95546dadc200a3a8017fe86b351d3625e14624",
+      "after_selective_off_bay_life_support_service_entry.png": "ab39299047a902a0cc97ef429cc5e547b18a31a02c3bdb93d3650f5ccc50a2e8",
+      "after_selective_off_cabin_cockpit_bow.png": "27792b64a900a3c65fdfa000e7c63c3d1217c54a003ddf33ded3b8bc0c62185f",
+      "after_selective_off_cabin_cockpit_ceiling.png": "06c2e812f0e023940f5067802499705bc66fe7f61ec03911df3a23d9c83c0f0b",
+      "after_selective_off_cabin_cockpit_deck.png": "99e567a6aa4cf5f19244b2aac68aae0c325461b807e44d80d92849808641c4b1",
+      "after_selective_off_cabin_cockpit_port.png": "ae1067f16e7950cf4b50a8158fbc361cbc2cb61003fee04ddc0dc6a7bb7046eb",
+      "after_selective_off_cabin_cockpit_starboard.png": "95fb352fc631901cc39859888c23f29c63f97d4416d986474a4f799dc29ba506",
+      "after_selective_off_cabin_cockpit_stern.png": "e52c9f3cbace14d65fdaf8ab3a3fedcbdfd4e387b37ab526e836fb6ea5b73a36",
+      "after_selective_off_cabin_engine_bay_b_bow.png": "bcec270a4f27e9c07fb6071c0cb01a0f2200202d00bb37ad477c0ea93b3e6a53",
+      "after_selective_off_cabin_engine_bay_b_ceiling.png": "a2f25a34f0e2ea7bf8ea58f80062b983dcfc5a77a324402ed797c51d240b1aa0",
+      "after_selective_off_cabin_engine_bay_b_deck.png": "4886b990bb5a6c5b1095ac0912882222014813ec3a63948740d61995bc455d70",
+      "after_selective_off_cabin_engine_bay_b_port.png": "6d441192efc46712831e1fcd3ffe9e247b926c49ea87fcd11fabde2c6c3ae250",
+      "after_selective_off_cabin_engine_bay_b_starboard.png": "35aff624375ba2dd0385244781af19c4fb438ff8215a79ca9baebdbd3724988e",
+      "after_selective_off_cabin_engine_bay_b_stern.png": "855908fb0c2af729c177f63171080309d5943877d3533845d87c4ea33b9f8b09",
+      "after_selective_off_cabin_galley_bow.png": "2ba74c9adc2c7a5f92d7a363e677a95fcd70891074ca032999eb6e5ad3e3c54e",
+      "after_selective_off_cabin_galley_ceiling.png": "bc2930054e591e30c2e8373cc8b5cf85aef37dee767d203bc777516d2567a5c3",
+      "after_selective_off_cabin_galley_deck.png": "4cd28ef7f3bbd876d7bdd4aed77d3b1b97967069b3e8475a9d23a2d59d121ae6",
+      "after_selective_off_cabin_galley_port.png": "533581fad40fabd3cb9b0b2f1eeb60b925e444db5e8a71ef40857de2a63056ec",
+      "after_selective_off_cabin_galley_starboard.png": "6f55e918242ef3242efd405177ed63766788a26637a2794c60fe1f3ccdd32067",
+      "after_selective_off_cabin_galley_stern.png": "98399eab0a37b8629a9ab6e6c2b4fc400ab93d62e50e66972abe69536a467b38",
+      "after_selective_off_cabin_life_support_bow.png": "544e787ecac6b971a12d843b96be2cc5d4ef64a8d7b925d297493a5c01229ea7",
+      "after_selective_off_cabin_life_support_ceiling.png": "a5c86b3a219ccbf60e90ea26409007b07254e4f32b42af1192197f31868a8312",
+      "after_selective_off_cabin_life_support_deck.png": "c8ba9b5bb5c8d526a3eee04b6a187037152d7779faad2e3e012b8c5fef2ab1a2",
+      "after_selective_off_cabin_life_support_port.png": "a859f5208a8650682db493fe55cbbe7b650ddb48025fb63b9761c6dc49b6fe78",
+      "after_selective_off_cabin_life_support_starboard.png": "64c4367fae6f1d14654a9feec301b758590ffe16eea0a858b5ff8d131309435e",
+      "after_selective_off_cabin_life_support_stern.png": "f0c7abc89ee8787444b56389a58ba3a5b0088a1a0f36eaf21fd9c82f22e0171b",
+      "after_selective_off_exterior_work_0_beam.png": "eff98d2ec902a3a687249cc08765b9f36d30d5a41ffc2125ddfec1170630c27b",
+      "after_selective_off_exterior_work_1_beam.png": "a3779b7d01326e36b239b6d7d6c1b2ddaac482817ce5d3ce1c4700c5baae3bbe"
+    },
+    "reviewed_views": [
+      "after_all_on_cabin_galley_starboard.png",
+      "after_selective_off_cabin_galley_starboard.png",
+      "after_all_on_cabin_cockpit_bow.png",
+      "after_all_on_bay_life_support_service_entry.png",
+      "after_pod_on_entry.png",
+      "after_pod_off_entry.png"
+    ],
+    "review_scope": "Six representative original frames inspected; no new139-view whole-interior visual receipt or operator acceptance claimed."
+  },
+  "exe_bytes": 190096672,
+  "asset_sha256": {
+    "Hullwatch.exe": "ab4b496daaa78d00c2f6c634b8c57596b4323cc97302d2cff938465a03f1da80",
+    "Hullwatch-Windows.zip": "3a888020fc0599ee9da06e120f80f260ea8593b81a2cfa2b3225c9ea09e5f87b",
+    "VALIDATION.json": "8d05676e3251f272a767212848af47dd5d3c609eaa157db1f7e2b741853ad644"
+  },
+  "published_url": "https://github.com/Mangekyo-Sharingan/hullwatch/releases/tag/v0.12.0-playtest.20261013.2",
+  "download_verified_sha256": {
+    "Hullwatch.exe": "ab4b496daaa78d00c2f6c634b8c57596b4323cc97302d2cff938465a03f1da80",
+    "Hullwatch-Windows.zip": "3a888020fc0599ee9da06e120f80f260ea8593b81a2cfa2b3225c9ea09e5f87b",
+    "VALIDATION.json": "8d05676e3251f272a767212848af47dd5d3c609eaa157db1f7e2b741853ad644"
+  }
+}
