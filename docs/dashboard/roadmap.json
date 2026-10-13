@@ -1,7 +1,7 @@
 {
   "title": "Hullwatch — factual roadmap and acceptance gates",
   "updated": "2026-10-13",
-  "summary": "October12: interior gate and lighting implemented; simulation timing recovered with matched217.8->188.1us and repositoryprofiler3/3 PASSmedian184.9us vsunchanged200us. Exact10-day state/event equivalence and fresh92/92 pass. Current source local; October10 EXE predates these passes. Operator/native Windows, rendered FPS and survival economy/persistence remain open.",
+  "summary": "October 13: Windows playtest 20261013.2 delivered with lighting tuning and first survival/persistence packet (save v8). Separate native Steam Deck branch/release delivered: source 93/93 and exported checks 15/15. Operator/native hardware performance, complete survival economy and ongoing content slices remain open.",
   "milestones": [
     {
       "id": "M0",
@@ -3550,8 +3550,8 @@
       "id": "STEAM_DECK_PORT",
       "title": "Steam Deck and Big Picture playtest",
       "phase": "Platform playtest",
-      "status": "in_progress",
-      "summary": "Dedicatedisolatedbranch nativeLinuxx86_64,1280x800Mobile30cap, portableonePlaylauncher andmanualSteamInputsetup. Responsive/scrolledreadouts; parent93/93. Commit-specificbundle/deliveryverify inprogress; actualhardware/Steam integration/FPS remainopen.",
+      "status": "needs_review",
+      "summary": "Native Linux playtest published from isolated branch playtest/steamdeck, source 1876691, save v8. Parent source 93/93, exported project 15/15, 22 Mobile inspection views and relocated native launcher passed. One-time Steam import and manual input mapping; actual Steam Deck/Big Picture controls, performance and suspend review remain open.",
       "evidence": [
         {
           "path": "docs/design/steam_deck/README.md",
@@ -3560,11 +3560,19 @@
         {
           "path": "docs/STEAM_DECK_PLAYTEST.md",
           "label": "One-time Steam import, singlePlay launch and complete control/setupguide"
+        },
+        {
+          "path": "docs/design/steam_deck/validation.json",
+          "label": "Committed build: 93 source suites, 15 exported checks, captures, native startup and exact hashes"
+        },
+        {
+          "path": "docs/design/steam_deck/delivery.json",
+          "label": "Published prerelease, independent download hashes and bundle identity"
         }
       ],
       "tasks": [
         {
-          "title": "NativeLinuxexport, portablelauncher and full Steam/BigPicture setupguide",
+          "title": "Native Linux export, portable launcher and full Steam/Big Picture setup guide",
           "status": "complete",
           "evidence": [
             {
@@ -3574,11 +3582,19 @@
             {
               "path": "docs/STEAM_DECK_PLAYTEST.md",
               "label": "One-time Steam import, singlePlay launch and complete control/setupguide"
+            },
+            {
+              "path": "docs/design/steam_deck/validation.json",
+              "label": "Committed build: 93 source suites, 15 exported checks, captures, native startup and exact hashes"
+            },
+            {
+              "path": "docs/design/steam_deck/delivery.json",
+              "label": "Published prerelease, independent download hashes and bundle identity"
             }
           ]
         },
         {
-          "title": "Fix1280x800readability and verify source regression",
+          "title": "Fix 1280x800 readability and verify source regression",
           "status": "complete",
           "evidence": [
             {
@@ -3588,12 +3604,20 @@
             {
               "path": "docs/STEAM_DECK_PLAYTEST.md",
               "label": "One-time Steam import, singlePlay launch and complete control/setupguide"
+            },
+            {
+              "path": "docs/design/steam_deck/validation.json",
+              "label": "Committed build: 93 source suites, 15 exported checks, captures, native startup and exact hashes"
+            },
+            {
+              "path": "docs/design/steam_deck/delivery.json",
+              "label": "Published prerelease, independent download hashes and bundle identity"
             }
           ]
         },
         {
-          "title": "Rebuildcommittedsource, verifyactualbundle andpushDeckbranch/release",
-          "status": "in_progress",
+          "title": "Rebuild committed source, verify actual bundle and publish Deck branch/release",
+          "status": "complete",
           "evidence": [
             {
               "path": "docs/design/steam_deck/README.md",
@@ -3602,11 +3626,19 @@
             {
               "path": "docs/STEAM_DECK_PLAYTEST.md",
               "label": "One-time Steam import, singlePlay launch and complete control/setupguide"
+            },
+            {
+              "path": "docs/design/steam_deck/validation.json",
+              "label": "Committed build: 93 source suites, 15 exported checks, captures, native startup and exact hashes"
+            },
+            {
+              "path": "docs/design/steam_deck/delivery.json",
+              "label": "Published prerelease, independent download hashes and bundle identity"
             }
           ]
         },
         {
-          "title": "ActualSteamDeck/GameMode/BigPicture controls,performance andsuspendreview",
+          "title": "Actual Steam Deck/Game Mode/Big Picture controls, performance and suspend review",
           "status": "needs_review",
           "evidence": [
             {
@@ -3616,15 +3648,23 @@
             {
               "path": "docs/STEAM_DECK_PLAYTEST.md",
               "label": "One-time Steam import, singlePlay launch and complete control/setupguide"
+            },
+            {
+              "path": "docs/design/steam_deck/validation.json",
+              "label": "Committed build: 93 source suites, 15 exported checks, captures, native startup and exact hashes"
+            },
+            {
+              "path": "docs/design/steam_deck/delivery.json",
+              "label": "Published prerelease, independent download hashes and bundle identity"
             }
           ]
         }
       ],
       "acceptance": [
-        "NonSteamimportfollowedbyonePlaylaunch afterone-timeconfiguration.",
-        "BundlednativeELF startswithouteditor/runtimeinstall.",
-        "Explicitbindingscoverallmandatoryactions; viewportreadoutsremainaccessible.",
-        "Exactsource/publishedhashes recorded; hardwareacceptanceis separate."
+        "Non-Steam import followed by one Play launch after one-time configuration.",
+        "Bundled native ELF starts without editor/runtime installation.",
+        "Explicit bindings cover mandatory actions; manual and terminal readouts support scrolling.",
+        "Exact source/published hashes recorded; hardware acceptance is separate."
       ]
     }
   ],

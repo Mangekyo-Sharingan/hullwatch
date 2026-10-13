@@ -1,0 +1,17 @@
+{
+  "date": "2026-10-13",
+  "release_url": "https://github.com/Mangekyo-Sharingan/hullwatch/releases/tag/v0.12.0-steamdeck-playtest.20261013.1",
+  "tag": "v0.12.0-steamdeck-playtest.20261013.1",
+  "source_commit": "1876691958392f93556a5332f49d33728f9cedc1",
+  "prerelease": true,
+  "published_download_verified": true,
+  "download_sha256": {
+    "Hullwatch-SteamDeck.tar.gz": "5d2252eb506c721891a09221d7e3d259e99bc314913772ee428232004e5ffb9a",
+    "SHA256SUMS": "6460c69cb75f4bf06768670156e24b5fae0dd82cd59da7bdffac7daa47b19167",
+    "VALIDATION.json": "4196d7c5be7ebc3b1b9783f34d3df24c8053cbbdb6ce2bb1e5683c775d75abbe"
+  },
+  "bundle_identity_verified": true,
+  "native_architecture": "ELF64 x86_64",
+  "save_version": 8,
+  "actual_Steam_Deck_and_Steam_client_testing": "pending"
+}

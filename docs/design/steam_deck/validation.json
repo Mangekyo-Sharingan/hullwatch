@@ -1,0 +1,196 @@
+{
+  "date": "2026-10-13",
+  "source_commit": "1876691958392f93556a5332f49d33728f9cedc1",
+  "source_status": [],
+  "engine": "4.7.2.stable.official.ed1daf0bf",
+  "save_version": 8,
+  "release_tag": "v0.12.0-steamdeck-playtest.20261013.1",
+  "source_suites": {
+    "passed": 93,
+    "total": 93,
+    "evidence": "docs/design/steam_deck/full_suite_results.json",
+    "isolated_userdata": true
+  },
+  "embedded_project": {
+    "elf_sha256": "7794c5f85874ff3b2be87f40527e092fcdc706b3872bbca61e22a651a24a8d47",
+    "checks": [
+      {
+        "check": "startup",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_steam_deck_ui",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_cabin_light",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_computer_terminal",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_save_migration",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_interior_gate",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_power",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_player_traversal",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_salvage",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_session_flow",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_mining",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_sector",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_modules",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_machine_fitting",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_module_effects",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      }
+    ]
+  },
+  "render_and_launch": {
+    "packed_render": {
+      "exit": 0,
+      "passed": true,
+      "frames": 22,
+      "renderer": "mobile",
+      "display": "wayland",
+      "resolution": [
+        1280,
+        800
+      ]
+    },
+    "native_launcher": [
+      {
+        "check": "native-headless",
+        "exit": 0,
+        "passed": true,
+        "relocated_path_with_spaces": true,
+        "cwd": "/"
+      },
+      {
+        "check": "native-menu",
+        "exit": 0,
+        "passed": true,
+        "relocated_path_with_spaces": true,
+        "cwd": "/"
+      },
+      {
+        "check": "native-default-profile",
+        "exit": 0,
+        "passed": true,
+        "relocated_path_with_spaces": true,
+        "cwd": "/",
+        "extra_args": [
+          "--quit-after",
+          "12"
+        ]
+      }
+    ]
+  },
+  "package_selfcheck": {
+    "passed": true,
+    "checks": [
+      "ELF64 x86_64",
+      "executable permissions",
+      "all bundled file hashes",
+      "launcher argument forwarding",
+      "relocation to folder with spaces",
+      "unrelated launch working directory"
+    ]
+  },
+  "sha256": {
+    "Hullwatch-SteamDeck.tar.gz": "5d2252eb506c721891a09221d7e3d259e99bc314913772ee428232004e5ffb9a",
+    "Hullwatch.x86_64": "7794c5f85874ff3b2be87f40527e092fcdc706b3872bbca61e22a651a24a8d47"
+  },
+  "reviewed_captures": [
+    "main_menu.png",
+    "lighting.png",
+    "manual_08.png"
+  ],
+  "pending": [
+    "actual Steam client Non-Steam import/Big Picture integration",
+    "Steam Deck hardware controls and comfort",
+    "sustained FPS and lighting comparison",
+    "suspend/resume"
+  ],
+  "limitations": [
+    "Matching editor runs scripts against the actual exported ELF: release templates disable --script. Native release startup/render separately checked.",
+    "22 rendered panel bounds checks use paused fixtures, not a human playthrough. Movie capture timestamps are not a sustained Deck FPS result.",
+    "Existing eight ObjectDB shutdown leak warning remains.",
+    "Early sidecar checks used default userdata; test_ui_scale removes settings.cfg, original preferences are unknown. Final builds and parent checks use isolated userdata."
+  ]
+}
