@@ -1,0 +1,168 @@
+{
+  "date": "2026-10-13",
+  "source_commit": "d66661afa28d24063a8157922e690cddc931864c",
+  "release_tag": "v0.12.0-playtest.20261013.3",
+  "platform_channel": "windows",
+  "engine": "4.7.2.stable.official.ed1daf0bf",
+  "save_version": 8,
+  "source_suites": {
+    "passed": 93,
+    "total": 93,
+    "evidence": "docs/design/update_checker/source_suites.json"
+  },
+  "exported_project": {
+    "exe_sha256": "9c127afe1eab1f3a0881ab8cc6f949a719ec4ad985334a250ed113d285adb6a1",
+    "pck_sha256": "8c86d8d6c7d2249aea796bfa9f38155ffe7b6e09d79cf4fe86ae4e6d83521eed",
+    "pck_offset": 109135872,
+    "pck_size": 80971788,
+    "checks": [
+      {
+        "check": "startup",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_update_checker",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_cabin_light",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_computer_terminal",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_save_migration",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_interior_gate",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_power",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_player_traversal",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_salvage",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_session_flow",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_mining",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_sector",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_modules",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_machine_fitting",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_module_effects",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      }
+    ]
+  },
+  "embedded_identity": {
+    "passed": true,
+    "tag": "v0.12.0-playtest.20261013.3",
+    "channel": "windows"
+  },
+  "menu_render": {
+    "passed": true,
+    "views": 6,
+    "resolution": [
+      1280,
+      800
+    ],
+    "ui_scales": [
+      1.0,
+      1.4
+    ],
+    "renderer": "forward_plus",
+    "reviewed": [
+      "available/default and max scale",
+      "source/live available notice"
+    ],
+    "fixture_notice": "Future sequence .10 is simulated; no newer real release existed during capture."
+  },
+  "startup_network": {
+    "source_live_anonymous_GitHub": "PASS: old Windows identity .1 detects actual newer .2",
+    "native_release_observed_up_to_date": false
+  },
+  "native_release": {
+    "run_on_linux_host": false,
+    "rendered_menu_movie_frames": null,
+    "relocated_directory_with_spaces": false
+  },
+  "known_limits": [
+    "Native Windows execution and actual Deck/Steam browser, controls, FPS and suspend review remain pending.",
+    "Existing shutdown ObjectDB warnings persist.",
+    "Windows PowerShell helper authored but not executed on Linux; cross-export uses equivalent temporary identity stamping.",
+    "First concurrent Forward+ menu capture timed out; separate retry passed all six views."
+  ],
+  "sha256": {
+    "Hullwatch.exe": "9c127afe1eab1f3a0881ab8cc6f949a719ec4ad985334a250ed113d285adb6a1",
+    "Hullwatch-Windows.zip": "e200a420f67dbb5c912ae716276f62be3d7a9595746b814fdcf16ecaa9da86ae"
+  }
+}

@@ -47,14 +47,38 @@ The Deck package records its tag in BUILD_INFO.json. No simulation/save changes.
 
 ## Validation and delivery
 
-Deterministic `test_update_checker.gd` covers numeric ordering, channel/asset
-selection, invalid metadata, current/newer releases, offline/rate-limit/parse
-failures, menu feedback, async selection preservation and duplicate checks.
-Current source full-suite results, live request, captures, embedded-project
-identity and delivery evidence are recorded alongside this document as they
-complete. Windows PowerShell execution and native Windows/Deck hardware review
-remain separate from Linux export validation. Existing published builds cannot
-acquire this feature without installing a refreshed package.
+Published and independently downloaded/verified:
+
+- [Windows v0.12.0-playtest.20261013.3](https://github.com/Mangekyo-Sharingan/hullwatch/releases/tag/v0.12.0-playtest.20261013.3), source d66661a: source **93/93**, actual EXE embedded-project **15/15**.
+- [Steam Deck v0.12.0-steamdeck-playtest.20261013.2](https://github.com/Mangekyo-Sharingan/hullwatch/releases/tag/v0.12.0-steamdeck-playtest.20261013.2), source72b5181 on separate branch: source **94/94**, actual ELF embedded-project **16/16**.
+
+Both actual exported projects contain their exact release tag and correct
+platform channel. Six menu views each pass bounds at1280x800 with default1.0
+and maximum1.4 UI scale. Windows content renders under Wayland/Forward+;
+Deck under Wayland/Mobile. Available notices at both scales were reviewed.
+The native Linux release automatically checks on startup and displays its
+installed Deck tag plus UP TO DATE; its relocated launcher rendered90 menu
+movie frames. These are Linux host checks, not Deck performance results.
+
+The anonymous live source check with an older Windows identity detects a real
+newer release. After publication, each actual exported project checks GitHub
+again and selects its own current release. Fixture captures of a future update
+use sequence .10; that release was not published. No browser was opened by tests.
+
+Evidence: [source suites](source_suites.json), [export/render checks](validation.json),
+[published download identity and hashes](delivery.json), [live published API](published_live_api.txt).
+Tests cover numeric ordering, channel/asset selection, invalid metadata,
+current/newer releases, offline/rate-limit/parse failures, menu feedback,
+async selection preservation and duplicate startup checks. All final checks
+use isolated userdata. Localization was regenerated with91 strings.
+
+Native Windows execution, Windows PowerShell helper execution, and actual
+Steam Deck/Big Picture browser/input/performance/suspend review remain open.
+Linux cross-export uses the same temporary JSON stamp/restore contract as the
+PowerShell helper. Existing eight ObjectDB shutdown warnings persist. A first
+concurrent Forward+ capture timed out; the separate retry passed all six views.
+**Existing testers must install one of these packages once to gain future
+startup notices.** There is no automatic download or installer.
 
 [GitHub releases API](https://docs.github.com/en/rest/releases/releases#list-releases)
 returns prereleases in the list; /latest excludes them.
