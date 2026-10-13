@@ -77,3 +77,17 @@ Final sequential profiler:174.7 microseconds/tick, PASS at unchanged200 limit;
 isolated startup and string extraction PASS. This is the existing eight-system
 headless timing fixture, not rendered FPS or a multi-week survival guarantee.
 [Profiler output](profile.txt). No narrative, scarcity or refill policy resolved.
+
+## Export-only fixture correction
+
+The first exported candidate passed its first12 checks but the machine-fitting
+fixture timed out: its directory scan skipped `.tres.remap` names in the PCK,
+leaving the test catalog empty. A probe of that actual pack confirmed all7 modules
+and6 machines have remap filenames. Both catalog-loading test helpers now strip
+`.remap` before using ResourceLoader on the original path. Runtime scene catalog
+references already worked; no game balance or state changed. Source focused checks
+pass. The final whole suite/exported checks are repeated for the corrected build;
+the earlier candidate and its native captures are superseded delivery evidence.
+
+Corrected-source final92/92 and isolated startup PASS. The174.7us profile above
+measures the same unchanged runtime/data; the two later edits affect test loaders.

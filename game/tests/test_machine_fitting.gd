@@ -198,8 +198,9 @@ func _load_resources(dir_path: String) -> Array:
 	if dir == null:
 		return resources
 	for file_name: String in dir.get_files():
-		if file_name.ends_with(".tres"):
-			var resource: Resource = load(dir_path + "/" + file_name)
+		var resource_name: String = file_name.trim_suffix(".remap")
+		if resource_name.ends_with(".tres"):
+			var resource: Resource = load(dir_path + "/" + resource_name)
 			if resource != null:
 				resources.append(resource)
 	return resources

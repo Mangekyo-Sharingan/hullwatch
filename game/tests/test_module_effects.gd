@@ -196,9 +196,10 @@ func _catalog() -> Array[ShipModule]:
 	if dir == null:
 		return modules
 	for file_name: String in dir.get_files():
-		if not file_name.ends_with(".tres"):
+		var resource_name: String = file_name.trim_suffix(".remap")
+		if not resource_name.ends_with(".tres"):
 			continue
-		var module: ShipModule = load("res://src/data/modules/" + file_name) as ShipModule
+		var module: ShipModule = load("res://src/data/modules/" + resource_name) as ShipModule
 		if module != null:
 			modules.append(module)
 	return modules
