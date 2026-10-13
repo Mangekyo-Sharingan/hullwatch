@@ -3008,7 +3008,7 @@
       "title": "Ship interior regression gate",
       "phase": "Playtest feedback",
       "status": "needs_review",
-      "summary": "Gate implementation complete; October12 pre-lighting139-view/38-area visual receipt accepted. Lighting pass reruns physical suite92/92; the old whole-ship visual receipt is historical after source changes. Native Windows/operator acceptance and refreshed EXE remain pending.",
+      "summary": "Gate implementation complete; October12 pre-lighting139-view/38-area visual receipt accepted. Lighting pass reruns physical suite92/92; the old whole-ship visual receipt is historical after source changes. Native Windows/operator acceptance and refreshed EXE remain pending. October13 source checkpoint e59500c delivered in prerelease20261013.1 with9/9 embedded-project checks; nativeWindows/operator acceptance remains open.",
       "evidence": [
         {
           "path": "docs/design/interior_gate/README.md",
@@ -3021,6 +3021,10 @@
         {
           "path": "docs/design/interior_gate/review.json",
           "label": "38-area Codex review receipt"
+        },
+        {
+          "path": "docs/design/checkpoint_2026-10-13/validation.json",
+          "label": "Published source identity,9/9 embedded checks and downloaded hashes"
         }
       ],
       "tasks": [
@@ -3108,7 +3112,7 @@
       "title": "Lighting and electrical optimization",
       "phase": "Playtest feedback",
       "status": "needs_review",
-      "summary": "Implementation and assistant validation complete:14 base fixtures320W, two cabin lights off save50W, darker native scenes, saved independent choices. Operator/native Windows review and refreshed delivered build pending. Later timing pass closes the fixed-tick fixture budget; original lighting timing evidence remains historical.",
+      "summary": "Implementation and assistant validation complete:14 base fixtures320W, two cabin lights off save50W, darker native scenes, saved independent choices. Operator/native Windows review and refreshed delivered build pending. Later timing pass closes the fixed-tick fixture budget; original lighting timing evidence remains historical. October13 source checkpoint e59500c delivered in prerelease20261013.1 with9/9 embedded-project checks; nativeWindows/operator acceptance remains open.",
       "evidence": [
         {
           "path": "docs/design/lighting_power/README.md",
@@ -3121,6 +3125,10 @@
         {
           "path": "docs/design/lighting_power/comparison/index.html",
           "label": "Interactive native before/after comparison"
+        },
+        {
+          "path": "docs/design/checkpoint_2026-10-13/validation.json",
+          "label": "Published source identity,9/9 embedded checks and downloaded hashes"
         }
       ],
       "tasks": [
@@ -3290,42 +3298,58 @@
       "id": "CHECKPOINT_20261013",
       "title": "Push verified passes and deliver Windows playtest",
       "phase": "Playtest delivery",
-      "status": "in_progress",
-      "summary": "Fresh October13 source92/92 and startup PASS; preparing source push and Windows cross-export. Embedded-project validation, publication and native Windows acceptance remain separate.",
+      "status": "needs_review",
+      "summary": "Source e59500c pushed; fresh92/92,182.1us profiler and9/9 actualEXE embedded checks PASS. Publishedv0.12.0-playtest.20261013.1; independentdownload hashes/ZIPidentity PASS. NativeWindows/operatoracceptance pending.",
       "evidence": [
         {
           "path": "docs/design/checkpoint_2026-10-13/README.md",
           "label": "October 13 source validation and dated build status"
+        },
+        {
+          "path": "docs/design/checkpoint_2026-10-13/validation.json",
+          "label": "Published source identity,9/9 embedded checks and downloaded hashes"
         }
       ],
       "tasks": [
         {
           "title": "Revalidate and push authorized passes",
-          "status": "in_progress",
+          "status": "complete",
           "evidence": [
             {
               "path": "docs/design/checkpoint_2026-10-13/README.md",
               "label": "October 13 source validation and dated build status"
+            },
+            {
+              "path": "docs/design/checkpoint_2026-10-13/validation.json",
+              "label": "Published source identity,9/9 embedded checks and downloaded hashes"
             }
           ]
         },
         {
           "title": "Cross-export Windows EXE and verify embedded project",
-          "status": "planned",
+          "status": "complete",
           "evidence": [
             {
               "path": "docs/design/checkpoint_2026-10-13/README.md",
               "label": "October 13 source validation and dated build status"
+            },
+            {
+              "path": "docs/design/checkpoint_2026-10-13/validation.json",
+              "label": "Published source identity,9/9 embedded checks and downloaded hashes"
             }
           ]
         },
         {
           "title": "Publish and independently verify downloaded release assets",
-          "status": "planned",
+          "status": "complete",
           "evidence": [
             {
               "path": "docs/design/checkpoint_2026-10-13/README.md",
               "label": "October 13 source validation and dated build status"
+            },
+            {
+              "path": "docs/design/checkpoint_2026-10-13/validation.json",
+              "label": "Published source identity,9/9 embedded checks and downloaded hashes"
             }
           ]
         },

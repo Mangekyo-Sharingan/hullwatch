@@ -1,0 +1,745 @@
+{
+  "date": "2026-10-13",
+  "source_commit": "e59500c5685d8e9a5b35b5dccae77409922af2b3",
+  "tag": "v0.12.0-playtest.20261013.1",
+  "engine": "Godot 4.7.2 stable Linux",
+  "export": "Windows Desktop release x86_64 embedded PCK",
+  "save_version": 7,
+  "native_windows": "pending operator check",
+  "rendered_windows_performance": "not measured",
+  "source_suites": [
+    {
+      "suite": "test_airlock",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.72,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_airlock_scene",
+      "exit": 0,
+      "pass": true,
+      "seconds": 2.5,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_analogue_filter",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.54,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_anomaly_salvage",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.53,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_approach",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.71,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_atmosphere",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.51,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_audio",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.8,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_cabin_light",
+      "exit": 0,
+      "pass": true,
+      "seconds": 3.04,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_cargo",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.43,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_carry",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.53,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_cockpit_instrument_panel",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.52,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_comms",
+      "exit": 0,
+      "pass": true,
+      "seconds": 4.33,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_component_breadth",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.7,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_computer_log",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.51,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_computer_terminal",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.79,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_crt_panels",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.6,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_day_loop",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.61,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_destination_data",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.42,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_detection",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.6,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_diagnostics",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.61,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_diagnostics_api",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.51,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_door",
+      "exit": 0,
+      "pass": true,
+      "seconds": 2.38,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_eva_flow",
+      "exit": 0,
+      "pass": true,
+      "seconds": 2.95,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_fabricator",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.52,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_failures",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.51,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_field_streamer",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.61,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_footsteps",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.9,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_hero_cabins",
+      "exit": 0,
+      "pass": true,
+      "seconds": 2.1,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_hull",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.89,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_hull_exterior",
+      "exit": 0,
+      "pass": true,
+      "seconds": 1.84,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_hull_profile",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.51,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_humidity",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.42,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_interactables",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.51,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_interior_gate",
+      "exit": 0,
+      "pass": true,
+      "seconds": 14.46,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_interior_kit",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.99,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_localization",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.43,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_m11_voyage",
+      "exit": 0,
+      "pass": true,
+      "seconds": 83.93,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_m4_extras",
+      "exit": 0,
+      "pass": true,
+      "seconds": 3.96,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_m9_loop",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.71,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_machine_fitting",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.61,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_maintenance_isolation",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.52,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_manual",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.61,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_mining",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.51,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_module_catalog",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.98,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_module_effects",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.51,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_module_geometry",
+      "exit": 0,
+      "pass": true,
+      "seconds": 1.16,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_module_scene",
+      "exit": 0,
+      "pass": true,
+      "seconds": 2.3,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_modules",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.51,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_nav",
+      "exit": 0,
+      "pass": true,
+      "seconds": 3.5,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_new_watch_wear",
+      "exit": 0,
+      "pass": true,
+      "seconds": 2.01,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_o2_candle_stock",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.51,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_occupancy",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.53,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_operator_maintenance",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.52,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_pilot_chair",
+      "exit": 0,
+      "pass": true,
+      "seconds": 6.95,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_pilot_seat_flow",
+      "exit": 0,
+      "pass": true,
+      "seconds": 5.76,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_player",
+      "exit": 0,
+      "pass": true,
+      "seconds": 6.58,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_player_traversal",
+      "exit": 0,
+      "pass": true,
+      "seconds": 10.36,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_power",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.52,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_propulsion",
+      "exit": 0,
+      "pass": true,
+      "seconds": 7.61,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_rations",
+      "exit": 0,
+      "pass": true,
+      "seconds": 7.61,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_salvage",
+      "exit": 0,
+      "pass": true,
+      "seconds": 3.22,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_save_load",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.63,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_save_migration",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.53,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_scenario_cascade",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.61,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_scenario_humidity",
+      "exit": 0,
+      "pass": true,
+      "seconds": 1.26,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_scenario_power_night",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.61,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_scene_loop",
+      "exit": 0,
+      "pass": true,
+      "seconds": 5.29,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_scene_save_load",
+      "exit": 0,
+      "pass": true,
+      "seconds": 6.23,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_scroll_menu",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.51,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_seated_hud",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.52,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_sector",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.61,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_session_flow",
+      "exit": 0,
+      "pass": true,
+      "seconds": 3.52,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_session_menu",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.62,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_settings",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.7,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_ship_compartments",
+      "exit": 0,
+      "pass": true,
+      "seconds": 2.03,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_ship_layout",
+      "exit": 0,
+      "pass": true,
+      "seconds": 1.2,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_stores",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.53,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_survival_3day",
+      "exit": 0,
+      "pass": true,
+      "seconds": 19.93,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_tether",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.7,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_thermal",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.61,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_tool_kit",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.99,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_tube_layout",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.53,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_ui",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.8,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_ui_scale",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.71,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_vitals",
+      "exit": 0,
+      "pass": true,
+      "seconds": 2.49,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_voice_guide",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.52,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_walkway_clearance",
+      "exit": 0,
+      "pass": true,
+      "seconds": 1.64,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_wall_computer",
+      "exit": 0,
+      "pass": true,
+      "seconds": 1.27,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_water",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.71,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_wear_model",
+      "exit": 0,
+      "pass": true,
+      "seconds": 0.53,
+      "script_errors": 0
+    },
+    {
+      "suite": "test_world_layout",
+      "exit": 0,
+      "pass": true,
+      "seconds": 1.55,
+      "script_errors": 0
+    },
+    {
+      "suite": "smoke_test",
+      "exit": 0,
+      "pass": true,
+      "seconds": 2.11,
+      "script_errors": 0
+    }
+  ],
+  "embedded_project": {
+    "exe_sha256": "7a6f9a839371e8f0b3b26213e919dae2a6747cb5370c7637c3537abd9cc9df83",
+    "pck_sha256": "88fd3d068c0be4ccd9b4113692bd0fe28ff9e5ef67f51299a24eecbc99dc2fe2",
+    "pck_offset": 109135872,
+    "pck_size": 80933588,
+    "checks": [
+      {
+        "check": "startup",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_cabin_light",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_computer_terminal",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_save_migration",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_interior_gate",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_power",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_player_traversal",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_salvage",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      },
+      {
+        "check": "test_session_flow",
+        "exit": 0,
+        "passed": true,
+        "errors": [],
+        "missing_witnesses": []
+      }
+    ]
+  },
+  "profile_sim": {
+    "passed": true,
+    "microseconds_per_tick": 182.1,
+    "limit": 200,
+    "mode": "sequential headless 8-system fixture; not rendered FPS"
+  },
+  "exe_bytes": 190069472,
+  "asset_sha256": {
+    "Hullwatch.exe": "7a6f9a839371e8f0b3b26213e919dae2a6747cb5370c7637c3537abd9cc9df83",
+    "Hullwatch-Windows.zip": "c6a4c1dc8c0f1db722692843476964f1bc6540ce55f0195f1ef8e4075823b5e5",
+    "VALIDATION.json": "fbbc0c0e91b8245365f48fda05712e25b60e29f34a6ef98528002ee0b0030e0d"
+  },
+  "published_url": "https://github.com/Mangekyo-Sharingan/hullwatch/releases/tag/v0.12.0-playtest.20261013.1",
+  "download_verified_sha256": {
+    "Hullwatch.exe": "7a6f9a839371e8f0b3b26213e919dae2a6747cb5370c7637c3537abd9cc9df83",
+    "Hullwatch-Windows.zip": "c6a4c1dc8c0f1db722692843476964f1bc6540ce55f0195f1ef8e4075823b5e5",
+    "VALIDATION.json": "fbbc0c0e91b8245365f48fda05712e25b60e29f34a6ef98528002ee0b0030e0d"
+  }
+}
