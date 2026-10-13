@@ -58,7 +58,8 @@ func sim_tick(delta_hours: float) -> void:
 			_emit_brownout(get_total_demand_w() / maxf(generation_w + battery_max_discharge_w, 0.001))
 		served_demand_w = _shed_to_fit(served_demand_w, supply_w)
 	else:
-		served_demand_w = _restore_to_fit(served_demand_w, supply_w)
+		# Recharge after shedding must not retrigger loads the generator cannot sustain.
+		served_demand_w = _restore_to_fit(served_demand_w, minf(supply_w, generation_w))
 		if _get_shed_count() == 0 and _brownout_active:
 			_brownout_active = false
 			_emit_power_restored()
@@ -293,6 +294,10 @@ func _shed_to_fit(served_demand_w: float, supply_w: float) -> float:
 
 
 func _restore_to_fit(served_demand_w: float, supply_w: float) -> float:
+	# An isolated load needs no supply and must not keep the brownout latched.
+	for circuit_id: StringName in _shed:
+		if not bool(_breaker_on[circuit_id]):
+			_shed[circuit_id] = false
 	var candidates: Array[StringName] = _get_shed_loads_ascending()
 	for circuit_id: StringName in candidates:
 		var load_w: float = _get_effective_load(circuit_id)

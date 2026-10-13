@@ -160,9 +160,14 @@ func _lighting_lines(terminal: Node) -> PackedStringArray:
 	var lines: PackedStringArray = PackedStringArray()
 	var circuit: Dictionary = _circuit_status(terminal, "lighting")
 	lines.append("LIGHTING CIRCUIT  %.1f W  %s" % [float(circuit.get("demand_w", 0.0)), _breaker_state(terminal, "lighting")])
-	for entry: Dictionary in _lighting_entries(terminal):
+	var power: Dictionary = _power_status(terminal)
+	if not power.is_empty():
+		lines.append("BUS REQ %.0f W / GEN %.0f W" % [float(power.get("demand_w", 0.0)), float(power.get("generation_w", 0.0))])
+		lines.append("BATTERY %.0f / %.0f Wh" % [float(power.get("battery_charge_wh", 0.0)), float(power.get("battery_capacity_wh", 0.0))])
+	var entries: Array[Dictionary] = _lighting_entries(terminal)
+	for entry: Dictionary in entries:
 		lines.append(_light_label(entry["status"]))
-	if lines.size() == 1:
+	if entries.is_empty():
 		lines.append("NO LIGHTS ONLINE")
 	return lines
 

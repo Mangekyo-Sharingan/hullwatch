@@ -15,6 +15,6 @@ CABIN LIGHTS. SHIP CONTROL / LIGHTING switches each cabin, service bay, installe
 
 ALL LIGHTS ON is possible while the battery covers demand above the RTG's 500 W output. On the bare ship the twelve interior fixtures and two exterior beams draw 320 W. Switch off unused rooms to stretch the battery; keep maintenance spaces lit and use the handheld torch for dark rooms.
 
-BROWNOUT. If the battery empties, everything except priority 0 drops. Take non-essential circuits offline at the breaker panel before that happens.
+BROWNOUT. When generation and available battery power cannot meet demand, the ship sheds the least critical circuits until the remaining loads fit. Priority 0 is never shed, but still needs available power. Take non-essential circuits offline at the breaker panel before the battery empties.
 
-WHEN A CIRCUIT IS SHED it will not return on its own while demand stays high. Repair the cause: worn components derate the RTG, and a derated RTG cannot carry the ship."
+WHEN A CIRCUIT IS SHED it returns automatically only when generation can carry the remaining loads plus that circuit with 25 W to spare. Recharged battery power does not trigger automatic restoration. Switch off unused lights or isolate non-essential circuits to free sustained headroom; repair faults that reduce generation."

@@ -36,6 +36,7 @@ func _run() -> void:
 	_test_fixture_emitters(power, lights)
 	_check(not power.register_light(&"invalid", "Invalid", NAN), "nonfinite fixture draw rejected")
 	_check(not power.set_light_enabled(&"missing", false), "unknown fixture toggle rejected")
+	_test_long_electrical_watch(power, lights)
 	var all_on_state: Dictionary = power.save_state()
 	var all_on_demand: float = power.get_total_demand_w()
 	power.sim_tick(1.0)
@@ -112,6 +113,79 @@ func _run() -> void:
 	else:
 		print("FAILURES: ", _failures)
 		quit(1)
+
+
+func _test_long_electrical_watch(power: PowerSystem, lights: Array[Node]) -> void:
+	var before: Dictionary = power.save_state()
+	var wear: Array[WearComponent] = power.wear_components
+	# Keep the actual scene's loads and fixtures; isolate this electrical watch from wear.
+	power.wear_components = []
+	var baseline: Dictionary = power.save_state()
+	var events: Array[Dictionary] = []
+	var capture: Callable = func(event_name: StringName, payload: Dictionary) -> void:
+		if event_name in [&"circuit_shed", &"circuit_restored", &"lighting_changed"]:
+			events.append({"name": event_name, "payload": payload.duplicate(true)})
+	var bus: Node = root.get_node("EventBus")
+	bus.connect(&"sim_event", capture)
+	var first_state: Dictionary = {}
+	var first_events: Array[Dictionary] = []
+	for repeat: int in 2:
+		power.load_state(baseline)
+		events.clear()
+		_check(is_equal_approx(power.get_total_demand_w(), 760.0), "long watch: actual main starts at 760W with all fourteen fixtures")
+		var minimum_charge: float = power.battery_charge_wh
+		var shed_tick: int = -1
+		for tick: int in 48 * 600:
+			power.sim_tick(1.0 / 600.0)
+			minimum_charge = minf(minimum_charge, power.battery_charge_wh)
+			if shed_tick < 0 and power.is_circuit_shed(&"lighting"):
+				shed_tick = tick + 1
+		var charge_after_48h: float = power.battery_charge_wh
+		_check(minimum_charge < 1.0 and power.battery_charge_wh > 1000.0, "long watch: all-on drains the reserve, then the battery steadily recharges")
+		_check(events.size() == 1 and events[0]["name"] == &"circuit_shed" and StringName(events[0]["payload"]["circuit_id"]) == &"lighting", "long watch: lighting sheds exactly once across 48 hours without restoration chatter")
+		_check(power.is_circuit_shed(&"lighting") and is_equal_approx(power.get_total_load_w(), 440.0), "long watch: non-lighting loads remain served at 440W")
+		var preferences_on: bool = true
+		for fixture: Dictionary in power.get_lighting_status().values():
+			preferences_on = preferences_on and bool(fixture["enabled"])
+		_check(preferences_on and _fixture_power_matches(power, lights), "long watch: shedding preserves all ON preferences while beams and emitters are dark")
+		for fixture_id: StringName in power.get_lighting_status():
+			power.set_light_enabled(fixture_id, fixture_id in [&"cockpit", &"exterior_work_0"])
+		_check(is_equal_approx(power.get_total_demand_w(), 475.0), "long watch: selected 25W cabin and 10W work light leave 25W sustained headroom")
+		power.sim_tick(1.0 / 600.0)
+		_check(not power.is_circuit_shed(&"lighting") and not power.is_brownout(), "long watch: sustainable selection restores the lighting circuit")
+		_check(power.is_light_powered(&"cockpit") and power.is_light_powered(&"exterior_work_0") and not power.is_light_powered(&"quarters") and _fixture_power_matches(power, lights), "long watch: restored beams and emission follow individual preferences")
+		for tick: int in 6 * 600:
+			power.sim_tick(1.0 / 600.0)
+		var restored_count: int = 0
+		var shed_count: int = 0
+		for event: Dictionary in events:
+			restored_count += int(event["name"] == &"circuit_restored")
+			shed_count += int(event["name"] == &"circuit_shed")
+		_check(restored_count == 1 and shed_count == 1 and _fixture_power_matches(power, lights), "long watch: exactly one shed and one restoration remain stable for six more hours")
+		print("WATCH_METRICS: ", JSON.stringify({"repeat": repeat + 1, "tick_seconds": 6, "all_on_ticks": 48 * 600, "first_shed_tick": shed_tick, "minimum_charge_wh": minimum_charge, "charge_after_48h_wh": charge_after_48h, "restore_tick": 48 * 600 + 1, "selected_demand_w": power.get_total_demand_w(), "stable_followup_ticks": 6 * 600, "final_charge_wh": power.battery_charge_wh, "events": events}))
+		if repeat == 0:
+			first_state = power.save_state()
+			first_events.assign(events)
+		else:
+			_check(power.save_state() == first_state and events == first_events, "long watch: same saved inputs reproduce identical ordered events and final power state")
+	bus.disconnect(&"sim_event", capture)
+	power.wear_components = wear
+	power.load_state(before)
+
+
+func _fixture_power_matches(power: PowerSystem, lights: Array[Node]) -> bool:
+	for node: Node in lights:
+		var light: Light3D = node as Light3D
+		var powered: bool = power.is_light_powered(StringName(light.get(&"fixture_id")))
+		if light.visible != powered:
+			return false
+		var materials: Array = light.get(&"_emission_materials")
+		if materials.is_empty():
+			return false
+		for material: StandardMaterial3D in materials:
+			if material.emission_enabled != powered:
+				return false
+	return true
 
 
 func _lights_visible(lights: Array[Node]) -> bool:

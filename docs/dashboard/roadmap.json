@@ -3112,7 +3112,7 @@
       "title": "Lighting and electrical optimization",
       "phase": "Playtest feedback",
       "status": "needs_review",
-      "summary": "Implementation and assistant validation complete:14 base fixtures320W, two cabin lights off save50W, darker native scenes, saved independent choices. Operator/native Windows review and refreshed delivered build pending. Later timing pass closes the fixed-tick fixture budget; original lighting timing evidence remains historical. October13 source checkpoint e59500c delivered in prerelease20261013.1 with9/9 embedded-project checks; nativeWindows/operator acceptance remains open.",
+      "summary": "Implementation and assistant validation complete:14 base fixtures320W, two cabin lights off save50W, darker native scenes, saved independent choices. Operator/native Windows review and refreshed delivered build pending. Later timing pass closes the fixed-tick fixture budget; original lighting timing evidence remains historical. October13 source checkpoint e59500c delivered in prerelease20261013.1 with9/9 embedded-project checks; nativeWindows/operator acceptance remains open. October13 follow-up stops low-battery restoration chatter;48hwatch,92/92 and173.9us profile PASS. Latest follow-up build pending.",
       "evidence": [
         {
           "path": "docs/design/lighting_power/README.md",
@@ -3129,6 +3129,10 @@
         {
           "path": "docs/design/checkpoint_2026-10-13/validation.json",
           "label": "Published source identity,9/9 embedded checks and downloaded hashes"
+        },
+        {
+          "path": "docs/design/lighting_power/tuning_2026-10-13.md",
+          "label": "Stable48h shedding/restoration, budgetreadouts and fresh92/92 validation"
         }
       ],
       "tasks": [
@@ -3183,6 +3187,16 @@
             {
               "path": "docs/design/lighting_power/comparison/index.html",
               "label": "Interactive native before/after comparison"
+            }
+          ]
+        },
+        {
+          "title": "Stabilize low-battery restoration and expose lighting budget",
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/lighting_power/tuning_2026-10-13.md",
+              "label": "Stable48h shedding/restoration, budgetreadouts and fresh92/92 validation"
             }
           ]
         },

@@ -48,6 +48,7 @@ func _initialize() -> void:
 	_test_charge_with_surplus()
 	_test_discharge_to_empty()
 	_test_brownout_and_restore()
+	_test_sustained_restoration()
 	_test_all_critical_deficit()
 	_test_determinism()
 	_test_humidity_readers()
@@ -134,6 +135,46 @@ func _test_brownout_and_restore() -> void:
 	_check(not power.is_brownout(), "restore: brownout cleared")
 	_check(_restored_count == 1, "restore: exactly one power_restored signal emitted")
 	_check(_brownout_count == 1, "restore: no duplicate brownout signal")
+
+
+func _test_sustained_restoration() -> void:
+	_brownout_count = 0
+	_restored_count = 0
+	var power: PowerSystem = _spawn_power()
+	power.add_circuit(_make_circuit(&"critical", 100.0, 0))
+	power.add_circuit(_make_circuit(&"work", 150.0, 1))
+	power.add_circuit(_make_circuit(&"lighting", 50.0, 5))
+	power.add_circuit(_make_circuit(&"isolated", 25.0, 6))
+	power.set_generation(&"gen", 200.0)
+	power.battery_charge_wh = 0.0
+	for tick: int in 1000:
+		power.sim_tick(1.0 / 600.0)
+	_check(power.is_circuit_shed(&"work") and power.is_circuit_shed(&"lighting"), "sustained: recharging battery never restores a generator deficit")
+	_check(_brownout_count == 1 and _restored_count == 0 and power.battery_charge_wh > 100.0, "sustained: one brownout while critical load stays powered and battery recharges")
+	_check(is_equal_approx(power.get_total_load_w(), 100.0), "sustained: unaffordable higher priority blocks lower priority restoration")
+	power.set_breaker(&"isolated", false)
+	power.sim_tick(1.0 / 600.0)
+	_check(not power.is_circuit_shed(&"isolated") and power.is_circuit_shed(&"work"), "sustained: OFF shed clears even behind an unaffordable ON candidate")
+	power.set_breaker(&"work", false)
+	power.sim_tick(1.0 / 600.0)
+	_check(not power.is_circuit_shed(&"work") and not power.is_circuit_shed(&"lighting"), "sustained: OFF shed clears and next affordable candidate restores")
+	_check(not power.is_breaker_on(&"work") and is_equal_approx(power.get_total_load_w(), 150.0), "sustained: clearing an OFF shed never energizes the isolated load")
+	_check(not power.is_brownout() and _restored_count == 1, "sustained: OFF shed no longer latches brownout")
+	power.free()
+	var capped: PowerSystem = _spawn_power()
+	capped.add_circuit(_make_circuit(&"critical", 100.0, 0))
+	capped.add_circuit(_make_circuit(&"lighting", 50.0, 5))
+	capped.set_generation(&"gen", 0.0)
+	capped.battery_charge_wh = 0.0
+	capped.sim_tick(1.0 / 600.0)
+	capped.battery_max_discharge_w = 0.0
+	capped.set_generation(&"gen", 174.0)
+	capped.sim_tick(1.0 / 600.0)
+	_check(capped.is_circuit_shed(&"lighting"), "sustained: 24W headroom cannot restore")
+	capped.set_generation(&"gen", 175.0)
+	capped.sim_tick(1.0 / 600.0)
+	_check(not capped.is_circuit_shed(&"lighting"), "sustained: exact 25W generator headroom restores")
+	capped.free()
 
 
 func _test_all_critical_deficit() -> void:

@@ -15,7 +15,7 @@ func _run() -> void:
 	harness.setup_clock()
 
 	var life_support: PowerCircuit = harness.make_circuit(&"life_support", 150.0, 0)
-	var scrubber_circuit: PowerCircuit = harness.make_circuit(&"scrubber", 400.0, 1)
+	var scrubber_circuit: PowerCircuit = harness.make_circuit(&"scrubber", 300.0, 1)
 	var power: PowerSystem = harness.add_power([life_support, scrubber_circuit], 4000.0, {&"rtg_main": 500.0})
 	power.battery_max_discharge_w = 150.0
 	var rtg_wear: WearComponent = load("res://src/data/wear/rtg_main.tres") as WearComponent
