@@ -75,10 +75,25 @@ archive. After an in-client update, embedded identity and
 .hullwatch-update/installed.json describe the active binary. Do not treat the
 original package receipt as the post-update installation identity.
 
-## Validation boundary
+## Current validation and delivery
 
-Core protocol/hash/cancellation/menu tests, installer swap/refusal/recovery/
-argument tests, current source suites and actual exported-project checks are
-recorded here as completed. Native Windows execution and actual Steam Deck/
-Big Picture/suspend/power-loss review remain separate gates. All runtime checks
-must use isolated userdata and disposable installation folders.
+- [Windows20261013.5](https://github.com/Mangekyo-Sharingan/hullwatch/releases/tag/v0.12.0-playtest.20261013.5), source756fd95: **94/94** clean source suites, **16/16** actual EXE embedded-project checks.
+- [Deck20261013.4](https://github.com/Mangekyo-Sharingan/hullwatch/releases/tag/v0.12.0-steamdeck-playtest.20261013.4), source9ac234b on separate branch: **95/95** source, **17/17** actual final ELF checks.
+- Installer tests: **46 passed/1 skipped** (47 total). Shell plus temporary verified PowerShell7.6.6 on Linux; the Windows file-sharing case requires Windows. Additional shared checks cover interrupted backup/receipt publication. Initial PowerShell null-string rollback defect was fixed and rerun.
+- Sixteen menu fixture views total pass bounds at1280x800/default1.0 and maximum1.4 UI scale, under Forward+/Mobile. Download offer, transfer/cancel page and failed-checksum presentation reviewed. These use simulated future notices and progress; they are not measured hardware FPS.
+- **Native end-to-end PASS:** disposable client with controlled automatic menu selection reads the actual public GitHub manifest, streams the real full ELF from the asset CDN, verifies it, hands off to the shipped helper, replaces the executable, restarts and acknowledges the new GUI. The wrapper remains alive; argv forwarding, previous backup and installed hash/source identity are verified. Controlled older fixture is not a published game build.
+- Both published asset sets downloaded independently: SHA256, manifest payload size/hash, source target and archive contents verified. Executable payloads were not replaced under their published tags; validation evidence was updated after the native scenario.
+
+Evidence: [clean/source suites](source_suites.json), [installer checks](installer_checks.txt), [export/protocol checks](validation.json), [native scenario](native_update.json), [native log](native_update_log.txt), [published delivery](delivery.json).
+
+Windows source/export came from a clean detached worktree because concurrent
+unrelated computer/notice changes were present in the shared main checkout.
+Those changes are excluded from this delivery and remain unstaged.
+No save-format or simulation change. All checks use isolated userdata and
+installation folders. Existing eight ObjectDB shutdown warnings persist.
+
+Native Windows execution/PowerShell5.1/file-sharing, actual Steam Deck/Game Mode
+restart/input/suspend and physical power-loss durability remain review gates.
+The native host test validates the intended launcher process structure, not
+Steam integration. Filesystem durability is qualified, not a blanket power-cut
+guarantee. Previous binary recovery does not reverse later save migrations.

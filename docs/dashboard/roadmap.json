@@ -3866,38 +3866,158 @@
       "id": "MANIFEST_UPDATER",
       "title": "In-client manifest download, install and restart",
       "phase": "Playtest delivery",
-      "status": "in_progress",
-      "summary": "Operator-approved full embedded-build replacement: verified GitHub manifests/payloads, staged transfers, cancellable menu, atomic helpers/previous backup and stable Deck restart wrapper. Source implementation and protocol checks complete; clean export, native integration and delivery verification in progress.",
+      "status": "needs_review",
+      "summary": "Delivered Windows20261013.5/source756fd95 and Deck20261013.4/source9ac234b: clean94/94 and95/95 source,16/16 and17/17 exported;46 installer checks pass/1 Windows-only skip. Real GitHub native download/install/restart/GUI acknowledgment and independent published hashes pass. Native Windows, actual Deck/Steam and physical power-loss review remain open.",
       "evidence": [
         {
           "path": "docs/design/manifest_updater/README.md",
           "label": "Protocol, player flow, installation/recovery and validation boundaries"
+        },
+        {
+          "path": "docs/design/manifest_updater/validation.json",
+          "label": "Clean committed exports, source/protocol and installer results"
+        },
+        {
+          "path": "docs/design/manifest_updater/native_update.json",
+          "label": "Actual native GitHub download, verify, install, restart and GUI acknowledgment"
+        },
+        {
+          "path": "docs/design/manifest_updater/delivery.json",
+          "label": "Published source tags and independently verified assets/manifest payloads"
         }
       ],
       "tasks": [
         {
           "title": "Manifest contract, authenticated digests and staged download/controller",
-          "status": "complete"
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/manifest_updater/README.md",
+              "label": "Protocol, player flow, installation/recovery and validation boundaries"
+            },
+            {
+              "path": "docs/design/manifest_updater/validation.json",
+              "label": "Clean committed exports, source/protocol and installer results"
+            },
+            {
+              "path": "docs/design/manifest_updater/native_update.json",
+              "label": "Actual native GitHub download, verify, install, restart and GUI acknowledgment"
+            },
+            {
+              "path": "docs/design/manifest_updater/delivery.json",
+              "label": "Published source tags and independently verified assets/manifest payloads"
+            }
+          ]
         },
         {
           "title": "Trusted Windows/Linux helpers, previous backup and idempotent recovery",
-          "status": "in_progress"
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/manifest_updater/README.md",
+              "label": "Protocol, player flow, installation/recovery and validation boundaries"
+            },
+            {
+              "path": "docs/design/manifest_updater/validation.json",
+              "label": "Clean committed exports, source/protocol and installer results"
+            },
+            {
+              "path": "docs/design/manifest_updater/native_update.json",
+              "label": "Actual native GitHub download, verify, install, restart and GUI acknowledgment"
+            },
+            {
+              "path": "docs/design/manifest_updater/delivery.json",
+              "label": "Published source tags and independently verified assets/manifest payloads"
+            }
+          ]
         },
         {
           "title": "Stable Deck launcher and build-generated manifest/identity",
-          "status": "complete"
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/manifest_updater/README.md",
+              "label": "Protocol, player flow, installation/recovery and validation boundaries"
+            },
+            {
+              "path": "docs/design/manifest_updater/validation.json",
+              "label": "Clean committed exports, source/protocol and installer results"
+            },
+            {
+              "path": "docs/design/manifest_updater/native_update.json",
+              "label": "Actual native GitHub download, verify, install, restart and GUI acknowledgment"
+            },
+            {
+              "path": "docs/design/manifest_updater/delivery.json",
+              "label": "Published source tags and independently verified assets/manifest payloads"
+            }
+          ]
         },
         {
           "title": "Clean current source/exported checks and native update/restart scenario",
-          "status": "in_progress"
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/manifest_updater/README.md",
+              "label": "Protocol, player flow, installation/recovery and validation boundaries"
+            },
+            {
+              "path": "docs/design/manifest_updater/validation.json",
+              "label": "Clean committed exports, source/protocol and installer results"
+            },
+            {
+              "path": "docs/design/manifest_updater/native_update.json",
+              "label": "Actual native GitHub download, verify, install, restart and GUI acknowledgment"
+            },
+            {
+              "path": "docs/design/manifest_updater/delivery.json",
+              "label": "Published source tags and independently verified assets/manifest payloads"
+            }
+          ]
         },
         {
           "title": "Publish/download-verify bootstrap Windows and Deck packages",
-          "status": "planned"
+          "status": "complete",
+          "evidence": [
+            {
+              "path": "docs/design/manifest_updater/README.md",
+              "label": "Protocol, player flow, installation/recovery and validation boundaries"
+            },
+            {
+              "path": "docs/design/manifest_updater/validation.json",
+              "label": "Clean committed exports, source/protocol and installer results"
+            },
+            {
+              "path": "docs/design/manifest_updater/native_update.json",
+              "label": "Actual native GitHub download, verify, install, restart and GUI acknowledgment"
+            },
+            {
+              "path": "docs/design/manifest_updater/delivery.json",
+              "label": "Published source tags and independently verified assets/manifest payloads"
+            }
+          ]
         },
         {
           "title": "Native Windows and actual Deck/Steam/power-loss review",
-          "status": "needs_review"
+          "status": "needs_review",
+          "evidence": [
+            {
+              "path": "docs/design/manifest_updater/README.md",
+              "label": "Protocol, player flow, installation/recovery and validation boundaries"
+            },
+            {
+              "path": "docs/design/manifest_updater/validation.json",
+              "label": "Clean committed exports, source/protocol and installer results"
+            },
+            {
+              "path": "docs/design/manifest_updater/native_update.json",
+              "label": "Actual native GitHub download, verify, install, restart and GUI acknowledgment"
+            },
+            {
+              "path": "docs/design/manifest_updater/delivery.json",
+              "label": "Published source tags and independently verified assets/manifest payloads"
+            }
+          ]
         }
       ],
       "acceptance": [

@@ -1,0 +1,36 @@
+{
+  "releases": [
+    {
+      "channel": "windows",
+      "tag": "v0.12.0-playtest.20261013.5",
+      "release_url": "https://github.com/Mangekyo-Sharingan/hullwatch/releases/tag/v0.12.0-playtest.20261013.5",
+      "source_commit": "756fd95aa8ac1dd445888dd1dac86faec9ba1008",
+      "published_download_verified": true,
+      "manifest_payload_verified": true,
+      "sha256": {
+        "SHA256SUMS": "d3593570f62e42312e76be79857c2b79ef499ccc50b0067bc72b61f9f80601eb",
+        "Hullwatch-Updater.ps1": "51d01118572d413e7aecfd663472c4de6de962b0a3fb84fcd6e106fe0239fe68",
+        "Hullwatch.exe": "e7b14c1cbb07ffe4c2a92f040ba763015862dc1e5115f42ec9be878d2c77987a",
+        "UPDATE_WINDOWS.json": "8681a7f31a17318adca3a9acf49fee653cdb4ad93d60a7950c96a03958278f6e",
+        "Hullwatch-Windows.zip": "21a9df6c1045b36a02488738b74ff795423fb49d93ee7e55fe7d7deeb2bfa1f4",
+        "VALIDATION.json": "4cc6282ace7cd1af525e53001ef536c2f77c9616af926462b2abeaf686b122cc"
+      }
+    },
+    {
+      "channel": "steamdeck",
+      "tag": "v0.12.0-steamdeck-playtest.20261013.4",
+      "release_url": "https://github.com/Mangekyo-Sharingan/hullwatch/releases/tag/v0.12.0-steamdeck-playtest.20261013.4",
+      "source_commit": "9ac234b9e77d58fda43294f4d4f733189050a304",
+      "published_download_verified": true,
+      "manifest_payload_verified": true,
+      "sha256": {
+        "UPDATE_STEAMDECK.json": "d04bd735afa6f7956a0fefd1fedb0c45f33aaef808a9161cd8672b1d3639f0db",
+        "Hullwatch-SteamDeck.tar.gz": "5585faa72657682cad1901814021e49ff0b2be1e5bfd657b20c0b25ce1778c52",
+        "Hullwatch.x86_64": "8a6d916c6ddfea78a5ab7b338c8c43f0efb384f049c504bf014d60a0de6b63d7",
+        "SHA256SUMS": "97ea97eccf1b043b611af958ce773628e91ba4476c14716751fb5c1a6b71f1e5",
+        "VALIDATION.json": "13ad62084a85c0f31686ac3f562353e70b42b2a4430f6a126eb232e8150e8345"
+      }
+    }
+  ],
+  "native_e2e": "PASS: actual GitHub download/install/restart in disposable native client"
+}

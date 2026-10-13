@@ -1,0 +1,53 @@
+pwsh found; PowerShell checks run here, native Windows execution unavailable.
+test_empty_restart_array (__main__.PowerShellTests.test_empty_restart_array) ... ok
+test_invalid_restart_json (__main__.PowerShellTests.test_invalid_restart_json) ... ok
+test_launch_failure_restores_old_and_retains_backup (__main__.PowerShellTests.test_launch_failure_restores_old_and_retains_backup) ... ok
+test_literal_argv_forwarding (__main__.PowerShellTests.test_literal_argv_forwarding) ... ok
+test_malformed_restart_json (__main__.PowerShellTests.test_malformed_restart_json) ... ok
+test_path_traversal_and_nonfixed_payload (__main__.PowerShellTests.test_path_traversal_and_nonfixed_payload) ... ok
+test_recheck_after_wait (__main__.PowerShellTests.test_recheck_after_wait) ... ok
+test_recheck_size_after_wait (__main__.PowerShellTests.test_recheck_size_after_wait) ... ok
+test_recovery_before_backup_receipt_publication (__main__.PowerShellTests.test_recovery_before_backup_receipt_publication) ... ok
+test_recovery_preserves_old_and_new_and_is_idempotent (__main__.PowerShellTests.test_recovery_preserves_old_and_new_and_is_idempotent) ... ok
+test_recovery_refuses_live_download_owner (__main__.PowerShellTests.test_recovery_refuses_live_download_owner) ... ok
+test_recovery_refuses_unverified_backup (__main__.PowerShellTests.test_recovery_refuses_unverified_backup) ... ok
+test_recovery_restores_missing_or_invalid_only_from_verified_prior (__main__.PowerShellTests.test_recovery_restores_missing_or_invalid_only_from_verified_prior) ... ok
+test_recovery_without_handoff_is_noop (__main__.PowerShellTests.test_recovery_without_handoff_is_noop) ... ok
+test_replace_failure_retains_old (__main__.PowerShellTests.test_replace_failure_retains_old) ... skipped 'Windows File.Replace sharing failure requires Windows'
+test_sha_and_size_refusal (__main__.PowerShellTests.test_sha_and_size_refusal) ... ok
+test_stale_lock_refused (__main__.PowerShellTests.test_stale_lock_refused) ... ok
+test_success_and_previous_retained (__main__.PowerShellTests.test_success_and_previous_retained) ... ok
+test_symlink_ancestor_and_backup_refused (__main__.PowerShellTests.test_symlink_ancestor_and_backup_refused) ... ok
+test_symlinks_refused (__main__.PowerShellTests.test_symlinks_refused) ... ok
+test_target_must_be_regular_and_existing (__main__.PowerShellTests.test_target_must_be_regular_and_existing) ... ok
+test_unrelated_download_owner_is_retained (__main__.PowerShellTests.test_unrelated_download_owner_is_retained) ... ok
+test_wait_timeout_does_not_kill (__main__.PowerShellTests.test_wait_timeout_does_not_kill) ... ok
+test_copy_move_and_chmod_failures (__main__.ShellTests.test_copy_move_and_chmod_failures) ... ok
+test_killed_helper_recovers_before_and_after_swap (__main__.ShellTests.test_killed_helper_recovers_before_and_after_swap) ... ok
+test_literal_argv_forwarding (__main__.ShellTests.test_literal_argv_forwarding) ... ok
+test_no_launch (__main__.ShellTests.test_no_launch) ... ok
+test_nonzero_game_exit_preserves_valid_new_build (__main__.ShellTests.test_nonzero_game_exit_preserves_valid_new_build) ... ok
+test_other_filesystem_refused (__main__.ShellTests.test_other_filesystem_refused) ... ok
+test_path_traversal_and_nonfixed_payload (__main__.ShellTests.test_path_traversal_and_nonfixed_payload) ... ok
+test_recheck_after_wait (__main__.ShellTests.test_recheck_after_wait) ... ok
+test_recheck_size_after_wait (__main__.ShellTests.test_recheck_size_after_wait) ... ok
+test_recovery_before_backup_receipt_publication (__main__.ShellTests.test_recovery_before_backup_receipt_publication) ... ok
+test_recovery_preserves_old_and_new_and_is_idempotent (__main__.ShellTests.test_recovery_preserves_old_and_new_and_is_idempotent) ... ok
+test_recovery_refuses_live_download_owner (__main__.ShellTests.test_recovery_refuses_live_download_owner) ... ok
+test_recovery_refuses_unverified_backup (__main__.ShellTests.test_recovery_refuses_unverified_backup) ... ok
+test_recovery_restores_missing_or_invalid_only_from_verified_prior (__main__.ShellTests.test_recovery_restores_missing_or_invalid_only_from_verified_prior) ... ok
+test_recovery_without_handoff_is_noop (__main__.ShellTests.test_recovery_without_handoff_is_noop) ... ok
+test_sha_and_size_refusal (__main__.ShellTests.test_sha_and_size_refusal) ... ok
+test_staged_device_mismatch_refused (__main__.ShellTests.test_staged_device_mismatch_refused) ... ok
+test_stale_lock_refused (__main__.ShellTests.test_stale_lock_refused) ... ok
+test_success_and_previous_retained (__main__.ShellTests.test_success_and_previous_retained) ... ok
+test_symlink_ancestor_and_backup_refused (__main__.ShellTests.test_symlink_ancestor_and_backup_refused) ... ok
+test_symlinks_refused (__main__.ShellTests.test_symlinks_refused) ... ok
+test_target_must_be_regular_and_existing (__main__.ShellTests.test_target_must_be_regular_and_existing) ... ok
+test_unrelated_download_owner_is_retained (__main__.ShellTests.test_unrelated_download_owner_is_retained) ... ok
+test_wait_timeout_does_not_kill (__main__.ShellTests.test_wait_timeout_does_not_kill) ... ok
+
+----------------------------------------------------------------------
+Ran 47 tests in 90.918s
+
+OK (skipped=1)
