@@ -3545,6 +3545,55 @@
         "Actual EXE embedded project passes focused checks.",
         "Published assets independently match SHA256; native Windows acceptance is recorded separately."
       ]
+    },
+    {
+      "id": "UPDATE_CHECKER",
+      "title": "Startup version check and playtest update notices",
+      "phase": "Playtest delivery",
+      "status": "in_progress",
+      "summary": "One asynchronous GitHub release check per launch, exact build identity, separate Windows/Deck channels, compatible assets and menu link. Source regression/live API/captures pass; refreshed package validation and delivery in progress.",
+      "evidence": [
+        {
+          "path": "docs/design/update_checker/README.md",
+          "label": "Behavior, release identity and delivery boundaries"
+        },
+        {
+          "path": "docs/design/update_checker/source_suites.json",
+          "label": "Fresh source suites with exact PASS markers"
+        },
+        {
+          "path": "docs/design/update_checker/live_api.txt",
+          "label": "Anonymous live GitHub request and 1280x800 menu capture"
+        }
+      ],
+      "tasks": [
+        {
+          "title": "Implement nonblocking request, numeric comparison and compatible release selection",
+          "status": "complete"
+        },
+        {
+          "title": "Show installed version, update status and accessible GitHub action",
+          "status": "complete"
+        },
+        {
+          "title": "Stamp exported build identity and verify source/live failures",
+          "status": "complete"
+        },
+        {
+          "title": "Rebuild and verify committed Windows/Deck packages and publish",
+          "status": "in_progress"
+        },
+        {
+          "title": "Native Windows and Steam Deck browser/input review",
+          "status": "needs_review"
+        }
+      ],
+      "acceptance": [
+        "Offline startup remains playable; timeout and malformed responses do not gate menus.",
+        "Newest compatible playtests include prereleases; incompatible channels and assets cannot trigger notices.",
+        "The exported identity matches its published tag; development builds do not claim a release version.",
+        "A menu action opens the exact GitHub release page without downloading or installing."
+      ]
     }
   ],
   "gates": [

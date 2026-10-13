@@ -23,6 +23,7 @@ EventBus="*res://src/autoload/event_bus.gd"
 AudioDirector="*res://src/autoload/audio_director.gd"
 SaveManager="*res://src/autoload/save_manager.gd"
 GameSettings="*res://src/autoload/settings.gd"
+UpdateChecker="*res://src/autoload/update_checker.gd"
 
 [debug]
 
