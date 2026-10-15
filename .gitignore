@@ -27,6 +27,7 @@ tools/godot-mcp/
 
 # Generated local documentation dashboard
 /docs/dashboard/index.html
+/docs/dashboard/knowledge-graph.html
 
 # Local reference material (screenshots, mood boards) — not distributed
 docs/reference/

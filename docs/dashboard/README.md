@@ -18,6 +18,8 @@ The dashboard provides:
   code blocks, internal navigation, a contents list, and source downloads.
 - The repository's visual archive, including local reference images, with
   folder filters and full-size inspection.
+- An interactive knowledge-graph view rendered from `graphify-out/` when a
+  graphify build exists, embedded fully offline.
 - Documented pass history, Git checkpoints, local changes, and the system,
   data-resource, and test-file inventories.
 
@@ -29,12 +31,13 @@ or agent configuration files. Sources remain complete, including historical
 and contradictory documents; their dates and current-source evidence are
 shown rather than silently rewriting them.
 
-## After each pass
+## After each change
 
-1. Record the pass result and update `.wolf/STATUS.md` with the actual outcome.
-2. Update the relevant milestone/tasks in [roadmap.json](roadmap.json), adding
-   a new milestone for a new pass. Include evidence paths and explicit pending
-   reviews. Update the manifest's `updated` date when its status changes.
+1. Update the active EA slice's task statuses and evidence in
+   [roadmap.json](roadmap.json). Never add milestones or slices; only the
+   operator adds, reorders or accepts them (`AGENTS.md` › EA build rules).
+   Update the manifest's `updated` date when a status changes.
+2. Update `.wolf/STATUS.md` with the actual outcome at session end.
 3. The installed end hooks rebuild the page after the existing OpenWolf
    finalizer has completed. See [HOOKS.md](HOOKS.md) for runtime support and
    verification. Restart a running agent/server once to load new configuration.
@@ -68,6 +71,32 @@ part of dashboard refresh, and hooks never stage, commit, or push files.
 
 ## Roadmap source
 
+The overview and roadmap begin with the **Early Access build plan**: the twelve
+ordered slices `EA01`–`EA12`, how many the operator has accepted, the active or
+next slice with its player outcome and required proof, and the "not now" list.
+Below it, the connected **Path to Early Access** (foundation → ship → finish the
+game → accept on hardware and with strangers → release) shows each stage's exit
+criteria, milestones and gates. The detailed milestone cards remain below; open
+milestones from before the plan link to the slice that absorbed their work.
+
+`roadmap.json` owns this presentation as well as the task statuses:
+`ea_plan` (ordered `slices`, `wip_limit`, `later`, operator `decisions` and
+`not_now`), `release_path.current_stage` and `release_path.stages`. Each slice
+milestone carries `player_outcome`, `proof`, `out_of_scope` and the `gates` it
+closes; earlier open milestones carry `absorbed_into`. The builder rejects:
+
+- more active (`in_progress` or `needs_review`) slices than `wip_limit`;
+- a slice started while an earlier slice is neither `complete` nor `blocked`;
+- a slice without `player_outcome` or `proof`;
+- a `complete` slice without image, video or `docs/playtests/` evidence;
+- an open milestone that is not a slice, `LATER`, or absorbed into one of them;
+- an open gate that does not belong to exactly one slice;
+- unknown references, statuses or evidence paths.
+
+`checkpoint.source` records the latest scoped source-validation evidence;
+`checkpoint.delivered` records the exact published platform builds separately.
+Local changes do not become delivered merely because the dashboard is refreshed.
+
 The manifest contains `milestones` and `gates`. Each has an `id`, `title`,
 `status`, `summary`, and `evidence` entries shaped as `{path, label}`. Milestones
 also have a `phase`, `tasks`, and `acceptance` criteria. Task statuses and
@@ -76,9 +105,32 @@ milestone statuses are one of `complete`, `in_progress`, `needs_review`,
 counts completed tasks and pending reviews; it is not a percentage of game or
 release readiness.
 
+Every stage, milestone, gate and task has a permanent, globally unique `id`:
+stages `STAGE_<NAME>`, milestones `[A-Z][A-Z0-9_]*`, gates `GATE_<NAME>`, and tasks
+`<milestone>.<n>` (for example `SURVIVAL_SAVE.4`). The page shows each ID as a
+badge that copies it on click, the search box finds roadmap items by ID or title,
+and `#view=roadmap&id=<ID>` opens and highlights any item. IDs are never
+renumbered or reused; the builder rejects missing, duplicate, mis-parented, or
+wrongly prefixed IDs.
+
 Recorded tests retain their original evidence dates. Refreshing the dashboard
 does not run tests, validate an executable, or establish operator acceptance.
 The page labels source modification dates separately from validation claims.
+
+## GitHub issues mirror
+
+`tools/sync_github_issues.py` mirrors the EA plan to the repository's GitHub issues with
+the authenticated `gh` CLI: one milestone per slice (`EA03 — One complete expedition`,
+description = player outcome, proof, out of scope, gates) and one issue per task
+(`[EA03.2] …`, label `ea-plan`, a `status: …` label while in progress, in review or
+blocked, closed when complete). The roadmap stays the source of truth; re-running the
+script updates GitHub to match it and creates nothing twice. Issues of removed tasks are
+closed as not planned.
+
+```sh
+python3 tools/sync_github_issues.py --dry-run   # show changes
+python3 tools/sync_github_issues.py             # apply them
+```
 
 ## Local or GitHub Pages?
 
@@ -114,6 +166,12 @@ package installation or network request is needed by a reader. Raw source
 HTML is escaped and document links are restricted to supported destinations;
 documentation is not executed as application code. The interface, styles,
 and original ship icon are repository-authored.
+
+The knowledge-graph view embeds a locally vendored copy of **vis-network 9.1.6**,
+under the Apache-2.0 OR MIT license. Its [license](vendor/LICENSE.vis-network)
+and [version record](vendor/VERSION) are retained; the builder inlines the
+script into `knowledge-graph.html` (generated and Git-ignored) so the view
+needs no CDN either.
 
 ## Browser check
 
