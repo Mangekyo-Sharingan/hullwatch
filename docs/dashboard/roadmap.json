@@ -3330,6 +3330,29 @@
               "label": "EA slice decisions 2026-10-15"
             }
           ]
+        },
+        {
+          "id": "LATER.10",
+          "title": "Hands-on model revamp: twelve models rebuilt with believable faceted detail on unchanged footprints (operator-requested 2026-10-15; outside the EA slice list)",
+          "status": "needs_review",
+          "evidence": [
+            {
+              "path": "docs/playtests/LATER10/play_note.md",
+              "label": "What changed, contracts verified, checks run and known limits"
+            },
+            {
+              "path": "docs/playtests/LATER10/in_game_tools_before_after.png",
+              "label": "Multimeter, scanner, wrench and sealant before and after in the game's own lighting"
+            },
+            {
+              "path": "docs/playtests/LATER10/in_game_after.png",
+              "label": "All twelve models in the running game"
+            },
+            {
+              "path": "docs/playtests/LATER10/models_before_after_2.png",
+              "label": "Cutter, canister, probe and manual stand before and after"
+            }
+          ]
         }
       ],
       "acceptance": [
