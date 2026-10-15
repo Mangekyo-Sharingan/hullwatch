@@ -13,6 +13,7 @@ const HOLD_OFFSET: Vector3 = Vector3(0.32, -0.26, -0.55)
 const DROP_DISTANCE_M: float = 1.1
 const DROP_FALLBACK_DISTANCE_M: float = 1.0
 const DROP_FALLBACK_LIFT_M: float = 0.3
+const DROP_OBSTACLE_MARGIN_M: float = 0.2
 const TETHER_ATTACH_RANGE: float = 6.0
 const SEATED_HEAD_Y: float = 1.18
 const SEATED_RAY_LENGTH: float = 3.6
@@ -752,7 +753,22 @@ func _compute_drop_transform(item: Node) -> Transform3D:
 		reach = Vector3.ZERO
 	else:
 		reach = reach.normalized()
-	return Transform3D(basis, global_position + up * DROP_FALLBACK_LIFT_M + reach * DROP_FALLBACK_DISTANCE_M)
+	var target: Vector3 = global_position + up * DROP_FALLBACK_LIFT_M + reach * DROP_FALLBACK_DISTANCE_M
+	# why: a fixed reach can land inside or behind shelving when the operator stands close to it,
+	# stranding the tool where no interaction ray can reach it; stop short of the first obstacle.
+	if space_state != null and reach != Vector3.ZERO:
+		var chest: Vector3 = global_position + up * DROP_FALLBACK_LIFT_M
+		var clearance: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(chest, target)
+		var blockers: Array[RID] = [get_rid()]
+		var held: CollisionObject3D = item as CollisionObject3D
+		if held != null:
+			blockers.append(held.get_rid())
+		clearance.exclude = blockers
+		var blocked: Dictionary = space_state.intersect_ray(clearance)
+		if not blocked.is_empty():
+			var stop: float = maxf(chest.distance_to(blocked["position"]) - DROP_OBSTACLE_MARGIN_M, 0.0)
+			target = chest + reach * stop
+	return Transform3D(basis, target)
 
 
 func _emit_sim_event(event_name: StringName, payload: Dictionary = {}) -> void:

@@ -11,14 +11,14 @@ SCANNER. Logs system wear and condition percentages. A scan is inspection, not f
 
 EXTERNAL HARDWARE REFIT
   1  Diagnose a fault with the multimeter (or scan routine wear).
-  2  At a terminal, open SHIP CONTROL / POWER. Switch OFF the service breaker named below or by the probe; SHED is not isolation.
+  2  Open SHIP CONTROL / POWER at the cupola wall terminal: go through the cockpit hatch, press E at the pilot seat to sit, aim at the wall terminal and press E. Switch OFF the service breaker named below or by the probe; SHED is not isolation. Press X to leave the seat. (LIGHTING alone can also be switched at the storage breaker panel.)
   3  Carry the wrench to that system's probe and press E.
   4  Select OPEN [component] COVER.
   5  Select REFIT [component]. One gasket is drawn from stores; the listed service time passes while all systems keep running.
   6  Select CLOSE [component] COVER. Dismiss with E/Esc.
-  7  Restore the breaker in SHIP CONTROL / POWER. Check STATUS: failure cleared, service restored, readings recovering. A refit improves condition; it does not make old hardware new.
+  7  Return to the same terminal and restore the breaker. Check STATUS: failure cleared, service restored, readings recovering. A refit improves condition; it does not make old hardware new.
 
-SERVICE BREAKERS. LIGHTING BALLAST: LIGHTING. WATER PUMP MAIN and HEATER MAIN: LIFE SUPPORT (keep this outage short; heat and other essential loads lose power). SCRUBBER BLOWER: SCRUBBER. RTG and BATTERY: ALL bus breakers OFF, not just lighting. HULL seam fittings: no service breaker.
+SERVICE BREAKERS. LIGHTING BALLAST: LIGHTING. WATER PUMP MAIN and HEATER MAIN: LIFE SUPPORT (the heater loses power while it is off: fetch the wrench BEFORE switching it off, then go straight to the probe and restore it promptly. The ship cools quickly but recovers within hours). SCRUBBER BLOWER: SCRUBBER. RTG and BATTERY: ALL bus breakers OFF, not just lighting. HULL seam fittings: no service breaker.
 
 STOCK. Check STORES before opening equipment. Refits use one gasket each, automatically from inventory, not a carried loose part. Missing gasket: use the engine-bay fabricator's gasket recipe if materials remain.
 

@@ -82,6 +82,7 @@ func _run() -> void:
 	_check(not player.consume_carried(), "consume_carried is a no-op with an empty slot")
 	_check(player.drop_carried() == null, "drop_carried with nothing carried returns null")
 
+	await _test_drop_beside_shelf(player)
 	player.free()
 	first.free()
 	hud.free()
@@ -124,6 +125,40 @@ func _test_carriable_contract() -> void:
 
 	item.free()
 	holder.free()
+
+
+## A tool dropped while facing nearby shelving must stay in reach, not inside the shelf's collision.
+func _test_drop_beside_shelf(player: CharacterBody3D) -> void:
+	var shelf: StaticBody3D = StaticBody3D.new()
+	var shelf_shape: CollisionShape3D = CollisionShape3D.new()
+	var shelf_box: BoxShape3D = BoxShape3D.new()
+	shelf_box.size = Vector3(0.4, 1.8, 0.98)
+	shelf_shape.shape = shelf_box
+	shelf.add_child(shelf_shape)
+	root.add_child(shelf)
+	shelf.global_position = Vector3(10.0, 0.95, 0.0)
+	var tool: Carriable = _make_carriable(&"multimeter", "Multimeter", Vector3(8.0, 0.0, 0.0))
+	player.global_position = Vector3(9.3, 0.0, 0.0)
+	player.rotation = Vector3(0.0, -PI * 0.5, 0.0)
+	player.get_node("Head").rotation.x = -0.35
+	await physics_frame
+	await physics_frame
+	_check(player.take_carriable(tool), "shelf drop: tool can be taken")
+	player.drop_carried()
+	await physics_frame
+	var query: PhysicsPointQueryParameters3D = PhysicsPointQueryParameters3D.new()
+	query.position = tool.global_position
+	query.collision_mask = 1
+	query.exclude = [tool.get_rid(), player.get_rid()]
+	_check(player.get_world_3d().direct_space_state.intersect_point(query, 1).is_empty(), "shelf drop: dropped tool is not inside the shelf collision")
+	var ray: RayCast3D = player.get_node("Head/Camera3D/InteractRay") as RayCast3D
+	player.get_node("Head").look_at(tool.global_position, Vector3.UP)
+	ray.force_raycast_update()
+	_check(ray.get_collider() == tool, "shelf drop: interaction ray reaches the tool before the shelf")
+	tool.free()
+	shelf.free()
+	player.rotation = Vector3.ZERO
+	player.get_node("Head").rotation = Vector3.ZERO
 
 
 func _make_carriable(id: StringName, name: String, position: Vector3) -> Carriable:
