@@ -1,13 +1,13 @@
 {
   "title": "Hullwatch — factual roadmap and acceptance gates",
   "updated": "2026-10-15",
-  "summary": "EA build plan adopted 2026-10-15 (freeze & finish). The systems exist; what is missing is a game a stranger can finish a session of: early-watch pacing, one complete expedition, proven month-long survival, the prior-crew narrative, felt cognition, real machine audio, finished visuals, real-hardware acceptance and the spec's three-day external playtest. Twelve ordered slices EA01–EA12 replace the open Alpha/Beta milestones, which are absorbed into them. Published October 13 Windows/Deck playtests are unchanged.",
+  "summary": "Freeze & finish. Everything that does not need the operator in EA01–EA02 is done: EA02.1–EA02.3 are implemented and verified on normal input through three days, three agent-found defects are fixed (EA02.5–EA02.7), and an unpublished Windows candidate is exported from a committed tree. Still operator-only: native Windows startup (EA01.1), the baseline play and verdicts (EA01.2–EA01.3), and day-one acceptance (EA02.4). EA01 stays blocked on those; nothing is accepted. Published October 13 Windows/Deck builds are unchanged.",
   "milestones": [
     {
       "id": "EA01",
       "phase": "EA build plan",
       "title": "Baseline watch and review verdicts",
-      "status": "planned",
+      "status": "blocked",
       "summary": "Play the current build once end-to-end and give every pending review a verdict, so the plan starts from what a player actually gets rather than from suite counts.",
       "player_outcome": "The operator plays a fresh export from NEW WATCH through the second wake, one EVA and a save/load, and every needs-review item has an accept, reject or later verdict.",
       "proof": "A play note in docs/playtests/EA01/ with a capture of every blocker found.",
@@ -20,8 +20,13 @@
         {
           "id": "EA01.1",
           "title": "Export the current source as a Windows playtest build and confirm it starts on native Windows",
-          "status": "planned",
-          "evidence": []
+          "status": "in_progress",
+          "evidence": [
+            {
+              "path": "docs/playtests/EA01/play_note.md",
+              "label": "Unpublished candidate exported from committed source 6909821 (99/99 source sweep, 18/18 packed checks, packaged NEW WATCH render); native Windows startup not performed"
+            }
+          ]
         },
         {
           "id": "EA01.2",
@@ -38,22 +43,36 @@
         {
           "id": "EA01.4",
           "title": "Turn every finding and rejected review into a task on EA02–EA12; no new slices",
-          "status": "planned",
-          "evidence": []
+          "status": "in_progress",
+          "evidence": [
+            {
+              "path": "docs/playtests/EA02/play_note.md",
+              "label": "Agent-found findings recorded as EA02.5–EA02.7 (fixed); operator-reported findings and verdicts still to come"
+            }
+          ]
         }
       ],
       "acceptance": [
         "The operator plays a fresh export from NEW WATCH through the second wake, one EVA and a save/load, and every needs-review item has an accept, reject or later verdict.",
         "Operator accepts from the proof: a play note in docs/playtests/EA01/ with a capture of every blocker found."
       ],
-      "evidence": []
+      "evidence": [
+        {
+          "path": "docs/playtests/EA01/play_note.md",
+          "label": "2026-10-15 normal-input EVA/return/save-load route, candidate build details, pending-review inventory and remaining operator-only gates"
+        },
+        {
+          "path": "docs/playtests/EA01/packaged_new_watch.png",
+          "label": "Packaged candidate NEW WATCH render (Linux renderer, not native Windows)"
+        }
+      ]
     },
     {
       "id": "EA02",
       "phase": "EA build plan",
       "title": "Text orientation and first-day pacing",
-      "status": "planned",
-      "summary": "Replace the synthesized voice with diegetic text and make day one teach the ship through a real fault.",
+      "status": "needs_review",
+      "summary": "Text-only board, terminal handover and readable manual implemented. Default fresh-watch simulation produces repairable faults on days 1, 2 and 3; real tools/probe menus and eight-hour sleeps exercised. Operator day-one acceptance remains pending.",
       "player_outcome": "A new player learns the ship on day one from diegetic text — the warning board, the manual and terminal notices — with no voice, and day one gives them at least one real fault to diagnose and fix.",
       "proof": "Captures of every orientation surface and a play note of a fresh day one.",
       "out_of_scope": [
@@ -65,33 +84,102 @@
         {
           "id": "EA02.1",
           "title": "Replace the voice orientation with diegetic text on the board, manual and terminal; remove the TTS lines, their generator and the AGENTS.md voice command",
-          "status": "planned",
-          "evidence": []
+          "status": "needs_review",
+          "evidence": [
+            {
+              "path": "docs/playtests/EA02/play_note.md",
+              "label": "NEW WATCH board/manual/terminal captures; voice assets, generator, overlay, system and AGENTS command removed; legacy save migration verified"
+            }
+          ]
         },
         {
           "id": "EA02.2",
           "title": "Tune early-watch fault pacing in data so each of the first three days presents a diagnosable fault (M4.6)",
-          "status": "planned",
-          "evidence": []
+          "status": "needs_review",
+          "evidence": [
+            {
+              "path": "docs/playtests/EA02/play_note.md",
+              "label": "Occupied 72-hour run: ballast at 6.023h, pump at 28.055h, heater at 52.363h; actual tool/probe repairs consume three stocked gaskets; no repeats through third sleep"
+            }
+          ]
         },
         {
           "id": "EA02.3",
           "title": "Manual pages match every procedure the player meets in the first three days",
-          "status": "planned",
-          "evidence": []
+          "status": "needs_review",
+          "evidence": [
+            {
+              "path": "docs/playtests/EA02/play_note.md",
+              "label": "Six procedure/orientation pages corrected against live interactions; wrapped scrolling binder verified at 1280×800 with 100% and 140% text"
+            }
+          ]
         },
         {
           "id": "EA02.4",
           "title": "Operator plays a fresh day one and accepts",
           "status": "planned",
           "evidence": []
+        },
+        {
+          "id": "EA02.5",
+          "title": "Selecting an empty NEW WATCH slot with real input no longer raises a null-viewport script error as the menu detaches",
+          "status": "needs_review",
+          "evidence": [
+            {
+              "path": "docs/playtests/EA02/play_note.md",
+              "label": "Found by normal-input route; ScrollMenu suite pushes real viewport input (red before, green after)"
+            }
+          ]
+        },
+        {
+          "id": "EA02.6",
+          "title": "Warning board no longer demands diagnosis for healthy scanned equipment",
+          "status": "needs_review",
+          "evidence": [
+            {
+              "path": "docs/playtests/EA02/saved-06-fixed-healthy-board.png",
+              "label": "Healthy scanned components read NO DIAGNOSED FAULT on the real board"
+            }
+          ]
+        },
+        {
+          "id": "EA02.7",
+          "title": "A tool dropped beside shelving stays reachable instead of landing inside or behind the shelf; SHIP CONTROL's seated route documented in the manual",
+          "status": "needs_review",
+          "evidence": [
+            {
+              "path": "docs/playtests/EA02/play_note.md",
+              "label": "Drop regression in test_carry (red before, green after); days two and three repaired on normal input including seated terminal isolation"
+            },
+            {
+              "path": "docs/playtests/EA02/manual_diagnostics_refit.png",
+              "label": "Updated DIAGNOSTICS refit steps in the binder"
+            }
+          ]
         }
       ],
       "acceptance": [
         "A new player learns the ship on day one from diegetic text — the warning board, the manual and terminal notices — with no voice, and day one gives them at least one real fault to diagnose and fix.",
         "Operator accepts from the proof: captures of every orientation surface and a play note of a fresh day one."
       ],
-      "evidence": []
+      "evidence": [
+        {
+          "path": "docs/playtests/EA02/play_note.md",
+          "label": "2026-10-15 agent-operated source play note, scoped checks and explicit operator acceptance limits"
+        },
+        {
+          "path": "docs/playtests/EA02/warning_board.png",
+          "label": "Quarters board standing orders"
+        },
+        {
+          "path": "docs/playtests/EA02/operator_handover.png",
+          "label": "Diegetic terminal handover notice"
+        },
+        {
+          "path": "docs/playtests/EA02/manual_large_text.png",
+          "label": "Galley manual diagnostics at 140% text"
+        }
+      ]
     },
     {
       "id": "EA03",

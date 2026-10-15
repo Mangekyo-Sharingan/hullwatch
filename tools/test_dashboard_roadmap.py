@@ -46,7 +46,7 @@ def main() -> None:
     validate_roadmap(skipped)
     for message, mutate in (
         ("More than 0 active", lambda r: (r["ea_plan"].update(wip_limit=0), piece(r, "EA01").update(status="in_progress"))),
-        ("started before EA01", lambda r: piece(r, "EA02").update(status="in_progress")),
+        ("started before EA01", lambda r: (piece(r, "EA01").update(status="planned"), piece(r, "EA02").update(status="in_progress"))),
         ("without image, video or play-note proof", lambda r: piece(r, "EA01").update(
             status="complete", evidence=[{"path": "docs/PRODUCTION_SPEC.md", "label": "Document"}])),
         ("needs a player_outcome", lambda r: piece(r, "EA05").pop("player_outcome")),
