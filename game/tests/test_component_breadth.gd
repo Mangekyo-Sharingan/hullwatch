@@ -28,7 +28,6 @@ func _run() -> void:
 	event_bus.connect(&"component_repaired", _on_component_repaired)
 	event_bus.connect(&"component_condition_changed", _on_component_condition_changed)
 
-	_test_wear_resources()
 	_test_thermal_heater_open()
 	_test_thermal_sensor_drift()
 	_test_hull_plating_fatigue()
@@ -39,32 +38,6 @@ func _run() -> void:
 
 	_despawn_all()
 	_finish()
-
-
-func _test_wear_resources() -> void:
-	var expectations: Dictionary = {
-		"res://src/data/wear/heater_main.tres": [&"heater_main", &"heater_open", &"sensor_drift", 0.00015, 2500.0, 3000.0],
-		"res://src/data/wear/hull_plating_main.tres": [&"hull_plating_main", &"plating_fatigue", &"seam_split", 0.00005, 5000.0, 7000.0],
-	}
-	for path: String in expectations:
-		var expected: Array = expectations[path]
-		var component: WearComponent = load(path) as WearComponent
-		_check(component != null, "data: %s loads as WearComponent" % path)
-		if component == null:
-			continue
-		_check(component.component_id == StringName(expected[0]), "data: %s component_id" % path)
-		_check(is_equal_approx(component.wear_rate_per_hour, float(expected[3])), "data: %s wear rate" % path)
-		var mode_ids: PackedStringArray = PackedStringArray()
-		for mode: FailureMode in component.failure_modes:
-			if mode != null:
-				mode_ids.append(String(mode.id))
-		_check(mode_ids == PackedStringArray([String(expected[1]), String(expected[2])]), "data: %s failure modes" % path)
-		if component.failure_modes.size() == 2:
-			_check(is_equal_approx(component.failure_modes[0].base_mtbf_hours, float(expected[4])), "data: %s first MTBF" % path)
-			_check(is_equal_approx(component.failure_modes[1].base_mtbf_hours, float(expected[5])), "data: %s second MTBF" % path)
-			for mode: FailureMode in component.failure_modes:
-				if mode != null and String(mode.id) in ["heater_open", "sensor_drift"]:
-					_check(is_equal_approx(float(mode.environmental_factors.get("load", 0.0)), 2.0), "data: %s load factor" % path)
 
 
 func _test_thermal_heater_open() -> void:

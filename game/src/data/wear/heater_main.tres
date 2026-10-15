@@ -8,6 +8,7 @@ script = ExtResource("2")
 id = &"heater_open"
 display_name = "Heater Open Circuit"
 base_mtbf_hours = 2500.0
+max_condition = 0.35
 environmental_factors = {
 "load": 2.0
 }
@@ -18,7 +19,8 @@ symptoms = Array[StringName]([&"no_heat", &"cold_cabin"])
 script = ExtResource("2")
 id = &"sensor_drift"
 display_name = "Thermostat Sensor Drift"
-base_mtbf_hours = 3000.0
+base_mtbf_hours = 2.0
+max_condition = 0.7
 environmental_factors = {
 "load": 2.0
 }
@@ -29,6 +31,8 @@ resource_local_to_scene = true
 script = ExtResource("1")
 component_id = &"heater_main"
 display_name = "Cabin Heater"
+condition = 0.7078
+hours_operated = 1948.0
 wear_rate_per_hour = 0.00015
 failure_modes = Array[ExtResource("2")]([SubResource("FailureMode_heater_open"), SubResource("FailureMode_sensor_drift")])
 service_circuit = &"life_support"

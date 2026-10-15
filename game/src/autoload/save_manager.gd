@@ -2,14 +2,14 @@
 ## Autoload name: SaveManager. No class_name on purpose — it would conflict with the autoload.
 extends Node
 
-const SAVE_VERSION: int = 10
+const SAVE_VERSION: int = 11
 const SAVE_DIR: String = "user://saves"
 const SLOT_COUNT: int = 3
 const GAME_SCENE: String = "res://scenes/main.tscn"
 const MENU_SCENE: String = "res://scenes/main_menu.tscn"
 ## module_system loads first so module compartments exist before the life-support systems merge
 ## their saved per-compartment state into them.
-const SYSTEM_GROUPS: Array[StringName] = [&"module_system", &"salvage_system", &"power_system", &"atmosphere_system", &"stores_system", &"thermal_system", &"hull_system", &"nav_system", &"vitals_system", &"water_system", &"comms_system", &"airlock_system", &"sector_system", &"cargo_system", &"fabricator_system", &"computer_system", &"voice_guide_system"]
+const SYSTEM_GROUPS: Array[StringName] = [&"module_system", &"salvage_system", &"power_system", &"atmosphere_system", &"stores_system", &"thermal_system", &"hull_system", &"nav_system", &"vitals_system", &"water_system", &"comms_system", &"airlock_system", &"sector_system", &"cargo_system", &"fabricator_system", &"computer_system"]
 
 var _last_error: String = ""
 var _meta: Dictionary = {}
@@ -640,7 +640,7 @@ func _valid_system_records(systems: Dictionary) -> bool:
 	for field: String in ["arrived", "unread", "sent"]:
 		if not _valid_string_list(comms.get(field, [])):
 			return false
-	return _valid_string_list((systems.get("voice_guide", {}) as Dictionary).get("completed_steps", []))
+	return true
 
 
 func _valid_bool_map(value: Variant) -> bool:
@@ -740,6 +740,15 @@ func _migrate(data: Dictionary) -> Dictionary:
 			sector["survey_records"] = sector.get("survey_records", {})
 			sector["state_version"] = 3
 		data["save_version"] = 10
+		version = 10
+	if version == 10:
+		var systems: Dictionary = data.get("systems", {})
+		systems.erase("voice_guide")
+		var interactables: Dictionary = data.get("interactables", {})
+		for key: Variant in interactables.keys():
+			if String(key).ends_with("/Systems/VoiceGuideSystem"):
+				interactables.erase(key)
+		data["save_version"] = 11
 	return data
 
 

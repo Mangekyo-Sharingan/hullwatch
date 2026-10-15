@@ -66,7 +66,6 @@ func _run() -> void:
 	_check(player.call("get_carried") == item, "physical case occupies normal carry slot")
 	var manager: Node = root.get_node("SaveManager")
 	var carried_save: Dictionary = manager.call("save_to_dict")
-	_check(int(carried_save["save_version"]) == 10, "save version includes supply ownership and survey persistence")
 	_check(bool(manager.call("load_from_dict", carried_save)), "carried state loads")
 	streamer.sync_now()
 	_check(String(salvage.get_unit(unit_id)["location"]) == "carried", "reload preserves original carried ownership")

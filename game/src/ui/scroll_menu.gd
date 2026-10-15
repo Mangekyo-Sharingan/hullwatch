@@ -160,8 +160,10 @@ func _gui_input(event: InputEvent) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if not is_open():
 		return
+	# Selection can synchronously replace the scene and detach this menu.
+	var viewport: Viewport = get_viewport()
 	if _handle_event(event):
-		get_viewport().set_input_as_handled()
+		viewport.set_input_as_handled()
 
 
 func _handle_event(event: InputEvent) -> bool:

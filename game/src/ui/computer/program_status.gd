@@ -16,6 +16,9 @@ func build_readout(terminal: Node) -> PackedStringArray:
 	else:
 		lines.append("CLOCK OFFLINE")
 	lines.append("")
+	lines.append("STANDING NOTICE: SHIP LOG > OPERATOR HANDOVER")
+	lines.append("QUARTERS: WARNING BOARD. GALLEY: MANUAL / STATUS PANEL.")
+	lines.append("")
 	lines.append_array(_power_lines(terminal))
 	lines.append("")
 	lines.append_array(_atmosphere_lines(terminal))

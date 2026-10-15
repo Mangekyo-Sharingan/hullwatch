@@ -4,6 +4,8 @@ DATA_LOGS_LOG_01_02,MAINTENANCE LOG  -  K. VOSS
 DATA_LOGS_LOG_01_03,"Filter swap logged 02:40. Fourth this month; the duty cycle says two. I ran the carbon budget twice and got the same answer both times, which is the problem.\n\nTold control. That was eleven weeks ago. The ack came back in nine minutes and nothing since. The queue shows my message delivered, so it is not a comms fault.\n\nI am not writing down what I think it means. If the next rotation asks me anything, I would tell them: watch the filter count."
 DATA_LOGS_LOG_02_01,DAY 0289  -  21:40 SHIP TIME
 DATA_LOGS_LOG_02_02,SURVEY NOTE  -  K. VOSS
+DATA_LOGS_OPERATOR_HANDOVER_01,CONATUS FINITUS / STANDING ORDERS
+DATA_LOGS_OPERATOR_HANDOVER_02,OPERATOR HANDOVER
 DATA_MANUAL_PAGE_COMMS_01,COMMS
 DATA_MANUAL_PAGE_COMMS_02,TRAFFIC TAKES WEEKS. The terminal queues outbound messages and files replies when they arrive. A reply may never come. Plan as if it will not.\n\nSENDING. Select a draft on the left to transmit it. Status reports are routine and usually answered. Questions are not.\n\nREADING. Unread traffic is marked with an asterisk. Highlight a message to read it.\n\nDo not wait on the radio. The ship does not.
 DATA_MANUAL_PAGE_DAMAGE_CONTROL_01,DAMAGE CONTROL
@@ -18,7 +20,6 @@ DATA_MANUAL_PAGE_PROPULSION_01,PROPULSION
 DATA_MANUAL_PAGE_SYMPTOMS_01,SYMPTOMS
 DATA_MANUAL_PAGE_SYMPTOMS_02,"CO2 (ppm)\n   5000   headache; reading numbers takes longer.\n  15000   judgement slips; check your work twice.\n  25000   breathing damage begins. Leave or fix it.\n\nO2\n  below 16 percent: slow thinking, then unconsciousness.\n  below 10 percent: minutes.\n\nCOLD\n  below 10 C: clumsy hands.\n  below  3 C: exposure damage.\n\nRATIONS\n  the galley draws one ration per crew per day.\n  at zero stock you starve; water runs out first.\n\nIf you feel fine, you are probably not. Read the panel."
 DATA_MANUAL_PAGE_THERMAL_01,THERMAL
-DATA_MANUAL_PAGE_THERMAL_02,"The module loses heat to the exterior, which runs near -60 C. The heater runs on LIFE SUPPORT and holds the cabin near 21 C.\n\nIf the heater loses power the cabin cools fast. Below 10 C you lose dexterity. Below 3 C exposure becomes dangerous. Pipes freeze near 1 C.\n\nIf you return to a cold module: restore life support first, then wait. The heater is not fast. Dress the wound before you clean the tools."
 INTERACTABLES_AIRLOCK_PANEL_01,Close panel
 INTERACTABLES_AIRLOCK_PANEL_02,Airlock controls
 INTERACTABLES_APPROACH_CONSOLE_01,Close board
@@ -72,14 +73,6 @@ INTERACTABLES_SUIT_LOCKER_02,EVA suit locker
 INTERACTABLES_WALL_COMPUTER_02,Use terminal
 INTERACTABLES_WATER_RECLAIMER_01,Close water reclaimer
 INTERACTABLES_WATER_RECLAIMER_02,Use water reclaimer
-UI_GUIDE_OVERLAY_01,[ VOCAL ADVISORY // ORIENTATION ]
-UI_GUIDE_OVERLAY_02,● AUDIO COMM
-UI_GUIDE_OVERLAY_03,▶ OBJECTIVE: STANDBY
-UI_GUIDE_OVERLAY_06,STANDBY
-UI_GUIDE_OVERLAY_07,✔ COMPLETED
-UI_GUIDE_OVERLAY_08,[ ORIENTATION PROTOCOL FINISHED ]
-UI_GUIDE_OVERLAY_09,OFFLINE
-UI_GUIDE_OVERLAY_10,ALL SYSTEMS TRANSFERRED TO OPERATOR
 UI_HUD_05,PILOT STATION    [X] LEAVE SEAT
 UI_SESSION_MENU_03,NO VALID WATCH TO CONTINUE
 UI_SESSION_MENU_04,THIS SLOT HAS NO VALID WATCH

@@ -15,7 +15,6 @@ var _deploy_requested: bool = false
 var _screen_view: SubViewport
 var _focus_camera: Camera3D
 var _player_camera: Camera3D
-var _readout_scroll: ScrollContainer
 var _operator: Node
 var _operator_physics: bool = false
 var _operator_input: bool = false
@@ -97,7 +96,7 @@ func _on_terminal_opened() -> void:
 	if _focus_camera != null:
 		_player_camera = get_viewport().get_camera_3d()
 		_focus_camera.make_current()
-		for node_name: String in ["HUD", "Messages", "Message", "GuideOverlay", "Indicators"]:
+		for node_name: String in ["HUD", "Messages", "Message", "Indicators"]:
 			var node: Node = get_tree().root.find_child(node_name, true, false)
 			if node is CanvasLayer or node is CanvasItem:
 				_hidden_layers[node] = bool(node.get("visible"))

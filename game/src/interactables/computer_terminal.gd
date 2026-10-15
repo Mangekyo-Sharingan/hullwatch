@@ -36,6 +36,7 @@ var _menu: ScrollMenu
 var _content: Label
 var _root: HBoxContainer
 var _ui: CanvasLayer
+var _readout_scroll: ScrollContainer
 var _open: bool = false
 var _refresh_accumulator: float = 0.0
 var _physical_screen: CrtScreen
@@ -126,6 +127,8 @@ func select_action(action: StringName) -> bool:
 		if program != null:
 			changed = program.select_action(self, action)
 	_refresh_menu()
+	if _readout_scroll != null:
+		_readout_scroll.scroll_vertical = 0
 	_refresh_content()
 	return changed
 
@@ -186,6 +189,10 @@ func _handle_interact(_player: Node) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if PanelDismiss.should_dismiss(event, is_open()):
 		close()
+		get_viewport().set_input_as_handled()
+	elif is_open() and event is InputEventKey and event.pressed and event.keycode in [KEY_PAGEUP, KEY_PAGEDOWN]:
+		var direction: int = 1 if event.keycode == KEY_PAGEDOWN else -1
+		_readout_scroll.scroll_vertical += direction * int(_readout_scroll.size.y * 0.8)
 		get_viewport().set_input_as_handled()
 
 
@@ -287,6 +294,8 @@ func _on_highlighted(index: int) -> void:
 		_preview = &""
 		if program != null:
 			program.set_highlighted_action(self, item["id"])
+	if _readout_scroll != null:
+		_readout_scroll.scroll_vertical = 0
 	_refresh_content()
 
 
@@ -330,7 +339,7 @@ func _ensure_ui() -> void:
 	_menu.name = "Programs"
 	row.add_child(_menu)
 	_menu.setup(terminal_title, PackedStringArray(["(NO PROGRAMS)"]))
-	_menu.set_hint("WHEEL: BROWSE    CLICK: SELECT    E/ESC: CLOSE")
+	_menu.set_hint("WHEEL: BROWSE    CLICK: SELECT\nPGUP/PGDN: TEXT    E/ESC: CLOSE")
 	_menu.option_selected.connect(_on_selected)
 	_menu.option_highlighted.connect(_on_highlighted)
 	var panel := PanelContainer.new()
@@ -344,6 +353,7 @@ func _ensure_ui() -> void:
 	panel.add_theme_stylebox_override("panel", style)
 	row.add_child(panel)
 	var scroll := ScrollContainer.new()
+	_readout_scroll = scroll
 	scroll.name = "ReadoutScroll"
 	scroll.custom_minimum_size = Vector2(420.0, 400.0)
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED

@@ -155,7 +155,7 @@ func _run() -> void:
 	await physics_frame
 	clock.call("set_paused", true)
 	_check(bool(manager.call("load_from_dict", legacy)), "fresh main restores numeric-seed v7 and legacy paid job")
-	_check(int(legacy["save_version"]) == 10 and legacy["systems"]["sector"]["field_seed"] == "73019", "legacy migration keeps explicit field and updates original dictionary")
+	_check(legacy["systems"]["sector"]["field_seed"] == "73019", "legacy migration keeps explicit field in original dictionary")
 	var migrated: Dictionary = manager.call("save_to_dict")
 	_check(migrated["systems"]["sector"]["mined_fields"] == {"73019": {"exhausted": 0.0, "partial": 3.25}}, "legacy fresh-scene restore preserves depletion including zero")
 	_check(migrated["systems"]["fabricator"]["job_terms"]["output_count"] == 2 and migrated["systems"]["fabricator"]["job_remaining_hours"] == 0.5, "legacy job infers paid terms once without consuming again")

@@ -32,10 +32,6 @@ func _run() -> void:
 	for layer: Node in _main.find_children("*", "CanvasLayer", true, false):
 		if layer.name != &"AnalogueFilter":
 			(layer as CanvasLayer).visible = false
-	var bus: Node = root.get_node("EventBus")
-	var callback: Callable = Callable(_main.get_node("UI/GuideOverlay"), "_on_sim_event")
-	if bus.is_connected(&"sim_event", callback):
-		bus.disconnect(&"sim_event", callback)
 	_camera = Camera3D.new()
 	_camera.near = 0.05
 	_camera.fov = 80.0

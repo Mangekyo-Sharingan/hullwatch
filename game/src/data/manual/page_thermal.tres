@@ -9,4 +9,6 @@ body = "The module loses heat to the exterior, which runs near -60 C. The heater
 
 If the heater loses power the cabin cools fast. Below 10 C you lose dexterity. Below 3 C exposure becomes dangerous. Pipes freeze near 1 C.
 
-If you return to a cold module: restore life support first, then wait. The heater is not fast. Dress the wound before you clean the tools."
+If you return to a cold module: restore life support first, then watch the temperature trend. The heater is not fast.
+
+HEATER FAULT. Carry the multimeter to the engine-bay THERMAL probe and press E; check STATUS for HEATER MAIN. Sensor drift as well as an open heater needs service. In SHIP CONTROL / POWER turn LIFE SUPPORT OFF. Carry the wrench to THERMAL: OPEN HEATER MAIN COVER, REFIT HEATER MAIN (one gasket from stores; service time passes), CLOSE HEATER MAIN COVER. Restore LIFE SUPPORT and verify the fault cleared and cabin temperature recovers. See DIAGNOSTICS. Keep the essential-service outage short."

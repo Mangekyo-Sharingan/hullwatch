@@ -87,10 +87,6 @@ Get-ChildItem game/tests/test_*.gd | ForEach-Object { & ".\Engine\Godot_v4.7.2-s
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tools/build_ship_geometry.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tools/build_world_layout.gd
 
-# Regenerate Subnautica PDA-style voice lines (requires edge-tts and ffmpeg)
-python game/tools/generate_voice_lines.py
-
-
 # Capture in-game screenshots for review/store (WINDOWED — rendering required; writes to user://captures)
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --path game --resolution 1600x900 --script res://tools/capture_screenshots.gd
 

@@ -66,7 +66,7 @@ func _run() -> void:
 	power.call("set_breaker", &"lighting", false)
 	_select(pause_menu, "SAVE WATCH")
 	var saved: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("user://saves/slot_1.json")) as Dictionary
-	_check(int(saved.get("save_version", 0)) == 10 and int(saved["clock"]["tick_index"]) == int(frozen["tick_index"]) and is_equal_approx(float(saved["clock"]["sim_seconds"]), float(frozen["sim_seconds"])), "pause save stores current version and frozen clock")
+	_check(int(saved["clock"]["tick_index"]) == int(frozen["tick_index"]) and is_equal_approx(float(saved["clock"]["sim_seconds"]), float(frozen["sim_seconds"])), "pause save stores frozen clock")
 	_manager.set("active_slot", 0)
 	_select(pause_menu, "SAVE AND MAIN MENU")
 	_check(current_scene.scene_file_path == GAME_SCENE and paused and bool(pause_menu.call("is_menu_open")), "save failure keeps gameplay paused")

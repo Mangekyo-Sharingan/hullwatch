@@ -9,6 +9,7 @@ const BASE_FONT_SIZE: int = 15
 var _menu: ScrollMenu
 var _content: Label
 var _root: HBoxContainer
+var _scroll: ScrollContainer
 
 
 func _ready() -> void:
@@ -34,6 +35,10 @@ func close() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if PanelDismiss.should_dismiss(event, is_open()):
 		close()
+		get_viewport().set_input_as_handled()
+	elif is_open() and event is InputEventKey and event.pressed and event.keycode in [KEY_PAGEUP, KEY_PAGEDOWN]:
+		var direction: int = 1 if event.keycode == KEY_PAGEDOWN else -1
+		_scroll.scroll_vertical += direction * int(_scroll.size.y * 0.8)
 		get_viewport().set_input_as_handled()
 
 
@@ -75,6 +80,7 @@ func _handle_interact(_player: Node) -> void:
 		return
 	_menu.setup("OPERATOR'S MANUAL", _page_titles())
 	_menu.open()
+	_menu.set_hint("WHEEL/ARROWS: PAGES\nPGUP/PGDN: TEXT    E/ESC: CLOSE")
 	if _root != null:
 		_root.visible = true
 	_refresh_content()
@@ -100,6 +106,8 @@ func _page_titles() -> PackedStringArray:
 
 
 func _on_page_highlighted(_index: int) -> void:
+	if _scroll != null:
+		_scroll.scroll_vertical = 0
 	_refresh_content()
 
 
@@ -148,7 +156,7 @@ func _ensure_ui() -> void:
 	if not _menu.option_selected.is_connected(_on_page_selected):
 		_menu.option_selected.connect(_on_page_selected)
 	var content_panel := PanelContainer.new()
-	content_panel.custom_minimum_size = Vector2(430.0, 0.0)
+	content_panel.custom_minimum_size = Vector2(570.0, 560.0)
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.09, 0.085, 0.07, 0.62)
 	style.border_color = Color(0.62, 0.5, 0.25, 0.9)
@@ -156,10 +164,17 @@ func _ensure_ui() -> void:
 	style.set_content_margin_all(18.0)
 	content_panel.add_theme_stylebox_override("panel", style)
 	row.add_child(content_panel)
+	_scroll = ScrollContainer.new()
+	_scroll.name = "PageScroll"
+	_scroll.custom_minimum_size = Vector2(534.0, 524.0)
+	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	content_panel.add_child(_scroll)
 	_content = Label.new()
 	_content.name = "PageContent"
+	_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_content.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_content.add_theme_font_size_override("font_size", UiScale.size(self, BASE_FONT_SIZE))
 	CrtPanel.style_label(_content, CrtPanel.PHOSPHOR_AMBER)
-	content_panel.add_child(_content)
+	_scroll.add_child(_content)
 	CrtPanel.add_overlay(content_panel)
 	_root = row

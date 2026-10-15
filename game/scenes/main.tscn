@@ -76,8 +76,6 @@
 [ext_resource type="Resource" path="res://src/data/machines/machine_battery_cabinet.tres" id="95_machine_battery_cabinet"]
 [ext_resource type="Resource" path="res://src/data/machines/machine_med_bed.tres" id="96_machine_med_bed"]
 [ext_resource type="Resource" path="res://src/data/machines/machine_scrubber_spare.tres" id="97_machine_scrubber_spare"]
-[ext_resource type="Script" uid="uid://catrwpbk3xnvw" path="res://src/systems/voice_guide.gd" id="98_voice_guide"]
-[ext_resource type="Script" uid="uid://0t82o4vlx6f3" path="res://src/ui/guide_overlay.gd" id="99_guide_overlay"]
 [ext_resource type="Script" uid="uid://dtvv85pwxipmw" path="res://src/systems/nav.gd" id="100_nav"]
 [ext_resource type="Script" uid="uid://cainl6kmvcqbc" path="res://src/components/voyage_destination.gd" id="101_destination_script"]
 [ext_resource type="Resource" path="res://src/data/destinations/destination_arden_ii.tres" id="102_destination_arden"]
@@ -87,6 +85,7 @@
 [ext_resource type="Script" uid="uid://cprpcqglmw1a6" path="res://src/components/log_entry.gd" id="106_log_entry"]
 [ext_resource type="Resource" path="res://src/data/logs/log_01.tres" id="107_log_01"]
 [ext_resource type="Resource" path="res://src/data/logs/log_02.tres" id="108_log_02"]
+[ext_resource type="Resource" path="res://src/data/logs/operator_handover.tres" id="109_handover"]
 [ext_resource type="Resource" path="res://src/data/power/circuit_xenonite_uv.tres" id="110_circuit_uv"]
 [ext_resource type="Script" uid="uid://cd8skrtxhasby" path="res://src/world/ship_scene.gd" id="112_ship_scene"]
 [ext_resource type="Script" uid="uid://bwo4p83oj787g" path="res://src/systems/salvage.gd" id="120_salvage"]
@@ -165,7 +164,7 @@ script = ExtResource("9_stores")
 initial_inventory = {
 &"filter_co2": 2,
 &"food_ration": 6,
-&"gasket": 1
+&"gasket": 3
 }
 
 [node name="ThermalSystem" type="Node" parent="Systems" unique_id=205141625]
@@ -219,10 +218,7 @@ definition = ExtResource("121_salvage_def")
 
 [node name="ComputerSystem" type="Node" parent="Systems" unique_id=209841286]
 script = ExtResource("105_computer")
-archive = Array[ExtResource("106_log_entry")]([ExtResource("107_log_01"), ExtResource("108_log_02")])
-
-[node name="VoiceGuideSystem" type="Node" parent="Systems" unique_id=209841285]
-script = ExtResource("98_voice_guide")
+archive = Array[ExtResource("106_log_entry")]([ExtResource("109_handover"), ExtResource("107_log_01"), ExtResource("108_log_02")])
 
 [node name="UI" type="Node" parent="." unique_id=972355434]
 
@@ -231,9 +227,6 @@ script = ExtResource("57_analogue_filter")
 
 [node name="HUD" type="CanvasLayer" parent="UI" unique_id=1671523522]
 script = ExtResource("14_hud")
-
-[node name="GuideOverlay" type="CanvasLayer" parent="UI" unique_id=149826189]
-script = ExtResource("99_guide_overlay")
 
 [node name="SleepTransition" type="CanvasLayer" parent="UI" unique_id=2110118600]
 script = ExtResource("15_sleep_transition")

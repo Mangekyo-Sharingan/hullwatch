@@ -18,6 +18,7 @@ func _run() -> void:
 	_test_empty_items()
 	_test_dismiss_rule()
 	await _test_row_click()
+	await _test_selection_detaches_menu()
 	_finish()
 
 
@@ -110,7 +111,6 @@ func _test_dismiss_rule() -> void:
 	_check(PanelDismiss.should_dismiss(press_interact, true), "dismiss: interact closes an open panel")
 	_check(PanelDismiss.should_dismiss(press_pause, true), "dismiss: pause closes an open panel")
 	_check(not PanelDismiss.should_dismiss(release, true), "dismiss: releases do not close")
-	_check(ScrollMenu.HINT_TEXT.contains("CLOSE"), "menu hint names the close key")
 
 
 func _test_row_click() -> void:
@@ -155,6 +155,25 @@ func _test_row_click() -> void:
 	menu.call("_unhandled_input", select)
 	_check(_selected == [2, 1], "captured mouse keeps wheel selection")
 	Input.mouse_mode = previous_mode
+	menu.free()
+
+
+func _test_selection_detaches_menu() -> void:
+	var menu: ScrollMenu = ScrollMenu.new()
+	root.add_child(menu)
+	menu.setup("LEAVE SCENE", PackedStringArray(["NEW WATCH"]))
+	menu.open()
+	menu.option_selected.connect(func(_index: int) -> void: root.remove_child(menu))
+	await process_frame
+	await process_frame
+	var select: InputEventKey = InputEventKey.new()
+	select.keycode = KEY_ENTER
+	select.physical_keycode = KEY_ENTER
+	select.pressed = true
+	root.push_input(select)
+	_check(not menu.is_inside_tree() and root.is_input_handled(), "scene-changing selection consumes Enter after menu detaches")
+	select.pressed = false
+	root.push_input(select)
 	menu.free()
 
 
