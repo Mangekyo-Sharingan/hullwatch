@@ -1,0 +1,22 @@
+name: Roadmap guard
+
+# Enforces the EA plan rules (permanent IDs, slice order, one active slice,
+# player-visible proof, no orphan open work) on every push and pull request.
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate roadmap and plan rules
+        working-directory: tools
+        run: python3 test_dashboard_roadmap.py

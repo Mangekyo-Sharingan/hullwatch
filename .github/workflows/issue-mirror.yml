@@ -1,0 +1,32 @@
+name: Issue mirror
+
+# Keeps the GitHub milestones/issues in step with docs/dashboard/roadmap.json (one way).
+on:
+  push:
+    branches: [main]
+    paths:
+      - docs/dashboard/roadmap.json
+      - tools/sync_github_issues.py
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: issue-mirror
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Mirror EA plan to GitHub
+        working-directory: tools
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 sync_github_issues.py

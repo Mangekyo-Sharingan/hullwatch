@@ -91,7 +91,12 @@ closes; earlier open milestones carry `absorbed_into`. The builder rejects:
 - a `complete` slice without image, video or `docs/playtests/` evidence;
 - an open milestone that is not a slice, `LATER`, or absorbed into one of them;
 - an open gate that does not belong to exactly one slice;
-- unknown references, statuses or evidence paths.
+- unknown references or statuses, and evidence paths outside the repository or
+  missing from it (paths under `.wolf/` are local agent context and may be absent
+  from a clone).
+
+GitHub Actions runs the same checks on every push and pull request
+(`.github/workflows/roadmap-guard.yml`).
 
 `checkpoint.source` records the latest scoped source-validation evidence;
 `checkpoint.delivered` records the exact published platform builds separately.
@@ -131,6 +136,9 @@ closed as not planned.
 python3 tools/sync_github_issues.py --dry-run   # show changes
 python3 tools/sync_github_issues.py             # apply them
 ```
+
+On `main`, `.github/workflows/issue-mirror.yml` runs the sync automatically whenever
+`roadmap.json` or the script changes; it can also be started by hand from the Actions tab.
 
 ## Local or GitHub Pages?
 

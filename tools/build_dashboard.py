@@ -88,6 +88,8 @@ def validate_ids(roadmap: dict) -> None:
 
 PROOF_TYPES = {".png", ".jpg", ".jpeg", ".webp", ".mp4", ".webm"}
 ACTIVE = {"in_progress", "needs_review"}
+# OpenWolf's handoff state is local agent context, not versioned: a clone or CI runner lacks it.
+LOCAL_CONTEXT = ".wolf/"
 
 
 def validate_plan(roadmap: dict) -> None:
@@ -152,7 +154,9 @@ def validate_roadmap(roadmap: dict) -> None:
     for item in evidence_items:
         for evidence in item.get("evidence", []):
             source = (ROOT / evidence["path"]).resolve()
-            if not source.is_relative_to(ROOT) or not source.is_file():
+            if not source.is_relative_to(ROOT):
+                raise ValueError(f"Roadmap evidence outside the repository: {evidence['path']}")
+            if not source.is_file() and not evidence["path"].startswith(LOCAL_CONTEXT):
                 raise ValueError(f"Missing roadmap evidence: {evidence['path']}")
 
 
