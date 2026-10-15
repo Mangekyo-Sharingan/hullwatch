@@ -102,6 +102,7 @@ func _build_ui() -> void:
 	_header_label.name = "Header"
 	_header_label.text = "[ VOCAL ADVISORY // ORIENTATION ]"
 	_header_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_header_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_header_label.add_theme_color_override("font_color", COLOR_AMBER)
 	_header_label.add_theme_color_override("font_outline_color", Color.BLACK)
 	_header_label.add_theme_constant_override("outline_size", 2)

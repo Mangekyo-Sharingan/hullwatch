@@ -137,7 +137,7 @@ func _test_ration_restore(modules: ModuleSystem, stores: Stores, power: PowerSys
 	modules.sim_tick(3.0)
 	var checkpoint: Dictionary = JSON.parse_string(JSON.stringify({"modules": modules.save_state(), "stores": stores.save_state()})) as Dictionary
 	var production: Dictionary = checkpoint["modules"]
-	_check(int(production["state_version"]) == 4 and float(production["ration_hours"]) == 0.375, "JSON stores module v4 fractional production")
+	_check(int(production["state_version"]) == 5 and float(production["ration_hours"]) == 0.375, "JSON stores module v5 fractional production")
 	var food_at_save: int = stores.get_count(&"food_ration")
 	modules.sim_tick(6.25)
 	var continued: Dictionary = modules.save_state()

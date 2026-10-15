@@ -93,7 +93,7 @@ func _run() -> void:
 	_check(deploy_shape != null and deploy_shape.position.x > 0.0, "tray collision projects into the cockpit from the left wall")
 
 	var programs: Array[StringName] = terminal.programs
-	_check(programs == [&"status", &"control", &"log"], "wall terminal offers status, control and log")
+	_check(programs == [&"status", &"control", &"log", &"notices"], "wall terminal offers status, control, log and notices")
 	_check(terminal.get_current_program() == &"status", "wall terminal opens on the status report")
 
 	_check(terminal.get_interaction_prompt() == "Use terminal", "stowed terminal invites use")
@@ -123,6 +123,15 @@ func _run() -> void:
 	if animator != null:
 		animator.advance(animator.current_animation_length + 0.1)
 	_check(deploy_shape != null and deploy_shape.disabled, "tray collider sleeps when stowing finishes")
+
+	terminal.interact(operator)
+	_check(terminal.set_program(&"notices"), "notices program exists on the terminal")
+	var notices: PackedStringArray = terminal.build_readout()
+	var notices_text: String = "\n".join(notices)
+	_check(String(terminal.get_current_program()) == "notices", "notices page opens")
+	_check(notices_text.contains("NOTICES") and notices_text.contains("CC0 1.0"), "notices page states the CC0 license")
+	_check(notices_text.contains("POLY HAVEN") and notices_text.contains("KENNEY"), "notices page names both asset sources")
+	terminal.close()
 
 	layout.free()
 	_finish()

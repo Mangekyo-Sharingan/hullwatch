@@ -19,6 +19,12 @@ func get_interaction_prompt() -> String:
 	return display_name
 
 
+## Stable persistence identity. The default is the current path; nodes that move
+## (carried items) override so their payload survives a fresh-scene load.
+func get_save_key() -> String:
+	return String(get_path())
+
+
 func _handle_interact(_player: Node) -> void:
 	pass
 

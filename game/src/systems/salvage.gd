@@ -79,11 +79,28 @@ func release_unit(unit_id: String, tool: StringName, position: Vector3) -> bool:
 
 
 func take_unit(unit_id: String) -> bool:
+	if _at(unit_id, &"carried"):
+		return true
 	if not _at(unit_id, &"world") or not get_units(&"carried").is_empty():
 		return _refuse(&"salvage_not_available", unit_id)
 	_units[unit_id]["location"] = "carried"
 	_changed(unit_id, &"salvage_taken")
 	return true
+
+
+func restore_carried_unit(player: Node) -> bool:
+	var carried: Array[Dictionary] = get_units(&"carried")
+	if player == null or carried.size() != 1 or not player.has_method("take_carriable") or not player.has_method("get_carried"):
+		return false
+	var unit_id: String = String(carried[0]["unit_id"])
+	var held: Node = player.call("get_carried") as Node
+	if held != null:
+		return held.has_method("get_unit_id") and String(held.call("get_unit_id")) == unit_id
+	var streamer: Node = _system(&"field_streamer")
+	if streamer == null or not streamer.has_method("get_salvage_case"):
+		return false
+	var item: Node = streamer.call("get_salvage_case", unit_id) as Node
+	return item != null and bool(player.call("take_carriable", item))
 
 
 func drop_unit(unit_id: String, position: Vector3) -> bool:
@@ -224,7 +241,9 @@ func save_state() -> Dictionary:
 				units[key]["sector_seed"] = int(sector.get("field_seed"))
 				position += sector.call("get_ship_position") as Vector3
 			units[key]["position"] = {"x": position.x, "y": position.y, "z": position.z}
-	return {"system_id": String(system_id), "state_version": 1, "units": units}
+	for key: String in units:
+		units[key]["sector_seed"] = str(int(units[key]["sector_seed"]))
+	return {"system_id": String(system_id), "state_version": 2, "units": units}
 
 
 func load_state(state: Dictionary) -> void:
@@ -264,10 +283,14 @@ func load_state(state: Dictionary) -> void:
 			unit["diagnosed"] = bool(unit.get("diagnosed", false))
 			unit["isolated"] = bool(unit.get("isolated", false))
 			unit["socket_id"] = String(unit.get("socket_id", ""))
-			unit["sector_seed"] = int(unit.get("sector_seed", 0))
+			var raw_seed: Variant = unit.get("sector_seed", 0)
+			if raw_seed is String:
+				if not String(raw_seed).is_valid_int():
+					continue
+			elif not (raw_seed is int or raw_seed is float) or not is_finite(float(raw_seed)):
+				continue
+			unit["sector_seed"] = int(raw_seed)
 			unit["object_id"] = String(unit.get("object_id", ""))
-			if location == "carried":
-				unit["location"] = "world"
 			if location == "fitted":
 				var socket: String = String(unit["socket_id"])
 				var modules: Node = _system(&"module_system")

@@ -78,5 +78,9 @@ func save_state() -> Dictionary:
 
 func load_state(state: Dictionary) -> void:
 	super.load_state(state)
+	var saved_units: Variant = state.get("units", 0.0)
+	_units = float(saved_units) if (saved_units is int or saved_units is float) and is_finite(float(saved_units)) else 0.0
 	_kind = StringName(String(state.get("kind", "")))
-	_units = maxf(float(state.get("units", 0.0)), 0.0)
+	if _units <= 0.0 or not CargoSystem.KNOWN_KINDS.has(_kind):
+		_kind = &""
+		_units = 0.0

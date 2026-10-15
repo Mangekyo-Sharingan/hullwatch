@@ -21,14 +21,11 @@ func _ready() -> void:
 	system_id = &"cargo"
 	add_to_group(&"cargo_system")
 	super._ready()
-	var event_bus: Node = _get_autoload(&"EventBus")
-	if event_bus != null and not event_bus.is_connected(&"destination_arrived", _on_destination_arrived):
-		event_bus.connect(&"destination_arrived", _on_destination_arrived)
 
 
 ## Accepts what fits; returns the units actually stowed.
 func add_material(kind: StringName, units: float) -> float:
-	if units <= 0.0 or not is_finite(units):
+	if kind not in KNOWN_KINDS or units <= 0.0 or not is_finite(units):
 		return 0.0
 	var accepted: float = minf(units, get_free_units())
 	if accepted <= 0.0:
@@ -38,15 +35,12 @@ func add_material(kind: StringName, units: float) -> float:
 	return accepted
 
 
-func _on_destination_arrived(_destination_id: StringName, _kind: StringName, _sector_seed: int, resource_id: StringName, resource_units: float, _arrival_stores: Dictionary) -> void:
-	if resource_id != &"" and resource_units > 0.0:
-		add_material(resource_id, resource_units)
-
-
 func consume_material(kind: StringName, units: float) -> bool:
-	if units <= 0.0:
+	if kind not in KNOWN_KINDS or not is_finite(units) or units < 0.0:
+		return false
+	if units == 0.0:
 		return true
-	if get_units(kind) < units - 0.0001:
+	if get_units(kind) < units:
 		return false
 	_materials[kind] = float(_materials[kind]) - units
 	emit_sim_event(&"cargo_consumed", {"kind": String(kind), "units": units, "total": float(_materials[kind])})
@@ -80,7 +74,9 @@ func set_reserved_source(source_id: StringName, units: float) -> void:
 
 
 func set_capacity_source(source_id: StringName, units: float) -> void:
-	if units <= 0.0:
+	if not is_finite(units) or units < 0.0:
+		return
+	if units == 0.0:
 		_capacity_sources.erase(source_id)
 		return
 	_capacity_sources[source_id] = units
@@ -118,11 +114,18 @@ func save_state() -> Dictionary:
 
 
 func load_state(state: Dictionary) -> void:
-	capacity_units = maxf(float(state.get("capacity_units", capacity_units)), 0.0)
+	var raw_capacity: Variant = state.get("capacity_units", capacity_units)
+	var materials: Variant = state.get("materials", {})
+	if not (raw_capacity is int or raw_capacity is float) or not is_finite(float(raw_capacity)) or float(raw_capacity) < 0.0 or not materials is Dictionary:
+		return
+	for key: Variant in materials:
+		var raw_units: Variant = materials[key]
+		if StringName(String(key)) not in KNOWN_KINDS or not (raw_units is int or raw_units is float) or not is_finite(float(raw_units)) or float(raw_units) < 0.0:
+			return
+	capacity_units = float(raw_capacity)
 	_materials.clear()
-	var materials: Dictionary = state.get("materials", {})
 	for key: Variant in materials:
 		var kind: StringName = StringName(String(key))
-		var units: float = maxf(float(materials[key]), 0.0)
-		if units > 0.0:
-			_materials[kind] = units
+		var units: float = float(materials[key])
+		# Explicit zero entries survive the boundary so a round trip reproduces the saved stock shape.
+		_materials[kind] = units

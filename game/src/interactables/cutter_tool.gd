@@ -31,3 +31,17 @@ func _clip_to_suit(player: Node) -> void:
 	equip_to(anchor)
 	position = SUIT_CLIP_OFFSET
 	rotation_degrees = SUIT_CLIP_ROTATION
+
+
+func save_state() -> Dictionary:
+	var state: Dictionary = super.save_state()
+	state["clipped"] = is_carried()
+	return state
+
+
+func load_state(state: Dictionary) -> void:
+	super.load_state(state)
+	var player: Node = get_tree().get_first_node_in_group(&"player")
+	if enabled and bool(state.get("clipped", false)) and player != null:
+		player.call("equip_suit_cutter")
+		_clip_to_suit(player)

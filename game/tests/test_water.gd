@@ -25,6 +25,7 @@ func _run() -> void:
 	_test_status_and_maintenance()
 	_test_reclaimer_procedure()
 	_test_reclaimer_no_cartridge()
+	_test_reclaimer_headroom()
 	_test_save_load_round_trip()
 
 	_finish()
@@ -157,6 +158,7 @@ func _test_reclaimer_procedure() -> void:
 	_spawned.append(stores)
 	var water: WaterSystem = _spawn_water(100.0, 20.0)
 	water.contamination = 0.8
+	var potable_before: float = water.potable_l
 	var reclaimer := WaterReclaimer.new()
 	var model_scene: PackedScene = load(RECLAIMER_MODEL_PATH) as PackedScene
 	_check(model_scene != null, "water reclaimer glTF model loads")
@@ -167,22 +169,24 @@ func _test_reclaimer_procedure() -> void:
 	var animator: AnimationPlayer = _animation_player(reclaimer)
 	_check(animator != null, "water reclaimer glTF animation player is present")
 
-	_check(reclaimer.get_interaction_prompt() == "Drain loop", "procedure: starts idle and asks to drain")
-	reclaimer.interact(null)
+	_check(reclaimer._service_prompt() == "Drain loop", "procedure: starts idle and asks to drain")
+	reclaimer.select_action(&"service")
 	_check_animation(animator, &"drain", "draining the loop plays its authored clip")
 	var drain_state: Dictionary = reclaimer.save_state()
-	_check(reclaimer.get_interaction_prompt() == "Replace cartridge", "procedure: drain advances to cartridge")
-	reclaimer.interact(null)
+	_check(reclaimer._service_prompt() == "Replace cartridge", "procedure: drain advances to cartridge")
+	reclaimer.select_action(&"service")
 	_check_animation(animator, &"replace_cartridge", "replacing the cartridge plays its authored clip")
 	_check(stores.get_count(&"water_filter") == 0, "procedure: cartridge taken from stores")
-	_check(reclaimer.get_interaction_prompt() == "Prime loop", "procedure: cartridge advances to prime")
-	reclaimer.interact(null)
+	_check(reclaimer._service_prompt() == "Prime loop", "procedure: cartridge advances to prime")
+	reclaimer.select_action(&"service")
 	_check_animation(animator, &"prime", "priming the loop plays its authored clip")
-	_check(reclaimer.get_interaction_prompt() == "Run inspection", "procedure: prime advances to inspection")
-	reclaimer.interact(null)
+	_check(reclaimer._service_prompt() == "Run inspection", "procedure: prime advances to inspection")
+	reclaimer.select_action(&"service")
 	_check_animation(animator, &"run_inspection", "inspection plays its authored clip")
-	_check(reclaimer.get_interaction_prompt() == "Drain loop", "procedure: inspection returns to idle")
+	_check(reclaimer._service_prompt() == "Drain loop", "procedure: inspection returns to idle")
 	_check(is_equal_approx(water.contamination, 0.0), "procedure: loop contamination cleared")
+	_check(water.potable_l == potable_before, "procedure: filter service adds no water")
+	_check(not water.reclaimer_servicing, "procedure: inspection returns reclaimer to service")
 	_check(_harness.events_named(&"reclaimer_serviced").size() == 1, "procedure: service event emitted")
 
 	var saved: Dictionary = reclaimer.save_state()
@@ -194,18 +198,18 @@ func _test_reclaimer_procedure() -> void:
 	if parsed is Dictionary:
 		idle_state = parsed
 		reclaimer.load_state(idle_state)
-	_check(reclaimer.get_interaction_prompt() == "Drain loop", "procedure: stage restored from JSON")
+	_check(reclaimer._service_prompt() == "Drain loop", "procedure: stage restored from JSON")
 	reclaimer.load_state(drain_state)
-	_check(reclaimer.get_interaction_prompt() == "Replace cartridge", "procedure: saved drain stage is restored")
+	_check(reclaimer._service_prompt() == "Replace cartridge", "procedure: saved drain stage is restored")
 	_check_animation(animator, &"drain", "restoring an in-progress drain resumes its loop")
 	reclaimer.load_state(idle_state)
 
-	reclaimer.interact(null)
+	reclaimer.select_action(&"service")
 	var errors: Array[Dictionary] = _harness.events_named(&"procedure_error")
 	_check(errors.size() == 1, "procedure: clean loop refuses the drain")
 	if errors.size() == 1:
 		_check(StringName(errors[0]["payload"].get("reason", &"")) == &"clean_loop", "procedure: clean_loop reason")
-	_check(reclaimer.get_interaction_prompt() == "Drain loop", "procedure: refusal does not advance")
+	_check(reclaimer._service_prompt() == "Drain loop", "procedure: refusal does not advance")
 	_despawn_all()
 
 
@@ -219,14 +223,33 @@ func _test_reclaimer_no_cartridge() -> void:
 	root.add_child(reclaimer)
 	_spawned.append(reclaimer)
 
-	reclaimer.interact(null)
-	reclaimer.interact(null)
+	reclaimer.select_action(&"service")
+	reclaimer.select_action(&"service")
 	var errors: Array[Dictionary] = _harness.events_named(&"procedure_error")
 	_check(errors.size() == 1, "no-cartridge: one procedure error")
 	if errors.size() == 1:
 		_check(StringName(errors[0]["payload"].get("reason", &"")) == &"no_cartridge", "no-cartridge: reason")
-	_check(reclaimer.get_interaction_prompt() == "Replace cartridge", "no-cartridge: stays on the replace step")
+	_check(reclaimer._service_prompt() == "Replace cartridge", "no-cartridge: stays on the replace step")
 	_check(stores.get_count(&"water_filter") == 0, "no-cartridge: stores untouched")
+	_despawn_all()
+
+
+func _test_reclaimer_headroom() -> void:
+	var water: WaterSystem = _spawn_water(150.0, 10.0)
+	water.sim_tick(1.0)
+	_check(water.potable_l == 150.0 and water.greywater_l == 10.0, "reclaimer: full tank retains greywater")
+	water.potable_l = 149.5
+	water.reclaimer_efficiency = 0.5
+	water.sim_tick(1.0)
+	_check(is_equal_approx(water.potable_l, 150.0) and is_equal_approx(water.greywater_l, 9.0), "reclaimer: processes only the volume that fits at actual efficiency")
+	water.potable_l = 120.0
+	water.contamination = 1.0
+	water.sim_tick(1.0)
+	_check(water.potable_l == 120.0 and water.greywater_l == 9.0, "reclaimer: zero efficiency retains greywater")
+	water.contamination = 0.0
+	water.reclaimer_efficiency = 0.0
+	water.sim_tick(1.0)
+	_check(water.greywater_l == 9.0, "reclaimer: zero configured yield is not waste disposal")
 	_despawn_all()
 
 
@@ -240,7 +263,7 @@ func _test_save_load_round_trip() -> void:
 	_check(_harness.events_named(&"water_contaminated").size() == 1, "save: contamination flag latched before save")
 	var saved: Dictionary = water.save_state()
 	_check(saved["system_id"] == "water", "save: system_id is water")
-	_check(int(saved["state_version"]) == 1, "save: state_version is 1")
+	_check(int(saved["state_version"]) == 2, "save: state_version is 2")
 	var parsed: Variant = JSON.parse_string(JSON.stringify(saved))
 	_check(parsed is Dictionary, "save: JSON round trip parses to Dictionary")
 	var parsed_dict: Dictionary = parsed if parsed is Dictionary else {}

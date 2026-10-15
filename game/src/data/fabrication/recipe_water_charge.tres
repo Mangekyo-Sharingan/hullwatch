@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="FabricatorRecipe" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/components/fabricator_recipe.gd" id="1_recipe"]
+
+[resource]
+script = ExtResource("1_recipe")
+recipe_id = &"water_charge"
+display_name = "Potable water charge"
+material_kind = &"ice"
+material_units = 4.0
+output_part_id = &"water_charge"
+output_count = 1
+hours = 1.0

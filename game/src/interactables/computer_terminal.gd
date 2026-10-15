@@ -14,6 +14,8 @@ const PROGRAM_PATHS: Dictionary = {
 	&"log": "res://src/ui/computer/program_log.gd",
 	&"control": "res://src/ui/computer/program_control.gd",
 	&"approach": "res://src/ui/computer/program_approach.gd",
+	&"notices": "res://src/ui/computer/program_notices.gd",
+	&"survey": "res://src/ui/computer/program_survey.gd",
 }
 
 @export var terminal_title: String = "SHIP COMPUTER"

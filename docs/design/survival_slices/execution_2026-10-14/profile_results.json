@@ -1,0 +1,29 @@
+{
+  "date": "2026-10-14",
+  "scope": "unchanged repository fixed-tick fixture; sequential isolated Linux runs; no rendered FPS claim",
+  "budget_us": 200,
+  "runs": [
+    {
+      "run": 1,
+      "exit_code": 0,
+      "passed": true,
+      "microseconds": 165.9,
+      "log": "docs/design/survival_slices/execution_2026-10-14/profile_1.log"
+    },
+    {
+      "run": 2,
+      "exit_code": 0,
+      "passed": true,
+      "microseconds": 165.6,
+      "log": "docs/design/survival_slices/execution_2026-10-14/profile_2.log"
+    },
+    {
+      "run": 3,
+      "exit_code": 0,
+      "passed": true,
+      "microseconds": 166.1,
+      "log": "docs/design/survival_slices/execution_2026-10-14/profile_3.log"
+    }
+  ],
+  "median_us": 165.9
+}

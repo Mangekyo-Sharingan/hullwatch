@@ -45,8 +45,36 @@ func build_readout(terminal: Node) -> PackedStringArray:
 	if not cargo.is_empty():
 		lines.append("")
 		lines.append_array(cargo)
+	var capabilities: PackedStringArray = _capability_lines(terminal)
+	if not capabilities.is_empty():
+		lines.append("")
+		lines.append_array(capabilities)
 	lines.append("")
 	lines.append("E/ESC: CLOSE")
+	return lines
+
+
+func _capability_lines(terminal: Node) -> PackedStringArray:
+	var lines: PackedStringArray = PackedStringArray()
+	var modules: Node = terminal.call("system", &"module_system") as Node
+	if modules == null:
+		return lines
+	var effects: Dictionary = modules.call("get_effects")
+	lines.append("SHIP CAPABILITIES")
+	var sector: Node = terminal.call("system", &"sector_system") as Node
+	if sector != null:
+		lines.append("  CONTACT RANGE %.0f M" % float(sector.call("get_detection_range")))
+	lines.append("  FITTED LOAD %.0f W ACTIVE / %.0f W INSTALLED" % [float(effects["active_load_w"]), float(effects["fitted_load_w"])])
+	var power: Node = terminal.call("system", &"power_system") as Node
+	if power != null:
+		lines.append("  BATTERY %.0f / %.0f WH" % [float(power.get("battery_charge_wh")), float(power.call("get_battery_capacity_wh"))])
+	var fabricator: Node = terminal.call("system", &"fabricator_system") as Node
+	if fabricator != null:
+		lines.append("  BENCH %.0f%% JOB TIME (WHEN POWERED)" % (100.0 * float(fabricator.get("job_hours_multiplier"))))
+	lines.append("  GROWTH %.1f / %.1f RATIONS/DAY" % [float(effects["active_rations_per_day"]), float(effects["rations_per_day"])])
+	lines.append("  SURVEY: SENSOR + CARGO RACK + BATTERY")
+	lines.append("  SALVAGE: WORK BENCH + TWO CARGO RACKS")
+	lines.append("  ENDURANCE: GROW RACK + TWO BATTERIES")
 	return lines
 
 

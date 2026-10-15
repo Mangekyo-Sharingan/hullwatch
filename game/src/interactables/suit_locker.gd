@@ -154,6 +154,9 @@ func _refusal(action: StringName) -> StringName:
 		&"store":
 			return &"suit_not_worn"
 		&"refill":
+			var airlock: Node = _get_system(&"airlock_system")
+			if airlock != null and airlock.has_method(&"get_suit_refill_refusal"):
+				return StringName(airlock.call("get_suit_refill_refusal"))
 			return &"suit_refill_unavailable"
 	return &"suit_unavailable"
 

@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ShipMachine" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/components/ship_machine.gd" id="1_machine"]
+
+[resource]
+script = ExtResource("1_machine")
+machine_id = &"survey_sensor"
+display_name = "Survey sensor"
+effect = &"survey"
+effect_amount = 150.0
+power_load_w = 20.0
+circuit_id = &"fabricator"
+build_hours = 4.0
+cost = {
+"metal": 3.0,
+"ore": 1.0
+}
+size_m = Vector3(0.6, 1.1, 0.5)

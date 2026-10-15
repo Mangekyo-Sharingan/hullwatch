@@ -5,8 +5,11 @@ extends ShipSystem
 const LOW_STOCK_THRESHOLD: int = 2
 
 @export var initial_inventory: Dictionary = {}
+@export var sealant_charge_part_id: StringName = &"sealant_charge"
 
 var inventory: Dictionary = {}
+var cartridge_charges: Dictionary = {}
+var cartridge_legacy_restore: bool = false
 
 
 func _ready() -> void:
@@ -27,7 +30,7 @@ func get_status() -> Dictionary:
 	var total_count: int = 0
 	for count: int in inventory.values():
 		total_count += count
-	return {"system_id": system_id, "parts": inventory.duplicate(), "total_count": total_count}
+	return {"system_id": system_id, "parts": inventory.duplicate(), "total_count": total_count, "cartridge_charges": cartridge_charges.duplicate()}
 
 
 func add_part(part_id: StringName, count: int = 1) -> void:
@@ -86,6 +89,35 @@ func get_low_stock() -> Array[StringName]:
 	return low_stock
 
 
+func ensure_cartridge(cartridge_id: StringName, initial_charges: int = 1) -> void:
+	if cartridge_id != &"" and not cartridge_charges.has(String(cartridge_id)):
+		cartridge_charges[String(cartridge_id)] = clampi(initial_charges, 0, 1)
+
+
+func get_cartridge_charges(cartridge_id: StringName) -> int:
+	return int(cartridge_charges.get(String(cartridge_id), 0))
+
+
+func refill_cartridge(cartridge_id: StringName) -> bool:
+	if not cartridge_charges.has(String(cartridge_id)) or get_cartridge_charges(cartridge_id) != 0 or not has_part(sealant_charge_part_id):
+		return false
+	# Commit the shell before inventory notifications so callbacks cannot refill it twice.
+	cartridge_charges[String(cartridge_id)] = 1
+	if not consume_part(sealant_charge_part_id):
+		cartridge_charges[String(cartridge_id)] = 0
+		return false
+	emit_sim_event(&"sealant_cartridge_refilled", {"cartridge_id": String(cartridge_id), "charges": 1})
+	return true
+
+
+func consume_cartridge_charge(cartridge_id: StringName) -> bool:
+	if get_cartridge_charges(cartridge_id) != 1:
+		return false
+	cartridge_charges[String(cartridge_id)] = 0
+	emit_sim_event(&"sealant_charge_consumed", {"cartridge_id": String(cartridge_id), "charges": 0})
+	return true
+
+
 func _emit_stores_changed(part_id: StringName, new_count: int) -> void:
 	var event_bus: Node = _get_autoload(&"EventBus")
 	if event_bus != null:
@@ -96,7 +128,7 @@ func save_state() -> Dictionary:
 	var parts: Dictionary = {}
 	for part_id: StringName in inventory:
 		parts[String(part_id)] = int(inventory[part_id])
-	return {"system_id": String(system_id), "state_version": 1, "inventory": parts}
+	return {"system_id": String(system_id), "state_version": 2, "inventory": parts, "cartridge_charges": cartridge_charges.duplicate()}
 
 
 func load_state(state: Dictionary) -> void:
@@ -107,3 +139,15 @@ func load_state(state: Dictionary) -> void:
 		var count: int = int(parts[key])
 		if part_id != &"" and count > 0:
 			inventory[part_id] = count
+
+	# Clear runtime charges even for legacy loads; each legacy prop then restores
+	# its original charge or consumed tombstone rather than inheriting this watch.
+	cartridge_legacy_restore = int(state.get("state_version", 1)) < 2
+	cartridge_charges.clear()
+	if not cartridge_legacy_restore:
+		var saved: Variant = state.get("cartridge_charges", {})
+		if saved is Dictionary:
+			for key: Variant in saved:
+				var charge: Variant = saved[key]
+				if key is String and not String(key).is_empty() and (charge is int or charge is float) and is_finite(float(charge)) and float(charge) in [0.0, 1.0]:
+					cartridge_charges[String(key)] = int(charge)

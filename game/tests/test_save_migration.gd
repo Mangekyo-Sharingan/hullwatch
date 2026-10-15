@@ -28,6 +28,7 @@ func _run() -> void:
 	_test_missing_computer_history()
 	_test_version_refusal()
 	_test_v7_survival_migration()
+	_test_v9_survey_migration()
 
 	_finish()
 
@@ -45,7 +46,7 @@ func _test_v1_migration() -> void:
 		"interactables": {},
 	}
 	_check(bool(save_manager.call("load_from_dict", v1)), "v1 dict loads through migration")
-	_check(int(v1.get("save_version", 0)) == 8, "migrated v1 dict is version 8")
+	_check(int(v1.get("save_version", 0)) == 10, "migrated v1 dict is version 10")
 	_check(not v1.has("created_unix"), "old root created_unix key is removed")
 	var meta: Dictionary = v1.get("meta", {})
 	_check(absf(float(meta.get("play_hours", -1.0)) - 2.0) < 0.001, "migrated meta.play_hours is 2.0")
@@ -65,7 +66,7 @@ func _test_v2_migration() -> void:
 		"interactables": {},
 	}
 	_check(bool(save_manager.call("load_from_dict", v2)), "v2 dict loads through migration")
-	_check(int(v2.get("save_version", 0)) == 8, "migrated v2 dict is version 8")
+	_check(int(v2.get("save_version", 0)) == 10, "migrated v2 dict is version 10")
 	_check(float((v2["meta"] as Dictionary).get("play_hours", 0.0)) == 12.5, "v2 meta is preserved")
 	_check(int(((v2["systems"] as Dictionary)["nav"] as Dictionary).get("current_leg", 0)) == 1, "v2 system state is preserved")
 
@@ -80,7 +81,7 @@ func _test_v5_migration() -> void:
 		"interactables": {},
 	}
 	_check(bool(save_manager.call("load_from_dict", v5)), "v5 dict loads through migration")
-	_check(int(v5.get("save_version", 0)) == 8, "migrated v5 dict is version 8")
+	_check(int(v5.get("save_version", 0)) == 10, "migrated v5 dict is version 10")
 	var nav: Dictionary = (v5["systems"] as Dictionary)["nav"]
 	_check(int(nav.get("state_version", 0)) == 4, "migrated nav state advances to v4")
 	_check(int(nav.get("arrival_ordinal", -1)) == 0, "migrated nav starts with no generated arrivals")
@@ -93,7 +94,7 @@ func _test_fresh_v3_shape() -> void:
 	if save_manager == null:
 		return
 	var data: Dictionary = save_manager.call("save_to_dict")
-	_check(int(data.get("save_version", 0)) == 8, "fresh save dict is version 8")
+	_check(int(data.get("save_version", 0)) == 10, "fresh save dict is version 10")
 	_check(not data.has("created_unix"), "fresh save has no root created_unix")
 	var meta: Dictionary = data.get("meta", {})
 	_check(meta.has("created_unix"), "fresh meta carries created_unix")
@@ -124,7 +125,7 @@ func _test_missing_meta_tolerance() -> void:
 		"interactables": {},
 	}
 	_check(bool(save_manager.call("load_from_dict", data)), "v2 dict without meta loads")
-	_check(int(data.get("save_version", 0)) == 8, "v2 dict without meta migrates to version 8")
+	_check(int(data.get("save_version", 0)) == 10, "v2 dict without meta migrates to version 10")
 	_check(absf(float(_sim_clock().call("get_total_hours")) - 1.0) < 0.001, "v2 dict without meta restores the clock")
 
 
@@ -163,7 +164,7 @@ func _test_v7_survival_migration() -> void:
 		"interactables": {},
 	}
 	_check(bool(manager.call("load_from_dict", legacy)), "survival migration: v7 slot loads")
-	_check(int(legacy["save_version"]) == 8 and int(legacy["systems"]["sector"]["state_version"]) == 2, "survival migration: globalv8 and sectorv2 shape")
+	_check(int(legacy["save_version"]) == 10 and int(legacy["systems"]["sector"]["state_version"]) == 3, "survival migration: globalv10 and sectorv3 shape")
 	_check(legacy["systems"]["sector"]["mined_fields"] == {"73019": {"exhausted": 0.0, "partial": 3.25}} and not legacy["systems"]["sector"].has("mined"), "survival migration: legacy depletion stays scoped to its field with zero intact")
 	_check(legacy["systems"]["modules"]["ration_hours"] == 0.0 and int(legacy["systems"]["modules"]["state_version"]) == 4, "survival migration: legacy production has explicit zero remainder")
 	_check(sector.get_remaining_yield("exhausted") == 0.0 and is_equal_approx(sector.get_remaining_yield("partial"), 3.25), "survival migration: actual simulator retains remaining stock")
@@ -182,6 +183,19 @@ func _test_v7_survival_migration() -> void:
 		var invalid: Dictionary = saved.duplicate(true)
 		invalid["systems"]["modules"] = {"ration_hours": remainder}
 		_check(not bool(manager.call("load_from_dict", invalid)) and sector.save_state() == before and _sim_clock().call("save_state") == clock_before, "survival migration: invalid production remainder changes no state")
+	sector.free()
+
+
+func _test_v9_survey_migration() -> void:
+	var sector: SectorSystem = SectorSystem.new()
+	root.add_child(sector)
+	var manager: Node = _find_root_child(&"SaveManager")
+	var legacy: Dictionary = {"save_version": 9, "clock": {"sim_seconds": 7200.0}, "systems": {"sector": {"system_id": "sector", "state_version": 2, "field_seed": "73019", "mined_fields": {"73019": {"partial": 3.25, "exhausted": 0.0}}}}, "interactables": {}}
+	_check(bool(manager.call("load_from_dict", legacy)), "survey migration: v9 loads")
+	_check(int(legacy["save_version"]) == 10 and legacy["systems"]["sector"]["survey_records"] == {}, "survey migration: old knowledge starts empty without fabricated evidence")
+	_check(is_equal_approx(sector.get_remaining_yield("partial"), 3.25) and sector.get_remaining_yield("exhausted") == 0.0, "survey migration: field depletion is preserved")
+	var saved: Dictionary = manager.call("save_to_dict")
+	_check(bool(manager.call("load_from_dict", JSON.parse_string(JSON.stringify(saved)))), "survey migration: current envelope repeats without loss")
 	sector.free()
 
 

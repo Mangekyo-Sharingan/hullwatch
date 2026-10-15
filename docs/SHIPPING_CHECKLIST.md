@@ -1,6 +1,6 @@
 # Shipping and playtest checklist
 
-Updated 2026-10-09. This checklist separates a private playtest package from
+Updated 2026-10-14. This checklist separates a private playtest package from
 Early Access readiness. A green source suite is not evidence of a tested
 Windows build or a completed human playthrough.
 
@@ -13,17 +13,25 @@ Windows build or a completed human playthrough.
 - **October 1 package:** `releases/windows/2026-10-01/Hullwatch-Windows.zip`
   is from source checkpoint `5303882`; it predates the October 9 art/salvage
   pass and must not be described as containing that work.
-- **Latest recorded package:** `releases/windows/2026-10-09/Hullwatch-Windows.zip`
-  and `Hullwatch.exe` are from source checkpoint `c982415`. Their embedded
-  project and source suites were checked with the matching Linux engine. Native
-  Windows runtime was not verified. This package predates the current local
-  Delete Watch and encounter-setting changes below.
+- **Latest recorded delivered playtests:** Windows
+  `v0.12.0-playtest.20261013.5` / `756fd95`, and separate Deck
+  `v0.12.0-steamdeck-playtest.20261013.4` / `9ac234b`. Independent download,
+  archive/source identity and manifest/payload checks are recorded in
+  `docs/design/manifest_updater/delivery.json`. Clean source/exported checks
+  belong to those exact trees; native Windows and actual Deck hardware remain
+  open. The repository October 9 package at `c982415` is historical.
+- **Current local pass:** October 14 supply/persistence/specialization changes
+  are being validated at `docs/design/survival_slices/execution_2026-10-14/`.
+  Foundations passed their recorded v9 sweep; the later survey notebook advances
+  local saves to v10 and is receiving separate integration checks. These additions
+  and local NOTICES are not in the
+  delivered v8 playtests above. No current-content build is claimed here.
 - **October 9 source evidence:** `docs/design/survival_slices/01-result.md`
   records 90/90 headless suites and a successful headless startup on Linux at
   checkpoint `c982415`. Its `profile_sim` result is 201.0 µs/tick against a
   200 µs budget (FAIL). These checks cover the October 9 package source, not
   the newer uncommitted menu/settings changes or native Windows execution.
-- **Current working-tree validation (2026-10-09):** headless startup and all
+- **Historical working-tree validation (2026-10-09):** headless startup and all
   90 suites pass, including the updated Delete Watch and encounter-preference
   assertions. `profile_sim` measured 198.6 µs/tick across 144,000 ticks, just
   under the 200 µs budget. This is Linux source validation; it does not validate
@@ -43,18 +51,17 @@ Windows build or a completed human playthrough.
   Field object rate controls overall field content; anomaly frequency adjusts
   its anomaly share.
 - [x] Run the menu, settings, sector, navigation, voyage and save migration
-  suites after the latest changes; all 90 headless suites pass on the current
-  working tree.
-- [ ] Build a fresh Windows package from the exact reviewed source checkpoint;
-  the October 9 package at `c982415` predates the current local changes.
-- [ ] Check the fresh package's embedded content, checksum and archive integrity;
-  include controls, source commit, build date and known limitations.
+  suites for the exact delivered playtest source. New local passes require
+  their own fresh validation before inclusion in a candidate.
+- [x] Deliver dated Windows playtest packages through October 13 with exact
+  source identity. The current October 14 local changes need another candidate.
+- [x] Check published October 13 embedded content, checksums and archive identity;
+  include controls/source/date/limitations. Repeat for the next candidate.
 - [ ] Run the actual executable on Windows: startup, new watch, save/load across
   all three slots, overwrite/corrupt-slot behavior, settings, movement and one
   representative maintenance/travel/EVA route. Cross-export and Linux pack
   checks do not close this item.
-- [ ] State the intended test scope clearly: private playtest candidate, not an
-  Early Access-complete build.
+- [x] Published packages clearly state playtest scope and remaining acceptance.
 
 ### Playtest evidence to collect
 
@@ -95,9 +102,9 @@ EVA route, equipment balance and art review as pending. See
   `docs/design/survival_slices/persistence_plan.md` and its acceptance plan.
 - [ ] Resolve death frequency, loss and recovery consequences before balancing
   the long-term loop (`docs/PRODUCTION_SPEC.md` §9).
-- [x] Current Linux `profile_sim` pass: 198.6 µs/tick over 144,000 ticks against
-  the 200 µs budget. The margin is narrow and should be rechecked after major
-  simulation changes.
+- [x] October 12 Linux CPU-budget recovery: three PASS runs, median 184.9 µs
+  against 200 µs, with exact state/event equivalence. October 14 changes require
+  their own current profile; rendered FPS remains a separate gate.
 - [ ] Validate rendered performance on representative mid-range hardware
   against the Production Spec's 60 fps target. Headless scene timing is not
   rendered FPS.
@@ -140,6 +147,10 @@ EVA route, equipment balance and art review as pending. See
 - [ ] Replace generated capsules with final key art; prepare a trailer and
   complete the platform age-rating questionnaire.
 - [ ] Confirm final title and applicable EULA/privacy and third-party notices.
+  The in-game third-party notices page is done: the wall terminal's NOTICES
+  program (`src/ui/computer/program_notices.gd`, CC0 record from
+  `docs/ASSET_CREDITS.md`) is covered by `test_wall_computer.gd`. Title,
+  EULA/privacy and any store-required notices remain open.
 - [ ] Complete signing/installer work if required by the chosen platform.
 - [x] Asset credits are recorded in `docs/ASSET_CREDITS.md`; the existing store
   copy and in-game screenshots are drafts/evidence, not a finished store page.

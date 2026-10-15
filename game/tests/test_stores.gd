@@ -63,7 +63,33 @@ func _initialize() -> void:
 	var low_after_zero: Array[StringName] = stores.call("get_low_stock")
 	_check(not low_after_zero.has(&"fuse"), "consumed-to-zero part absent from low stock")
 
+	_test_cartridge_stock(stores)
 	_finish()
+
+
+func _test_cartridge_stock(stores: Node) -> void:
+	stores.call("ensure_cartridge", &"shell_a", 1)
+	stores.call("ensure_cartridge", &"shell_a", 1)
+	_check(stores.call("get_cartridge_charges", &"shell_a") == 1, "shell registration is idempotent")
+	_check(stores.call("consume_cartridge_charge", &"shell_a"), "charged shell pays one patch")
+	stores.call("ensure_cartridge", &"shell_a", 1)
+	_check(stores.call("get_cartridge_charges", &"shell_a") == 0, "registration cannot replenish an existing empty shell")
+	_check(not stores.call("consume_cartridge_charge", &"shell_a"), "empty shell cannot pay another patch")
+	_check(not stores.call("refill_cartridge", &"shell_a"), "refill without packaged stock refuses")
+	stores.call("add_part", &"sealant_charge", 2)
+	_check(not stores.call("refill_cartridge", &"unknown"), "unknown shell cannot withdraw supplies")
+	_check(stores.call("refill_cartridge", &"shell_a"), "one package refills an empty known shell")
+	_check(stores.call("get_count", &"sealant_charge") == 1 and stores.call("get_cartridge_charges", &"shell_a") == 1, "refill commits one debit and one charge")
+	_check(not stores.call("refill_cartridge", &"shell_a") and stores.call("get_count", &"sealant_charge") == 1, "full-shell retry preserves packaged stock")
+	var saved: Dictionary = JSON.parse_string(JSON.stringify(stores.call("save_state"))) as Dictionary
+	_check(int(saved["state_version"]) == 2, "Stores version2 includes shell ledger")
+	stores.call("consume_cartridge_charge", &"shell_a")
+	stores.call("load_state", saved)
+	_check(stores.call("get_cartridge_charges", &"shell_a") == 1 and stores.call("get_count", &"sealant_charge") == 1, "JSON restores shell and packaged stock separately")
+	stores.call("load_state", {"state_version": 1, "inventory": {"gasket": 2}})
+	_check(stores.call("get_cartridge_charges", &"shell_a") == 0 and bool(stores.get("cartridge_legacy_restore")), "legacy inventory load clears runtime shell ledger for prop restoration")
+	stores.call("load_state", {"state_version": 2, "inventory": {}, "cartridge_charges": {"valid": 0, "invalid": 2, "fraction": 0.5, "boolean": true, "text": "1", "": 1}})
+	_check(stores.get("cartridge_charges") == {"valid": 0}, "invalid charge counts and identities cannot grant supplies")
 
 
 func _finish() -> void:

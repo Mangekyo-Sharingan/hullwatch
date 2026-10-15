@@ -45,13 +45,8 @@ func _clean_breach() -> void:
 
 
 func _apply_sealant(player: Node) -> void:
-	# The seal step consumes a cartridge the operator is actually carrying; stores are abstract and not fetched in the field.
-	var carried_id: StringName = &""
-	if player != null and player.has_method(&"get_carried_item_id"):
-		carried_id = StringName(player.call("get_carried_item_id"))
-	var consumed: bool = false
-	if carried_id == sealant_part_id and player.has_method(&"consume_carried"):
-		consumed = bool(player.call("consume_carried"))
+	var carried: Node = player.call("get_carried") as Node if player != null and player.has_method(&"get_carried") else null
+	var consumed: bool = carried is SealantCartridge and StringName(carried.call("get_item_id")) == sealant_part_id and bool(carried.call("consume_charge"))
 	if not consumed:
 		_emit_sim_event(&"procedure_error", {"reason": &"no_sealant", "part_id": sealant_part_id})
 		return

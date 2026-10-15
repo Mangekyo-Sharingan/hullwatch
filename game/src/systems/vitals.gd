@@ -19,6 +19,7 @@ const MILD_DAMAGE_SCALE: float = 0.25
 @export var rations_per_occupant_per_day: float = 1.0
 @export var starvation_damage_per_hour: float = 0.15
 @export var vacuum_damage_per_hour: float = 0.5
+@export var suit_temperature_c: float = 21.0
 
 var condition: float = 0.0
 
@@ -124,6 +125,13 @@ func _read_environment() -> Dictionary:
 			break
 	if manned_id == &"":
 		_manned_compartment = &""
+		var player: Node = _first_node_in_group(&"player")
+		if player != null and player.has_method(&"is_exterior") and bool(player.call("is_exterior")):
+			return {
+				"compartment_id": &"", "o2_fraction": 0.0, "co2_ppm": 0.0,
+				"pressure_kpa": 0.0, "temperature_c": suit_temperature_c,
+				"occupants": 1, "dehydrated": _read_dehydrated(), "starving": _read_starving(),
+			}
 		return {}
 	var thermal: Node = _first_node_in_group(&"thermal_system")
 	if thermal == null or not thermal.has_method(&"get_compartment_status"):

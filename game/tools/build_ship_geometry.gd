@@ -381,7 +381,7 @@ func _add_pod_panel(pod: Node3D) -> void:
 	panel.name = "ServicePanel"
 	panel.position = Vector3(2.0, 1.3, POD_MAX.y - PROFILE_ROOM_L[2].y)
 	panel.rotation_degrees = Vector3(0, 180, 0)
-	var model: Node3D = scene.instantiate() as Node3D
+	var model: Node3D = scene.instantiate(PackedScene.GEN_EDIT_STATE_INSTANCE) as Node3D
 	model.name = "Model"
 	panel.add_child(model)
 	var shape: BoxShape3D = BoxShape3D.new()
@@ -1498,7 +1498,7 @@ func _add_hull_model(hull: StaticBody3D, path: String, node_name: String, positi
 	node.position = position
 	node.rotation_degrees = rotation
 	node.scale = Vector3.ONE * scale
-	var model: Node3D = scene.instantiate() as Node3D
+	var model: Node3D = scene.instantiate(PackedScene.GEN_EDIT_STATE_INSTANCE) as Node3D
 	model.name = "Model"
 	node.add_child(model)
 	hull.add_child(node)
@@ -2390,7 +2390,8 @@ func _write_scene(scene_root: Node3D, path: String) -> bool:
 	return _normalize_output(path)
 
 
-## PackedScene.pack() assigns random per-run node unique_ids; strip them so regenerating is byte-stable.
+## PackedScene.pack() gives nodes random ids; their parent-id paths must also be stripped
+## so generated scenes resolve ancestry by stable node paths and remain byte-stable.
 func _normalize_output(output_path: String) -> bool:
 	var file: FileAccess = FileAccess.open(output_path, FileAccess.READ)
 	if file == null:
@@ -2400,7 +2401,7 @@ func _normalize_output(output_path: String) -> bool:
 	var text: String = file.get_as_text()
 	file.close()
 	var regex: RegEx = RegEx.new()
-	regex.compile(" unique_id=\\d+")
+	regex.compile(" unique_id=\\d+| parent_id_path=PackedInt32Array\\([^)]*\\)")
 	var write_file: FileAccess = FileAccess.open(output_path, FileAccess.WRITE)
 	if write_file == null:
 		_failures += 1
@@ -2411,9 +2412,15 @@ func _normalize_output(output_path: String) -> bool:
 	return true
 
 
+## Imported children retain their instance ownership; stealing it serializes a duplicate
+## subtree. The ion models are editable so their authored plume overrides still persist.
 func _assign_owners(node: Node, owner: Node) -> void:
 	for child: Node in node.get_children():
 		child.owner = owner
+		if child.scene_file_path != "":
+			if node is IonDriveFx:
+				owner.set_editable_instance(child, true)
+			continue
 		_assign_owners(child, owner)
 
 

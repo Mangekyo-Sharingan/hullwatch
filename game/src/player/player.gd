@@ -94,6 +94,17 @@ func is_boots_engaged() -> bool:
 	return _boots_engaged
 
 
+func is_exterior() -> bool:
+	var atmosphere: Node = get_tree().get_first_node_in_group(&"atmosphere_system")
+	if atmosphere == null:
+		return false
+	var compartments: Dictionary = atmosphere.call("get_status").get("compartments", {})
+	for compartment: Dictionary in compartments.values():
+		if int(compartment.get("occupants", 0)) > 0:
+			return false
+	return true
+
+
 func is_invert_y() -> bool:
 	return _invert_y
 
@@ -262,6 +273,22 @@ func has_suit_cutter() -> bool:
 	return _suit_cutter
 
 
+func reset_tools_for_load() -> void:
+	if _seat_tween != null and _seat_tween.is_valid():
+		_seat_tween.kill()
+	if _pilot_seat != null and is_instance_valid(_pilot_seat):
+		_pilot_seat.set_occupied(false)
+		_seated = false
+		_finish_seat_exit()
+	_set_crouched(false)
+	_head.position.y = STAND_HEAD_Y
+	drop_carried()
+	for child: Node in _camera.get_children():
+		if child.has_method(&"return_home"):
+			child.call("return_home")
+	_suit_cutter = false
+
+
 ## The node held items and suit-clipped gear ride: the eye camera.
 func get_hold_anchor() -> Node3D:
 	return _camera
@@ -327,7 +354,13 @@ func consume_carried() -> bool:
 	var item_id: StringName = get_carried_item_id()
 	_remove_carry_exception(item)
 	_carried_item = null
-	item.free()
+	# Scene props without a simulator record of their absence park disabled so a
+	# reload cannot resurrect them; dynamically spawned units (with an owning
+	# record elsewhere) are freed as before.
+	if item.has_method(&"mark_consumed"):
+		item.call(&"mark_consumed")
+	else:
+		item.free()
 	_emit_sim_event(&"item_consumed", {"item_id": item_id})
 	return true
 

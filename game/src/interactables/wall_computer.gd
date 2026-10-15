@@ -24,7 +24,7 @@ var _hidden_layers: Dictionary = {}
 
 func _ready() -> void:
 	terminal_title = "WALL TERMINAL"
-	programs = [&"status", &"control", &"log"]
+	programs = [&"status", &"control", &"log", &"notices"]
 	default_program = &"status"
 	phosphor = CrtPanel.PHOSPHOR_GREEN
 	base_font_size = 18

@@ -56,6 +56,13 @@ func _test_zone_sets_occupants() -> void:
 	zone.push_occupancy()
 	status = atmosphere.get_compartment_status(&"main")
 	_check(int(status["occupants"]) == 0, "explicit occupancy refresh agrees with detection")
+	root.remove_child(zone)
+	zone.push_occupancy()
+	_check(int(atmosphere.get_compartment_status(&"main")["occupants"]) == 0, "detached zone cannot write occupancy")
+	root.add_child(zone)
+	atmosphere.remove_compartment(&"main")
+	zone.push_occupancy()
+	_check(not atmosphere.has_compartment(&"main"), "retired zone cannot recreate its simulator compartment")
 
 	atmosphere.free()
 	zone.free()

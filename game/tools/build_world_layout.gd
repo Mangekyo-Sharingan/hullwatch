@@ -347,7 +347,7 @@ const PROPS: Array[Dictionary] = [
 	},
 	{
 		"name": "SealantCartridge1",
-		"script": "res://src/interactables/carriable.gd",
+		"script": "res://src/interactables/sealant_cartridge.gd",
 		"position": Vector3(-3.9, 0.044, -1.8),
 		"tube_position": Vector3(-0.95, 0.044, -2.2),
 		"size": Vector3(0.088, 0.088, 0.331),
@@ -357,7 +357,7 @@ const PROPS: Array[Dictionary] = [
 	},
 	{
 		"name": "SealantCartridge2",
-		"script": "res://src/interactables/carriable.gd",
+		"script": "res://src/interactables/sealant_cartridge.gd",
 		"position": Vector3(-3.55, 0.044, -1.8),
 		"tube_position": Vector3(0.95, 0.044, -4.1),
 		"size": Vector3(0.088, 0.088, 0.331),
@@ -367,7 +367,7 @@ const PROPS: Array[Dictionary] = [
 	},
 	{
 		"name": "SealantCartridge3",
-		"script": "res://src/interactables/carriable.gd",
+		"script": "res://src/interactables/sealant_cartridge.gd",
 		"position": Vector3(-3.2, 0.044, -1.8),
 		"tube_position": Vector3(0.95, 0.044, -3.7),
 		"size": Vector3(0.088, 0.088, 0.331),

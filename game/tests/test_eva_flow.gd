@@ -56,10 +56,27 @@ func _run() -> void:
 	await physics_frame
 	await physics_frame
 	_check(bool(player.call("is_tethered")), "stepping onto the platform auto-clips the tether")
-
 	player.global_position = Vector3(-40.0, 0.2, -1.2)
 	await physics_frame
 	await physics_frame
+	await physics_frame
+	_check(bool(player.call("is_exterior")), "exterior has no occupied cabin")
+	var vitals: VitalsSystem = main.get_node("Systems/VitalsSystem") as VitalsSystem
+	var water: WaterSystem = main.get_node("Systems/WaterSystem") as WaterSystem
+	var stores: Stores = main.get_node("Systems/Stores") as Stores
+	var suit_before: float = float(airlock.get("suit_o2_hours"))
+	var water_before: float = water.potable_l
+	var food_before: int = stores.get_count(&"food_ration")
+	var vitals_state: Dictionary = vitals.save_state()
+	vitals_state["ration_accumulator"] = 1.0 - 0.25 / 24.0
+	vitals.load_state(vitals_state)
+	water.set_reclaimer_powered(false)
+	sim_clock.call("fast_forward", 0.25)
+	_check(absf(float(airlock.get("suit_o2_hours")) - (suit_before - 0.25)) < 0.001, "actual exterior drains suit O2 exactly once")
+	_check(absf(water.potable_l - (water_before - 0.25 * water.consumption_l_per_occupant_hour)) < 0.001, "actual exterior still consumes water")
+	_check(stores.get_count(&"food_ration") == food_before - 1, "actual exterior still consumes rations")
+	water.set_reclaimer_powered(true)
+
 	var distance: float = float(player.call("get_tether_distance"))
 	_check(distance <= 14.05, "the taut line holds the operator (%.2f m)" % distance)
 

@@ -119,9 +119,36 @@ func _on_sim_event(event_name: StringName, payload: Dictionary) -> void:
 # why: carrying is transient player state — a load starts the player empty-handed and the item is
 # restored to its saved home transform. Persisting the carried flag could duplicate an item or
 # strand one under a camera that no longer exists, so only the identity is stored.
+func get_save_key() -> String:
+	# A held item is reparented under the camera, so its live path is transient; key the
+	# payload at its home slot so a fresh-scene load finds it there.
+	if _carried and _home_parent != null and is_instance_valid(_home_parent) and _home_parent.is_inside_tree():
+		return "%s/%s" % [String(_home_parent.get_path()), String(name)]
+	return super.get_save_key()
+
+
+## Scene-prop items have no simulator record of their absence, so a consumed
+## cartridge parks disabled at its home slot instead of being freed: the base
+## enabled flag already persists, and a reload never resurrects it.
+func mark_consumed() -> void:
+	if _carried:
+		unequip(Transform3D.IDENTITY)
+	enabled = false
+	visible = false
+	process_mode = Node.PROCESS_MODE_DISABLED
+	_set_collisions_disabled(true)
+	position = Vector3(0.0, -100.0, 0.0)
+
+
 func save_state() -> Dictionary:
 	var state: Dictionary = super.save_state()
 	state["item_id"] = String(item_id)
+	var pose: Transform3D = global_transform
+	if _carried and _home_parent is Node3D:
+		pose = (_home_parent as Node3D).global_transform * _home_transform
+	state["world_pose"] = [pose.basis.x.x, pose.basis.x.y, pose.basis.x.z,
+		pose.basis.y.x, pose.basis.y.y, pose.basis.y.z, pose.basis.z.x, pose.basis.z.y, pose.basis.z.z,
+		pose.origin.x, pose.origin.y, pose.origin.z]
 	return state
 
 
@@ -129,6 +156,35 @@ func load_state(state: Dictionary) -> void:
 	super.load_state(state)
 	if state.has("item_id"):
 		item_id = StringName(state["item_id"])
+	var pose: Variant = state.get("world_pose")
+	if is_valid_saved_pose(pose):
+		global_transform = Transform3D(Basis(Vector3(pose[0], pose[1], pose[2]),
+			Vector3(pose[3], pose[4], pose[5]), Vector3(pose[6], pose[7], pose[8])),
+			Vector3(pose[9], pose[10], pose[11]))
+	if not enabled:
+		visible = false
+		_set_collisions_disabled(true)
+		process_mode = Node.PROCESS_MODE_DISABLED
+	else:
+		visible = true
+		process_mode = Node.PROCESS_MODE_INHERIT
+		_set_collisions_disabled(false)
+
+
+static func is_valid_saved_pose(value: Variant) -> bool:
+	if not value is Array or value.size() != 12:
+		return false
+	for coordinate: Variant in value:
+		if not (coordinate is int or coordinate is float) or not is_finite(float(coordinate)):
+			return false
+	var basis: Basis = Basis(Vector3(value[0], value[1], value[2]),
+		Vector3(value[3], value[4], value[5]), Vector3(value[6], value[7], value[8]))
+	return absf(basis.determinant()) > 0.000001
+
+
+func return_home() -> void:
+	if _carried and _home_parent is Node3D:
+		unequip((_home_parent as Node3D).global_transform * _home_transform)
 
 
 func _set_collisions_disabled(disabled: bool) -> void:

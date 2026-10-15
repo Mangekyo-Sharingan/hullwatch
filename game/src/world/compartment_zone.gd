@@ -7,8 +7,11 @@ extends Area3D
 
 
 func _ready() -> void:
+	add_to_group(&"compartment_zone")
 	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)
+	# Scene zones replace scenario defaults, including rooms the operator never enters.
+	push_occupancy()
 
 
 func get_occupants() -> int:
@@ -35,8 +38,11 @@ func _on_body_exited(body: Node3D) -> void:
 
 
 func _set_occupants(count: int) -> void:
+	if not is_inside_tree():
+		return
 	var atmosphere: Node = get_tree().get_first_node_in_group(&"atmosphere_system")
-	if atmosphere != null:
+	# Teardown can remove the simulator compartment before physics delivers body_exited.
+	if atmosphere != null and bool(atmosphere.call(&"has_compartment", compartment_id)):
 		atmosphere.call("set_occupants", compartment_id, count)
 
 

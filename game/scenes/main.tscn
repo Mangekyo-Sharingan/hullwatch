@@ -92,6 +92,10 @@
 [ext_resource type="Script" uid="uid://bwo4p83oj787g" path="res://src/systems/salvage.gd" id="120_salvage"]
 [ext_resource type="Resource" path="res://src/data/salvage/salvage_battery.tres" id="121_salvage_def"]
 
+[ext_resource type="Resource" path="res://src/data/fabrication/recipe_water_charge.tres" id="122_water_charge"]
+[ext_resource type="Resource" path="res://src/data/fabrication/recipe_sealant_charge.tres" id="123_sealant_charge"]
+[ext_resource type="Resource" path="res://src/data/machines/machine_survey_sensor.tres" id="124_survey_sensor"]
+
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_sky"]
 shader = ExtResource("71_space_sky")
 shader_parameter/top_color = Color(0.004, 0.006, 0.012, 1)
@@ -179,6 +183,8 @@ script = ExtResource("22_vitals")
 
 [node name="WaterSystem" type="Node" parent="Systems" unique_id=2019359395]
 script = ExtResource("45_water")
+water_charge_part_id = &"water_charge"
+water_charge_liters = 10.0
 wear_components = Array[ExtResource("9_j8jky")]([ExtResource("59_water_pump")])
 
 [node name="CommsSystem" type="Node" parent="Systems" unique_id=1096520742]
@@ -200,12 +206,12 @@ script = ExtResource("74_cargo")
 
 [node name="FabricatorSystem" type="Node" parent="Systems" unique_id=1195682759]
 script = ExtResource("76_fabricator")
-recipes = Array[ExtResource("81_recipe_script")]([ExtResource("77_recipe_water"), ExtResource("78_recipe_candle"), ExtResource("79_recipe_co2"), ExtResource("80_recipe_gasket")])
+recipes = Array[ExtResource("81_recipe_script")]([ExtResource("77_recipe_water"), ExtResource("78_recipe_candle"), ExtResource("79_recipe_co2"), ExtResource("80_recipe_gasket"), ExtResource("122_water_charge"), ExtResource("123_sealant_charge")])
 
 [node name="ModuleSystem" type="Node" parent="Systems" unique_id=1961520852]
 script = ExtResource("82_modules")
 catalog = Array[ExtResource("83_ship_module")]([ExtResource("84_module_utility"), ExtResource("85_module_storage"), ExtResource("86_module_greenhouse"), ExtResource("87_module_workshop"), ExtResource("88_module_expanded_storage"), ExtResource("89_module_aux_battery"), ExtResource("90_module_med_bay")])
-machine_catalog = Array[ExtResource("91_machine_script")]([ExtResource("92_machine_grow_rack"), ExtResource("93_machine_work_bench"), ExtResource("94_machine_cargo_rack"), ExtResource("95_machine_battery_cabinet"), ExtResource("96_machine_med_bed"), ExtResource("97_machine_scrubber_spare")])
+machine_catalog = Array[ExtResource("91_machine_script")]([ExtResource("92_machine_grow_rack"), ExtResource("93_machine_work_bench"), ExtResource("94_machine_cargo_rack"), ExtResource("95_machine_battery_cabinet"), ExtResource("96_machine_med_bed"), ExtResource("97_machine_scrubber_spare"), ExtResource("124_survey_sensor")])
 
 [node name="SalvageSystem" type="Node" parent="Systems" unique_id=180867633]
 script = ExtResource("120_salvage")

@@ -5,13 +5,19 @@
 [resource]
 script = ExtResource("1_page")
 title = "FIELD WORK"
-body = "CUTTER. The hull cutter lives clipped to the suit, so your hands stay free for one thing at a time: take a sample canister from the airlock rack. Work an asteroid or a debris cluster and the cut fills the canister with whatever the deposit holds. Deposits are finite - a spent rock stays spent.
+body = "SURVEY NOTEBOOK. Carry the field scanner and ping a contact. SENSOR CONTACTS offers a SURVEY NOTEBOOK page: review current and archived observations before choosing an approach. A ping records kind and range, not composition or unseen stock. Taking a real sample confirms its material and the last measured remainder; diagnosing recovered equipment adds the inspected unit. Older readings may be out of date. Current contacts show the approach propellant cost, hold room and actual suit O2 reserve; budget a return trip. Archived readings cannot command an approach in another field.
 
-STOW. The cargo port on the EVA platform takes a loaded canister and stows it in the hold. The status panel (E) carries a CARGO section: what the hold holds, by unit and by mass.
+CUTTER. The hull cutter lives clipped to the suit, so your hands stay free for one thing at a time: take a sample canister from the airlock rack. Work an asteroid or a debris cluster and the cut fills the canister with whatever the deposit holds. Deposits are finite - a spent rock stays spent.
+
+STOW. The cargo port on the EVA platform takes a loaded canister and stows it in the hold. The status panel (E) carries a CARGO section: what the hold holds, by unit and by mass. If the hold can take only part of a sample, the remainder stays in the canister. Arrival supplies that did not fit remain at that destination; use the empty-handed cargo port to receive them after making space.
 
 ANOMALIES. Do not cut an anomaly. Carry the field scanner and study it instead: the survey is logged and exotic matter threads into the hold. Reading without the scanner, or with a full hold, earns a refusal and no data.
 
-WORKSHOP. The fabricator in the engine bay turns mined stock into ship's parts - ice into water filters and O2 candles, ore into CO2 filters, metal into gaskets. It runs on its own breaker: no power, no process. One job at a time. Materials are consumed when a job starts, and the finished part lands in stores. If a job refuses, the stock or the breaker will tell you which.
+WORKSHOP. The fabricator in the engine bay turns mined stock into ship's parts - ice into water charges, water filters and O2 candles, ore into CO2 filters, metal into sealant charges and gaskets. It runs on its own breaker: no power, no process. One job at a time. Materials are consumed when a job starts, and the finished part lands in stores. If a job refuses, the stock or the breaker will tell you which.
+
+WATER SUPPLY. Fabricate a water charge from ice. At the water reclaimer, select TRANSFER WATER CHARGE TO TANK while its service procedure is idle. The reclaimer needs power, a working pump and enough tank space for the whole charge. Inspect the potable reserve afterward. Replacing its filter cleans the loop; it does not add water.
+
+SEALANT SUPPLY. A sealant cartridge is a reusable shell. Fabricate a sealant charge from metal, carry the empty shell and select REFILL CARRIED SEALANT CARTRIDGE at the fabricator. Each patch spends one charge; the empty shell stays in hand. Spare charges in stores cannot seal a breach without the physical cartridge.
 
 RECOVERED EQUIPMENT. Debris frames can hold equipment in a recovery mount. At SENSOR CONTACTS, approach a debris contact and hold position. Carry a wrench, suit up and keep a return route to the ship. On the wreck, use the marked recovery supply control to isolate it, then unbolt the mount with the wrench. The released transport case uses your normal carry slot. Bring it to the hull cargo port and stow it; the hold must have room.
 

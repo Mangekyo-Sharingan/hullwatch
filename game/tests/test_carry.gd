@@ -75,7 +75,8 @@ func _run() -> void:
 
 	_check(player.take_carriable(second), "dropped item can be taken again")
 	_check(player.consume_carried(), "consume_carried consumes the held item")
-	_check(not is_instance_valid(second), "consumed item is freed")
+	_check(is_instance_valid(second) and not second.enabled and not second.visible, "consumed scene prop parks disabled, not freed")
+	_check(second.get_parent() != camera, "consumed item leaves the carry anchor")
 	_check(not player.has_carried_item(), "carry slot is empty after consume")
 	_check(_consumed == [&"filter_co2"], "item_consumed event captured with the item id")
 	_check(not player.consume_carried(), "consume_carried is a no-op with an empty slot")

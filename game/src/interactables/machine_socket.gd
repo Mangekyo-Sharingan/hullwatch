@@ -333,6 +333,8 @@ func _effect_text(effect: StringName, amount: float) -> String:
 			return "battery: +%.0f Wh" % amount
 		&"recovery":
 			return "recovery: +%.2f/h" % amount
+		&"survey":
+			return "contacts: +%.0f m while powered" % amount
 	return "no function"
 
 
