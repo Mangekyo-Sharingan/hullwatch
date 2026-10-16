@@ -41,6 +41,18 @@ The GPU time differs by 0.03 ms or less in every close-up view, which is inside 
 
 This is one mid-range desktop GPU on Linux. It says nothing about Windows drivers, integrated graphics, or the Steam Deck (same 1280×800, but a much weaker GPU). Treat the Deck as untested.
 
+### Geometry-bound check and shadows (same machine, 2026-10-16)
+
+To expose geometry cost, old and new models were rerun at 320×200 so pixel work nearly vanishes (four runs per version, interleaved).
+
+- **Close-ups:** GPU time is identical for the galley, breaker, bunk, wall computer and lectern. The tools rack is about 0.02 ms higher with the new models (0.23–0.24 → 0.25–0.26 ms), consistently. That is the real geometry cost.
+- **Spawn view:** the same build ranged from 0.55 to 0.98 ms between runs, so differences there are noise. An earlier apparent +0.3 ms did not reproduce.
+- **The game is CPU-bound at spawn:** about 2.7–3.0 ms per frame against roughly 0.9 ms of GPU time at this resolution, with about 850 draw calls.
+- **Shadows are the lever that matters:** 12 of the scene's 17 lights cast shadows. With shadows off at 1280×800, the spawn frame fell from 3.06 to 2.23 ms (GPU 2.55 → 1.85 ms) and the galley view's GPU time from 1.57 to 1.29 ms. The model upgrade costs about 0.02 ms in comparison. Single runs, one GPU.
+- **Unexplained:** a shadows-off run at 320×200 hung twice and was abandoned. The 1280×800 runs above completed.
+
+Conclusion for low-end support: model triangle density is not the thing to make configurable. Shadow quality, render resolution and CPU-side draw-call count are.
+
 ### Tomorrow on Windows
 
 Compare `build/windows-candidate-2026-10-15-ea0102-…` (old models) with `build/windows-candidate-2026-10-16-models-…` (new models). The game has no FPS readout, and none was added. Use the Steam overlay's FPS counter, the GPU vendor overlay, or Xbox Game Bar (Win+G, Performance) and look at the galley, breaker cabinet and wall computer in both builds.
