@@ -71,18 +71,18 @@ func _unhandled_input(event: InputEvent) -> void:
 		close()
 		get_viewport().set_input_as_handled()
 		return
-	if event is InputEventKey and event.pressed and _readout_scroll != null:
-		if event.keycode == KEY_PAGEDOWN:
+	if _readout_scroll != null:
+		if event.is_action_pressed(&"readout_scroll_down"):
 			_readout_scroll.scroll_vertical += 220
 			get_viewport().set_input_as_handled()
 			return
-		if event.keycode == KEY_PAGEUP:
+		if event.is_action_pressed(&"readout_scroll_up"):
 			_readout_scroll.scroll_vertical -= 220
 			get_viewport().set_input_as_handled()
 			return
-	if event.is_action_pressed(&"menu_next") or event.is_action_pressed(&"ui_down"):
+	if event.is_action_pressed(&"menu_next") or InputEdge.fresh(event, &"ui_down"):
 		_menu.move_selection(1)
-	elif event.is_action_pressed(&"menu_prev") or event.is_action_pressed(&"ui_up"):
+	elif event.is_action_pressed(&"menu_prev") or InputEdge.fresh(event, &"ui_up"):
 		_menu.move_selection(-1)
 	elif event.is_action_pressed(&"menu_select") or event.is_action_pressed(&"ui_accept"):
 		_menu.confirm()
@@ -127,7 +127,7 @@ func _refresh_stowed_readout() -> void:
 		return
 	var lines: PackedStringArray = build_readout()
 	if not lines.is_empty():
-		lines[lines.size() - 1] = "E: DEPLOY TERMINAL"
+		lines[lines.size() - 1] = InputHints.expand("{interact}: DEPLOY TERMINAL")
 	_content.text = "\n".join(lines)
 	_screen_view.render_target_update_mode = SubViewport.UPDATE_ONCE
 
@@ -202,7 +202,7 @@ func _ensure_ui() -> void:
 	row.add_child(_menu)
 	_menu.custom_minimum_size = Vector2(205, 0)
 	_menu.setup("HULLWATCH / BAY 01", PackedStringArray(["BOOTING..."]))
-	_menu.set_hint("WHEEL: NAV  ENTER: OPEN\nPGUP/DN: READOUT")
+	_menu.set_hint("{browse}: NAV  {confirm_enter}: OPEN\n{text_scroll_short}: READOUT")
 	_menu.option_selected.connect(_on_selected)
 	_menu.option_highlighted.connect(_on_highlighted)
 	var readout := PanelContainer.new()

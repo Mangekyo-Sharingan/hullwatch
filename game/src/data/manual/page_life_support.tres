@@ -9,7 +9,7 @@ body = "CO2 is removed by the scrubber. Removal rate depends on power, on the fi
 
 FILTER SWAP - life-support side bay
   Take the wrench; check STORES for a CO2 filter.
-  At the scrubber itself, press E once for each prompt:
+  At the scrubber itself, press {interact} once for each prompt:
   1  POWER DOWN
   2  OPEN HOUSING (wrench in hand)
   3  REMOVE FILTER

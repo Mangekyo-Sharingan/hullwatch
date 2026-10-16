@@ -9,7 +9,7 @@ body = "SURVEY NOTEBOOK. Carry the field scanner and ping a contact. SENSOR CONT
 
 CUTTER. The hull cutter lives clipped to the suit, so your hands stay free for one thing at a time: take a sample canister from the airlock rack. Work an asteroid or a debris cluster and the cut fills the canister with whatever the deposit holds. Deposits are finite - a spent rock stays spent.
 
-STOW. The cargo port on the EVA platform takes a loaded canister and stows it in the hold. The status panel (E) carries a CARGO section: what the hold holds, by unit and by mass. If the hold can take only part of a sample, the remainder stays in the canister. Arrival supplies that did not fit remain at that destination; use the empty-handed cargo port to receive them after making space.
+STOW. The cargo port on the EVA platform takes a loaded canister and stows it in the hold. The status panel ({interact}) carries a CARGO section: what the hold holds, by unit and by mass. If the hold can take only part of a sample, the remainder stays in the canister. Arrival supplies that did not fit remain at that destination; use the empty-handed cargo port to receive them after making space.
 
 ANOMALIES. Do not cut an anomaly. Carry the field scanner and study it instead: the survey is logged and exotic matter threads into the hold. Reading without the scanner, or with a full hold, earns a refusal and no data.
 

@@ -83,6 +83,7 @@ func _run() -> void:
 	_check(player.drop_carried() == null, "drop_carried with nothing carried returns null")
 
 	await _test_drop_beside_shelf(player)
+	_test_stick_look(player)
 	player.free()
 	first.free()
 	hud.free()
@@ -159,6 +160,27 @@ func _test_drop_beside_shelf(player: CharacterBody3D) -> void:
 	shelf.free()
 	player.rotation = Vector3.ZERO
 	player.get_node("Head").rotation = Vector3.ZERO
+
+
+## The right stick turns the view the way the mouse does, and a half push turns less than half
+## as fast, which is what makes small adjustments aimable on a panel row.
+func _test_stick_look(player: CharacterBody3D) -> void:
+	player.rotation = Vector3.ZERO
+	player.get_node("Head").rotation = Vector3.ZERO
+	player.set("_pitch", 0.0)
+	player.call("apply_stick_look", Vector2(1.0, 0.0), 0.1)
+	var full_turn: float = player.rotation.y
+	_check(full_turn < 0.0, "stick look: pushing right turns the view right")
+	player.rotation = Vector3.ZERO
+	player.call("apply_stick_look", Vector2(0.5, 0.0), 0.1)
+	_check(absf(player.rotation.y) < absf(full_turn) * 0.5, "stick look: a half push turns less than half as fast")
+	player.call("apply_stick_look", Vector2(0.0, -1.0), 0.1)
+	_check(float(player.get_node("Head").rotation.x) > 0.0, "stick look: pushing up raises the view")
+	player.call("apply_stick_look", Vector2(0.0, 1.0), 10.0)
+	_check(float(player.get_node("Head").rotation.x) >= -deg_to_rad(89.01), "stick look: pitch stays inside the limit")
+	player.rotation = Vector3.ZERO
+	player.get_node("Head").rotation = Vector3.ZERO
+	player.set("_pitch", 0.0)
 
 
 func _make_carriable(id: StringName, name: String, position: Vector3) -> Carriable:

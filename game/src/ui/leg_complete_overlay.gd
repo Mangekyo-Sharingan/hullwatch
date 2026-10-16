@@ -35,7 +35,7 @@ func get_overlay_text() -> String:
 
 
 func _show_overlay(waypoint_id: StringName) -> void:
-	_text = "LEG COMPLETE\n%s\n\nPRESS E TO CONTINUE" % String(waypoint_id).to_upper()
+	_text = InputHints.expand("LEG COMPLETE\n%s\n\nPRESS {interact} TO CONTINUE" % String(waypoint_id).to_upper())
 	_label.text = _text
 	_label.visible = true
 	_fade.modulate.a = 1.0
@@ -45,7 +45,7 @@ func _show_overlay(waypoint_id: StringName) -> void:
 func _show_arrival(payload: Dictionary) -> void:
 	var display_name: String = String(payload.get("display_name", payload.get("destination_id", "Waypoint"))).to_upper()
 	var report: String = String(payload.get("arrival_report", "Navigation reference confirmed."))
-	_text = "WAYPOINT REACHED\n%s\n\n%s\n\nPRESS E TO CONTINUE" % [display_name, report]
+	_text = InputHints.expand("WAYPOINT REACHED\n%s\n\n%s\n\nPRESS {interact} TO CONTINUE" % [display_name, report])
 	_label.text = _text
 	_label.visible = true
 	_fade.modulate.a = 1.0

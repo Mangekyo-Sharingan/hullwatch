@@ -10,11 +10,17 @@ var _menu: ScrollMenu
 var _content: Label
 var _root: HBoxContainer
 var _scroll: ScrollContainer
+var _content_gamepad: bool = false
 
 
 func _ready() -> void:
 	_apply_ui_scale()
 	UiScale.connect_settings(self, _on_ui_scale_changed)
+
+
+func _process(_delta: float) -> void:
+	if _content != null and is_open() and _content_gamepad != InputHints.gamepad_active:
+		_refresh_content()
 
 
 func get_interaction_prompt() -> String:
@@ -36,8 +42,8 @@ func _unhandled_input(event: InputEvent) -> void:
 	if PanelDismiss.should_dismiss(event, is_open()):
 		close()
 		get_viewport().set_input_as_handled()
-	elif is_open() and event is InputEventKey and event.pressed and event.keycode in [KEY_PAGEUP, KEY_PAGEDOWN]:
-		var direction: int = 1 if event.keycode == KEY_PAGEDOWN else -1
+	elif is_open() and (event.is_action_pressed(&"readout_scroll_up") or event.is_action_pressed(&"readout_scroll_down")):
+		var direction: int = 1 if event.is_action_pressed(&"readout_scroll_down") else -1
 		_scroll.scroll_vertical += direction * int(_scroll.size.y * 0.8)
 		get_viewport().set_input_as_handled()
 
@@ -67,7 +73,7 @@ func build_readout() -> PackedStringArray:
 	lines.append("%s  [%d/%d]" % [page.title, _menu.get_highlighted_index() + 1, get_page_count()])
 	lines.append("")
 	for body_line: String in page.body.split("\n"):
-		lines.append(body_line)
+		lines.append(InputHints.expand(body_line))
 	return lines
 
 
@@ -80,7 +86,7 @@ func _handle_interact(_player: Node) -> void:
 		return
 	_menu.setup("OPERATOR'S MANUAL", _page_titles())
 	_menu.open()
-	_menu.set_hint("WHEEL/ARROWS: PAGES\nPGUP/PGDN: TEXT    E/ESC: CLOSE")
+	_menu.set_hint("{browse_tight}: PAGES\n{text_scroll}: TEXT    {close}: CLOSE")
 	if _root != null:
 		_root.visible = true
 	_refresh_content()
@@ -118,6 +124,7 @@ func _on_page_selected(index: int) -> void:
 
 func _refresh_content() -> void:
 	if _content != null:
+		_content_gamepad = InputHints.gamepad_active
 		_content.text = "\n".join(build_readout())
 
 

@@ -10,7 +10,7 @@ body = "THE HULL is xenon-metal. Service accessible fittings and patch breaches;
 MICRO-PUNCTURES raise the compartment leak rate; pressure falls, and leaks keep working while you sleep. Each occupied compartment has a wall-mounted patch point. Use the point in the leaking compartment; a patch elsewhere does not seal that room. MAIN on the readout means the life-support compartment.
 
 PATCH PROCEDURE
-  At the leaking room's patch point, press E for each prompt:
+  At the leaking room's patch point, press {interact} for each prompt:
   1  CLEAN THE BREACH
   2  FIT THE PATCH
   3  APPLY SEALANT (one charge from the carried cartridge)

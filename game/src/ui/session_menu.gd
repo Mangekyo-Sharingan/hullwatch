@@ -213,11 +213,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		if event.is_action_pressed(&"pause"):
 			_settings.call("close")
 			get_viewport().set_input_as_handled()
-		elif event.is_action_pressed(&"secondary"):
+		elif InputEdge.fresh(event, &"secondary"):
 			_settings.call("_decrease_highlighted")
 			get_viewport().set_input_as_handled()
 		return
-	if not event.is_action_pressed(&"pause"):
+	if not (event.is_action_pressed(&"pause") or (_open and event.is_action_pressed(&"dismiss"))):
 		return
 	if _open:
 		_back()
@@ -345,7 +345,7 @@ func _refresh() -> void:
 	elif _page == &"update":
 		title = "UPDATING HULLWATCH"
 	_menu.setup(title, _actions)
-	_menu.set_hint("WHEEL / ARROWS: BROWSE\nCLICK / WHEEL CLICK / ENTER: SELECT    ESC: BACK")
+	_menu.set_hint("{browse_arrows}: BROWSE\n{confirm_menu}: SELECT    {back}: BACK")
 	_style_rows()
 
 

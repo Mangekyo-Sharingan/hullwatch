@@ -8,6 +8,7 @@ const CROUCH_HEAD_Y: float = 0.95
 const BOOTS_LOST_GRACE: float = 0.15
 const NORMAL_EPSILON: float = 0.000001
 const BASE_MOUSE_SENSITIVITY: float = 0.002
+const STICK_LOOK_PIXELS_PER_SECOND: float = 1400.0
 const STRIDE_LENGTH_M: float = 1.2
 const HOLD_OFFSET: Vector3 = Vector3(0.32, -0.26, -0.55)
 const DROP_DISTANCE_M: float = 1.1
@@ -366,8 +367,28 @@ func consume_carried() -> bool:
 	return true
 
 
+func _process(delta: float) -> void:
+	if _seat_transitioning or Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
+		return
+	apply_stick_look(Input.get_vector(&"look_left", &"look_right", &"look_up", &"look_down"), delta)
+
+
+## Right-stick look: the same turn the mouse gives, scaled by the sensitivity setting. The
+## response curve keeps small pushes fine for aiming at panel rows and large ones quick.
+func apply_stick_look(stick: Vector2, delta: float) -> void:
+	if stick == Vector2.ZERO:
+		return
+	_apply_look_motion(stick * stick.length() * STICK_LOOK_PIXELS_PER_SECOND * delta)
+
+
+## While a menu or readout is open, gamepad buttons belong to it: A confirms a row rather than
+## interacting, and B closes the readout rather than dropping the carried tool.
+func _gamepad_input_belongs_to_menu(event: InputEvent) -> bool:
+	return (event is InputEventJoypadButton or event is InputEventJoypadMotion) and ScrollMenu.any_open(get_tree())
+
+
 func _unhandled_input(event: InputEvent) -> void:
-	if _seat_transitioning:
+	if _seat_transitioning or _gamepad_input_belongs_to_menu(event):
 		return
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		var motion: InputEventMouseMotion = event as InputEventMouseMotion
@@ -391,12 +412,12 @@ func _unhandled_input(event: InputEvent) -> void:
 			push_off()
 	elif event.is_action_pressed(&"interact"):
 		_try_interact()
-	elif event.is_action_pressed(&"secondary"):
+	elif InputEdge.fresh(event, &"secondary"):
 		if has_carried_item():
 			drop_carried()
 	elif event.is_action_pressed(&"flashlight"):
 		_flashlight.visible = not _flashlight.visible
-	elif event.is_action_pressed(&"primary"):
+	elif InputEdge.fresh(event, &"primary"):
 		_scan_ping()
 	elif event.is_action_pressed(&"toggle_tether"):
 		_toggle_tether()

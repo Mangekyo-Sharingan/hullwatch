@@ -11,7 +11,7 @@ const VOLUME_STEP_DB: float = 5.0
 const UI_SCALE_STEP: float = 0.05
 const FILTER_INTENSITY_STEP: float = 0.1
 const ENCOUNTER_FREQUENCY_STEP: float = 0.25
-const MENU_HINT: String = "WHEEL: BROWSE   CLICK: SELECT / +   RIGHT CLICK: -   ESC: CLOSE"
+const MENU_HINT: String = "{browse}: BROWSE   {confirm_click}: SELECT / +   {decrease}: -   {close_only}: CLOSE"
 
 const ROW_SENSITIVITY: int = 0
 const ROW_INVERT: int = 1
@@ -47,7 +47,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed(&"pause"):
 		toggle()
 		get_viewport().set_input_as_handled()
-	elif _open and event.is_action_pressed(&"secondary"):
+	elif _open and InputEdge.fresh(event, &"secondary"):
 		_decrease_highlighted()
 
 
@@ -220,7 +220,7 @@ func _refresh_labels() -> void:
 
 func _menu_items() -> PackedStringArray:
 	var items: PackedStringArray = PackedStringArray()
-	items.append("MOUSE SENSITIVITY    %s" % get_row_value_text(&"mouse_sensitivity_multiplier"))
+	items.append("LOOK SENSITIVITY     %s" % get_row_value_text(&"mouse_sensitivity_multiplier"))
 	items.append("INVERT Y             %s" % get_row_value_text(&"invert_y"))
 	items.append("MASTER VOLUME        %s" % get_row_value_text(&"master_volume_db"))
 	items.append("UI SCALE             %s" % get_row_value_text(&"ui_scale"))
@@ -230,7 +230,7 @@ func _menu_items() -> PackedStringArray:
 	items.append("ANOMALY FREQUENCY    %s" % get_row_value_text(&"anomaly_frequency"))
 	items.append("PLANET OCCURRENCE    %s" % get_row_value_text(&"planet_frequency"))
 	items.append("RESET DEFAULTS")
-	items.append("CLOSE (ESC)")
+	items.append("CLOSE (%s)" % InputHints.label(&"pause"))
 	return items
 
 

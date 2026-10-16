@@ -3353,6 +3353,25 @@
               "label": "Cutter, canister, probe and manual stand before and after"
             }
           ]
+        },
+        {
+          "id": "LATER.11",
+          "title": "Native gamepad support with a default Deck/Xbox layout and button prompts that follow the last device used (operator-requested 2026-10-16; overlaps planned EA10 controls work; outside the EA slice list)",
+          "status": "needs_review",
+          "evidence": [
+            {
+              "path": "docs/playtests/LATER11/play_note.md",
+              "label": "Layout, what was verified with synthetic gamepad events, defects found, and limits (no real pad or Deck yet)"
+            },
+            {
+              "path": "docs/playtests/LATER11/gamepad_route_sheet.png",
+              "label": "Gamepad-only route: menus, HUD, readout and pause menu with button prompts"
+            },
+            {
+              "path": "docs/playtests/LATER11/readout_gamepad_hints.png",
+              "label": "Warning board readout showing D-PAD, A and B/MENU prompts"
+            }
+          ]
         }
       ],
       "acceptance": [

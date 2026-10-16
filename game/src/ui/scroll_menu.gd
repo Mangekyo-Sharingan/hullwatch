@@ -6,7 +6,7 @@ extends PanelContainer
 signal option_selected(index: int)
 signal option_highlighted(index: int)
 
-const HINT_TEXT: String = "WHEEL: BROWSE    ROW CLICK / WHEEL CLICK / ENTER: SELECT    E/ESC: CLOSE"
+const HINT_TEXT: String = "{browse}: BROWSE    {confirm}: SELECT    {close}: CLOSE"
 const COLOR_HIGHLIGHT: Color = Color(1.0, 0.85, 0.55, 1.0)
 const COLOR_NORMAL: Color = Color(0.72, 0.76, 0.7, 1.0)
 const COLOR_SELECTED: Color = Color(0.55, 0.78, 0.72, 1.0)
@@ -22,9 +22,12 @@ var _list: VBoxContainer
 var _title_label: Label
 var _hint_label: Label
 var _rows: Array[Label] = []
+var _hint_template: String = HINT_TEXT
+var _hint_gamepad: bool = false
 
 
 func _ready() -> void:
+	add_to_group(&"scroll_menu")
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	custom_minimum_size = Vector2(340.0, 0.0)
 	var style := StyleBoxFlat.new()
@@ -48,7 +51,8 @@ func _ready() -> void:
 	column.add_child(_list)
 	_hint_label = Label.new()
 	_hint_label.name = "Hint"
-	_hint_label.text = HINT_TEXT
+	_hint_label.text = InputHints.expand(_hint_template)
+	_hint_gamepad = InputHints.gamepad_active
 	_hint_label.add_theme_font_size_override("font_size", UiScale.size(self, BASE_HINT_FONT_SIZE))
 	_hint_label.add_theme_color_override("font_color", Color(0.55, 0.6, 0.55, 1.0))
 	column.add_child(_hint_label)
@@ -71,8 +75,32 @@ func set_items(items: PackedStringArray) -> void:
 	_rebuild_rows()
 
 
+## True while any menu or readout is showing; gamepad buttons then belong to it.
+static func any_open(tree: SceneTree) -> bool:
+	if tree == null:
+		return false
+	for node: Node in tree.get_nodes_in_group(&"scroll_menu"):
+		var menu: ScrollMenu = node as ScrollMenu
+		if menu != null and menu.is_open() and menu.is_visible_in_tree():
+			return true
+	return false
+
+
+## `text` may carry {action} and {phrase} tokens (see InputHints); they are filled in for the
+## device in use and refreshed when the player switches between keyboard and gamepad.
 func set_hint(text: String) -> void:
-	_hint_label.text = text
+	_hint_template = text
+	_refresh_hint()
+
+
+func _process(_delta: float) -> void:
+	if _hint_gamepad != InputHints.gamepad_active:
+		_refresh_hint()
+
+
+func _refresh_hint() -> void:
+	_hint_gamepad = InputHints.gamepad_active
+	_hint_label.text = InputHints.expand(_hint_template)
 
 
 func open() -> void:
@@ -169,10 +197,10 @@ func _unhandled_input(event: InputEvent) -> void:
 func _handle_event(event: InputEvent) -> bool:
 	if not is_open():
 		return false
-	if event.is_action_pressed(&"menu_next") or event.is_action_pressed(&"ui_down"):
+	if event.is_action_pressed(&"menu_next") or InputEdge.fresh(event, &"ui_down"):
 		move_selection(1)
 		return true
-	if event.is_action_pressed(&"menu_prev") or event.is_action_pressed(&"ui_up"):
+	if event.is_action_pressed(&"menu_prev") or InputEdge.fresh(event, &"ui_up"):
 		move_selection(-1)
 		return true
 	if event.is_action_pressed(&"menu_select") or event.is_action_pressed(&"ui_accept"):

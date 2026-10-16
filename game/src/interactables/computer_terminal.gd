@@ -190,8 +190,8 @@ func _unhandled_input(event: InputEvent) -> void:
 	if PanelDismiss.should_dismiss(event, is_open()):
 		close()
 		get_viewport().set_input_as_handled()
-	elif is_open() and event is InputEventKey and event.pressed and event.keycode in [KEY_PAGEUP, KEY_PAGEDOWN]:
-		var direction: int = 1 if event.keycode == KEY_PAGEDOWN else -1
+	elif is_open() and (event.is_action_pressed(&"readout_scroll_up") or event.is_action_pressed(&"readout_scroll_down")):
+		var direction: int = 1 if event.is_action_pressed(&"readout_scroll_down") else -1
 		_readout_scroll.scroll_vertical += direction * int(_readout_scroll.size.y * 0.8)
 		get_viewport().set_input_as_handled()
 
@@ -339,7 +339,7 @@ func _ensure_ui() -> void:
 	_menu.name = "Programs"
 	row.add_child(_menu)
 	_menu.setup(terminal_title, PackedStringArray(["(NO PROGRAMS)"]))
-	_menu.set_hint("WHEEL: BROWSE    CLICK: SELECT\nPGUP/PGDN: TEXT    E/ESC: CLOSE")
+	_menu.set_hint("{browse}: BROWSE    {confirm_click}: SELECT\n{text_scroll}: TEXT    {close}: CLOSE")
 	_menu.option_selected.connect(_on_selected)
 	_menu.option_highlighted.connect(_on_highlighted)
 	var panel := PanelContainer.new()
