@@ -21,7 +21,29 @@ Twelve models were rebuilt as original, scripted geometry in the faceted hull-ca
 |Breaker cabinet|2770 → 6504|Isolator scale with ON/OFF legends, padlock hasp, trip-module banks, hazard header|
 |Wall computer|192 → 4928|Rail-guided blade with barrel hinge, bolted bezel, vents, status lamps|
 
-Larger counts cost some GPU time. `profile_scene` passed (7.21 ms against a 6.90 ms baseline, so 0.31 ms for the scene), but it runs headless and its own output says the loop is throttled, so it says nothing about GPU frame time on real hardware.
+Larger counts cost some GPU time, so this was measured on 2026-10-16 rather than assumed.
+
+### Measured on a GTX 1070 Ti, Linux Vulkan, 1280×800, vsync off
+
+Old and new models were run in identical views, twice each in opposite order (240 frames per view after warm-up). GPU render time is the median per frame.
+
+|View|GPU ms old → new|Triangles on screen old → new|
+|---|---:|---:|
+|Galley counter|1.58 → 1.59|13.2k → 16.7k|
+|Breaker cabinet|1.79 → 1.80|10.5k → 17.1k|
+|Wall computer|1.16 → 1.19|7.4k → 12.1k|
+|Bunk|1.61 → 1.65|38.6k → 41.7k|
+|Manual lectern|1.86 → 1.89|21.0k → 25.0k–29.7k|
+|Tools on the rack|1.67 → 1.69|18.4k → 30.1k|
+|Corridor from spawn|2.55 → 2.43–2.57|97k–102k → 109k–113k|
+
+The GPU time differs by 0.03 ms or less in every close-up view, which is inside run-to-run noise. The spawn view moves by more than the difference between old and new, so it cannot show a cost. Whole-frame time stayed between 1.5 and 3.4 ms. Draw calls rose slightly in some close-ups (tools rack 115 → 136, breaker 76 → 84, galley 79 → 83) and are noisy at spawn, which suggests small per-model overhead rather than a triangle cost. On this card the extra triangles are not a measurable cost.
+
+This is one mid-range desktop GPU on Linux. It says nothing about Windows drivers, integrated graphics, or the Steam Deck (same 1280×800, but a much weaker GPU). Treat the Deck as untested.
+
+### Tomorrow on Windows
+
+Compare `build/windows-candidate-2026-10-15-ea0102-…` (old models) with `build/windows-candidate-2026-10-16-models-…` (new models). The game has no FPS readout, and none was added. Use the Steam overlay's FPS counter, the GPU vendor overlay, or Xbox Game Bar (Win+G, Performance) and look at the galley, breaker cabinet and wall computer in both builds.
 
 ## Contracts kept (verified)
 
@@ -43,7 +65,7 @@ Larger counts cost some GPU time. `profile_scene` passed (7.21 ms against a 6.90
 ## Limits and open questions
 
 - **No operator judgement yet** on style, density or colour. The Blender renders wash out the pale materials; judge from the in-game captures.
-- **Not checked:** play on Windows, the flashlight view of each model, GPU frame time on real hardware, and every model from every angle in the ship.
+- **Not checked:** play on Windows, any Steam Deck or integrated GPU, the flashlight view of each model, and every model from every angle in the ship.
 - **Small intentional deviations:** the wrench jaw slides across its gap (Z), not along the handle. The manual lectern's binder is teal with a steel spine, not the old emissive red. The wall computer's two lamps share the green phosphor material, and the game only re-tints the `Screen` mesh.
 - **Details are small at hold distance.** Fine print, ticks and bolts read when a tool is inspected on a rack, not at arm's length.
 - **Sources are scripts.** The older `art/blender/*_kit.blend` files still hold the previous twelve models; see `docs/ASSET_CREDITS.md`.
