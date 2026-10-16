@@ -18,6 +18,7 @@ func _run() -> void:
 	await _test_interlock_and_cycle()
 	await _test_vent_dumps_gas()
 	await _test_pump_requires_power()
+	await _test_suit_refill_requires_supply()
 	await _test_suit_and_vacuum_exposure()
 	await _test_save_load()
 	if _failures == 0:
@@ -47,6 +48,22 @@ func _build_world(with_power: bool = true, with_thermal: bool = false) -> Dictio
 	root.add_child(airlock)
 	_spawned.append(airlock)
 	return {"atmosphere": atmosphere, "airlock": airlock}
+
+
+func _test_suit_refill_requires_supply() -> void:
+	var world: Dictionary = _build_world()
+	var atmosphere: AtmosphereSystem = world["atmosphere"]
+	var airlock: AirlockSystem = world["airlock"]
+	var power: PowerSystem = get_first_node_in_group(&"power_system") as PowerSystem
+	var gas_before: Dictionary = atmosphere.get_gas_moles(&"storage")
+	power.set_breaker(&"airlock", false)
+	_check(airlock.get_suit_refill_refusal() == &"no_power" and airlock.refill_suit() == 0.0, "refill needs pump power")
+	_check(atmosphere.get_gas_moles(&"storage") == gas_before, "refused refill preserves cabin gas")
+	power.set_breaker(&"airlock", true)
+	atmosphere.vent_gas(&"storage")
+	_check(airlock.get_suit_refill_refusal() == &"suit_supply_pressure_low" and airlock.refill_suit() == 0.0, "refill refuses depressurized supply")
+	_check(airlock.suit_o2_hours == 0.0, "unsafe supply never grants suit hours")
+	await _teardown()
 
 
 func _test_interlock_and_cycle() -> void:

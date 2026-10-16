@@ -8,6 +8,7 @@ var _menu: ScrollMenu
 var _content: Label
 var _root: HBoxContainer
 var _actions: Array[StringName] = []
+var _player: Node
 var _event_bus: Node
 
 
@@ -53,6 +54,8 @@ func get_actions() -> Array[StringName]:
 
 
 func select_action(recipe_id: StringName) -> bool:
+	if recipe_id == &"refill_sealant":
+		return _refill_sealant()
 	var fabricator: Node = _get_system(&"fabricator_system")
 	if fabricator == null or not fabricator.has_method(&"start"):
 		return false
@@ -65,6 +68,33 @@ func select_action(recipe_id: StringName) -> bool:
 	_refresh_menu()
 	_refresh_content()
 	return true
+
+
+func _carried_sealant() -> SealantCartridge:
+	var player: Node = _player if is_instance_valid(_player) else _get_system(&"player")
+	if player == null or not player.has_method("get_carried"):
+		return null
+	return player.call("get_carried") as SealantCartridge
+
+
+func _refill_sealant() -> bool:
+	var cartridge: SealantCartridge = _carried_sealant()
+	var fabricator: Node = _get_system(&"fabricator_system")
+	var stores: Node = _get_system(&"stores_system")
+	var reason: StringName = &""
+	if cartridge == null or not cartridge.enabled:
+		reason = &"no_sealant"
+	elif cartridge.get_charge_count() > 0:
+		reason = &"cartridge_full"
+	elif fabricator == null or not bool(fabricator.call("get_status").get("powered", false)):
+		reason = &"no_power"
+	elif stores == null or not bool(stores.call("refill_cartridge", StringName(cartridge.get_save_key()))):
+		reason = &"no_sealant_charge"
+	if reason != &"":
+		_emit_sim_event(&"procedure_error", {"reason": reason})
+	_refresh_menu()
+	_refresh_content()
+	return reason == &""
 
 
 func build_readout() -> PackedStringArray:
@@ -88,13 +118,20 @@ func build_readout() -> PackedStringArray:
 		for kind: Variant in materials:
 			parts.append("%s %.0f" % [String(kind).to_upper(), float(materials[kind])])
 		lines.append("MATERIALS  %s" % ("  ".join(parts) if not parts.is_empty() else "NONE"))
+	var stores: Node = _get_system(&"stores_system")
+	if stores != null:
+		lines.append("SUPPLIES  WATER %d  SEALANT %d" % [int(stores.call("get_count", &"water_charge")), int(stores.call("get_count", &"sealant_charge"))])
+	var cartridge: SealantCartridge = _carried_sealant()
+	if cartridge != null:
+		lines.append("CARRIED SEALANT  %s" % ("CHARGED" if cartridge.get_charge_count() > 0 else "EMPTY"))
 	return lines
 
 
-func _handle_interact(_player: Node) -> void:
+func _handle_interact(player: Node) -> void:
 	if is_open():
 		close()
 		return
+	_player = player
 	_ensure_ui()
 	if _menu == null:
 		return
@@ -130,6 +167,9 @@ func _refresh_menu() -> void:
 				String(recipe.get(&"output_part_id")).to_upper(),
 				int(recipe.get(&"output_count")),
 			])
+	if _carried_sealant() != null:
+		_actions.append(&"refill_sealant")
+		items.append("Refill carried sealant cartridge (1 sealant charge)")
 	if items.is_empty():
 		items.append("(no recipes)")
 	_menu.set_items(items)
@@ -141,6 +181,9 @@ func _refresh_content() -> void:
 
 
 func _on_sim_event(event_name: StringName, payload: Dictionary) -> void:
+	if is_open() and event_name in [&"part_added", &"part_consumed", &"sealant_cartridge_refilled", &"sealant_charge_consumed", &"item_taken", &"item_dropped", &"fabrication_started", &"fabrication_completed"]:
+		_refresh_menu()
+		_refresh_content()
 	if event_name in [&"fabrication_started", &"fabrication_completed", &"fabricator_state_restored"]:
 		_refresh_machine_animation()
 	elif event_name in [&"breaker_toggled", &"circuit_shed", &"circuit_restored"]:

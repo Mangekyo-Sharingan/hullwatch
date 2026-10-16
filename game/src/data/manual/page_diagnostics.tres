@@ -5,20 +5,23 @@
 [resource]
 script = ExtResource("1_page")
 title = "DIAGNOSTICS"
-body = "A failing component does not announce itself. The panel shows FAULT and nothing else until you have diagnosed it.
+body = "TEST POINTS. Carry a tool and press {interact} at a probe. POWER is in storage near the tools; ATMOSPHERE in the life-support side bay; WATER in the water closet; THERMAL and HULL in the engine bay.
 
-PROBES. Test points are placed beside the major equipment. Stand at one and interact.
+SCANNER. Logs system wear and condition percentages. A scan is inspection, not fault diagnosis. MULTIMETER. Identifies one undiagnosed failure per interaction; repeat until clear, then read STATUS or WATCH REPORT for the component and failure mode.
 
-MULTIMETER. Carry it to a probe to identify the fault: the panel then shows the failure mode instead of a blank FAULT.
+EXTERNAL HARDWARE REFIT
+  1  Diagnose a fault with the multimeter (or scan routine wear).
+  2  Open SHIP CONTROL / POWER at the cupola wall terminal: go through the cockpit hatch, press {interact} at the pilot seat to sit, aim at the wall terminal and press {interact}. Switch OFF the service breaker named below or by the probe; SHED is not isolation. Press {leave_seat} to leave the seat. (LIGHTING alone can also be switched at the storage breaker panel.)
+  3  Carry the wrench to that system's probe and press {interact}.
+  4  Select OPEN [component] COVER.
+  5  Select REFIT [component]. One gasket is drawn from stores; the listed service time passes while all systems keep running.
+  6  Select CLOSE [component] COVER. Dismiss with {close}.
+  7  Return to the same terminal and restore the breaker. Check STATUS: failure cleared, service restored, readings recovering. A refit improves condition; it does not make old hardware new.
 
-SCANNER. Carry it to a probe to log wear. The panel shows condition percentages only for systems you have scanned. Scan before a fault exists and you will see it coming.
+SERVICE BREAKERS. LIGHTING BALLAST: LIGHTING. WATER PUMP MAIN and HEATER MAIN: LIFE SUPPORT (the heater loses power while it is off: fetch the wrench BEFORE switching it off, then go straight to the probe and restore it promptly. The ship cools quickly but recovers within hours). SCRUBBER BLOWER: SCRUBBER. RTG and BATTERY: ALL bus breakers OFF, not just lighting. HULL seam fittings: no service breaker.
 
-EXTERNAL HARDWARE REFIT. Inspect with the scanner; diagnose a fault with the multimeter. At the test point, switch off the required service breaker before using the wrench to open the cover. Power hardware requires ALL bus breakers off. Other hardware names its required service circuit at the test point. An off breaker is isolation; a shed circuit alone is not. Use the wrench to refit the selected external component with a gasket from stores, then close the cover before restoring power. A fault must be diagnosed before repair; routine wear must be scanned. Refits consume a gasket and service time. The simulator refuses missing tools, unsafe isolation, a closed cover or insufficient stocks. Verify the result on STATUS after restoration.
+STOCK. Check STORES before opening equipment. Refits use one gasket each, automatically from inventory, not a carried loose part. Missing gasket: use the engine-bay fabricator's gasket recipe if materials remain.
 
-HULL. Service seam fittings only; do not alter the grown frame. The seam has no service breaker. Punctures still use the compartment's hull patch point and sealant procedure.
+FILTERS / PUNCTURES. A blower refit is not a filter swap; see LIFE SUPPORT. A hull seam refit does not patch a puncture; use the leaking room's patch point, DAMAGE CONTROL.
 
-PROPULSION. Port, starboard and tank service use the separate stern EVA panels and the PROPULSION procedure; their isolation and restoration are handled at those panels.
-
-WRENCH. Housings and fittings are fastened. You cannot open the scrubber without the wrench in hand.
-
-Store the tools on your person, not the shelf. A probe without the right tool is just a wall."
+PROPULSION. Separate stern EVA panels have their own isolation, tool changes and restore steps; see PROPULSION. Never open the sealed drive core."

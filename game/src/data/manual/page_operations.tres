@@ -5,21 +5,27 @@
 [resource]
 script = ExtResource("1_page")
 title = "OPERATIONS"
-body = "1  MOVE                    W A S D
-2  PUSH OFF / JUMP          SPACE
-3  CROUCH                  CTRL
-4  MAGNETIC BOOTS          Q   (disengage in free fall; re-engage on a surface)
-5  INTERACT                E
-6  FLASHLIGHT              F
-7  RELEASE MOUSE           ESC
-8  TETHER                  T   (clip to the nearest anchor; press again to release)
+body = "1  MOVE                    {move}
+2  LOOK                    {look}
+3  PUSH OFF / JUMP         {jump}
+4  CROUCH                  {crouch}
+5  MAGNETIC BOOTS          {toggle_boots}   (disengage in free fall; re-engage on a surface)
+6  INTERACT                {interact}
+7  SCAN PING               {primary}   (with the scanner in hand)
+8  FLASHLIGHT              {flashlight}
+9  PAUSE / RELEASE MOUSE   {pause}
+10 TETHER                  {toggle_tether}   (clip to the nearest anchor; press again to release)
 
-MENUS. Panels and lists use the wheel: scroll to move the highlight, press the wheel (middle mouse) to select. Arrow keys and Enter work too. Every readout closes with E or Esc from anywhere.
+MENUS. {browse_arrows} moves the highlight; {confirm_menu} selects. {text_scroll} scrolls the text in manuals and terminals without changing the selected page. Every readout closes with {close} from anywhere.
 
-CARRY. E takes an item, right click drops it. Some procedures need the right item in your hands.
+CARRY. {interact} takes an item; {secondary} drops it. Carry one tool at a time. Tools and charged sealant are on the storage rack. Drop tools somewhere reachable when changing them.
 
-THE DAY. Sleep in the bunk (E) to end a shift. The ship keeps running while you sleep - and so do its problems.
+WAKE / WATCH. Start at the quarters warning board: WATCH REPORT lists safety readings, reserves, inspection records and known faults. Unlogged inspection means look, not broken. SHIP LOG keeps the history. The binder is in the galley. Use STATUS at a terminal or the galley service-bay panel for detailed readings.
 
-WATCH REPORT. Start each watch at the warning board. Its report shows current safety readings, resource reserves, inspection records, diagnosed faults, navigation holds and recent history. Take the scanner and multimeter to the named equipment; unlogged inspection is a reminder to look, not proof of a fault. Follow the relevant manual procedure, then verify the result on STATUS before choosing what can wait. Switch the board to SHIP LOG for the full history and older operator volumes.
+ROUNDS. Bow to stern: cockpit, quarters, life support (scrubber/reclaimer in its side bay), galley, water closet, storage, airlock, engine bay. Scanner + {interact} at each test point logs wear; multimeter + {interact} identifies one hidden fault at a time. Read DIAGNOSTICS before repairs.
 
-READINGS. The status panel lists power, atmosphere, thermal and component condition. Check it after every repair. A repair is not finished until the panel agrees."
+WORK. Compare the symptom with STATUS, read the relevant binder page, fetch the tool and check stores. Isolate as required, repair, close the cover and restore service. Verify the fault cleared AND readings recover; repairs and sleep advance the running ship.
+
+TRIAGE. Falling pressure, unsafe oxygen/CO2, dangerous cold and an emptying battery come before routine wear. Leave safe jobs for the next watch; do not sleep through a worsening safety reading. Rations and drinking water are consumed automatically; check reserves on the board and STATUS.
+
+BUNK. {interact} at the quarters bunk sleeps eight hours; this is not a pause. Restore essential breakers and the scrubber, check pressure/air/temperature and battery trend, then rest. On waking, read the board again."

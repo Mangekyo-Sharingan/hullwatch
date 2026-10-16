@@ -1,0 +1,83 @@
+{
+  "date": "2026-10-14",
+  "scope": "actual Windows candidate PCK mounted in Linux editor engine from empty project directory; not native Windows execution",
+  "artifact": "build/windows-candidate-2026-10-14/Hullwatch.exe",
+  "size": 189720352,
+  "sha256": "44246d8fb0a20187e0ce4a5a289eb73d6664b8302ad897bd5f5508cdc3c1666a",
+  "save_version": 10,
+  "checks": [
+    {
+      "suite": "test_survey",
+      "returncode": 0,
+      "ok": true,
+      "log": "/tmp/hw-v10-packed-survey.log"
+    },
+    {
+      "suite": "startup",
+      "returncode": 0,
+      "ok": true,
+      "log": "/tmp/hw-v10-packed-checks/startup.log"
+    },
+    {
+      "suite": "test_replenishment",
+      "returncode": 0,
+      "ok": true,
+      "log": "/tmp/hw-v10-packed-checks/test_replenishment.log"
+    },
+    {
+      "suite": "test_ship_specialization",
+      "returncode": 0,
+      "ok": true,
+      "log": "/tmp/hw-v10-packed-checks/test_ship_specialization.log"
+    },
+    {
+      "suite": "test_scene_save_load",
+      "returncode": 0,
+      "ok": true,
+      "log": "/tmp/hw-v10-packed-checks/test_scene_save_load.log"
+    },
+    {
+      "suite": "test_persistence_foundations",
+      "returncode": 0,
+      "ok": true,
+      "log": "/tmp/hw-v10-packed-checks/test_persistence_foundations.log"
+    },
+    {
+      "suite": "test_save_migration",
+      "returncode": 0,
+      "ok": true,
+      "log": "/tmp/hw-v10-packed-checks/test_save_migration.log"
+    },
+    {
+      "suite": "test_module_scene",
+      "returncode": 0,
+      "ok": true,
+      "log": "/tmp/hw-v10-packed-checks/test_module_scene.log"
+    },
+    {
+      "suite": "test_hull_exterior",
+      "returncode": 0,
+      "ok": true,
+      "log": "/tmp/hw-v10-packed-checks/test_hull_exterior.log"
+    },
+    {
+      "suite": "test_session_flow",
+      "returncode": 0,
+      "ok": true,
+      "log": "/tmp/hw-v10-packed-checks/test_session_flow.log"
+    },
+    {
+      "suite": "test_manual",
+      "returncode": 0,
+      "ok": true,
+      "log": "/tmp/hw-v10-packed-checks/test_manual.log"
+    },
+    {
+      "suite": "test_localization",
+      "returncode": 1,
+      "ok": false,
+      "log": "/tmp/hw-v10-packed-checks/test_localization.log"
+    }
+  ],
+  "all_passed": false
+}

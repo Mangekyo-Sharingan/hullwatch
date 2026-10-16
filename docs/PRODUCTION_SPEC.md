@@ -9,7 +9,7 @@
 | **Status** | Pre-production |
 | **Engine** | Godot 4.7.2 stable (local binary at `Engine/`) |
 | **Language** | GDScript (typed) |
-| **Platform** | Windows PC first (Steam), Linux/macOS later |
+| **Platform** | Windows, Linux and Steam Deck at Early Access (operator decision 2026-10-15); macOS later |
 | **Team** | Solo developer + AI-assisted pipeline |
 
 ---
@@ -49,6 +49,11 @@ You are the lone operator of a long-haul maintenance vessel crawling between way
 - **Moral weight of triage:** Cutting power to the greenhouse to feed the CO2 scrubbers should hurt.
 
 **Emotional arc per session (a "day"):** routine comfort → noticing something off → diagnosis under uncertainty → repair satisfaction → triage anxiety → quiet night → escalation.
+
+**Operator decision, 2026-10-15 — open-survival tension:** a well-run ship can reach real
+stability. Dread comes from expeditions, events, isolation and the cost of mistakes, not
+from an inevitable whole-game decline. "Attrition tension" above applies within a watch
+or an expedition, not as a guarantee that the repair list can never be cleared.
 
 ---
 
@@ -144,13 +149,14 @@ Design rule: every cascade is *traceable* by an attentive player. No randomness 
 
 - **Loss:** asphyxiation, hypothermia, hull breach, power death (battery = 0 with no generation), or unrecoverable cascade (soft-lock guard: mercy event rather than hard brick wall — e.g., emergency beacon burns your last fuel to reset the leg).
 - **Win (leg):** reach waypoint with ship intact; cache access.
-- **Long-term progress (supersedes campaign win, 2026-10-09):** sustain and improve the ship, discover opportunities, and choose new expeditions. No compulsory whole-voyage victory. Optional grounded narrative discoveries may exist without gating survival; loss/recovery policy remains to be confirmed.
+- **Long-term progress (supersedes campaign win, 2026-10-09):** sustain and improve the ship, discover opportunities, and choose new expeditions. No compulsory whole-voyage victory. Optional grounded narrative discoveries may exist without gating survival.
+- **Recovery during Early Access (operator decision 2026-10-15):** keep the lenient mercy recovery. Permadeath is planned after Early Access (`LATER.6`).
 
 ---
 
 ## 5. Narrative Framework
 
-**Premise:** The vessel *Hullwatch*-class hauler "…" (name TBD) was dispatched on a multi-decade haul with rotating operators in cryo-cycle. You woke on schedule. The rotation didn't. The ship's log insists everything is nominal. The systems disagree.
+**Premise:** The *Hullwatch*-class hauler **Conatus Finitus** ("finite striving"; named 2026-10-15) was dispatched on a multi-decade haul with rotating operators in cryo-cycle. You woke on schedule. The rotation didn't. The ship's log insists everything is nominal. The systems disagree.
 
 **Delivery:** No cutscenes at launch. Narrative arrives through:
 - Prior operator logs (text + audio, dated, increasingly sparse)
@@ -283,6 +289,25 @@ campaign stages. Expand meaningful player activities and ship capabilities.
 The proposed activity set, resource continuity and acceptance plan are in
 `docs/design/open_survival_direction_pass.md`; implementation is still planned.
 
+**EA build plan — operator decision 2026-10-15:** *freeze & finish*. No new systems
+before Early Access; the twelve ordered slices `EA01`–`EA12` in
+`docs/dashboard/roadmap.json` (`ea_plan`) replace M4–M6 and the remaining open-survival
+activity passes as the EA scope. Unbuilt activities (exterior projects, personal
+ownership) move to `LATER`. Agent rules are in `AGENTS.md` › *EA build rules*.
+
+**EA slice decisions — operator, 2026-10-15:**
+
+| Slice | Decision |
+|---|---|
+| `EA03` | First recovered technology is the **battery cabinet** (more storage, not generation; revised the same day from the grow rack, which moves to `LATER`). Machine sockets exist only in built pods, so the expedition route includes building a pod at a dock plate. |
+| `EA03` | **Airlock checkpoint:** a save made during EVA loads inside the airlock, suited, with carried items and suit O₂ as they were at cycle-out. |
+| `EA04` | **Xenon and buffer gas:** finite sealed bottles in wrecks and caches, plus volatile ice from existing ice contacts processed in the existing fabricator (renewable through expeditions; no new contact system). |
+| `EA04` | **Nanites** are a limited stock from the start of a game and are produced only slowly; nanite builds stay the expensive shortcut (operator-approved exception to the no-new-resource rule). |
+| `EA08`/`EA09` | **Major visual refinement** of the ship, pods and machines toward a refined Starpath-inspired look; the art-development method is agreed before `EA08` starts. |
+| `EA05` | **Operator identity:** a name on a locker, no backstory; the surname is still to be chosen. **Vessel:** *Conatus Finitus*. |
+| `EA10` | **Performance target:** Steam Deck at its native 1280×800 holding 60 fps, with reduced visual settings allowed; the desktop mid-range tier is taken from the Steam Hardware Survey when `EA10` starts. |
+| `EA10` | **Platforms:** Windows, Linux and Steam Deck. Development happens on Linux; the operator playtests on Windows. |
+
 ### 8.3 Scope Guardrails (Non-Goals)
 
 - **No combat, no weapons, no threats with agency**
@@ -290,7 +315,7 @@ The proposed activity set, resource continuity and acceptance plan are in
 - **No multiplayer at launch** (single-player only; co-op is a post-launch "maybe", architecture must not preclude it)
 - **Superseded for early access by `docs/EXPANSION_SPEC.md` (M7+):** seamless procedural space, EVA, ship expansion and planet/star travel were v1 non-goals and are now EA scope.
 - **No full Newtonian flight sim** (weighty but simplified) — still applies; travel is course-setting, not piloting (see `docs/EXPANSION_SPEC.md`).
-- **No voice acting** (text + diegetic audio only)
+- **No voice acting** (text + diegetic audio only). Reaffirmed 2026-10-15: the synthesized voice orientation is replaced by diegetic text in `EA02`.
 
 ### 8.4 Risks & Mitigations
 
@@ -314,11 +339,11 @@ The proposed activity set, resource continuity and acceptance plan are in
 
 ## 9. Open Questions (to resolve before M3)
 
-1. Protagonist: silently-named operator with limited backstory, or blank slate? (Lean: minimal — a name on a locker.)
+1. Protagonist: silently-named operator with limited backstory, or blank slate? — **Resolved 2026-10-15: a name on a locker, no backstory; surname chosen in `EA05`.**
 2. EVA (exterior hull work) in v1? — **Resolved 2026-09-18: yes, expansion milestone M7** (airlock, tethered exterior work).
 3. Food/greenhouse fully simulated in v1 or abstracted as stores? — **Resolved: abstracted stores in v1; greenhouse becomes a buildable ship module in expansion M10.**
 4. **Resolved direction 2026-10-09:** open-ended survival, with no fixed campaign length or required number/order of arrivals. This supersedes October 8's four-leg Alpha baseline. Session pacing, activity content and resource availability remain to be designed.
-5. Death frequency target: how punishing? (Lean: loss is rare but *final-feeling*; mercy resets exist but cost progress.)
+5. Death frequency target: how punishing? — **Resolved 2026-10-15: lenient mercy recovery during Early Access; permadeath after EA.**
 6. Comms content: does a reply ever come? (Lean: yes, once, late, and it isn't what the player hoped — grounded, not cruel.)
 
 ---

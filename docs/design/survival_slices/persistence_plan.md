@@ -304,10 +304,34 @@ source access.
 
 First implementation advances global saves to8: Sector state2 keeps finite
 remaining yields per string fieldseed, including exhaustedzeros, and Module
-state4 saves fractional/pending food production. v7 migration retains its current
-field and defaults unavailable production progress tozero. Older erased field
-histories cannot be reconstructed. Partial canister remainders use the existing
-save shape. Nested new depletion/production payloads are validated before any
-clock or simulator restore. This does not close durable carried-item paths,
-sealant existence, paid job terms, EVA resume or every other owner in this audit.
-Current packet and validation: execution_2026-10-13/README.md.
+state4 saves fractional/pending food production. v7 migration retains its
+current field and defaults unavailable production progress tozero. Older erased
+field histories cannot be reconstructed. Partial canister remainders use the
+existing save shape. Nested new depletion/production payloads are validated
+before any clock or simulator restore. This does not close durable carried-item
+paths, sealant existence, paid job terms, EVA resume or every other owner in
+this audit. Current packet and validation: execution_2026-10-13/README.md.
+
+## Second packet (step 3, physical resource holes): landed same day
+
+Bounded implementation of step 3's two scene-prop holes, without a new save
+version or simulator owner: (1) `Interactable.get_save_key()` is now the single
+SaveManager key for every interactable (save and load); carried items override
+it with their home-slot path, so a held loaded canister keeps kind/units and
+identity across a fresh-scene load instead of being keyed under the transient
+camera path. (2) `Carriable.mark_consumed()` parks a consumed scene prop
+disabled and invisible at its home slot instead of freeing it; the base
+`enabled` flag already persists, so a consumed sealant cartridge no longer
+respawns, and the VERIFY-reuse hole closes with it. Dynamically spawned
+recovered equipment still frees (its unit record lives in the salvage system).
+`SampleCanister.load_state` now rejects nonfinite/negative/unknown-kind
+payloads instead of trusting them. `Player.consume_carried` prefers
+`mark_consumed` when the item supports it. Acceptance evidence extends
+`test_scene_save_load.gd`: fresh-scene round trips prove the held canister's
+contents survive, the consumed cartridge does not respawn usable, untouched
+cartridges stay usable, and invalid canister payloads clear instead of
+poisoning state. Old saves that stored a held item under its camera path
+cannot be remapped generically; that limitation is accepted (the payload was
+already effectively lost before this change). Remaining step 3/4 gaps: sealant
+withdraw/refill against abstract stores, paid fabricator/module job terms,
+cargo-capacity accounting for transported units, EVA/suit restore policy.

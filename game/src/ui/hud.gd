@@ -33,7 +33,15 @@ const PROCEDURE_ERROR_TEXT: Dictionary = {
 	&"invalid_socket": "NO VALID SOCKET AVAILABLE",
 	&"no_tool": "NO DIAGNOSTIC TOOL CARRIED",
 	&"no_wrench": "A WRENCH IS REQUIRED",
-	&"no_sealant": "NO HULL SEALANT CARRIED",
+	&"no_sealant": "CARRY A CHARGED SEALANT CARTRIDGE",
+	&"cartridge_full": "CARTRIDGE IS ALREADY CHARGED",
+	&"no_sealant_charge": "FABRICATE A SEALANT CHARGE FIRST",
+	&"water_refill_refused": "CHECK WATER CHARGE, TANK SPACE AND RECLAIMER SERVICE / POWER",
+	&"suit_not_stored": "STOW THE SUIT BEFORE REFILLING",
+	&"suit_tank_full": "SUIT O2 TANK IS FULL",
+	&"suit_supply_pressure_low": "SHIP AIR PRESSURE IS TOO LOW TO REFILL",
+	&"suit_supply_unavailable": "SHIP AIR SUPPLY IS UNAVAILABLE",
+	&"suit_supply_oxygen_low": "NO OXYGEN IN THE SHIP AIR SUPPLY",
 	&"no_filter_stock": "NO FILTER IN STORES",
 	&"no_cartridge": "NO CARTRIDGE IN STORES",
 	&"no_candles": "NO O2 CANDLES IN STORES",
@@ -237,7 +245,7 @@ func _update_carry() -> void:
 	if item == null or not item.has_method(&"get_item_name"):
 		_carry.text = ""
 		return
-	_carry.text = "%s  [RIGHT CLICK: DROP]" % String(item.call(&"get_item_name")).to_upper()
+	_carry.text = InputHints.expand("%s  [{secondary}: DROP]" % String(item.call(&"get_item_name")).to_upper())
 
 
 func _update_eva(delta: float) -> void:
@@ -251,13 +259,13 @@ func _update_eva(delta: float) -> void:
 	var player: Node = _find_player()
 	if player != null and player.has_method(&"is_boots_engaged") and not bool(player.call(&"is_pilot_seated")):
 		if bool(player.call(&"is_boots_engaged")):
-			parts.append("MAG BOOTS  [Q: RELEASE / SPACE: PUSH]")
+			parts.append(InputHints.expand("MAG BOOTS  [{toggle_boots}: RELEASE / {jump}: PUSH]"))
 		else:
-			parts.append("DRIFT %.1f m/s  [Q: LAND  SPACE/CTRL: UP/DOWN  SHIFT: BRAKE  Z/C: ROLL]" % (player as CharacterBody3D).velocity.length())
+			parts.append(InputHints.expand("DRIFT %.1f m/s  [{toggle_boots}: LAND  {up_down}: UP/DOWN  {brake}: BRAKE  {roll}: ROLL]" % (player as CharacterBody3D).velocity.length()))
 	if player != null and player.has_method(&"is_tethered") and bool(player.call(&"is_tethered")):
-		var tether_label: String = "TETHER %.1f m  [T: RELEASE]" % float(player.call(&"get_tether_distance"))
+		var tether_label: String = InputHints.expand("TETHER %.1f m  [{toggle_tether}: RELEASE]" % float(player.call(&"get_tether_distance")))
 		if player.has_method(&"get_tether_extension_ratio") and float(player.call(&"get_tether_extension_ratio")) >= 0.9:
-			tether_label = "TETHER STRAIN %.1f m  [T: RELEASE]" % float(player.call(&"get_tether_distance"))
+			tether_label = InputHints.expand("TETHER STRAIN %.1f m  [{toggle_tether}: RELEASE]" % float(player.call(&"get_tether_distance")))
 		parts.append(tether_label)
 	var suit: String = _eva_suit_text()
 	if not suit.is_empty():
@@ -304,6 +312,7 @@ func _update_seated_overlay() -> void:
 	_seat_overlay.visible = seated
 	if not seated:
 		return
+	_seat_hint.text = InputHints.expand("PILOT STATION    [{leave_seat}] LEAVE SEAT")
 	var camera: Camera3D = get_viewport().get_camera_3d()
 	var target: CollisionObject3D = player.call(&"get_seated_target") as CollisionObject3D
 	var viewport_size: Vector2 = get_viewport().get_visible_rect().size
@@ -322,7 +331,7 @@ func _update_seated_overlay() -> void:
 		if not label.visible:
 			continue
 		var focused: bool = station == target
-		label.text = ("[E] " if focused else "[ ") + String(SEATED_STATIONS[station_name]) + (" ]" if not focused else "")
+		label.text = ("[%s] " % InputHints.label(&"interact") if focused else "[ ") + String(SEATED_STATIONS[station_name]) + (" ]" if not focused else "")
 		label.add_theme_color_override(&"font_color", Color(0.95, 0.87, 0.57) if focused else Color(0.54, 0.78, 0.72, 0.82))
 		label.position = screen + Vector2(-label.size.x * 0.5, -24.0)
 
@@ -384,7 +393,7 @@ func _build_ui() -> void:
 	add_child(_seat_overlay)
 	_seat_hint = Label.new()
 	_seat_hint.name = "SeatHint"
-	_seat_hint.text = "PILOT STATION    [X] LEAVE SEAT"
+	_seat_hint.text = InputHints.expand("PILOT STATION    [{leave_seat}] LEAVE SEAT")
 	_seat_hint.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
 	_seat_hint.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	_seat_hint.offset_top = -166.0

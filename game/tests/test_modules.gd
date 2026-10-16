@@ -127,6 +127,8 @@ func _run() -> void:
 	_check(int(status["installed_count"]) == 2, "status counts installed modules")
 	_check(int(status["building_count"]) == 0, "status counts no jobs once they land")
 
+	_test_paid_costs(modules, cargo)
+
 	if _failures == 0:
 		print("PASS: test_modules")
 		quit(0)
@@ -178,3 +180,47 @@ func _check(condition: bool, label: String) -> void:
 	else:
 		_failures += 1
 		print("FAIL: ", label)
+
+
+func _test_paid_costs(modules: ModuleSystem, cargo: CargoSystem) -> void:
+	modules.load_state({"state_version": 4})
+	cargo.load_state({"capacity_units": 50.0, "materials": {"metal": 20.0, "ore": 10.0}})
+	var greenhouse: ShipModule = modules.get_module(&"greenhouse")
+	_check(modules.start_build(&"greenhouse"), "paid terms fixture builds")
+	modules.sim_tick(1.0)
+	var snapshot: Dictionary = JSON.parse_string(JSON.stringify(modules.save_state())) as Dictionary
+	_check(int(snapshot["state_version"]) == 5 and snapshot["jobs"]["hp_quarters"]["paid_cost"] == {"metal": 4.0, "ore": 2.0}, "JSON stores actual module payment")
+	greenhouse.cost = {"metal": 400.0, "ore": 200.0}
+	modules.load_state(snapshot)
+	modules.load_state(snapshot)
+	_check(modules.cancel_build(&"hp_quarters"), "changed catalog price cannot inflate cancellation capacity requirement")
+	_check(cargo.get_units(&"metal") == 20.0 and cargo.get_units(&"ore") == 10.0, "repeated restore/cancel returns original payment once")
+	_check(not modules.cancel_build(&"hp_quarters"), "paid fixture cannot cancel twice")
+	modules.load_state(snapshot)
+	cargo.load_state({"capacity_units": 50.0, "materials": {"metal": 16.0, "ore": 8.0}})
+	modules.sim_tick(3.0)
+	var standing: Dictionary = JSON.parse_string(JSON.stringify(modules.save_state())) as Dictionary
+	_check(standing["module_paid_costs"]["hp_quarters"] == {"metal": 4.0, "ore": 2.0}, "completion carries payment to installed module")
+	modules.load_state(standing)
+	_check(modules.uninstall(&"greenhouse"), "changed-price installed module tears down using original terms")
+	_check(cargo.get_units(&"metal") == 20.0 and cargo.get_units(&"ore") == 10.0, "changed-price teardown returns exact paid material")
+	modules.load_state(snapshot)
+	cargo.load_state({"capacity_units": 50.0, "materials": {"metal": 16.0, "ore": 8.0}})
+	modules.catalog.erase(greenhouse)
+	modules.load_state(snapshot)
+	modules.sim_tick(99.0)
+	_check(not modules.get_job(&"hp_quarters").is_empty(), "removed module content retains pending entitlement after completion time")
+	cargo.capacity_units = cargo.get_used_units() + 5.0
+	var before: Dictionary = modules.save_state()
+	_check(not modules.cancel_build(&"hp_quarters") and modules.save_state() == before, "unknown pending module preserves entitlement when refund cannot fit")
+	cargo.capacity_units = 50.0
+	_check(modules.cancel_build(&"hp_quarters"), "removed module content remains refundable")
+	_check(cargo.get_units(&"metal") == 20.0 and cargo.get_units(&"ore") == 10.0, "removed module content returns saved cost")
+	greenhouse.cost = {"metal": 4.0, "ore": 2.0}
+	modules.catalog.append(greenhouse)
+	var legacy: Dictionary = standing.duplicate(true)
+	legacy["state_version"] = 4
+	legacy.erase("module_paid_costs")
+	legacy.erase("machine_paid_costs")
+	modules.load_state(legacy)
+	_check(modules.save_state()["module_paid_costs"][&"hp_quarters"] == {"metal": 4.0, "ore": 2.0}, "legacy installed module snapshots catalog payment")

@@ -66,12 +66,14 @@ func _run() -> void:
 	_check(player.call("get_carried") == item, "physical case occupies normal carry slot")
 	var manager: Node = root.get_node("SaveManager")
 	var carried_save: Dictionary = manager.call("save_to_dict")
-	_check(int(carried_save["save_version"]) == 8, "save version includes survival persistence")
 	_check(bool(manager.call("load_from_dict", carried_save)), "carried state loads")
 	streamer.sync_now()
-	_check(String(salvage.get_unit(unit_id)["location"]) == "world", "reload releases the original case without duplication")
+	_check(String(salvage.get_unit(unit_id)["location"]) == "carried", "reload preserves original carried ownership")
+	_check(salvage.restore_carried_unit(player), "reload restores the original case to the existing carry slot")
 	item = streamer.get_node_or_null(NodePath("RecoveryCase_" + unit_id.replace(":", "_"))) as SalvageCase
-	item.interact(player)
+	if item == null:
+		item = player.call("get_carried") as SalvageCase
+	_check(salvage.restore_carried_unit(player) and player.call("get_carried") == item, "repeated carry restoration retains one same instance")
 	var port: CargoPort = main.find_child("CargoPort", true, false) as CargoPort
 	_check(port != null, "real cargo port available")
 	var capacity: float = cargo.capacity_units
@@ -172,7 +174,35 @@ func _run() -> void:
 			_check(not salvage.get_unit(restored_mount.unit_id).is_empty(), "older load reconciles existing mounted equipment")
 	main.free()
 	_test_atomic_pod_returns()
+	_test_seed_and_carry_ownership()
 	_finish()
+
+
+func _test_seed_and_carry_ownership() -> void:
+	var cargo: CargoSystem = CargoSystem.new()
+	root.add_child(cargo)
+	var salvage: SalvageSystem = SalvageSystem.new()
+	salvage.definition = load("res://src/data/salvage/salvage_battery.tres") as SalvageDefinition
+	root.add_child(salvage)
+	var seed: int = 9223372036854775000
+	var unit_id: String = salvage.register_unit("large_seed_case", seed)
+	_check(salvage.isolate_unit(unit_id) and salvage.release_unit(unit_id, &"wrench", Vector3.ZERO), "seed: physical unit releases")
+	_check(salvage.take_unit(unit_id), "seed: physical unit enters carried ownership")
+	_check(cargo.get_used_units() == 0.0, "carry: equipment outside the hold reserves no hold space")
+	var saved: Dictionary = salvage.save_state()
+	_check(int(saved["state_version"]) == 2 and saved["units"][unit_id]["sector_seed"] is String, "seed: save serializes full-width provenance as text")
+	var parsed: Dictionary = JSON.parse_string(JSON.stringify(saved))
+	salvage.load_state(parsed)
+	_check(int(salvage.get_unit(unit_id)["sector_seed"]) == seed, "seed: JSON preserves all 64-bit provenance digits")
+	_check(String(salvage.get_unit(unit_id)["location"]) == "carried" and cargo.get_used_units() == 0.0, "carry: load preserves carried location without a hold reservation")
+	_check(salvage.stow_unit(unit_id), "carry: explicit stow moves unit into the hold")
+	_check(cargo.get_used_units() == salvage.definition.cargo_units, "carry: stowing reserves exactly configured equipment space")
+	saved = salvage.save_state()
+	salvage.load_state(saved)
+	salvage.load_state(saved)
+	_check(cargo.get_used_units() == salvage.definition.cargo_units, "carry: repeated stowed load rebuilds one reservation")
+	salvage.free()
+	cargo.free()
 
 
 func _test_atomic_pod_returns() -> void:

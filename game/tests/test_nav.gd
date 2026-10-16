@@ -10,6 +10,7 @@ func _initialize() -> void:
 	await process_frame
 	_test_absent_safe()
 	_test_plot_and_arrival()
+	_test_cache_overflow()
 	_test_course_expiry()
 	_test_save_load_and_legacy_state()
 	_test_console_flow()
@@ -85,6 +86,48 @@ func _test_course_expiry() -> void:
 	_despawn_all()
 
 
+func _test_cache_overflow() -> void:
+	var harness: SimHarness = SimHarness.new(self)
+	harness.setup_clock()
+	var nav: NavSystem = _spawn_nav()
+	var cargo: CargoSystem = CargoSystem.new()
+	cargo.capacity_units = 2.0
+	_spawn(cargo)
+	nav._arrive(nav.get_destination(&"arden_ii"))
+	_check(cargo.get_units(&"ice") == 2.0, "cache: arrival grants only actual available hold space")
+	var pending: Dictionary = nav.save_state().get("pending_cache_materials", {})
+	_check(float((pending.get("arden_ii", {}) as Dictionary).get("remaining_units", 0.0)) == 2.0, "cache: overflow remains owned at the destination")
+	if not nav.has_method("claim_pending_cache"):
+		_check(false, "cache: deferred stock has a physical claim entry point")
+		_despawn_all()
+		return
+	var saved: Dictionary = JSON.parse_string(JSON.stringify(nav.save_state()))
+	var before_invalid: Dictionary = nav.save_state()
+	var invalid: Dictionary = saved.duplicate(true)
+	invalid["pending_cache_materials"]["arden_ii"]["resource_id"] = "unknown"
+	nav.load_state(invalid)
+	_check(nav.save_state() == before_invalid, "cache: invalid resource refuses before mutating navigation")
+	invalid = saved.duplicate(true)
+	invalid["pending_cache_materials"]["arden_ii"]["remaining_units"] = NAN
+	nav.load_state(invalid)
+	_check(nav.save_state() == before_invalid, "cache: invalid remainder refuses before mutating navigation")
+	nav.load_state(saved)
+	nav.load_state(saved)
+	_check(cargo.get_units(&"ice") == 2.0, "cache: repeated restores grant no material")
+	_check(float(nav.call("claim_pending_cache", &"arden_ii")) == 0.0, "cache: a full hold preserves the claim")
+	_check(cargo.consume_material(&"ice", 1.0), "cache: consuming stock makes one unit of room")
+	_check(float(nav.call("claim_pending_cache", &"arden_ii")) == 1.0, "cache: partial claim grants exactly available space")
+	_check(cargo.consume_material(&"ice", 2.0), "cache: room can be freed for the remaining entitlement")
+	nav.current_destination_id = &"kestrel_system"
+	_check(float(nav.call("claim_pending_cache", &"arden_ii")) == 0.0, "cache: a distant destination cannot be claimed remotely")
+	nav._arrive(nav.get_destination(&"arden_ii"))
+	_check(cargo.get_units(&"ice") == 0.0, "cache: revisit does not grant a new arrival reward")
+	_check(float(nav.call("claim_pending_cache", &"arden_ii")) == 1.0, "cache: revisit permits the final owned remainder")
+	_check(float(nav.call("claim_pending_cache", &"arden_ii")) == 0.0, "cache: exhausted claim cannot repeat")
+	_check(harness.events_named(&"cargo_stowed").size() == 3, "cache: each successful transfer publishes once")
+	_despawn_all()
+
+
 func _test_save_load_and_legacy_state() -> void:
 	var harness := SimHarness.new(self)
 	harness.setup_clock()
@@ -93,7 +136,7 @@ func _test_save_load_and_legacy_state() -> void:
 	_check(nav.begin_transit(), "save: transit started")
 	nav.sim_tick(24.0)
 	var saved: Dictionary = nav.save_state()
-	_check(int(saved["state_version"]) == 4, "save: current state version recorded")
+	_check(int(saved["state_version"]) == 5, "save: current state version recorded")
 	nav.sim_tick(12.0)
 	nav.load_state(saved)
 	_check(nav.transit_active, "load: active transit restored")

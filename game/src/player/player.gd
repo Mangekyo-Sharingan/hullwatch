@@ -8,11 +8,13 @@ const CROUCH_HEAD_Y: float = 0.95
 const BOOTS_LOST_GRACE: float = 0.15
 const NORMAL_EPSILON: float = 0.000001
 const BASE_MOUSE_SENSITIVITY: float = 0.002
+const STICK_LOOK_PIXELS_PER_SECOND: float = 1400.0
 const STRIDE_LENGTH_M: float = 1.2
 const HOLD_OFFSET: Vector3 = Vector3(0.32, -0.26, -0.55)
 const DROP_DISTANCE_M: float = 1.1
 const DROP_FALLBACK_DISTANCE_M: float = 1.0
 const DROP_FALLBACK_LIFT_M: float = 0.3
+const DROP_OBSTACLE_MARGIN_M: float = 0.2
 const TETHER_ATTACH_RANGE: float = 6.0
 const SEATED_HEAD_Y: float = 1.18
 const SEATED_RAY_LENGTH: float = 3.6
@@ -92,6 +94,17 @@ func _physics_process(delta: float) -> void:
 
 func is_boots_engaged() -> bool:
 	return _boots_engaged
+
+
+func is_exterior() -> bool:
+	var atmosphere: Node = get_tree().get_first_node_in_group(&"atmosphere_system")
+	if atmosphere == null:
+		return false
+	var compartments: Dictionary = atmosphere.call("get_status").get("compartments", {})
+	for compartment: Dictionary in compartments.values():
+		if int(compartment.get("occupants", 0)) > 0:
+			return false
+	return true
 
 
 func is_invert_y() -> bool:
@@ -262,6 +275,22 @@ func has_suit_cutter() -> bool:
 	return _suit_cutter
 
 
+func reset_tools_for_load() -> void:
+	if _seat_tween != null and _seat_tween.is_valid():
+		_seat_tween.kill()
+	if _pilot_seat != null and is_instance_valid(_pilot_seat):
+		_pilot_seat.set_occupied(false)
+		_seated = false
+		_finish_seat_exit()
+	_set_crouched(false)
+	_head.position.y = STAND_HEAD_Y
+	drop_carried()
+	for child: Node in _camera.get_children():
+		if child.has_method(&"return_home"):
+			child.call("return_home")
+	_suit_cutter = false
+
+
 ## The node held items and suit-clipped gear ride: the eye camera.
 func get_hold_anchor() -> Node3D:
 	return _camera
@@ -327,13 +356,39 @@ func consume_carried() -> bool:
 	var item_id: StringName = get_carried_item_id()
 	_remove_carry_exception(item)
 	_carried_item = null
-	item.free()
+	# Scene props without a simulator record of their absence park disabled so a
+	# reload cannot resurrect them; dynamically spawned units (with an owning
+	# record elsewhere) are freed as before.
+	if item.has_method(&"mark_consumed"):
+		item.call(&"mark_consumed")
+	else:
+		item.free()
 	_emit_sim_event(&"item_consumed", {"item_id": item_id})
 	return true
 
 
+func _process(delta: float) -> void:
+	if _seat_transitioning or Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
+		return
+	apply_stick_look(Input.get_vector(&"look_left", &"look_right", &"look_up", &"look_down"), delta)
+
+
+## Right-stick look: the same turn the mouse gives, scaled by the sensitivity setting. The
+## response curve keeps small pushes fine for aiming at panel rows and large ones quick.
+func apply_stick_look(stick: Vector2, delta: float) -> void:
+	if stick == Vector2.ZERO:
+		return
+	_apply_look_motion(stick * stick.length() * STICK_LOOK_PIXELS_PER_SECOND * delta)
+
+
+## While a menu or readout is open, gamepad buttons belong to it: A confirms a row rather than
+## interacting, and B closes the readout rather than dropping the carried tool.
+func _gamepad_input_belongs_to_menu(event: InputEvent) -> bool:
+	return (event is InputEventJoypadButton or event is InputEventJoypadMotion) and ScrollMenu.any_open(get_tree())
+
+
 func _unhandled_input(event: InputEvent) -> void:
-	if _seat_transitioning:
+	if _seat_transitioning or _gamepad_input_belongs_to_menu(event):
 		return
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		var motion: InputEventMouseMotion = event as InputEventMouseMotion
@@ -357,12 +412,12 @@ func _unhandled_input(event: InputEvent) -> void:
 			push_off()
 	elif event.is_action_pressed(&"interact"):
 		_try_interact()
-	elif event.is_action_pressed(&"secondary"):
+	elif InputEdge.fresh(event, &"secondary"):
 		if has_carried_item():
 			drop_carried()
 	elif event.is_action_pressed(&"flashlight"):
 		_flashlight.visible = not _flashlight.visible
-	elif event.is_action_pressed(&"primary"):
+	elif InputEdge.fresh(event, &"primary"):
 		_scan_ping()
 	elif event.is_action_pressed(&"toggle_tether"):
 		_toggle_tether()
@@ -719,7 +774,22 @@ func _compute_drop_transform(item: Node) -> Transform3D:
 		reach = Vector3.ZERO
 	else:
 		reach = reach.normalized()
-	return Transform3D(basis, global_position + up * DROP_FALLBACK_LIFT_M + reach * DROP_FALLBACK_DISTANCE_M)
+	var target: Vector3 = global_position + up * DROP_FALLBACK_LIFT_M + reach * DROP_FALLBACK_DISTANCE_M
+	# why: a fixed reach can land inside or behind shelving when the operator stands close to it,
+	# stranding the tool where no interaction ray can reach it; stop short of the first obstacle.
+	if space_state != null and reach != Vector3.ZERO:
+		var chest: Vector3 = global_position + up * DROP_FALLBACK_LIFT_M
+		var clearance: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(chest, target)
+		var blockers: Array[RID] = [get_rid()]
+		var held: CollisionObject3D = item as CollisionObject3D
+		if held != null:
+			blockers.append(held.get_rid())
+		clearance.exclude = blockers
+		var blocked: Dictionary = space_state.intersect_ray(clearance)
+		if not blocked.is_empty():
+			var stop: float = maxf(chest.distance_to(blocked["position"]) - DROP_OBSTACLE_MARGIN_M, 0.0)
+			target = chest + reach * stop
+	return Transform3D(basis, target)
 
 
 func _emit_sim_event(event_name: StringName, payload: Dictionary = {}) -> void:

@@ -11,6 +11,9 @@ func get_interaction_prompt() -> String:
 	if canister != null and not bool(canister.call("is_empty")):
 		var load: Dictionary = canister.call("get_load")
 		return "Stow %s %.0f" % [String(load["kind"]).to_upper(), float(load["units"])]
+	var cache: Dictionary = _pending_cache()
+	if not cache.is_empty():
+		return "Receive cached %s %.0f" % [String(cache["resource_id"]).to_upper(), float(cache["remaining_units"])]
 	return "Cargo port"
 
 
@@ -23,6 +26,12 @@ func _handle_interact(player: Node) -> void:
 		return
 	var canister: Node = _carried_canister(player)
 	if canister == null or bool(canister.call("is_empty")):
+		var cache: Dictionary = _pending_cache()
+		var nav: Node = _get_system(&"nav_system")
+		if not cache.is_empty() and nav != null:
+			if float(nav.call("claim_pending_cache", StringName(nav.get("current_destination_id")))) <= 0.0:
+				_emit_sim_event(&"procedure_error", {"reason": &"cargo_full"})
+			return
 		_emit_sim_event(&"procedure_error", {"reason": &"no_sample"})
 		return
 	var cargo: Node = _get_system(&"cargo_system")
@@ -42,6 +51,14 @@ func _first_player() -> Node:
 	if tree == null:
 		return null
 	return tree.get_first_node_in_group(&"player")
+
+
+func _pending_cache() -> Dictionary:
+	var nav: Node = _get_system(&"nav_system")
+	if nav == null or not nav.has_method(&"get_pending_cache_materials"):
+		return {}
+	var pending: Dictionary = nav.call("get_pending_cache_materials")
+	return pending.get(String(nav.get("current_destination_id")), {})
 
 
 func _carried_canister(player: Node) -> Node:

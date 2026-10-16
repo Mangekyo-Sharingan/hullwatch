@@ -22,6 +22,7 @@ const EFFECT_FABRICATION: StringName = &"fabrication"
 const EFFECT_CARGO: StringName = &"cargo"
 const EFFECT_POWER: StringName = &"power"
 const EFFECT_RECOVERY: StringName = &"recovery"
+const EFFECT_SURVEY: StringName = &"survey"
 const EFFECT_SOURCE: StringName = &"modules"
 # The generated pod shell is 3.6 m long along Z; these port mounts are 2.85 m apart.
 const PORT_POD_CLEARANCE_CONFLICTS: Dictionary = {
@@ -40,6 +41,9 @@ var _jobs: Dictionary = {}
 var _machines: Dictionary = {}
 ## socket_id -> {"machine_id": StringName, "remaining": float, "total": float}
 var _machine_jobs: Dictionary = {}
+# Refunds retain the materials actually paid, even when the catalog changes.
+var _module_paid_costs: Dictionary = {}
+var _machine_paid_costs: Dictionary = {}
 ## Circuits the installed set currently draws from, so stale draws can be cleared.
 var _loaded_circuits: Array[StringName] = []
 ## Fractional rations waiting to be a whole one.
@@ -55,6 +59,8 @@ func _ready() -> void:
 	var bus: Node = _get_autoload(&"EventBus")
 	if bus != null and bus.has_signal(&"salvage_changed"):
 		bus.connect(&"salvage_changed", _on_salvage_changed)
+	if bus != null:
+		bus.connect(&"sim_event", _on_power_event)
 	_on_salvage_changed.call_deferred("")
 
 
@@ -91,7 +97,7 @@ func get_installed_modules() -> Array[StringName]:
 
 ## The nanite job running at a hardpoint, empty when there is none.
 func get_job(hardpoint_id: StringName) -> Dictionary:
-	return _jobs.get(hardpoint_id, {}) as Dictionary
+	return (_jobs.get(hardpoint_id, {}) as Dictionary).duplicate(true)
 
 
 func get_jobs() -> Dictionary:
@@ -136,11 +142,14 @@ func start_build(module_id: StringName) -> bool:
 		emit_sim_event(&"procedure_error", {"reason": String(refusal), "module_id": String(module_id)})
 		return false
 	var module: ShipModule = get_module(module_id)
-	if not _pay_cost(module):
+	if not is_finite(module.build_hours):
+		return false
+	var paid_cost: Dictionary = _snapshot_cost(module.cost)
+	if not _pay_materials(paid_cost):
 		emit_sim_event(&"procedure_error", {"reason": String(REFUSAL_MISSING_MATERIALS), "module_id": String(module_id)})
 		return false
 	var hours: float = maxf(module.build_hours, 0.01)
-	_jobs[module.hardpoint_id] = {"module_id": module.module_id, "remaining": hours, "total": hours}
+	_jobs[module.hardpoint_id] = {"module_id": module.module_id, "remaining": hours, "total": hours, "paid_cost": paid_cost}
 	emit_sim_event(&"construction_started", {
 		"module_id": String(module_id),
 		"hardpoint_id": String(module.hardpoint_id),
@@ -156,13 +165,13 @@ func cancel_build(hardpoint_id: StringName) -> bool:
 		emit_sim_event(&"procedure_error", {"reason": String(REFUSAL_NO_BUILD_JOB), "hardpoint_id": String(hardpoint_id)})
 		return false
 	var job: Dictionary = _jobs[hardpoint_id]
-	var module: ShipModule = get_module(StringName(job.get("module_id", &"")))
-	var refusal: StringName = REFUSAL_UNKNOWN_MODULE if module == null else _return_refusal(_cost_units(module.cost))
+	var paid_cost: Dictionary = job["paid_cost"]
+	var refusal: StringName = _return_refusal(_cost_units(paid_cost))
 	if refusal != &"":
 		emit_sim_event(&"procedure_error", {"reason": refusal})
 		return false
 	_jobs.erase(hardpoint_id)
-	_refund(module)
+	_refund_cost(paid_cost)
 	emit_sim_event(&"construction_cancelled", {
 		"module_id": String(job.get("module_id", &"")),
 		"hardpoint_id": String(hardpoint_id),
@@ -184,11 +193,13 @@ func uninstall(module_id: StringName) -> bool:
 	if salvage != null and not bool(salvage.call(&"release_pod", module.hardpoint_id)):
 		emit_sim_event(&"module_uninstall_refused", {"module_id": String(module_id), "reason": "hold_full"})
 		return false
+	var paid_cost: Dictionary = _module_paid_costs[module.hardpoint_id]
 	_installed.erase(module.hardpoint_id)
+	_module_paid_costs.erase(module.hardpoint_id)
 	_release_machines(module.hardpoint_id)
 	_unregister_compartments(module)
 	_apply_effects()
-	_refund(module)
+	_refund_cost(paid_cost)
 	emit_sim_event(&"module_uninstalled", {"module_id": String(module_id), "hardpoint_id": String(module.hardpoint_id)})
 	_emit_typed(&"module_uninstalled", module.module_id, module.hardpoint_id)
 	return true
@@ -199,7 +210,7 @@ func uninstall(module_id: StringName) -> bool:
 func _teardown_refusal(module: ShipModule) -> StringName:
 	var capacity_lost: float = module.effect_amount if module.effect == EFFECT_CARGO else 0.0
 	var power_lost: float = module.effect_amount if module.effect == EFFECT_POWER else 0.0
-	var returned_units: float = _cost_units(module.cost)
+	var returned_units: float = _cost_units(_module_paid_costs[module.hardpoint_id])
 	var prefix: String = String(module.hardpoint_id) + ":"
 	var all_machines: Dictionary = get_machines()
 	var salvage: Node = _system(&"salvage_system")
@@ -217,14 +228,11 @@ func _teardown_refusal(module: ShipModule) -> StringName:
 			var definition: Resource = salvage.get("definition") as Resource
 			returned_units += float(definition.get("cargo_units"))
 		else:
-			returned_units += _cost_units(machine.cost)
+			returned_units += _cost_units(_machine_paid_costs[StringName(socket)])
 	for socket: StringName in _machine_jobs:
 		if String(socket).begins_with(prefix):
 			var job: Dictionary = _machine_jobs[socket]
-			var machine: ShipMachine = get_machine(StringName(job.get("machine_id", &"")))
-			if machine == null:
-				return REFUSAL_UNKNOWN_MACHINE
-			returned_units += _cost_units(machine.cost)
+			returned_units += _cost_units(job["paid_cost"])
 	return _return_refusal(returned_units, capacity_lost, power_lost)
 
 
@@ -261,18 +269,17 @@ func _release_machines(hardpoint_id: StringName) -> void:
 	for socket_id: Variant in _machines.keys():
 		if not String(socket_id).begins_with(prefix):
 			continue
-		var machine: ShipMachine = get_machine(StringName(_machines[socket_id]))
+		var paid_cost: Dictionary = _machine_paid_costs[socket_id]
 		_machines.erase(socket_id)
-		if machine != null:
-			_refund_machine(machine)
+		_machine_paid_costs.erase(socket_id)
+		_refund_cost(paid_cost)
 	for socket_id: Variant in _machine_jobs.keys():
 		if not String(socket_id).begins_with(prefix):
 			continue
 		var job: Dictionary = _machine_jobs[socket_id]
-		var machine: ShipMachine = get_machine(StringName(job.get("machine_id", &"")))
 		_machine_jobs.erase(socket_id)
-		if machine != null:
-			_refund_machine(machine)
+		_refund_cost(job["paid_cost"])
+
 
 
 func get_machine_catalog() -> Array[ShipMachine]:
@@ -301,7 +308,7 @@ func get_machine_at(socket_id: StringName) -> StringName:
 
 
 func get_machine_job(socket_id: StringName) -> Dictionary:
-	return _machine_jobs.get(socket_id, {}) as Dictionary
+	return (_machine_jobs.get(socket_id, {}) as Dictionary).duplicate(true)
 
 
 func get_machines() -> Dictionary:
@@ -363,11 +370,14 @@ func fit_machine(machine_id: StringName, socket_id: StringName) -> bool:
 		emit_sim_event(&"procedure_error", {"reason": String(refusal), "machine_id": String(machine_id), "socket_id": String(socket_id)})
 		return false
 	var machine: ShipMachine = get_machine(machine_id)
-	if not _pay_machine_cost(machine):
+	if not is_finite(machine.build_hours):
+		return false
+	var paid_cost: Dictionary = _snapshot_cost(machine.cost)
+	if not _pay_materials(paid_cost):
 		emit_sim_event(&"procedure_error", {"reason": String(REFUSAL_MISSING_MATERIALS), "machine_id": String(machine_id)})
 		return false
 	var hours: float = maxf(machine.build_hours, 0.01)
-	_machine_jobs[socket_id] = {"machine_id": machine.machine_id, "remaining": hours, "total": hours}
+	_machine_jobs[socket_id] = {"machine_id": machine.machine_id, "remaining": hours, "total": hours, "paid_cost": paid_cost}
 	emit_sim_event(&"machine_fit_started", {
 		"machine_id": String(machine_id),
 		"socket_id": String(socket_id),
@@ -389,13 +399,15 @@ func remove_machine(socket_id: StringName) -> bool:
 	if not machine.portable:
 		emit_sim_event(&"procedure_error", {"reason": String(REFUSAL_NOT_PORTABLE), "machine_id": String(machine_id)})
 		return false
-	var refusal: StringName = _return_refusal(_cost_units(machine.cost), machine.effect_amount if machine.effect == EFFECT_CARGO else 0.0, machine.effect_amount if machine.effect == EFFECT_POWER else 0.0)
+	var paid_cost: Dictionary = _machine_paid_costs[socket_id]
+	var refusal: StringName = _return_refusal(_cost_units(paid_cost), machine.effect_amount if machine.effect == EFFECT_CARGO else 0.0, machine.effect_amount if machine.effect == EFFECT_POWER else 0.0)
 	if refusal != &"":
 		emit_sim_event(&"procedure_error", {"reason": refusal, "socket_id": String(socket_id)})
 		return false
 	_machines.erase(socket_id)
+	_machine_paid_costs.erase(socket_id)
 	_apply_effects()
-	_refund_machine(machine)
+	_refund_cost(paid_cost)
 	emit_sim_event(&"machine_removed", {"machine_id": String(machine_id), "socket_id": String(socket_id)})
 	_emit_typed(&"machine_removed", machine.machine_id, socket_id)
 	return true
@@ -406,13 +418,13 @@ func cancel_machine_fit(socket_id: StringName) -> bool:
 		emit_sim_event(&"procedure_error", {"reason": String(REFUSAL_NO_BUILD_JOB), "socket_id": String(socket_id)})
 		return false
 	var job: Dictionary = _machine_jobs[socket_id]
-	var machine: ShipMachine = get_machine(StringName(job.get("machine_id", &"")))
-	var refusal: StringName = REFUSAL_UNKNOWN_MACHINE if machine == null else _return_refusal(_cost_units(machine.cost))
+	var paid_cost: Dictionary = job["paid_cost"]
+	var refusal: StringName = _return_refusal(_cost_units(paid_cost))
 	if refusal != &"":
 		emit_sim_event(&"procedure_error", {"reason": refusal, "socket_id": String(socket_id)})
 		return false
 	_machine_jobs.erase(socket_id)
-	_refund_machine(machine)
+	_refund_cost(paid_cost)
 	emit_sim_event(&"machine_fit_cancelled", {
 		"machine_id": String(job.get("machine_id", &"")),
 		"socket_id": String(socket_id),
@@ -486,6 +498,18 @@ func _apply_effects() -> void:
 	var fabricator: Node = _system(&"fabricator_system")
 	if fabricator != null:
 		fabricator.set(&"job_hours_multiplier", clampf(1.0 - fabrication_fraction, 0.1, 1.0))
+	_refresh_survey()
+
+
+func _on_power_event(event_name: StringName, _payload: Dictionary) -> void:
+	if event_name in [&"breaker_toggled", &"circuit_shed", &"circuit_restored", &"power_state_restored"]:
+		_refresh_survey()
+
+
+func _refresh_survey() -> void:
+	var sector: Node = _system(&"sector_system")
+	if sector != null:
+		sector.call(&"set_survey_source", EFFECT_SOURCE, float(get_effects()["active_survey_range_m"]))
 
 
 ## The summed contribution of everything installed, for readouts and tests.
@@ -496,11 +520,20 @@ func get_effects() -> Dictionary:
 		"cargo_units": 0.0,
 		"power_wh": 0.0,
 		"recovery_per_hour": 0.0,
+		"active_rations_per_day": 0.0,
+		"active_survey_range_m": 0.0,
+		"fitted_load_w": 0.0,
+		"active_load_w": 0.0,
 	}
 	for hardpoint_id: StringName in _installed:
 		var module: ShipModule = get_module(StringName(_installed[hardpoint_id]))
 		if module == null:
 			continue
+		summary["fitted_load_w"] = float(summary["fitted_load_w"]) + module.power_load_w
+		if _module_powered(module.circuit_id, module.power_load_w):
+			summary["active_load_w"] = float(summary["active_load_w"]) + module.power_load_w
+			if module.effect == EFFECT_RATIONS:
+				summary["active_rations_per_day"] = float(summary["active_rations_per_day"]) + module.effect_amount
 		match module.effect:
 			EFFECT_RATIONS:
 				summary["rations_per_day"] = float(summary["rations_per_day"]) + module.effect_amount
@@ -516,6 +549,13 @@ func get_effects() -> Dictionary:
 		var machine: ShipMachine = get_machine(StringName(String(machine_id)))
 		if machine == null:
 			continue
+		summary["fitted_load_w"] = float(summary["fitted_load_w"]) + machine.power_load_w
+		if _module_powered(machine.circuit_id, machine.power_load_w):
+			summary["active_load_w"] = float(summary["active_load_w"]) + machine.power_load_w
+			if machine.effect == EFFECT_RATIONS:
+				summary["active_rations_per_day"] = float(summary["active_rations_per_day"]) + machine.effect_amount
+			elif machine.effect == EFFECT_SURVEY:
+				summary["active_survey_range_m"] = float(summary["active_survey_range_m"]) + machine.effect_amount
 		match machine.effect:
 			EFFECT_RATIONS:
 				summary["rations_per_day"] = float(summary["rations_per_day"]) + machine.effect_amount
@@ -588,11 +628,12 @@ func _tick_jobs(delta_hours: float) -> void:
 
 func _finish_machine_job(socket_id: StringName) -> void:
 	var job: Dictionary = _machine_jobs[socket_id]
-	_machine_jobs.erase(socket_id)
 	var machine: ShipMachine = get_machine(StringName(job.get("machine_id", &"")))
 	if machine == null or _machines.has(socket_id):
 		return
+	_machine_jobs.erase(socket_id)
 	_machines[socket_id] = machine.machine_id
+	_machine_paid_costs[socket_id] = (job["paid_cost"] as Dictionary).duplicate()
 	_apply_effects()
 	emit_sim_event(&"machine_fitted", {
 		"machine_id": String(machine.machine_id),
@@ -601,27 +642,41 @@ func _finish_machine_job(socket_id: StringName) -> void:
 	_emit_typed(&"machine_fitted", machine.machine_id, socket_id)
 
 
-func _pay_machine_cost(machine: ShipMachine) -> bool:
+func _snapshot_cost(cost: Dictionary) -> Dictionary:
+	var paid: Dictionary = {}
+	for kind: Variant in cost:
+		paid[String(kind)] = cost[kind]
+	return paid
+
+
+func _pay_materials(cost: Dictionary) -> bool:
 	var cargo: Node = _cargo_system()
-	if cargo == null:
+	if cargo == null or not is_finite(_cost_units(cost)):
 		return false
-	for kind: Variant in machine.cost:
-		var needed: float = float(machine.cost[kind])
+	for kind: String in cost:
+		if StringName(kind) not in CargoSystem.KNOWN_KINDS or float(cargo.call(&"get_units", StringName(kind))) < float(cost[kind]) - 0.0001:
+			return false
+	var paid: Dictionary = {}
+	for kind: String in cost:
+		var needed: float = float(cost[kind])
 		if needed <= 0.0:
 			continue
-		if not bool(cargo.call(&"consume_material", StringName(String(kind)), needed)):
+		if not bool(cargo.call(&"consume_material", StringName(kind), needed)):
+			_refund_cost(paid)
 			return false
+		paid[kind] = needed
 	return true
 
 
-func _refund_machine(machine: ShipMachine) -> void:
+func _refund_cost(cost: Dictionary) -> void:
 	var cargo: Node = _cargo_system()
 	if cargo == null:
 		return
-	for kind: Variant in machine.cost:
-		var units: float = float(machine.cost[kind])
+	for kind: String in cost:
+		var units: float = float(cost[kind])
 		if units > 0.0:
-			cargo.call(&"add_material", StringName(String(kind)), units)
+			cargo.call(&"add_material", StringName(kind), units)
+
 
 
 func get_status() -> Dictionary:
@@ -635,6 +690,7 @@ func get_status() -> Dictionary:
 			"module_id": String(job.get("module_id", &"")),
 			"remaining_hours": float(job.get("remaining", 0.0)),
 			"total_hours": float(job.get("total", 0.0)),
+			"paid_cost": (job["paid_cost"] as Dictionary).duplicate(),
 		}
 	return {
 		"system_id": system_id,
@@ -659,6 +715,7 @@ func save_state() -> Dictionary:
 			"module_id": String(job.get("module_id", &"")),
 			"remaining_hours": float(job.get("remaining", 0.0)),
 			"total_hours": float(job.get("total", 0.0)),
+			"paid_cost": (job["paid_cost"] as Dictionary).duplicate(),
 		}
 	var machine_jobs: Dictionary = {}
 	for socket_id: StringName in _machine_jobs:
@@ -667,15 +724,18 @@ func save_state() -> Dictionary:
 			"machine_id": String(machine_job.get("machine_id", &"")),
 			"remaining_hours": float(machine_job.get("remaining", 0.0)),
 			"total_hours": float(machine_job.get("total", 0.0)),
+			"paid_cost": (machine_job["paid_cost"] as Dictionary).duplicate(),
 		}
 	return {
 		"system_id": String(system_id),
-		"state_version": 4,
+		"state_version": 5,
 		"ration_hours": _ration_hours,
 		"installed": get_status()["installed"],
 		"jobs": jobs,
 		"machines": built_machines,
 		"machine_jobs": machine_jobs,
+		"module_paid_costs": _module_paid_costs.duplicate(true),
+		"machine_paid_costs": _machine_paid_costs.duplicate(true),
 	}
 
 
@@ -685,6 +745,8 @@ func load_state(state: Dictionary) -> void:
 	for module_id: StringName in get_installed_modules():
 		_unregister_compartments(get_module(module_id))
 	_installed.clear()
+	_module_paid_costs.clear()
+	_machine_paid_costs.clear()
 	_jobs.clear()
 	var installed: Variant = state.get("installed", {})
 	if installed is Dictionary:
@@ -692,6 +754,7 @@ func load_state(state: Dictionary) -> void:
 			var module_id: StringName = StringName(String(installed[key]))
 			if get_module(module_id) != null:
 				_installed[StringName(String(key))] = module_id
+				_module_paid_costs[StringName(String(key))] = _loaded_cost(state, "module_paid_costs", String(key), get_module(module_id).cost)
 	var jobs: Variant = state.get("jobs", {})
 	if jobs is Dictionary:
 		for key: Variant in jobs:
@@ -699,12 +762,13 @@ func load_state(state: Dictionary) -> void:
 			if not (entry is Dictionary):
 				continue
 			var module_id: StringName = StringName(String((entry as Dictionary).get("module_id", &"")))
-			if get_module(module_id) == null or _installed.has(StringName(String(key))):
+			if (get_module(module_id) == null and not (entry as Dictionary).has("paid_cost")) or _installed.has(StringName(String(key))):
 				continue
 			_jobs[StringName(String(key))] = {
 				"module_id": module_id,
 				"remaining": maxf(float((entry as Dictionary).get("remaining_hours", 0.0)), 0.0),
 				"total": maxf(float((entry as Dictionary).get("total_hours", 0.0)), 0.0),
+				"paid_cost": ((entry as Dictionary)["paid_cost"] as Dictionary).duplicate() if (entry as Dictionary).has("paid_cost") else _snapshot_cost(get_module(module_id).cost),
 			}
 	for module_id: StringName in get_installed_modules():
 		_register_compartments(get_module(module_id))
@@ -715,6 +779,7 @@ func load_state(state: Dictionary) -> void:
 			var machine_id: StringName = StringName(String((fitted as Dictionary)[key]))
 			if get_machine(machine_id) != null:
 				_machines[StringName(String(key))] = machine_id
+				_machine_paid_costs[StringName(String(key))] = _loaded_cost(state, "machine_paid_costs", String(key), get_machine(machine_id).cost)
 	_machine_jobs.clear()
 	var machine_jobs: Variant = state.get("machine_jobs", {})
 	if machine_jobs is Dictionary:
@@ -723,12 +788,13 @@ func load_state(state: Dictionary) -> void:
 			if not (entry is Dictionary):
 				continue
 			var machine_id: StringName = StringName(String((entry as Dictionary).get("machine_id", &"")))
-			if get_machine(machine_id) == null or _machines.has(StringName(String(key))):
+			if (get_machine(machine_id) == null and not (entry as Dictionary).has("paid_cost")) or _machines.has(StringName(String(key))):
 				continue
 			_machine_jobs[StringName(String(key))] = {
 				"machine_id": machine_id,
 				"remaining": maxf(float((entry as Dictionary).get("remaining_hours", 0.0)), 0.0),
 				"total": maxf(float((entry as Dictionary).get("total_hours", 0.0)), 0.0),
+				"paid_cost": ((entry as Dictionary)["paid_cost"] as Dictionary).duplicate() if (entry as Dictionary).has("paid_cost") else _snapshot_cost(get_machine(machine_id).cost),
 			}
 	_apply_effects()
 	emit_sim_event(&"modules_state_restored")
@@ -748,11 +814,12 @@ func load_state(state: Dictionary) -> void:
 
 func _finish_job(hardpoint_id: StringName) -> void:
 	var job: Dictionary = _jobs[hardpoint_id]
-	_jobs.erase(hardpoint_id)
 	var module: ShipModule = get_module(StringName(job.get("module_id", &"")))
 	if module == null or _installed.has(hardpoint_id):
 		return
+	_jobs.erase(hardpoint_id)
 	_installed[hardpoint_id] = module.module_id
+	_module_paid_costs[hardpoint_id] = (job["paid_cost"] as Dictionary).duplicate()
 	_register_compartments(module)
 	_apply_effects()
 	emit_sim_event(&"construction_completed", {
@@ -762,27 +829,12 @@ func _finish_job(hardpoint_id: StringName) -> void:
 	_emit_typed(&"module_installed", module.module_id, hardpoint_id)
 
 
-func _pay_cost(module: ShipModule) -> bool:
-	var cargo: Node = _cargo_system()
-	if cargo == null:
-		return false
-	for kind: Variant in module.cost:
-		var needed: float = float(module.cost[kind])
-		if needed <= 0.0:
-			continue
-		if not bool(cargo.call(&"consume_material", StringName(String(kind)), needed)):
-			return false
-	return true
+func _loaded_cost(state: Dictionary, map_key: String, slot: String, legacy_cost: Dictionary) -> Dictionary:
+	var costs: Dictionary = state.get(map_key, {})
+	if costs.has(slot):
+		return (costs[slot] as Dictionary).duplicate()
+	return _snapshot_cost(legacy_cost)
 
-
-func _refund(module: ShipModule) -> void:
-	var cargo: Node = _cargo_system()
-	if cargo == null:
-		return
-	for kind: Variant in module.cost:
-		var units: float = float(module.cost[kind])
-		if units > 0.0:
-			cargo.call(&"add_material", StringName(String(kind)), units)
 
 
 func _register_compartments(module: ShipModule) -> void:

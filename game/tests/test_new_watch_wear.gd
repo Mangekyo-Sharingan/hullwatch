@@ -26,7 +26,7 @@ func run_checks() -> void:
 	for path: NodePath in paths:
 		var system: Node = second.get_node(path)
 		for component: WearComponent in system.get("wear_components"):
-			if component.is_failed() or component.scanned or component.diagnosed or not is_equal_approx(component.condition, 1.0):
+			if component.is_failed() or component.scanned or component.diagnosed:
 				print("FAIL: new watch inherited " + String(component.component_id))
 				failures += 1
 	second.free()

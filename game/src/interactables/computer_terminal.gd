@@ -14,6 +14,8 @@ const PROGRAM_PATHS: Dictionary = {
 	&"log": "res://src/ui/computer/program_log.gd",
 	&"control": "res://src/ui/computer/program_control.gd",
 	&"approach": "res://src/ui/computer/program_approach.gd",
+	&"notices": "res://src/ui/computer/program_notices.gd",
+	&"survey": "res://src/ui/computer/program_survey.gd",
 }
 
 @export var terminal_title: String = "SHIP COMPUTER"
@@ -125,6 +127,8 @@ func select_action(action: StringName) -> bool:
 		if program != null:
 			changed = program.select_action(self, action)
 	_refresh_menu()
+	if _content_scroll != null:
+		_content_scroll.scroll_vertical = 0
 	_refresh_content()
 	return changed
 
@@ -288,6 +292,8 @@ func _on_highlighted(index: int) -> void:
 		_preview = &""
 		if program != null:
 			program.set_highlighted_action(self, item["id"])
+	if _content_scroll != null:
+		_content_scroll.scroll_vertical = 0
 	_refresh_content()
 
 
@@ -331,7 +337,7 @@ func _ensure_ui() -> void:
 	_menu.name = "Programs"
 	row.add_child(_menu)
 	_menu.setup(terminal_title, PackedStringArray(["(NO PROGRAMS)"]))
-	_menu.set_hint("WHEEL: BROWSE    CLICK: SELECT    E/ESC: CLOSE")
+	_menu.set_hint("{browse}: BROWSE    {confirm_click}: SELECT\n{text_scroll}: TEXT    {close}: CLOSE")
 	_menu.option_selected.connect(_on_selected)
 	_menu.option_highlighted.connect(_on_highlighted)
 	var panel := PanelContainer.new()

@@ -13,8 +13,8 @@ executable modes and all internal hashes passed again after download.
 
 ## Launch
 
-One-time Non-Steam import and manual Steam Input keyboard/mouse mapping are
-required. After setup, one Play press in Deck Game Mode or Linux Big Picture
+One-time Non-Steam import is required; the game reads the gamepad directly, so no
+Steam Input mapping is needed. After setup, one Play press in Deck Game Mode or Linux Big Picture
 runs the native executable with 1280×800, fullscreen, Mobile Vulkan and a 30 FPS
 cap. No editor, Python, Proton or per-launch terminal setup is required.
 The bundled README documents transfer, import, complete bindings, saves,

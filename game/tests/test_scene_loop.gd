@@ -20,6 +20,8 @@ func _run() -> void:
 	root.add_child(main)
 	await process_frame
 	await process_frame
+	await physics_frame
+	await physics_frame
 
 	var scrubber: ScrubberUnit = main.get_node("WorldLayout/Props/ScrubberUnit") as ScrubberUnit
 	var panel: StatusPanel = main.get_node("WorldLayout/Props/StatusPanel") as StatusPanel
@@ -32,7 +34,12 @@ func _run() -> void:
 
 	var status: Dictionary = atmosphere.call("get_compartment_status", &"main")
 	_check(bool(status["scrubber_powered"]), "scrubber unit synced itself to the sim on scene load")
-	_check(int(status["occupants"]) == 1, "scene compartment ships with a crew occupant")
+	_check(int(status["occupants"]) == 0, "unoccupied life support has no ghost crew")
+	var occupants: int = 0
+	var ship_status: Dictionary = atmosphere.call("get_status")
+	for room: Dictionary in (ship_status["compartments"] as Dictionary).values():
+		occupants += int(room["occupants"])
+	_check(occupants == 1, "physical room zones account for exactly one operator")
 
 	var readout: String = "\n".join(panel.build_readout())
 	_check(readout.contains("CO2") and readout.contains("FILTER 15%"), "panel reports the worn filter in-world")

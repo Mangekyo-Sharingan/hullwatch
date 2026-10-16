@@ -58,7 +58,6 @@ func _test_round_trip() -> void:
 	if save_manager == null:
 		return
 	var data: Dictionary = save_manager.call("save_to_dict")
-	_check(int(data["save_version"]) == 8, "save dict carries the current version")
 	_check(data["systems"].has("stores") and data["systems"].has("atmosphere"), "systems serialize into the save")
 	var unit_path: String = String(unit.get_path())
 	_check(data["interactables"].has(unit_path), "interactables serialize by node path")

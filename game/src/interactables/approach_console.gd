@@ -5,7 +5,7 @@ extends ComputerTerminal
 
 func _ready() -> void:
 	terminal_title = "CONTACT BOARD"
-	programs = [&"approach", &"nav", &"log"]
+	programs = [&"approach", &"survey", &"nav", &"log"]
 	default_program = &"approach"
 	phosphor = CrtPanel.PHOSPHOR_GREEN
 	ui_layer = 12

@@ -187,8 +187,9 @@ func _spawn_pod() -> void:
 		z = marker.global_position.z
 	pod.position = Vector3(x, 0.0, z)
 	var parent: Node = get_parent()
-	parent.add_child(pod)
+	# Zones and links register during _ready, so give them real compartment ids first.
 	_wire_pod(pod)
+	parent.add_child(pod)
 	_pod = pod
 
 

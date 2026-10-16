@@ -10,11 +10,17 @@ var _menu: ScrollMenu
 var _content: Label
 var _content_scroll: ScrollContainer
 var _root: HBoxContainer
+var _content_gamepad: bool = false
 
 
 func _ready() -> void:
 	_apply_ui_scale()
 	UiScale.connect_settings(self, _on_ui_scale_changed)
+
+
+func _process(_delta: float) -> void:
+	if _content != null and is_open() and _content_gamepad != InputHints.gamepad_active:
+		_refresh_content()
 
 
 func get_interaction_prompt() -> String:
@@ -65,7 +71,7 @@ func build_readout() -> PackedStringArray:
 	lines.append("%s  [%d/%d]" % [page.title, _menu.get_highlighted_index() + 1, get_page_count()])
 	lines.append("")
 	for body_line: String in page.body.split("\n"):
-		lines.append(body_line)
+		lines.append(InputHints.expand(body_line))
 	return lines
 
 
@@ -78,6 +84,7 @@ func _handle_interact(_player: Node) -> void:
 		return
 	_menu.setup("OPERATOR'S MANUAL", _page_titles())
 	_menu.open()
+	_menu.set_hint("{browse_tight}: PAGES\n{text_scroll}: TEXT    {close}: CLOSE")
 	if _root != null:
 		_root.visible = true
 	_refresh_content()
@@ -103,6 +110,8 @@ func _page_titles() -> PackedStringArray:
 
 
 func _on_page_highlighted(_index: int) -> void:
+	if _content_scroll != null:
+		_content_scroll.scroll_vertical = 0
 	_refresh_content()
 
 
@@ -113,6 +122,7 @@ func _on_page_selected(index: int) -> void:
 
 func _refresh_content() -> void:
 	if _content != null:
+		_content_gamepad = InputHints.gamepad_active
 		_content.text = "\n".join(build_readout())
 		_content_scroll.scroll_vertical = 0
 

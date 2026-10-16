@@ -9,11 +9,40 @@ Guide for AI coding agents working in this repository. Read this first, then `do
 - Repo root: `E:\Projekt\Misc\OperationSpacer`
 - Godot project root: `game/`
 - Production spec: `docs/PRODUCTION_SPEC.md` (authoritative for design intent)
-- Status: **v0.11.0 released for playtest** (GitHub release, exe attached) — dock pods, nanite builds and machines on top of the v0.10.0 mining/fabrication loop; v0.10.0 predates the modular ship and the door/material passes. Earlier: cramped faceted 8-space station, xenon-metal material, analogue-horror filter, CRT screens, practical lighting, hidden faults diagnosed with tools (spec §4.3), a comms system with weeks of latency and the one late reply (spec §4.1/§5), and the v0.6.0 playtest fixes (every readout closes with E or Esc from anywhere, tool results print a HUD line with a beep, the probe prompt names the carried tool). Real captures in `docs/store/` (10). The cockpit look pass landed too: a wraparound dash console bank and a solid forward window drawn by a procedural space shader (`game/src/shaders/space_window.gdshader`). Expansion **M7 complete** (M7.1–M7.7): airlock room + wiring (interlock, panel, suit locker), faceted polygonal hull (`HullProfile` + rewritten `build_ship_geometry.gd`: plan outlines, profile rings, mitered wall bands, flat-bottom hexagonal corridor, trimesh collision from the same surfaces), exterior hull + catwalk + aft deck + roof ramp + hardpoints, starfield sky + star light, tether with auto-clip and taut clamp, EVA HUD line, 9-page manual. Tests: `test_hull_profile`, `test_hull_exterior`, `test_tether`, `test_eva_flow`, `test_airlock`, `test_airlock_scene`. **M8 deep field complete (M8.1–M8.5)**: seeded `SectorSystem` chunk corridor (~2% content), `FieldStreamer` geometry binding (faceted asteroids, debris, anomalies), detection (status-panel CONTACTS list, scanner ping on primary mouse while carrying the scanner), close approach via the cockpit `ContactConsole` (fuel-gated, 30 m standoff with station-keeping, resume drift), save/load throughout. Tests: `test_sector`, `test_field_streamer`, `test_detection`, `test_approach`. **M9 materials & fabrication complete (M9.1–M9.5)**: `CargoSystem` hold, cutter + sample canisters + hull cargo port, power-gated `FabricatorSystem` with `.tres` recipes (water filter, O2 candle, CO2 filter, gasket), scanner anomaly salvage into exotic cargo, and a month-long mine -> fabricate -> replace loop proven headless, and a FIELD WORK manual page (10 pages). Tests: `test_cargo`, `test_mining`, `test_fabricator`, `test_anomaly_salvage`, `test_m9_loop`. **M10 modular ship complete (M10.1-M10.5)**: M10.1 module framework (`ShipModule`, `ModuleSystem`, `test_modules`); M10.2 dock geometry landed — four side-wall docks (`hp_quarters`, `hp_life_support`, `hp_galley`, `hp_engine_bay`) with 1 m doorways, throats to the hull band, flush mount plates (group `dock_plate`) + hardpoint markers (group `hardpoint`), and the generated generic `scenes/dock_pod.tscn` (`test_module_geometry`); roof hardpoints retired; M10.3 construction scene landed — the dock plate is the EVA mount (build menu with cost/stock/build hours), installing stands the pod up with its compartment + link wired, the pod carries its own teardown panel, and a loaded save rebuilds standing pods (`test_module_scene`). M10.4 catalog & function landed — seven pod kinds in `src/data/modules/` with effects wired into the sims (greenhouse rations, workshop bench speed, expanded storage, aux battery capacity, med bay recovery) and a machine-placement model: pods are bare rooms with three sockets each, any machine fits any socket, machines stack, portable ones come back out for a full refund, and the ship's vital machinery is bolted down (`test_module_catalog`, `test_module_effects`, `test_machine_fitting`). Open questions awaiting the operator: `docs/OPEN_QUESTIONS.md`. Plan and exit criteria in `docs/EXPANSION_SPEC.md`. **M13.1 section hull landed (2026-09-20):** `SectionHull` (`src/world/section_hull.gd`) owns the section table (the single dial that slims when the interior converts, M13.2) plus the prow/flange/rib/tank/array tables; `build_ship_geometry.gd` now sweeps a lathed chamfered-rectangle shell (framed prow cowl over the cockpit window, flange collars at the interior joints, rib rings, stern tank cluster, solar arrays on booms) — the hull's top facet is the roof walk, dock plates sit proud of the shell with sill slabs, the catwalk/ramp/anchors keep their positions, and `test_hull_profile`/`test_hull_exterior`/`test_module_geometry` were re-baselined (63 of 64 suites pass; the outlier is the known `test_failures` grep false positive). M13.2 groundwork landed: `TubeLayout` (`src/world/tube_layout.gd`) holds the room-to-section chain (train layout, 11 sections, bow cupola to stern tank) with deck-area parity against the flat rooms, hatch rules and radial dock ports, validated by `test_tube_layout`. **M13.2 tube interior flipped (2026-09-21):** both generators build tube mode (`INTERIOR_STYLE = "tube"`; `-- --interior-style=flat` still works) — the interior is one swept tunnel per section joined by necks with bulkhead hatches, every prop/door/zone/link carried onto the chain, section doors ship open (airlock hatches shut), ceiling pipe runs, throat sleeves from each port to its plate/hatch leaf, the drum belly dropped below the deck plane (`TUBE_DRUM_DECK_DROP`) so the deck stops z-fighting, and the solar arrays re-anchored to the stern tank. Two generator faults found in play are fixed with permanent guards in `test_hull_exterior`: `_test_no_sightlines_out` (a 64-ray fan from eye height in every room must hit geometry — the bug that left port walls open to space) and `_test_no_outboard_geometry` (no fitting may sit outside the hull's reach — the flat-coordinate arrays/throats). `test_ship_layout` is re-baselined for the chain and the flat `OmniLight3D`s moved out of `main.tscn` into the tube's cabin lights. **M13.2 closed (2026-09-24):** the carried props now settle against the real wall (`_prop_bounds` walks to the layout root), and `test_world_layout` measures the true wall line and the lane to the opposite wall — 66/66 suites green. **M13.3 landed (2026-09-24):** the tube dock bore is 1.2 m to match the interior doors (Q6), a truss walkway with rails and posts runs from the EVA platform toward the life support dock (stopping clear of a standing pod's bay, its end within reach of the mount plate), the bow/stern tether anchors are mounted on the drum walls, and `test_module_scene` asserts the build -> enter-a-pod-on-foot walk from the room. **M11 destinations landed (2026-09-28):** resource-driven Arden II/Kestrel routes, fixed-tick 2/4-day transit with plot costs and fuel, daily transit events, one-time supply caches, sector/sky arrival swaps, and v3 save migration with in-flight round trips (`test_nav`, `test_m11_voyage`, `test_save_migration`, `test_destination_data`). Tube cabin lights follow the lighting breaker, and the original stronger analogue-horror defaults are restored. **Original Blender kits landed:** the cockpit hero kit (CRT console, status board, switch bank, gauge cluster, seven-segment), the pod machine kit (six machines) and the life-support machinery kit (scrubber, reclaimer, fabricator, breaker cabinet) are authored in `art/blender/`, exported to `game/assets/models/hullwatch/`; machines render their authored glTF in the sockets (`ShipMachine.model_path`, box fallback), the machinery replaces its procedural props, the seven interactive CRT props render the authored consoles (phosphor tint on load via `crt_screen.gd`), the airlock's outer hatch is the authored pressure hatch (`DOOR_STYLES["hullwatch"]`), four cockpit pieces dress the chain as carried props, a dressing kit (crew locker, mess table, filter rack, tool cart) fills the barest rooms, an exterior fittings kit (dish, thrusters, vents, floodlights, handrails, solar array) mounts on the drums, a lighting kit (ceiling lamp per cabin light, wall conduit runs) makes the light sources diegetic, and a storage/galley kit (crate stack, shelf unit, galley counter, pod service panel) dresses storage, the galley and the pods. **Hand tool kit landed (2026-09-24):** the six carriable tools (multimeter, wrench, wear scanner, sealant cartridge, hull cutter, sample canister) are authored glTF with one node-animated `use_*` action each; `Carriable.play_use_animation` plays it off the sim's usage events (`USE_EVENTS`), the model turns to the authored axes when taken, the tools rack on the storage/airlock deck via explicit `tube_position`s, and the equipped hull cutter clips to the operator's chest so it stays visible while a sample canister rides the carry slot (`test_tool_kit`). **Interior kit landed (2026-09-24):** the last procedural props (bunk, manual lectern, hull patch, O2 rack, probe, cargo port, airlock panel) plus an authored interior door leaf (now the default `DOOR_STYLE`) and authored container/computer/display replacements for the Kenney kit props are authored glTF in `game/assets/models/hullwatch/interior/` (`test_interior_kit`); the suit locker reuses the dressing-kit locker, and the swap fixed a latent visual bug where generated door slabs never moved or stowed (`door.gd` now treats the slab as a `Node3D`). **Ship computer landed (2026-09-28):** every console prop is now a station on one shared terminal OS (`ComputerTerminal` + `ComputerProgram` pages in `src/ui/computer/`): STATUS REPORT, STAR CHART, COMMS TRAFFIC, SHIP LOG, SHIP CONTROL and SENSOR CONTACTS, with role-based program lists (the cockpit nav console is the command station); a new `ComputerSystem` records the dated onboard log (failures, maintenance, breakers, transit days, dock work) with unread marks and save/load, the log stations browse that history plus the archived K. Voss volumes, and CONTROL remotely operates breakers, compartment isolation, the airlock cycle/hatches and pressure doors (`test_computer_log`, `test_computer_terminal`). The cockpit's desk prop became a **wall-mounted blade terminal** (authored `hw_wall_computer.glb`; source kit `art/blender/wall_computer_kit.blend` regenerated by `art/blender/build_wall_computer.py`): flush when stowed, it slides out of its wall slot and folds down on use (STATUS / CONTROL / LOG) and stows on close (`test_wall_computer`).
+- Status: **feature-frozen for Early Access** (operator decision 2026-10-15). The only work queue is the active EA slice in `docs/dashboard/roadmap.json` (`ea_plan`); delivered builds are listed under `checkpoint.delivered` there. What was built through M14 is in `docs/PROJECT_HISTORY.md`.
+- Platforms: **Windows, Linux and Steam Deck** at Early Access. This machine is the Linux development host; the operator playtests on Windows. `main` has only Windows export presets so far; the Deck build lives on branch `playtest/steamdeck` (`EA10.6` brings Linux/Deck onto `main`).
 - **Hull form canon:** the ship is a faceted polygonal form — plan polygons extruded through profile rings, flat-bottom hexagonal corridor, mitered flush joins, no overlapping slabs or protruding edges; collision is generated from the same surfaces (`HullProfile` + `build_ship_geometry.gd`); generated geometry is never hand-edited.
-- **Builds vs. source:** current merged-main playtest is GitHub prerelease `v0.12.0-playtest.20261010.1`, built from `fcacf28` with v6 saves; the repository package in `releases/windows/2026-10-09/` is the older `c982415` build; `v0.11.0` is the prior stable release; `v0.9.0` predates mining, fabrication and anomaly salvage, and `v0.7.0` predates the polygonal hull, EVA, airlock and tether. Always `.\build.ps1` and verify the feature is present in the exe before handing a build to a tester.
-- **Early-access expansion (weeks, features first):** open hull + EVA, streaming deep field (~98% empty), materials/fabrication, modular ship, planets/stars to travel to — milestones **M7–M12** and design rules in `docs/EXPANSION_SPEC.md`; polish is M12, do not pull it forward.
-- Asset shortlist for the M3 art pass: `docs/ASSET_SOURCES.md` — acquire at M3, not before
+
+## EA build rules (binding — operator decision 2026-10-15)
+
+The game is feature-frozen for Early Access (*freeze & finish*: no new systems). The
+only work queue is the ordered slice list `ea_plan.slices` (`EA01`–`EA12`) in
+`docs/dashboard/roadmap.json`; the dashboard shows the active slice and the "not now" list.
+
+1. **One slice at a time.** Work only on the active slice: the first slice that is not
+   `complete` or `blocked`. Never start the next slice while one is `in_progress` or
+   `needs_review`.
+2. **The operator owns the plan.** Never add, remove, reorder or re-scope slices, and never
+   add milestones. Work outside the active slice happens only when the operator asks for it
+   in the session; otherwise record the idea as a task under `LATER`.
+3. **Done means a player can see it.** The slice's `player_outcome` must be reachable from
+   NEW WATCH in a windowed or exported build without debug commands. Proof is captures or
+   video of exactly that behaviour, or a play note, under `docs/playtests/<slice id>/`. The
+   agent sets `needs_review`; only the operator sets `complete`. The builder rejects
+   `complete` without image, video or play-note proof.
+4. **Build the game, not scaffolding.** Every change must be visible or audible to the
+   player, or directly unblock the active slice's outcome. No new tools, libraries,
+   frameworks, generators, profilers, dashboards, updater features or refactors unless a
+   task of the active slice names them.
+5. **Test budget.** Add a test only for (a) a bug that reached play, or (b) a simulation
+   invariant or save shape the slice changes. Extend an existing suite before creating one.
+   Never test wiring, text, scene node counts or captures. Per change, run the smoke test and
+   the suites of the systems you touched; run the full sweep at slice close and before a build.
+6. **Document budget.** Per slice: task statuses and evidence in `roadmap.json`, the in-game
+   manual when a procedure changes, and one play note. No per-pass result reports,
+   manifest/receipt JSON, AGENTS.md status notes or mid-slice STATUS rewrites.
+7. **Ask, don't fork.** On a design question, stop and ask the operator; do not build both
+   options or a configurable abstraction to defer the choice.
 
 ## Tech Stack
 
@@ -43,87 +72,13 @@ Run from repo root. The engine binary is local, so no PATH setup is needed.
 # Headless smoke test — run after every change that touches scripts/scenes
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --quit
 
-# Headless script tests (require exit code 0 and `PASS: <suite>`) — run all before considering work done
+# Headless script tests: each must exit 0 and print `PASS: <suite>`.
+# Per change: smoke test + the suites of the systems you touched. Full sweep: at slice close and before a build.
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/smoke_test.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_stores.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_wear_model.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_power.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_atmosphere.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_thermal.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_player.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_interactables.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_occupancy.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_audio.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_footsteps.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_carry.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_cabin_light.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_rations.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_day_loop.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_ui.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_ui_scale.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_scroll_menu.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_survival_3day.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_save_load.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_scene_save_load.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_failures.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_scenario_power_night.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_scenario_cascade.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_scenario_humidity.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_hull.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_vitals.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_manual.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_nav.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_m11_voyage.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_component_breadth.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_water.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_humidity.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_ship_layout.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_world_layout.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_door.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_m4_extras.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_settings.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_save_migration.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_localization.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_analogue_filter.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_crt_panels.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_cockpit_instrument_panel.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_diagnostics.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_diagnostics_api.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_destination_data.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_comms.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_airlock.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_airlock_scene.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_hull_profile.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_hull_exterior.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_tether.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_eva_flow.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_sector.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_field_streamer.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_detection.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_approach.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_cargo.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_mining.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_fabricator.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_anomaly_salvage.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_m9_loop.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_modules.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_module_geometry.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_module_scene.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_module_catalog.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_module_effects.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_machine_fitting.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_tube_layout.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_tool_kit.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_interior_kit.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_scene_loop.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_player_traversal.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_pilot_chair.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_pilot_seat_flow.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_seated_hud.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_voice_guide.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_computer_log.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_computer_terminal.gd
-& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_wall_computer.gd
+& ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tests/test_<suite>.gd
+Get-ChildItem game/tests/test_*.gd | ForEach-Object { & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script "res://tests/$($_.Name)"; if ($LASTEXITCODE) { "FAIL $($_.Name)" } }
+# Linux full sweep:
+# for t in game/tests/test_*.gd; do ./Engine/Godot_v4.7.2-stable_linux.x86_64 --headless --path game --script "res://tests/${t##*/}" || echo "FAIL $t"; done
 
 # Regenerate the localization string table after changing user-facing UI strings
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tools/extract_strings.gd
@@ -131,10 +86,6 @@ Run from repo root. The engine binary is local, so no PATH setup is needed.
 # Regenerate the generated scenes after editing their tables (ship_geometry + dock_pod, and world_layout)
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tools/build_ship_geometry.gd
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --headless --path game --script res://tools/build_world_layout.gd
-
-# Regenerate Subnautica PDA-style voice lines (requires edge-tts and ffmpeg)
-python game/tools/generate_voice_lines.py
-
 
 # Capture in-game screenshots for review/store (WINDOWED — rendering required; writes to user://captures)
 & ".\Engine\Godot_v4.7.2-stable_win64_console.exe" --path game --resolution 1600x900 --script res://tools/capture_screenshots.gd
@@ -209,10 +160,10 @@ tools/                   # dev utilities, MCP configs
 - **Before implementing a mechanic:** check the spec for its intended system (§4), then check whether a data resource for it already exists in `game/src/data/`.
 - **When adding content:** add data first (`.tres` + a simulator hook), UI last. A feature without sim support is a mock.
 - **Before any playtest:** rebuild the exe (`.\build.ps1`) and confirm the feature is present in it. v0.6.0 predates diagnostics/comms and confused a tester; a stale build wastes a playtest round.
-- **After changes:** run the headless smoke test; if sim state changed, add/extend a deterministic scenario test.
+- **After changes:** run the headless smoke test and the suites of the systems you touched; tests follow the EA test budget above.
 - **Art assets:** only CC0 (or similarly clean) assets, recorded in `docs/ASSET_CREDITS.md`; imported materials are `.tres` in `src/data/materials/`; never hand-edit imported `.import` files.
 - **Ship geometry is generated:** edit the room table in `tools/build_ship_geometry.gd`, then rerun it to regenerate `scenes/ship_geometry.tscn` (deterministic output); never hand-edit the generated scene.
-- **Milestone discipline:** do not build ahead of the current milestone (spec §8.2) — vertical slice logic before content scale, ever.
+- **Slice discipline:** work only on the active EA slice (see *EA build rules*); finish and prove it before anything else.
 - **Open questions** (spec §9) are unresolved by design; ask the user before deciding narrative or scope items listed there.
 
 ## Sub-Agent Parallelization (required practice)
@@ -236,12 +187,18 @@ Maximize time efficiency by spinning up sub-agents (task tool) whenever workstre
 
 ## Documentation dashboard — after every pass
 
-Before returning a completed development pass, update its result document and
-`.wolf/STATUS.md`, then update the matching milestone/tasks and evidence in
-`docs/dashboard/roadmap.json` (or add a milestone for a new pass). Keep
-implementation, operator review, current validation, and delivered builds
-distinct; a historical PASS is not a new run. The dashboard collector includes
-the complete docs, curated project context, and game data automatically.
+Before returning work, update the active EA slice's task statuses and evidence in
+`docs/dashboard/roadmap.json`. Never add milestones or slices; only the operator does.
+Keep implementation, operator review, current validation and delivered builds distinct;
+a historical PASS is not a new run. Update `.wolf/STATUS.md` at session end, not per
+change. The dashboard collector includes the complete docs, curated project context,
+and game data automatically.
+
+The EA plan is mirrored to GitHub: each slice is a milestone (`EA03 — …`) and each task an
+issue (`[EA03.2] …`, label `ea-plan`, status labels, closed when complete). The mirror is
+one way — edit `roadmap.json`, never the issues — and is refreshed with
+`python3 tools/sync_github_issues.py` (`--dry-run` first) after slice or task statuses
+change. Reference the task ID in commit messages (`feat(EA03.2): …`).
 
 Project Stop/SessionEnd hooks and the OpenCode idle plugin refresh
 `docs/dashboard/index.html` after OpenWolf's final writes. If the running agent
@@ -251,8 +208,45 @@ a stale snapshot. See `docs/dashboard/README.md` and `HOOKS.md`. Dashboard-only
 work does not require Godot regeneration or simulator tests. Never auto-publish
 the full internal dashboard or auto-stage unrelated changes.
 
+### Roadmap IDs — resolve what the operator is pointing at
+
+Every roadmap entity in `docs/dashboard/roadmap.json` has a permanent, globally
+unique `id`, shown as a copyable badge on the dashboard. When the operator cites
+one, look it up before doing anything else:
+
+| Kind | Format | Example |
+|---|---|---|
+| Stage | `STAGE_<NAME>` | `STAGE_EA_FINISH` |
+| Milestone / EA slice | `[A-Z][A-Z0-9_]*` | `EA03`, `SURVIVAL_SAVE`, `M7` |
+| Task | `<milestone>.<n>` | `EA03.2`, `M7.3` (same as the `M7.3` used in docs) |
+| Gate | `GATE_<NAME>` | `GATE_NARRATIVE` |
+
+```sh
+jq --arg id SURVIVAL_SAVE.4 '.. | objects | select(.id? == $id)' docs/dashboard/roadmap.json
+```
+
+Deep link: `docs/dashboard/index.html#view=roadmap&id=<ID>`. IDs never change and
+are never reused: a new task takes the milestone's highest number + 1, a removed
+task's number stays retired, and a new milestone needs an ID not used before.
+`tools/build_dashboard.py` rejects missing, duplicate, mis-parented or wrongly
+prefixed IDs.
+
 <!-- openwolf:begin -->
 # OpenWolf
 
 This project uses OpenWolf for context management. Read and follow .wolf/OPENWOLF.md at session start. Check .wolf/cerebrum.md before generating code. Grep .wolf/anatomy.md for a file's path before reading it (never read the whole index).
 <!-- openwolf:end -->
+
+## graphify
+
+This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
+
+When the user types `/graphify`, use the installed graphify skill or instructions before doing anything else.
+
+Rules:
+- For codebase questions, first run `graphify query "<question>"` when graphify-out/graph.json exists. Use `graphify path "<A>" "<B>"` for relationships and `graphify explain "<concept>"` for focused concepts. These return a scoped subgraph, usually much smaller than GRAPH_REPORT.md or raw grep output.
+- Dirty graphify-out/ files are expected after hooks or incremental updates; dirty graph files are not a reason to skip graphify. Only skip graphify if the task is about stale or incorrect graph output, or the user explicitly says not to use it.
+- If graphify-out/wiki/index.md exists, use it for broad navigation instead of raw source browsing.
+- Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
+- After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
+- A committed graphify-out/graph.json is rewritten whole on every build, so a large diff to it in a pull request is expected. Do not flag it as churn or suggest skipping the graph rebuild or its hooks.

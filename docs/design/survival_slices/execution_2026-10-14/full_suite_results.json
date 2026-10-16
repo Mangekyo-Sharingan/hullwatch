@@ -1,0 +1,976 @@
+{
+  "date": "2026-10-14",
+  "scope": "combined local supply/persistence/specialization source after the continuity watch was completed; isolated Linux headless",
+  "results": [
+    {
+      "suite": "test_airlock",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_airlock.out"
+    },
+    {
+      "suite": "test_airlock_scene",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_airlock_scene.out"
+    },
+    {
+      "suite": "test_analogue_filter",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_analogue_filter.out"
+    },
+    {
+      "suite": "test_anomaly_salvage",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_anomaly_salvage.out"
+    },
+    {
+      "suite": "test_approach",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_approach.out"
+    },
+    {
+      "suite": "test_atmosphere",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_atmosphere.out"
+    },
+    {
+      "suite": "test_audio",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_audio.out"
+    },
+    {
+      "suite": "test_cabin_light",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_cabin_light.out"
+    },
+    {
+      "suite": "test_cargo",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_cargo.out"
+    },
+    {
+      "suite": "test_carry",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_carry.out"
+    },
+    {
+      "suite": "test_cockpit_instrument_panel",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_cockpit_instrument_panel.out"
+    },
+    {
+      "suite": "test_comms",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_comms.out"
+    },
+    {
+      "suite": "test_component_breadth",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_component_breadth.out"
+    },
+    {
+      "suite": "test_computer_log",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_computer_log.out"
+    },
+    {
+      "suite": "test_computer_terminal",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_computer_terminal.out"
+    },
+    {
+      "suite": "test_crt_panels",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_crt_panels.out"
+    },
+    {
+      "suite": "test_day_loop",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_day_loop.out"
+    },
+    {
+      "suite": "test_destination_data",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_destination_data.out"
+    },
+    {
+      "suite": "test_detection",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_detection.out"
+    },
+    {
+      "suite": "test_diagnostics",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_diagnostics.out"
+    },
+    {
+      "suite": "test_diagnostics_api",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_diagnostics_api.out"
+    },
+    {
+      "suite": "test_door",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_door.out"
+    },
+    {
+      "suite": "test_eva_flow",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_eva_flow.out"
+    },
+    {
+      "suite": "test_fabricator",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_fabricator.out"
+    },
+    {
+      "suite": "test_failures",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_failures.out"
+    },
+    {
+      "suite": "test_field_streamer",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_field_streamer.out"
+    },
+    {
+      "suite": "test_footsteps",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_footsteps.out"
+    },
+    {
+      "suite": "test_hero_cabins",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_hero_cabins.out"
+    },
+    {
+      "suite": "test_hull",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_hull.out"
+    },
+    {
+      "suite": "test_hull_exterior",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_hull_exterior.out"
+    },
+    {
+      "suite": "test_hull_profile",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_hull_profile.out"
+    },
+    {
+      "suite": "test_humidity",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_humidity.out"
+    },
+    {
+      "suite": "test_interactables",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_interactables.out"
+    },
+    {
+      "suite": "test_interior_gate",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_interior_gate.out"
+    },
+    {
+      "suite": "test_interior_kit",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_interior_kit.out"
+    },
+    {
+      "suite": "test_localization",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_localization.out"
+    },
+    {
+      "suite": "test_m11_voyage",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_m11_voyage.out"
+    },
+    {
+      "suite": "test_m4_extras",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_m4_extras.out"
+    },
+    {
+      "suite": "test_m9_loop",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_m9_loop.out"
+    },
+    {
+      "suite": "test_machine_fitting",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_machine_fitting.out"
+    },
+    {
+      "suite": "test_maintenance_isolation",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_maintenance_isolation.out"
+    },
+    {
+      "suite": "test_manifest_updater",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_manifest_updater.out"
+    },
+    {
+      "suite": "test_manual",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_manual.out"
+    },
+    {
+      "suite": "test_mining",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_mining.out"
+    },
+    {
+      "suite": "test_module_catalog",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_module_catalog.out"
+    },
+    {
+      "suite": "test_module_effects",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_module_effects.out"
+    },
+    {
+      "suite": "test_module_geometry",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_module_geometry.out"
+    },
+    {
+      "suite": "test_module_scene",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_module_scene.out"
+    },
+    {
+      "suite": "test_modules",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_modules.out"
+    },
+    {
+      "suite": "test_nav",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_nav.out"
+    },
+    {
+      "suite": "test_new_watch_wear",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_new_watch_wear.out"
+    },
+    {
+      "suite": "test_o2_candle_stock",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_o2_candle_stock.out"
+    },
+    {
+      "suite": "test_occupancy",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_occupancy.out"
+    },
+    {
+      "suite": "test_operator_maintenance",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_operator_maintenance.out"
+    },
+    {
+      "suite": "test_persistence_foundations",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_persistence_foundations.out"
+    },
+    {
+      "suite": "test_pilot_chair",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_pilot_chair.out"
+    },
+    {
+      "suite": "test_pilot_seat_flow",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_pilot_seat_flow.out"
+    },
+    {
+      "suite": "test_player",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_player.out"
+    },
+    {
+      "suite": "test_player_traversal",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_player_traversal.out"
+    },
+    {
+      "suite": "test_power",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_power.out"
+    },
+    {
+      "suite": "test_propulsion",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_propulsion.out"
+    },
+    {
+      "suite": "test_rations",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_rations.out"
+    },
+    {
+      "suite": "test_replenishment",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_replenishment.out"
+    },
+    {
+      "suite": "test_resource_continuity",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_resource_continuity.out"
+    },
+    {
+      "suite": "test_salvage",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_salvage.out"
+    },
+    {
+      "suite": "test_save_load",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_save_load.out"
+    },
+    {
+      "suite": "test_save_migration",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_save_migration.out"
+    },
+    {
+      "suite": "test_scenario_cascade",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_scenario_cascade.out"
+    },
+    {
+      "suite": "test_scenario_humidity",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_scenario_humidity.out"
+    },
+    {
+      "suite": "test_scenario_power_night",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_scenario_power_night.out"
+    },
+    {
+      "suite": "test_scene_loop",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_scene_loop.out"
+    },
+    {
+      "suite": "test_scene_save_load",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_scene_save_load.out"
+    },
+    {
+      "suite": "test_scroll_menu",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_scroll_menu.out"
+    },
+    {
+      "suite": "test_seated_hud",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_seated_hud.out"
+    },
+    {
+      "suite": "test_sector",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_sector.out"
+    },
+    {
+      "suite": "test_session_flow",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_session_flow.out"
+    },
+    {
+      "suite": "test_session_menu",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_session_menu.out"
+    },
+    {
+      "suite": "test_settings",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_settings.out"
+    },
+    {
+      "suite": "test_ship_compartments",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_ship_compartments.out"
+    },
+    {
+      "suite": "test_ship_layout",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_ship_layout.out"
+    },
+    {
+      "suite": "test_ship_specialization",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_ship_specialization.out"
+    },
+    {
+      "suite": "test_stores",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_stores.out"
+    },
+    {
+      "suite": "test_survival_3day",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_survival_3day.out"
+    },
+    {
+      "suite": "test_tether",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_tether.out"
+    },
+    {
+      "suite": "test_thermal",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_thermal.out"
+    },
+    {
+      "suite": "test_tool_kit",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_tool_kit.out"
+    },
+    {
+      "suite": "test_tube_layout",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_tube_layout.out"
+    },
+    {
+      "suite": "test_ui",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_ui.out"
+    },
+    {
+      "suite": "test_ui_scale",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_ui_scale.out"
+    },
+    {
+      "suite": "test_update_checker",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_update_checker.out"
+    },
+    {
+      "suite": "test_vitals",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_vitals.out"
+    },
+    {
+      "suite": "test_voice_guide",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_voice_guide.out"
+    },
+    {
+      "suite": "test_walkway_clearance",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_walkway_clearance.out"
+    },
+    {
+      "suite": "test_wall_computer",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_wall_computer.out"
+    },
+    {
+      "suite": "test_water",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_water.out"
+    },
+    {
+      "suite": "test_wear_model",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_wear_model.out"
+    },
+    {
+      "suite": "test_world_layout",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-test_world_layout.out"
+    },
+    {
+      "suite": "smoke_test",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-smoke_test.out"
+    },
+    {
+      "suite": "startup",
+      "returncode": 0,
+      "pass_line": true,
+      "script_errors": 0,
+      "fail_lines": [],
+      "ok": true,
+      "log": "/tmp/hw-final-startup.out"
+    }
+  ],
+  "complete": true,
+  "reruns": [],
+  "final_passed": 99,
+  "suite_count": 98,
+  "source_commit": "ef8aab9af3aad0022666cfd565b8b91731d42403",
+  "modified_game_files": {
+    "game/assets/locale/strings.csv": "86f52997a876f20b541684ca6ecddb9ff101027539c483cdc274f40322861dc8",
+    "game/scenes/main.tscn": "5bac28bfcc44687cee5cbd5cdccc890d93ab01c85a62c9a75baee0086f9fb121",
+    "game/scenes/world_layout.tscn": "6f2ced6316649fdc574bb55495e2954958aa54ad0f2f43b551b6390c65fc2248",
+    "game/src/autoload/save_manager.gd": "f163ece1cccf1f70bca0baa524d4f82bb855a61282ad134e1913b184fc57337e",
+    "game/src/data/manual/page_damage_control.tres": "c1522b48db53a3b430ca29b4f493d73f3d3315dcdef77728a1dbd64a183bce90",
+    "game/src/data/manual/page_field_work.tres": "8161de16e3e7b3aa93b8f3da062555ef78338da1371a8bb8568655d5a165311e",
+    "game/src/interactables/cargo_port.gd": "5040e80a058587ab5cc12034876f3000341ecdc84dd30d7b242ae0ae22903384",
+    "game/src/interactables/carriable.gd": "4b274963123a5644ff93fcee8b3315d619be4997af94e50a3f25cf8198f1f157",
+    "game/src/interactables/computer_terminal.gd": "694e439e94e7e26c1cbf98054c2cb240eee769f7b07050d388ad93944a4d46e4",
+    "game/src/interactables/cutter_tool.gd": "ed69931a6eabd6631f5613c87578722eb70e7a0ac0337ba837c2a0ab01e98132",
+    "game/src/interactables/fabricator_unit.gd": "76412431e5d3ca40d74afe56e439c134c0e8f60cfdb689d9ac205793584ae51a",
+    "game/src/interactables/hull_patch.gd": "ea5df953c34608c85ff08872c4a1633bf06b5943a8732a1a93a294d67e6aa65f",
+    "game/src/interactables/interactable.gd": "860da7c3981fe3ad6d61639d3535f350d5786d650b6e28998dfd87bd755edafb",
+    "game/src/interactables/machine_socket.gd": "a02182f65eb7a321f53bbec8c07e1f49bc59f3c4f6a6f50fc588f3846c654b41",
+    "game/src/interactables/sample_canister.gd": "8c129246fd78d19240a99d2d6aa7258ed5dddc688ca8a70c3dbb9d44c10536ab",
+    "game/src/interactables/suit_locker.gd": "80c64a488c60c4ffdfde89de7e4fc0c65c38b6684e143c60189d887d9cbb5b17",
+    "game/src/interactables/wall_computer.gd": "1754b82f9b40b660ac5dbab58672daea496bc27ba827f1797598025300575020",
+    "game/src/interactables/water_reclaimer.gd": "be6e5ceed95e4c750320d68f53583663786facf03fab09177b3d97c6b14ab62a",
+    "game/src/player/player.gd": "492a9ad82fab0334442b6b99d98da0dd506311a76241f26cebfd653087ef45cf",
+    "game/src/systems/airlock.gd": "7ab433c06b5f4ffdf52a6671d8da16ba4782760af44d9e19dd5c75fba6ceee4b",
+    "game/src/systems/cargo.gd": "d30ed3ae8419254e61e33b2402eb9337c0b1ec2cecd76ed64024fe23a9b8bd32",
+    "game/src/systems/fabricator.gd": "34e2b9b5e26ca63debc4de44ea901b9f49564f107f02892e734f0f5ba8922a81",
+    "game/src/systems/modules.gd": "b1b8e8c306d1b6a1ec44972b061fedcfee850b0336f584a64ef08dea929a5868",
+    "game/src/systems/nav.gd": "541ed62600a60b35441cda2cd6ec8ea5541a990db2a9c901594cb31b58122221",
+    "game/src/systems/salvage.gd": "40e391780368430533d0220e3e1f5efb0a13e5ebb155fa366dc410e7fdf07c19",
+    "game/src/systems/sector.gd": "da1dc6f8ad15ee46c9b6ab46cb988c7bf5c453a0add24a61e31f489dbc83cc33",
+    "game/src/systems/stores.gd": "02f6c088bec5488cbe683e727d9c9fd415598623cefb628f38489dd93b347109",
+    "game/src/systems/vitals.gd": "6819c8ee90521ad6d17a8348084d5dfc117e21b22260ed2261f8676aba169096",
+    "game/src/systems/water.gd": "462adc85c2ce8cc9f2d25a3ff118ed4e7fce62c4b7f3903b89f48d8c24cbdf6c",
+    "game/src/ui/computer/program_status.gd": "5d3d7492b36bbc9735d595dbef806171c5d9557cd3fb29dfc4b754aabba9e790",
+    "game/src/ui/hud.gd": "73199ee9d518aa05b68709468d2f854e64318958a8edc92d16f85eb786635482",
+    "game/src/world/compartment_zone.gd": "310a8021d06f6482c1274634c5f1053b186c637a83806f086973fc461fda519e",
+    "game/src/world/field_streamer.gd": "d2c9672ce1f0ebc5128cc3c5b7c679d1362bb479293f194a6dae613e90114695",
+    "game/tests/test_airlock.gd": "6c2f70e9dd1fc939fdbcf8331132d7283eef78b75ac10672019dd5c90b432837",
+    "game/tests/test_cargo.gd": "7993eb67a1ab162b542bdb09278c0912d9929c016764f637aa4dac8c5f771fbf",
+    "game/tests/test_carry.gd": "da36b3b7a0af2781f1840ccc59b4b64d7563a6f9e46f258c360f5bf5c44cf624",
+    "game/tests/test_eva_flow.gd": "24f7ee99854dae3a5394d93ebe609785a0ac5cf4ebe3f908d1d53a155ddd3e9d",
+    "game/tests/test_fabricator.gd": "91ca0b9abcf3cf1deadb5bb6e7ea398e6fb4271198e13f36be4e674e845db324",
+    "game/tests/test_hull.gd": "e66432aed496ca937eacd22031e160d1c0cd7dbde7dbe725ac569caa278419a5",
+    "game/tests/test_m11_voyage.gd": "17ed0cb400abcda0fdbefcf86d1980777f00978e7e1a68b484ae37fc0f7df238",
+    "game/tests/test_machine_fitting.gd": "afe8652255cac892010cc42ec2ee3baa6d6bb79117c4f7a17d4945f92a19ae58",
+    "game/tests/test_module_catalog.gd": "f4276c54592e230f7cab4be704442297b2a538f4245967412430f1ec5f0f66a5",
+    "game/tests/test_module_effects.gd": "77becd8e2dce6a7f10b22e1b6da258bd3822282f6fbc2980a2dadcaa6eeb2a10",
+    "game/tests/test_modules.gd": "11e350022b87555fc27df73b7363dc5a97ee3520405c5df589c4ddd76f8c70ef",
+    "game/tests/test_nav.gd": "0cdf35c2c63b707f4b4dd9c6266e50e02dbf4daf91d772de805ec39404015606",
+    "game/tests/test_salvage.gd": "e81d901433e15f00321644e8284cb32a6931aaf56f2cc73b85fceb54bea90b67",
+    "game/tests/test_save_load.gd": "8b201f5e210ab911046fa5de8e6608ac9f1dab687e0d8ad71a3b91455a597250",
+    "game/tests/test_save_migration.gd": "ba921a4ee7c0cbc852e07a67952ff2363fb0f801cdbcdf549d81e888e2e08e55",
+    "game/tests/test_scene_loop.gd": "4dd4d4e93a742bdabc5aca9c1cbfab60c5d887bc6ee7f6e72468c86efb028b3b",
+    "game/tests/test_scene_save_load.gd": "8831d325dfcf8e0488eb0dc6096cd33fa460daa7aa5c566407c648c629fc003c",
+    "game/tests/test_session_flow.gd": "6ad49af9f6ad898eacda8b43722d41e610f0ad538f1c0385753a149ce08d3576",
+    "game/tests/test_stores.gd": "6fbd3e04118850ad0f2a3414a6c3d9f156d318f788139b7d0bf9f246842c457a",
+    "game/tests/test_wall_computer.gd": "dcb39855572427164a73576820e02a22bd6c5ba6166a9dddc2b1110e9860f5c2",
+    "game/tests/test_water.gd": "5d3299f6f471cd17a79b2cdcd4fa1ac51d0af8619aa45c8700799a49a16cac01",
+    "game/tools/build_world_layout.gd": "f809cf89ff2d6bb8f3d6a8c2f4164fc89edb53d5b0ce4b0dfddc2a39343e6535",
+    "game/src/data/fabrication/recipe_sealant_charge.tres": "35b5d7a779b3ee4c6a766f1763a6d2692d40f462d94c16d851d44388f3e47c45",
+    "game/src/data/fabrication/recipe_water_charge.tres": "cdc934fa5e636dde6b3e5d8d4bd3b17b47eb3f1b25812cb316527bed54a25811",
+    "game/src/data/machines/machine_survey_sensor.tres": "eb047eb7b8f0078c1cfb654fdf91bdccbb393d1223c57cfcd09c49baa1eb7b17",
+    "game/src/interactables/sealant_cartridge.gd": "8ca5361764c0f4dc1bdbe2d1df71c51141d4e4cc9947cf90db1a83c42b8f93f7",
+    "game/src/interactables/sealant_cartridge.gd.uid": "6d2659eaf2b5f97fa3e44d44ddeb7831fb2fa2bce2cb5cc58a1287bf042c39f2",
+    "game/src/ui/computer/program_notices.gd": "62eb9f2f66f3de43b2ba814dfa792cbf203de0b4c748c95772af9282e09510ad",
+    "game/src/ui/computer/program_notices.gd.uid": "9423daef6d3cb0f50f5ec88fdd9522b6c051f396c6034e80c63eb3316571f668",
+    "game/tests/test_persistence_foundations.gd": "0e5b5dc05984c662832e6aa12b44668dcf304cae0571497bf8fc35be4b823ea2",
+    "game/tests/test_persistence_foundations.gd.uid": "0b2d2576f8a70f677c6131ccb9a3065e6982f336da13efbfbc0cc216772ab416",
+    "game/tests/test_replenishment.gd": "c3b006424ead34f0b40decaf1056f0d1bca7b06cb3e2d9df9081d48622398735",
+    "game/tests/test_replenishment.gd.uid": "62ec23b6e2da7bed94975a3058109263e0cbb4aea35a0f673a168488b034bc87",
+    "game/tests/test_resource_continuity.gd": "f323369ecc8f107c3245ae6e95a7845cc06b738b91d6646e4096bdcfd2e10781",
+    "game/tests/test_ship_specialization.gd": "e8cd028d597c0a417eb09169a9ff4ef1d70576b4dc91506bdf31d6e12337b11b",
+    "game/tests/test_ship_specialization.gd.uid": "6d7102d3ff4dd7e4d4a113d06c080b964d4c1d8830b56319182e6784fecef51a"
+  },
+  "modified_game_files_sha256": "6e33bb76ed788021977927df81930c851cd032ef4ef32efa4777608a928dd5eb",
+  "scenario_suite_count": 97,
+  "total_check_count": 99
+}

@@ -183,63 +183,6 @@ static func make_breath_loop(seconds: float = 3.2) -> AudioStreamWAV:
 	return _to_wav(_crossfade_loop(samples, _LOOP_CROSSFADE_SECONDS), true)
 
 
-static func make_voice_chime(seconds: float = 0.35) -> AudioStreamWAV:
-	var total: int = _sample_count(seconds)
-	var samples := PackedFloat32Array()
-	samples.resize(total)
-	var half: int = total / 2
-	var freq_a: float = _snap_freq(587.33, half)
-	var freq_b: float = _snap_freq(880.0, total - half)
-	for i: int in total:
-		var t: float = float(i) / float(MIX_RATE)
-		var freq: float = freq_a if i < half else freq_b
-		var local_t: float = float(i if i < half else i - half) / float(MIX_RATE)
-		var env: float = exp(-local_t * 14.0)
-		samples[i] = 0.28 * sin(TAU * freq * t) * env
-	return _to_wav(samples, false)
-
-
-static func make_voice_stream(text: String) -> AudioStreamWAV:
-	var words: PackedStringArray = text.split(" ", false)
-	if words.is_empty():
-		return make_click()
-	var total_syllables: int = 0
-	for word: String in words:
-		total_syllables += maxi(1, word.length() / 3)
-	var syllable_sec: float = 0.12
-	var total_sec: float = float(total_syllables) * syllable_sec + 0.15
-	var total_samples: int = _sample_count(total_sec)
-	var samples := PackedFloat32Array()
-	samples.resize(total_samples)
-
-	var cur_sample: int = 0
-	var rng := RandomNumberGenerator.new()
-	rng.seed = hash(text)
-
-	var base_pitch: float = 125.0
-	for word: String in words:
-		var syl_count: int = maxi(1, word.length() / 3)
-		for s: int in syl_count:
-			var syl_samples: int = int(syllable_sec * float(MIX_RATE))
-			var f1: float = rng.randf_range(320.0, 680.0)
-			var f2: float = rng.randf_range(1100.0, 2100.0)
-			for i: int in syl_samples:
-				if cur_sample >= total_samples:
-					break
-				var t: float = float(i) / float(MIX_RATE)
-				var progress: float = float(i) / float(syl_samples)
-				var env: float = sin(PI * progress)
-				var glottal: float = (fposmod(t * base_pitch, 1.0) - 0.5) * 2.0
-				var formant: float = sin(TAU * f1 * t) * 0.38 + sin(TAU * f2 * t) * 0.28
-				var noise: float = rng.randf_range(-1.0, 1.0) * 0.12
-				samples[cur_sample] = (glottal * 0.22 + formant + noise) * env * 0.25
-				cur_sample += 1
-			var gap: int = int(0.02 * float(MIX_RATE))
-			cur_sample = mini(cur_sample + gap, total_samples)
-
-	return _to_wav(samples, false)
-
-
 static func _to_wav(samples: PackedFloat32Array, loop: bool) -> AudioStreamWAV:
 	var bytes := PackedByteArray()
 	bytes.resize(samples.size() * 2)

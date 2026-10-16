@@ -15,7 +15,15 @@ func _init() -> void:
 
 
 func build_readout(terminal: Node) -> PackedStringArray:
-	var lines: PackedStringArray = PackedStringArray(["CURRENT CONCERNS"])
+	var lines: PackedStringArray = PackedStringArray([
+		"STANDING ORDERS / CONATUS FINITUS",
+		"CHECK STATUS; TAKE SCANNER + MULTIMETER FROM TOOL RACKS.",
+		"GALLEY MANUAL: DIAGNOSE / ISOLATE / SERVICE / VERIFY.",
+		"TRIAGE, THEN QUARTERS BUNK TO END WATCH. SHIP RUNS DURING SLEEP.",
+		"SHIP LOG > OPERATOR HANDOVER: FULL INSTRUCTIONS.",
+		"",
+		"CURRENT CONCERNS",
+	])
 	lines.append_array(_safety_lines(terminal))
 	lines.append("")
 	lines.append("INSPECTION / SERVICE")
@@ -146,7 +154,7 @@ func _inspection_lines(terminal: Node) -> PackedStringArray:
 					if group == &"hull_system":
 						lines.append("  SEAM FITTINGS ONLY; DO NOT ALTER GROWN FRAME")
 			elif bool(component.get("scanned", false)):
-				lines.append("SCANNED %s: %s; %s" % [String(key).to_upper(), _condition_text(component), "DIAGNOSIS REQUIRED" if not bool(component.get("diagnosed", false)) else "NO DIAGNOSED FAULT"])
+				lines.append("SCANNED %s: %s; %s" % [String(key).to_upper(), _condition_text(component), "DIAGNOSIS REQUIRED" if bool(component["failed"]) else "NO DIAGNOSED FAULT"])
 				if group != &"nav_system" and float(component["condition"]) < 1.0:
 					lines.append("  " + String(SERVICE_GUIDES[group]))
 					lines.append_array(_refit_lines(system, StringName(key)))

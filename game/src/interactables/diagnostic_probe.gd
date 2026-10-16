@@ -142,7 +142,7 @@ func get_actions() -> PackedStringArray:
 		_actions.append({"component": component_id, "action": action})
 		labels.append(label)
 	_actions.append({"action": &"dismiss"})
-	labels.append("DISMISS (E / ESC)")
+	labels.append(InputHints.expand("DISMISS ({close_spaced})"))
 	return labels
 
 

@@ -75,12 +75,15 @@ func _run() -> void:
 
 	_check(player.take_carriable(second), "dropped item can be taken again")
 	_check(player.consume_carried(), "consume_carried consumes the held item")
-	_check(not is_instance_valid(second), "consumed item is freed")
+	_check(is_instance_valid(second) and not second.enabled and not second.visible, "consumed scene prop parks disabled, not freed")
+	_check(second.get_parent() != camera, "consumed item leaves the carry anchor")
 	_check(not player.has_carried_item(), "carry slot is empty after consume")
 	_check(_consumed == [&"filter_co2"], "item_consumed event captured with the item id")
 	_check(not player.consume_carried(), "consume_carried is a no-op with an empty slot")
 	_check(player.drop_carried() == null, "drop_carried with nothing carried returns null")
 
+	await _test_drop_beside_shelf(player)
+	_test_stick_look(player)
 	player.free()
 	first.free()
 	hud.free()
@@ -123,6 +126,61 @@ func _test_carriable_contract() -> void:
 
 	item.free()
 	holder.free()
+
+
+## A tool dropped while facing nearby shelving must stay in reach, not inside the shelf's collision.
+func _test_drop_beside_shelf(player: CharacterBody3D) -> void:
+	var shelf: StaticBody3D = StaticBody3D.new()
+	var shelf_shape: CollisionShape3D = CollisionShape3D.new()
+	var shelf_box: BoxShape3D = BoxShape3D.new()
+	shelf_box.size = Vector3(0.4, 1.8, 0.98)
+	shelf_shape.shape = shelf_box
+	shelf.add_child(shelf_shape)
+	root.add_child(shelf)
+	shelf.global_position = Vector3(10.0, 0.95, 0.0)
+	var tool: Carriable = _make_carriable(&"multimeter", "Multimeter", Vector3(8.0, 0.0, 0.0))
+	player.global_position = Vector3(9.3, 0.0, 0.0)
+	player.rotation = Vector3(0.0, -PI * 0.5, 0.0)
+	player.get_node("Head").rotation.x = -0.35
+	await physics_frame
+	await physics_frame
+	_check(player.take_carriable(tool), "shelf drop: tool can be taken")
+	player.drop_carried()
+	await physics_frame
+	var query: PhysicsPointQueryParameters3D = PhysicsPointQueryParameters3D.new()
+	query.position = tool.global_position
+	query.collision_mask = 1
+	query.exclude = [tool.get_rid(), player.get_rid()]
+	_check(player.get_world_3d().direct_space_state.intersect_point(query, 1).is_empty(), "shelf drop: dropped tool is not inside the shelf collision")
+	var ray: RayCast3D = player.get_node("Head/Camera3D/InteractRay") as RayCast3D
+	player.get_node("Head").look_at(tool.global_position, Vector3.UP)
+	ray.force_raycast_update()
+	_check(ray.get_collider() == tool, "shelf drop: interaction ray reaches the tool before the shelf")
+	tool.free()
+	shelf.free()
+	player.rotation = Vector3.ZERO
+	player.get_node("Head").rotation = Vector3.ZERO
+
+
+## The right stick turns the view the way the mouse does, and a half push turns less than half
+## as fast, which is what makes small adjustments aimable on a panel row.
+func _test_stick_look(player: CharacterBody3D) -> void:
+	player.rotation = Vector3.ZERO
+	player.get_node("Head").rotation = Vector3.ZERO
+	player.set("_pitch", 0.0)
+	player.call("apply_stick_look", Vector2(1.0, 0.0), 0.1)
+	var full_turn: float = player.rotation.y
+	_check(full_turn < 0.0, "stick look: pushing right turns the view right")
+	player.rotation = Vector3.ZERO
+	player.call("apply_stick_look", Vector2(0.5, 0.0), 0.1)
+	_check(absf(player.rotation.y) < absf(full_turn) * 0.5, "stick look: a half push turns less than half as fast")
+	player.call("apply_stick_look", Vector2(0.0, -1.0), 0.1)
+	_check(float(player.get_node("Head").rotation.x) > 0.0, "stick look: pushing up raises the view")
+	player.call("apply_stick_look", Vector2(0.0, 1.0), 10.0)
+	_check(float(player.get_node("Head").rotation.x) >= -deg_to_rad(89.01), "stick look: pitch stays inside the limit")
+	player.rotation = Vector3.ZERO
+	player.get_node("Head").rotation = Vector3.ZERO
+	player.set("_pitch", 0.0)
 
 
 func _make_carriable(id: StringName, name: String, position: Vector3) -> Carriable:

@@ -349,6 +349,9 @@ tests and doc updates together; the full suite runs before push; visual steps ar
 with windowed captures. A sub-step starts only after the previous sub-step's exit criteria
 are met. No feature lands without a test that fails without it.
 
+*Superseded for EA slices on 2026-10-15 by `AGENTS.md` › EA build rules (test and document
+budgets, player-visible proof). It remains the record of how M7–M14 were built.*
+
 | Sub-step | Deliverable | Exit criteria |
 |---|---|---|
 | **M7.1 — Airlock room** | Generated `Airlock` space west of Storage (inner + outer doorway gaps), `compartment_airlock.tres`, layout tests updated | Rays pass both doorway gaps; floor collision + chamfers present; layout suites green |

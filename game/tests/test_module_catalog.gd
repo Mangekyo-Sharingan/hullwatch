@@ -3,7 +3,7 @@
 ## effect ids the sims understand, and no dock left without something to build.
 extends SceneTree
 
-const KNOWN_EFFECTS: Array[StringName] = [&"", &"rations", &"fabrication", &"cargo", &"power", &"recovery"]
+const KNOWN_EFFECTS: Array[StringName] = [&"", &"rations", &"fabrication", &"cargo", &"power", &"recovery", &"survey"]
 const KNOWN_MATERIALS: Array[StringName] = [&"metal", &"ore", &"ice", &"exotic"]
 
 var _failures: int = 0

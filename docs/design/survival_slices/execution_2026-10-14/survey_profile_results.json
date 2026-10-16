@@ -1,0 +1,27 @@
+{
+  "date": "2026-10-14",
+  "scope": "unchanged fixed-tick fixture after v10 notebook and geometry correction; sequential isolated Linux runs",
+  "budget_usec": 200,
+  "runs": [
+    {
+      "run": 1,
+      "exit_code": 0,
+      "ok": true,
+      "usec_per_tick": 166.8
+    },
+    {
+      "run": 2,
+      "exit_code": 0,
+      "ok": true,
+      "usec_per_tick": 167.3
+    },
+    {
+      "run": 3,
+      "exit_code": 0,
+      "ok": true,
+      "usec_per_tick": 166.0
+    }
+  ],
+  "median_usec": 166.8,
+  "all_passed": true
+}

@@ -19,6 +19,7 @@ var _anomaly_material: StandardMaterial3D
 
 
 func _ready() -> void:
+	add_to_group(&"field_streamer")
 	_build_materials()
 	sync_now()
 
@@ -40,6 +41,12 @@ func get_node_count() -> int:
 
 func get_object_node(id: String) -> Node3D:
 	return _nodes.get(id) as Node3D
+
+
+func get_salvage_case(unit_id: String) -> SalvageCase:
+	sync_now()
+	var item: Variant = _salvage_cases.get(unit_id)
+	return item as SalvageCase if is_instance_valid(item) else null
 
 
 ## Reconciles the scene against the sim's active objects. Public so tests can drive it.

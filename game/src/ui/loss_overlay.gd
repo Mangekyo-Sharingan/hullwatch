@@ -31,7 +31,7 @@ func get_cause_text() -> String:
 func _on_operator_incapacitated(cause: StringName) -> void:
 	_cause = cause
 	_cause_text = _format_cause(cause)
-	_label.text = "INCAPACITATED — %s\nPRESS E TO SIGNAL FOR RECOVERY" % _cause_text
+	_label.text = InputHints.expand("INCAPACITATED — %s\nPRESS {interact} TO SIGNAL FOR RECOVERY" % _cause_text)
 	_shown = true
 	visible = true
 

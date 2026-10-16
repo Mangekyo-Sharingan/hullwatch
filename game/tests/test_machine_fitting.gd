@@ -184,6 +184,8 @@ func _run() -> void:
 	cargo_before = cargo.get_materials()
 	_check(not modules.remove_machine(&"hp_galley:1") and cargo.get_materials() == cargo_before, "built battery refunds exactly once")
 
+	_test_paid_costs(modules, cargo)
+
 	if _failures == 0:
 		print("PASS: test_machine_fitting")
 		quit(0)
@@ -212,3 +214,51 @@ func _check(condition: bool, label: String) -> void:
 	else:
 		_failures += 1
 		print("FAIL: ", label)
+
+
+func _test_paid_costs(modules: ModuleSystem, cargo: CargoSystem) -> void:
+	_check(modules.remove_machine(&"hp_galley:0"), "payment fixture clears original bench")
+	var bench: ShipMachine = modules.get_machine(&"work_bench").duplicate(true) as ShipMachine
+	for index: int in range(modules.machine_catalog.size()):
+		if modules.machine_catalog[index].machine_id == bench.machine_id:
+			modules.machine_catalog[index] = bench
+	var before: Dictionary = cargo.get_materials()
+	_check(modules.fit_machine(&"work_bench", &"hp_galley:2"), "payment fixture starts bench fitting")
+	modules.sim_tick(1.0)
+	var snapshot: Dictionary = JSON.parse_string(JSON.stringify(modules.save_state())) as Dictionary
+	var paid_cargo: Dictionary = cargo.save_state()
+	_check(snapshot["machine_jobs"]["hp_galley:2"]["paid_cost"] == {"metal": 3.0, "ore": 1.0}, "JSON retains actual fitting cost")
+	bench.cost = {"metal": 400.0, "ore": 200.0}
+	modules.load_state(snapshot)
+	modules.load_state(snapshot)
+	_check(modules.cancel_machine_fit(&"hp_galley:2") and cargo.get_materials() == before, "repeated fitting restore and changed-price cancel refund original payment")
+	modules.load_state(snapshot)
+	cargo.load_state(paid_cargo)
+	modules.sim_tick(3.0)
+	var standing: Dictionary = JSON.parse_string(JSON.stringify(modules.save_state())) as Dictionary
+	_check(standing["machine_paid_costs"]["hp_galley:2"] == {"metal": 3.0, "ore": 1.0}, "fitting completion retains paid terms")
+	modules.load_state(standing)
+	_check(modules.remove_machine(&"hp_galley:2") and cargo.get_materials() == before, "changed-price fitted machine returns exactly paid materials")
+	modules.load_state(snapshot)
+	cargo.load_state(paid_cargo)
+	modules.machine_catalog.erase(bench)
+	modules.load_state(snapshot)
+	modules.sim_tick(99.0)
+	_check(not modules.get_machine_job(&"hp_galley:2").is_empty(), "missing machine content keeps completed fitting entitlement")
+	cargo.capacity_units = cargo.get_used_units() - float(modules.get_effects()["cargo_units"]) + 3.0
+	var pending: Dictionary = modules.save_state()
+	_check(not modules.cancel_machine_fit(&"hp_galley:2") and modules.save_state() == pending, "missing machine cannot discard an unfit refund")
+	cargo.capacity_units = 2000.0
+	_check(modules.cancel_machine_fit(&"hp_galley:2") and cargo.get_materials() == before, "removed catalog machine refunds saved payment")
+	modules.load_state(snapshot)
+	cargo.load_state(paid_cargo)
+	var pod: ShipModule = modules.get_module(&"storage_pod").duplicate(true) as ShipModule
+	var pod_paid: Dictionary = (modules.save_state()["module_paid_costs"][&"hp_galley"] as Dictionary).duplicate()
+	for index: int in range(modules.catalog.size()):
+		if modules.catalog[index].module_id == pod.module_id:
+			modules.catalog[index] = pod
+	pod.cost = {"metal": 400.0}
+	_check(modules.uninstall(&"storage_pod"), "pod teardown refunds missing-content fitting and original pod cost")
+	for kind: String in pod_paid:
+		before[StringName(kind)] = float(before.get(StringName(kind), 0.0)) + float(pod_paid[kind])
+	_check(cargo.get_materials() == before, "aggregate teardown conserves original pod and fitting payments")

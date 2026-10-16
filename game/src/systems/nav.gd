@@ -19,6 +19,7 @@ var course_error: float = 0.0
 var transit_elapsed_hours: float = 0.0
 var transit_active: bool = false
 var _visited_destinations: Dictionary = {}
+var _pending_cache_materials: Dictionary = {}
 var _discovered_planet_destinations: Array[VoyageDestination] = []
 var _planet_discovery_records: Array[Dictionary] = []
 var _arrival_ordinal: int = 0
@@ -101,6 +102,30 @@ func get_destinations() -> Array[VoyageDestination]:
 
 func has_visited(destination_id: StringName) -> bool:
 	return bool(_visited_destinations.get(String(destination_id), false))
+
+
+func get_pending_cache_materials() -> Dictionary:
+	return _pending_cache_materials.duplicate(true)
+
+
+func claim_pending_cache(destination_id: StringName) -> float:
+	var cargo: CargoSystem = get_tree().get_first_node_in_group(&"cargo_system") as CargoSystem if is_inside_tree() else null
+	var key: String = String(destination_id)
+	if cargo == null or destination_id != current_destination_id or not _pending_cache_materials.has(key):
+		return 0.0
+	var entry: Dictionary = _pending_cache_materials[key]
+	var available: float = minf(float(entry["remaining_units"]), cargo.get_free_units())
+	if available <= 0.0:
+		return 0.0
+	# Synchronous cargo callbacks must see the entitlement already debited.
+	entry["remaining_units"] = float(entry["remaining_units"]) - available
+	if float(entry["remaining_units"]) <= 0.0:
+		_pending_cache_materials.erase(key)
+	var accepted: float = cargo.add_material(StringName(entry["resource_id"]), available)
+	if accepted < available:
+		entry["remaining_units"] = float(entry["remaining_units"]) + available - accepted
+		_pending_cache_materials[key] = entry
+	return accepted
 
 
 func plot_course(destination_id: StringName) -> bool:
@@ -230,7 +255,7 @@ func save_state() -> Dictionary:
 		wear.append(entry)
 	return {
 		"system_id": "nav",
-		"state_version": 4,
+		"state_version": 5,
 		"current_destination_id": String(current_destination_id),
 		"plotted_destination_id": String(plotted_destination_id),
 		"fuel_mass_kg": fuel_mass_kg,
@@ -238,6 +263,7 @@ func save_state() -> Dictionary:
 		"transit_elapsed_hours": transit_elapsed_hours,
 		"transit_active": transit_active,
 		"visited_destinations": _visited_destinations.duplicate(),
+		"pending_cache_materials": get_pending_cache_materials(),
 		"arrival_ordinal": _arrival_ordinal,
 		"planet_discoveries": _planet_discovery_records.duplicate(true),
 		"propulsion": {
@@ -254,6 +280,17 @@ func save_state() -> Dictionary:
 
 
 func load_state(state: Dictionary) -> void:
+	var pending: Variant = state.get("pending_cache_materials", {})
+	if not pending is Dictionary:
+		return
+	for key: Variant in pending:
+		var entry: Variant = pending[key]
+		if not key is String or String(key).is_empty() or not entry is Dictionary:
+			return
+		var units: Variant = entry.get("remaining_units", null)
+		if not entry.get("resource_id", null) is String or StringName(entry["resource_id"]) not in CargoSystem.KNOWN_KINDS or not (units is int or units is float) or not is_finite(float(units)) or float(units) <= 0.0:
+			return
+	_pending_cache_materials = pending.duplicate(true)
 	_reset_propulsion()
 	_load_propulsion(state.get("propulsion", {}))
 	_arrival_ordinal = maxi(int(state.get("arrival_ordinal", 0)), 0)
@@ -354,6 +391,9 @@ func _arrive(destination: VoyageDestination) -> void:
 	var discovered_planet: VoyageDestination = _try_discover_planet(destination, _arrival_ordinal)
 	var resource_id: StringName = destination.arrival_resource if first_visit else &""
 	var resource_units: float = destination.arrival_resource_units if first_visit else 0.0
+	if resource_id in CargoSystem.KNOWN_KINDS and is_finite(resource_units) and resource_units > 0.0:
+		_pending_cache_materials[String(destination.destination_id)] = {"resource_id": String(resource_id), "remaining_units": resource_units}
+		claim_pending_cache(destination.destination_id)
 	var event_bus: Node = _get_autoload(&"EventBus")
 	if event_bus != null:
 		event_bus.emit_signal(&"destination_arrived", destination.destination_id, destination.kind, destination.sector_seed, resource_id, resource_units, destination.arrival_stores if first_visit else {})

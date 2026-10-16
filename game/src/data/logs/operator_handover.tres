@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="LogEntry" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/components/log_entry.gd" id="1_log"]
+
+[resource]
+script = ExtResource("1_log")
+id = &"operator_handover"
+date_text = "CONATUS FINITUS / STANDING ORDERS"
+title = "OPERATOR HANDOVER"
+body = "Begin each watch at the warning board in quarters. Read CURRENT CONCERNS, then inspect the ship. STATUS gives the live power, air and temperature baseline; SHIP LOG holds overnight history.
+
+Take the scanner and multimeter from the tool racks. Carry the scanner to equipment test points to log wear; use the multimeter there to identify a fault. An unlogged inspection is not a failure diagnosis.
+
+The manual binder in the galley contains the service procedures. Read DIAGNOSTICS before opening hardware. Isolate the named breaker, use the wrench, and budget the required stores. Restore power only after closing the cover; verify the repaired system on STATUS.
+
+Make rounds through power, life support, water and hull service points. Follow a symptom to its source rather than replacing whatever is nearest. Check air and temperature again after service.
+
+Choose what can safely wait. Return to the quarters bunk and interact to end the watch. Sleep advances time: the ship and its faults keep running. Read the board again when you wake.
+
+No advisory transmission follows this notice. Ongoing inspection, maintenance and triage remain the operator's responsibility."

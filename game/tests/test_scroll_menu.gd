@@ -17,7 +17,10 @@ func _run() -> void:
 	_test_set_items()
 	_test_empty_items()
 	_test_dismiss_rule()
+	_test_gamepad_dismiss_and_triggers()
+	_test_hints_follow_the_device()
 	await _test_row_click()
+	await _test_selection_detaches_menu()
 	_finish()
 
 
@@ -110,7 +113,54 @@ func _test_dismiss_rule() -> void:
 	_check(PanelDismiss.should_dismiss(press_interact, true), "dismiss: interact closes an open panel")
 	_check(PanelDismiss.should_dismiss(press_pause, true), "dismiss: pause closes an open panel")
 	_check(not PanelDismiss.should_dismiss(release, true), "dismiss: releases do not close")
-	_check(ScrollMenu.HINT_TEXT.contains("CLOSE"), "menu hint names the close key")
+
+
+func _pad_button(index: JoyButton) -> InputEventJoypadButton:
+	var event: InputEventJoypadButton = InputEventJoypadButton.new()
+	event.button_index = index
+	event.pressed = true
+	return event
+
+
+func _trigger(value: float) -> InputEventJoypadMotion:
+	var event: InputEventJoypadMotion = InputEventJoypadMotion.new()
+	event.axis = JOY_AXIS_TRIGGER_RIGHT
+	event.axis_value = value
+	return event
+
+
+## A both confirms a menu row and is "interact"; B both closes a readout and drops a tool.
+## A readout must close on B or Menu but never on A, and one trigger squeeze is one press.
+func _test_gamepad_dismiss_and_triggers() -> void:
+	_check(not PanelDismiss.should_dismiss(_pad_button(JOY_BUTTON_A), true), "gamepad: A confirms a row instead of closing the readout")
+	_check(PanelDismiss.should_dismiss(_pad_button(JOY_BUTTON_B), true), "gamepad: B closes an open readout")
+	_check(PanelDismiss.should_dismiss(_pad_button(JOY_BUTTON_START), true), "gamepad: Menu closes an open readout")
+	InputEdge.reset()
+	var presses: int = 0
+	for value: float in [0.2, 0.4, 0.6, 0.8, 1.0, 1.0, 0.7, 0.3, 0.0, 0.9]:
+		if InputEdge.fresh(_trigger(value), &"primary"):
+			presses += 1
+	_check(presses == 2, "gamepad: a squeeze is one press, so release and squeeze again makes two (got %d)" % presses)
+	_check(InputEdge.fresh(_pad_button(JOY_BUTTON_A), &"interact"), "gamepad: buttons pass straight through edge detection")
+
+
+func _test_hints_follow_the_device() -> void:
+	InputHints.set_gamepad_active(false)
+	var keyboard: String = InputHints.expand("{interact} / {toggle_boots} / {jump} / {secondary}")
+	InputHints.note_event(_pad_button(JOY_BUTTON_A))
+	_check(InputHints.gamepad_active, "hints: a gamepad press switches prompts to gamepad names")
+	var pad: String = InputHints.expand("{interact} / {toggle_boots} / {jump} / {secondary}")
+	_check(keyboard == "E / Q / SPACE / RIGHT CLICK" and pad == "A / Y / RB / B", "hints: the same text names keys, then buttons (%s | %s)" % [keyboard, pad])
+	var key: InputEventKey = InputEventKey.new()
+	key.physical_keycode = KEY_E
+	key.pressed = true
+	InputHints.note_event(key)
+	_check(not InputHints.gamepad_active, "hints: a key press switches prompts back to the keyboard")
+	for action: StringName in [&"interact", &"jump", &"crouch", &"flashlight", &"toggle_boots", &"toggle_tether", &"pause", &"primary", &"secondary", &"leave_seat", &"brake", &"move_forward", &"look_left", &"readout_scroll_down"]:
+		var has_pad: bool = false
+		for event: InputEvent in InputMap.action_get_events(action):
+			has_pad = has_pad or event is InputEventJoypadButton or event is InputEventJoypadMotion
+		_check(has_pad, "gamepad: %s is reachable without a keyboard" % action)
 
 
 func _test_row_click() -> void:
@@ -155,6 +205,25 @@ func _test_row_click() -> void:
 	menu.call("_unhandled_input", select)
 	_check(_selected == [2, 1], "captured mouse keeps wheel selection")
 	Input.mouse_mode = previous_mode
+	menu.free()
+
+
+func _test_selection_detaches_menu() -> void:
+	var menu: ScrollMenu = ScrollMenu.new()
+	root.add_child(menu)
+	menu.setup("LEAVE SCENE", PackedStringArray(["NEW WATCH"]))
+	menu.open()
+	menu.option_selected.connect(func(_index: int) -> void: root.remove_child(menu))
+	await process_frame
+	await process_frame
+	var select: InputEventKey = InputEventKey.new()
+	select.keycode = KEY_ENTER
+	select.physical_keycode = KEY_ENTER
+	select.pressed = true
+	root.push_input(select)
+	_check(not menu.is_inside_tree() and root.is_input_handled(), "scene-changing selection consumes Enter after menu detaches")
+	select.pressed = false
+	root.push_input(select)
 	menu.free()
 
 

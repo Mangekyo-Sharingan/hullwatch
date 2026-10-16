@@ -1,0 +1,42 @@
+[
+  {
+    "bounds_fit": true,
+    "name": "Guide_1.0"
+  },
+  {
+    "bounds_fit": true,
+    "height": 171.0,
+    "name": "WaterReclaimer_1.0",
+    "width": 666.0,
+    "x": 307.0,
+    "y": 314.0
+  },
+  {
+    "bounds_fit": true,
+    "height": 231.0,
+    "name": "Fabricator_1.0",
+    "width": 828.0,
+    "x": 226.0,
+    "y": 284.0
+  },
+  {
+    "bounds_fit": true,
+    "name": "Guide_1.4"
+  },
+  {
+    "bounds_fit": true,
+    "height": 171.0,
+    "name": "WaterReclaimer_1.4",
+    "width": 814.0,
+    "x": 233.0,
+    "y": 314.0
+  },
+  {
+    "bounds_fit": true,
+    "height": 301.0,
+    "name": "Fabricator_1.4",
+    "width": 976.0,
+    "x": 152.0,
+    "y": 249.0
+  }
+]

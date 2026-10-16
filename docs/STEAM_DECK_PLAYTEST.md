@@ -1,10 +1,11 @@
 # Hullwatch native Linux / Steam Deck playtest
 
 This is a **native Linux x86_64 playtest**, using the same game content and v8
-save schema as the October 13 survival build. It requires **manual Steam Input
-configuration**. It has no automatic native controller layout or controller
-glyphs. There is no Steam Deck hardware result or Deck Verified certification;
-Deck performance, control comfort and suspend/resume are pending.
+save schema as the October 13 survival build. The game reads the controller
+directly with a default layout and on-screen button prompts, so **no manual
+Steam Input configuration is needed**. There is no Steam Deck hardware result
+or Deck Verified certification; Deck performance, control comfort and
+suspend/resume are pending.
 
 The launcher requests **1280×800, fullscreen, Mobile Vulkan, maximum 30 FPS**.
 A frame cap is a target, not proof that the Deck sustains it. Existing analogue
@@ -99,10 +100,9 @@ when using the finished package.
    ```
 
    Confirm the menu, text and sound appear. Use the trackpad and left click to
-   choose SETTINGS if needed, then quit normally. Desktop Steam's default input
-   behavior can differ from the per-game layout; use the Steam shortcut below
-   for the complete gameplay mapping. On-screen keyboard: Steam + X. No system
-   write protection changes or `sudo` dependency installs are needed.
+   choose SETTINGS if needed, then quit normally. The gamepad layout applies in
+   Game Mode through the Steam shortcut below. On-screen keyboard: Steam + X.
+   No system write protection changes or `sudo` dependency installs are needed.
 
 ## 3. Add the Steam shortcut
 
@@ -127,90 +127,74 @@ Valve documents adding a Desktop application to Steam and finding it under
 Non-Steam in Game Mode in its
 [Desktop FAQ](https://help.steampowered.com/en/faqs/view/671A-4453-E8D2-323C).
 
-## 4. Configure every control in Steam Input
+## 4. Controls
 
-Open the shortcut's Controller Layout. Enable Steam Input if offered. Start
-from **Keyboard (WASD) and Mouse**, then **Edit Layout** and configure the table
-below. Labels can vary by Steam version. These are explicit keyboard/mouse
-outputs; a Gamepad template alone will not drive the game. Valve recommends
-mapping keyboard/mouse inputs for games without native controller support.
-[Valve recommendations](https://partner.steamgames.com/doc/steamhardware/recommendations)
+The game reads the Deck's controller itself, so Steam's default **Gamepad**
+layout for the shortcut works as-is. Do **not** switch the shortcut to the
+Keyboard (WASD) and Mouse template: it would send keys the game no longer needs
+and hide the button prompts. The trackpads still act as a mouse in menus.
 
-Use normal press behavior, with no turbo. Enable all four rear grip buttons.
-For analog movement use **Directional Pad** behavior on the left joystick with
-W/A/S/D outputs; diagonals must send both keys. For right joystick use **Joystick
-Mouse**, not a right gamepad stick. Set the right trackpad to **As Mouse**.
+On a Deck the on-screen hints start on button names (A, B, LB, RT) and switch to
+key names if you press a key.
 
-| Deck control | Output | Game use |
-|---|---|---|
-| Left joystick | W / A / S / D | Walk or free-flight thrust; diagonals supported |
-| Right joystick | Mouse movement | Look around, including while seated |
-| Right trackpad | Mouse movement | Precise aim; visible menu cursor |
-| Right trackpad click | Left mouse click | Select visible menu rows |
-| RT | Left mouse click | Scanner ping; visible menu row selection |
-| LT | Right mouse click | Drop carried item; decrease highlighted setting |
-| A | E | Operate aimed world object; close readout |
-| B | Escape | Close readout/cancel/back; then pause |
-| X | Space | Push off/jump; hold for upward free-flight thrust |
-| Y | Q | Toggle magnetic boots near a surface |
-| LB | Left Shift | Hold to brake in free flight |
-| RB | F | Toggle torch |
-| Left joystick click | X key | Leave pilot chair |
-| Right joystick click | Enter | Confirm highlighted menu action |
-| D-pad up | Mouse wheel up | Previous menu row/manual page |
-| D-pad down | Mouse wheel down | Next menu row/manual page |
-| D-pad left | Z | Hold for left roll in free flight |
-| D-pad right | C | Hold for right roll in free flight |
-| Menu button | Escape | Pause/back/close readout |
-| View button | T | Release tether or reattach when in range |
-| L4 | Left Ctrl | Hold to crouch with boots; downward free-flight thrust |
-| L5 | Page Up | Scroll long terminal/manual readout upward |
-| R4 | Page Down | Scroll long terminal/manual readout downward |
-| R5 | Middle mouse click | Alternate confirm for highlighted menu |
+| Deck control | Game use |
+|---|---|
+| Left stick | Walk; free-flight thrust |
+| Right stick | Look, including while seated (speed follows LOOK SENSITIVITY in SETTINGS) |
+| A | Interact with the aimed object; confirm the highlighted menu row |
+| B | Back out of a menu or readout; drop the carried item when nothing is open |
+| X | Flashlight |
+| Y | Toggle magnetic boots near a surface |
+| LB / RB | Crouch or thrust down / jump, push off or thrust up |
+| RT | Scanner ping while carrying the scanner |
+| LT | Drop the carried item; decrease the highlighted setting |
+| Left stick click (L3) | Brake in free flight; leave the pilot chair |
+| View button | Release the tether, or reattach when in range |
+| Menu button | Pause; close a readout or settings |
+| D-pad up / down | Move through menu rows and manual pages |
+| D-pad left / right | Scroll a long readout; hold for roll in free flight |
 
-Save this as a **personal layout** (for example `Hullwatch Linux KBM v1`). This
-package does not install, publish or activate a Steam controller layout. Set
-mouse sensitivity in game and adjust joystick/trackpad sensitivity in Steam
-Input until small labels are easy to aim at. Gyro is optional; map it to mouse
-movement if you use it. No gyro or touchscreen is required by the layout.
+The rear grips, trackpad clicks and gyro are not used by default.
 
-### World interaction, clicking and menus
+### World interaction and menus
 
-- **A/E** opens a door, terminal, manual, service panel, locker, cargo port,
+- **A** opens a door, terminal, manual, service panel, locker, cargo port,
   fabrication panel, dock plate or machine socket when aimed at it. It picks up
   tools and containers, deploys the pilot chair, eats rations and operates the
   bunk. Follow the displayed prompt for repeated maintenance steps.
-- With a menu open, use **D-pad up/down**, then **right joystick click/Enter**
-  or **R5/middle click**. **A/E closes the readout; it does not confirm its row.**
-- Left click/RT selects a row only with a visible cursor (main, pause and settings
-  menus). Captured world readouts use the highlight and Enter/middle click.
-  **B/Escape** dismisses a readout first; press again to open pause.
-- In SETTINGS, confirm increases/toggles the highlighted value; **LT/right click**
-  decreases it. UI scale defaults to 1.0. Test higher values at 1280×800 before
-  keeping them; the largest pages may need the default scale.
-- Multimeter and wear scanner: pick up with A/E, aim at the test probe and press
-  A/E. The scanner's separate field ping is **RT/left click** while carrying it.
-- Cutter: **A/E** takes it and clips it to the suit, leaving the carry slot free
+- With a menu or readout open, **D-pad up/down** moves the highlight, **A**
+  confirms the row, and **B** or **Menu** closes it. A never closes a readout,
+  and B closing a readout does not drop what you are carrying.
+- In SETTINGS, **A** increases or toggles the highlighted value; **LT or B**
+  decreases it; **Menu** closes it. UI scale defaults to 1.0. Test higher values
+  at 1280×800 before keeping them; the largest pages may need the default scale.
+- Multimeter and wear scanner: pick up with A, aim at the test probe and press
+  A. The scanner's separate field ping is **RT** while carrying it.
+- Cutter: **A** takes it and clips it to the suit, leaving the carry slot free
   for a sample canister. Take an empty canister, approach a mineable contact and
-  **A/E** operates extraction. Mining is not triggered by RT. Cargo-port **A/E**
-  unloads the carried canister. **LT/right click** drops carried objects.
+  **A** operates extraction. Mining is not triggered by RT. Cargo-port **A**
+  unloads the carried canister. **LT or B** drops carried objects.
 - Repairs: carry the required tool, isolate/power down through the controls,
-  then use **A/E** on each prompted step. Probe and drive service menus use
-  Enter/middle click for choices. Sealant must be carried when applying it.
-- Navigation: sit with A/E, aim at the nav console, open with A/E; browse STAR
-  CHART or SENSOR CONTACTS and confirm routes/approach/drift with Enter/middle
-  click. Read costs/refusal messages. **Left joystick click/X key** stands up.
+  then use **A** on each prompted step. Probe and drive service menus use
+  **D-pad** and **A** for choices. Sealant must be carried when applying it.
+- Navigation: sit with A, aim at the nav console, open with A; browse STAR
+  CHART or SENSOR CONTACTS and confirm routes/approach/drift with A. Read costs
+  and refusal messages. **L3** stands up.
 - EVA: wear the suit, use the airlock panel and hatches in the safe order,
-  check pressure, boots and tether HUD. X/Space and L4/Ctrl provide vertical
-  thrust; LB/Shift brakes. View/T can release a safety tether, so use deliberately.
-- For long terminal/manual readouts use L5/Page Up and R4/Page Down. The manual's
-  D-pad browsing changes pages; confirm records a page read. Save, load, new watch
-  and quit are ordinary main/pause menu choices; there are no save hotkeys.
+  check pressure, boots and tether HUD. RB and LB provide vertical thrust; L3
+  brakes. The View button can release a safety tether, so use it deliberately.
+- For long terminal and manual readouts use **D-pad left/right**. The manual's
+  D-pad up/down changes pages; A records a page read. Save, load, new watch and
+  quit are ordinary main/pause menu choices; there are no save hotkeys.
+
+Look speed and stick dead zones are first values, set without a Deck in hand.
+Adjust LOOK SENSITIVITY in SETTINGS and report anything that feels too fast,
+slow or drifts when the stick is released.
 
 ## 5. Launch with one Play press in Game Mode or Big Picture
 
 Use the Desktop **Return to Gaming Mode** shortcut. Find Hullwatch under
-Library → Non-Steam, confirm the personal layout is selected, and launch.
+Library → Non-Steam, confirm the default Gamepad layout is selected, and launch.
 After the one-time import and layout setup, **press Play once**. The shipped
 launcher starts the native ELF directly with all defaults; it has no prompts,
 downloads, editor, terminal steps or Python runtime requirement. Quit through
@@ -219,9 +203,10 @@ the game menu to return to Steam.
 On a Linux PC, enter Steam **Big Picture Mode**, open Library → Non-Steam, select
 the same shortcut and press Play. The setup and Target/Start In/Launch Options
 are identical. This is a Linux package; Windows Big Picture cannot run its ELF.
-The Deck built-in-controls layout above must be adapted for other controllers
-that lack trackpads or rear buttons. Steam integration on an actual Deck and
-Big Picture client still requires the hardware/client check below.
+Any gamepad with the standard Xbox-style buttons uses the same layout, with
+Steam showing L1/R1/L2/R2 where this guide says LB/RB/LT/RT. Steam integration
+on an actual Deck and Big Picture client still requires the hardware/client
+check below.
 
 The launcher requests fullscreen 1280×800 without forcing a display backend;
 Gamescope/SteamOS selects its display environment. Initial shader compilation
@@ -285,12 +270,12 @@ interaction. Back up private saves before sharing them.
 |---|---|
 | Permission denied / nothing launches | Recheck both `chmod +x` bits and quoted Target/Start In; extract onto internal storage if a removable drive forbids execution. Run from Konsole to see the error. |
 | Wrong app / Proton opens | Target must be `Hullwatch.sh`; uncheck forced Steam Play compatibility. |
-| Sticks/buttons do nothing | Enable Steam Input for the shortcut; use the explicit keyboard/mouse layout, not Gamepad. Launch through Steam. |
-| Menu closes instead of selecting | A sends E (close). Select the highlighted row with Enter or middle click. |
-| RT does not choose a world menu row | Mouse is captured. Use D-pad and Enter/middle click; RT is not the confirm action. |
-| Cannot see lower readout text | Use Page Up/Page Down rear bindings; wheel changes menu rows. |
+| Sticks/buttons do nothing | Keep Steam Input enabled with the default **Gamepad** layout, not Keyboard (WASD) and Mouse. Launch through Steam. |
+| A closes or does nothing in a menu | A confirms the highlighted row; B or Menu closes. If the layout was changed to keyboard/mouse, restore the default Gamepad layout. |
+| Prompts show keys instead of buttons | Press any controller button once; hints follow the last device used. |
+| Cannot see lower readout text | Use D-pad left/right; D-pad up/down changes menu rows. |
 | Text too small / panel clipped | SETTINGS → UI SCALE; use default 1.0 first, increase cautiously. Lower filter intensity separately if desired. |
-| Mouse look too fast | Lower in-game mouse sensitivity or Steam Input joystick/trackpad mouse speed. |
+| Look too fast or slow | Adjust LOOK SENSITIVITY in SETTINGS. |
 | Black window / Vulkan error | Retain verbose log; try `--rendering-method forward_plus` in Launch Options and compare. For driver diagnosis also try `--rendering-method gl_compatibility`, whose lighting may differ and is not the accepted profile. |
 | Desktop display-specific failure | Try `--display-driver wayland --windowed` only as a Desktop diagnosis when Wayland is available; do not force Wayland for Game Mode. A developer host's X11 failure is not a Deck result. |
 | Frame pacing / battery draw poor | Log measured FPS/frame times/watts first; compare Mobile vs Forward+ at 1280×800. The cap does not guarantee 30 FPS. |

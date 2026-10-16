@@ -9,6 +9,8 @@ const DEPLETED_REARM_L: float = 1.0
 const CONTAMINATION_ALERT: float = 0.5
 const CONTAMINATION_REARM: float = 0.4
 
+@export var water_charge_part_id: StringName = &"water_charge"
+@export var water_charge_liters: float = 10.0
 @export var potable_l: float = 120.0
 @export var potable_capacity_l: float = 150.0
 @export var greywater_l: float = 40.0
@@ -22,6 +24,7 @@ const CONTAMINATION_REARM: float = 0.4
 @export var wear_seed: int = 20260923
 
 var reclaimer_powered: bool = true
+var reclaimer_servicing: bool = false
 
 var _low_latched: bool = false
 var _depleted_latched: bool = false
@@ -55,6 +58,26 @@ func set_reclaimer_powered(powered: bool) -> void:
 	reclaimer_powered = powered
 
 
+func refill_from_stores(part_id: StringName) -> float:
+	if part_id != water_charge_part_id or part_id == &"" or not is_finite(water_charge_liters) or water_charge_liters <= 0.0:
+		return 0.0
+	if not _is_reclaimer_effective() or _capacity_multiplier <= 0.0 or not maintenance_covers.is_empty():
+		return 0.0
+	if not is_finite(potable_l) or not is_finite(potable_capacity_l) or potable_capacity_l - potable_l < water_charge_liters:
+		return 0.0
+	var stores: Node = _first_node_in_group(&"stores_system")
+	if stores == null or not bool(stores.call("has_part", part_id)):
+		return 0.0
+	var before: float = potable_l
+	potable_l += water_charge_liters
+	if not bool(stores.call("consume_part", part_id)):
+		potable_l = before
+		return 0.0
+	_update_event_flags()
+	emit_sim_event(&"water_refilled", {"part_id": String(part_id), "liters": water_charge_liters, "potable_l": potable_l})
+	return water_charge_liters
+
+
 func purge() -> bool:
 	if contamination <= 0.0:
 		return false
@@ -82,7 +105,8 @@ func get_status() -> Dictionary:
 		"greywater_l": greywater_l,
 		"contamination": contamination,
 		"reclaimer_powered": reclaimer_powered,
-		"reclaimer_active": _is_reclaimer_effective() and greywater_l > 0.0 and _capacity_multiplier > 0.0,
+		"reclaimer_servicing": reclaimer_servicing,
+		"reclaimer_active": _is_reclaimer_effective() and greywater_l > 0.0 and _capacity_multiplier > 0.0 and potable_l < potable_capacity_l and reclaimer_efficiency * (1.0 - contamination) > 0.0,
 		"efficiency": reclaimer_efficiency * (1.0 - contamination),
 		"capacity_multiplier": _capacity_multiplier,
 	}
@@ -169,11 +193,12 @@ func save_state() -> Dictionary:
 	return {
 		"maintenance_covers": maintenance_covers.duplicate(),
 		"system_id": "water",
-		"state_version": 1,
+		"state_version": 2,
 		"potable_l": potable_l,
 		"greywater_l": greywater_l,
 		"contamination": contamination,
 		"reclaimer_powered": reclaimer_powered,
+		"reclaimer_servicing": reclaimer_servicing,
 		"water_low_latched": _low_latched,
 		"water_depleted_latched": _depleted_latched,
 		"water_contaminated_latched": _contaminated_latched,
@@ -189,6 +214,7 @@ func load_state(state: Dictionary) -> void:
 	greywater_l = maxf(float(state.get("greywater_l", greywater_l)), 0.0)
 	contamination = clampf(float(state.get("contamination", contamination)), 0.0, 1.0)
 	reclaimer_powered = bool(state.get("reclaimer_powered", reclaimer_powered))
+	reclaimer_servicing = bool(state.get("reclaimer_servicing", false))
 	_low_latched = bool(state.get("water_low_latched", _low_latched))
 	_depleted_latched = bool(state.get("water_depleted_latched", _depleted_latched))
 	_contaminated_latched = bool(state.get("water_contaminated_latched", _contaminated_latched))
@@ -214,12 +240,15 @@ func _tick_reclaimer(delta_hours: float) -> void:
 	if not _is_reclaimer_effective() or greywater_l <= 0.0:
 		return
 	var capacity_l_per_hour: float = reclaimer_capacity_l_per_hour * _capacity_multiplier
-	var processed_l: float = minf(capacity_l_per_hour * delta_hours, greywater_l)
+	var efficiency: float = clampf(reclaimer_efficiency * (1.0 - contamination), 0.0, 1.0)
+	var headroom_l: float = maxf(potable_capacity_l - potable_l, 0.0)
+	if efficiency <= 0.0 or headroom_l <= 0.0:
+		return
+	var processed_l: float = minf(minf(capacity_l_per_hour * delta_hours, greywater_l), headroom_l / efficiency)
 	if processed_l <= 0.0:
 		return
 	_processing_duty = 1.0
 	greywater_l = maxf(greywater_l - processed_l, 0.0)
-	var efficiency: float = reclaimer_efficiency * (1.0 - contamination)
 	potable_l = minf(potable_l + processed_l * efficiency, potable_capacity_l)
 	contamination = clampf(contamination + contamination_per_hour * delta_hours, 0.0, 1.0)
 
@@ -250,24 +279,24 @@ func _potable_fraction() -> float:
 
 
 func _read_total_occupants() -> int:
-	var atmosphere: Node = _first_node_in_group(&"atmosphere_system")
-	if atmosphere == null or not atmosphere.has_method("get_status"):
-		return 0
-	var atmosphere_status: Variant = atmosphere.call("get_status")
-	if not (atmosphere_status is Dictionary):
-		return 0
-	var compartments: Variant = (atmosphere_status as Dictionary).get("compartments", {})
-	if not (compartments is Dictionary):
-		return 0
 	var total: int = 0
-	for value: Variant in (compartments as Dictionary).values():
-		if value is Dictionary:
-			total += maxi(int((value as Dictionary).get("occupants", 0)), 0)
+	var atmosphere: Node = _first_node_in_group(&"atmosphere_system")
+	if atmosphere != null and atmosphere.has_method("get_status"):
+		var status: Variant = atmosphere.call("get_status")
+		if status is Dictionary:
+			var compartments: Variant = status.get("compartments", {})
+			if compartments is Dictionary:
+				for value: Variant in compartments.values():
+					if value is Dictionary:
+						total += maxi(int(value.get("occupants", 0)), 0)
+	var player: Node = _first_node_in_group(&"player")
+	if player != null and player.has_method(&"is_exterior") and bool(player.call(&"is_exterior")):
+		total += 1
 	return total
 
 
 func _is_reclaimer_effective() -> bool:
-	if not reclaimer_powered:
+	if not reclaimer_powered or reclaimer_servicing:
 		return false
 	var power: Node = _first_node_in_group(&"power_system")
 	if power == null or not power.has_method("is_breaker_on") or not power.has_method("is_circuit_shed"):

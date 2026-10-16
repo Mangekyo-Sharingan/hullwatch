@@ -15,7 +15,6 @@ var _deploy_requested: bool = false
 var _screen_view: SubViewport
 var _focus_camera: Camera3D
 var _player_camera: Camera3D
-var _readout_scroll: ScrollContainer
 var _operator: Node
 var _operator_physics: bool = false
 var _operator_input: bool = false
@@ -24,7 +23,7 @@ var _hidden_layers: Dictionary = {}
 
 func _ready() -> void:
 	terminal_title = "WALL TERMINAL"
-	programs = [&"status", &"control", &"log"]
+	programs = [&"status", &"control", &"log", &"notices"]
 	default_program = &"status"
 	phosphor = CrtPanel.PHOSPHOR_GREEN
 	base_font_size = 18
@@ -72,18 +71,12 @@ func _unhandled_input(event: InputEvent) -> void:
 		close()
 		get_viewport().set_input_as_handled()
 		return
-	if event is InputEventKey and event.pressed and _readout_scroll != null:
-		if event.keycode == KEY_PAGEDOWN:
-			_readout_scroll.scroll_vertical += 220
-			get_viewport().set_input_as_handled()
-			return
-		if event.keycode == KEY_PAGEUP:
-			_readout_scroll.scroll_vertical -= 220
-			get_viewport().set_input_as_handled()
-			return
-	if event.is_action_pressed(&"menu_next") or event.is_action_pressed(&"ui_down"):
+	if PanelDismiss.scroll_readout(event, _content_scroll):
+		get_viewport().set_input_as_handled()
+		return
+	if event.is_action_pressed(&"menu_next") or InputEdge.fresh(event, &"ui_down"):
 		_menu.move_selection(1)
-	elif event.is_action_pressed(&"menu_prev") or event.is_action_pressed(&"ui_up"):
+	elif event.is_action_pressed(&"menu_prev") or InputEdge.fresh(event, &"ui_up"):
 		_menu.move_selection(-1)
 	elif event.is_action_pressed(&"menu_select") or event.is_action_pressed(&"ui_accept"):
 		_menu.confirm()
@@ -97,7 +90,7 @@ func _on_terminal_opened() -> void:
 	if _focus_camera != null:
 		_player_camera = get_viewport().get_camera_3d()
 		_focus_camera.make_current()
-		for node_name: String in ["HUD", "Messages", "Message", "GuideOverlay", "Indicators"]:
+		for node_name: String in ["HUD", "Messages", "Message", "Indicators"]:
 			var node: Node = get_tree().root.find_child(node_name, true, false)
 			if node is CanvasLayer or node is CanvasItem:
 				_hidden_layers[node] = bool(node.get("visible"))
@@ -128,7 +121,7 @@ func _refresh_stowed_readout() -> void:
 		return
 	var lines: PackedStringArray = build_readout()
 	if not lines.is_empty():
-		lines[lines.size() - 1] = "E: DEPLOY TERMINAL"
+		lines[lines.size() - 1] = InputHints.expand("{interact}: DEPLOY TERMINAL")
 	_content.text = "\n".join(lines)
 	_screen_view.render_target_update_mode = SubViewport.UPDATE_ONCE
 
@@ -203,7 +196,7 @@ func _ensure_ui() -> void:
 	row.add_child(_menu)
 	_menu.custom_minimum_size = Vector2(205, 0)
 	_menu.setup("HULLWATCH / BAY 01", PackedStringArray(["BOOTING..."]))
-	_menu.set_hint("WHEEL: NAV  ENTER: OPEN\nPGUP/DN: READOUT")
+	_menu.set_hint("{browse}: NAV  {confirm_enter}: OPEN\n{text_scroll_short}: READOUT")
 	_menu.option_selected.connect(_on_selected)
 	_menu.option_highlighted.connect(_on_highlighted)
 	var readout := PanelContainer.new()
@@ -221,7 +214,7 @@ func _ensure_ui() -> void:
 	scroll.custom_minimum_size = Vector2(365, 485)
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	readout.add_child(scroll)
-	_readout_scroll = scroll
+	_content_scroll = scroll
 	_content = Label.new()
 	_content.name = "ComputerReadout"
 	_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL

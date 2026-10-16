@@ -27,6 +27,10 @@ tools/godot-mcp/
 
 # Generated local documentation dashboard
 /docs/dashboard/index.html
+/docs/dashboard/knowledge-graph.html
+
+# Python bytecode from the dashboard tools
+__pycache__/
 
 # Local reference material (screenshots, mood boards) — not distributed
 docs/reference/

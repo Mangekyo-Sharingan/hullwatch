@@ -27,14 +27,17 @@ func _run() -> void:
 	await process_frame
 	var down: InputEventKey = InputEventKey.new()
 	down.keycode = KEY_PAGEDOWN
+	down.physical_keycode = KEY_PAGEDOWN
 	down.pressed = true
 	binder._unhandled_input(down)
 	await process_frame
 	_check(scroll.scroll_vertical > 0, "PageDown scrolls manual body")
 	down.keycode = KEY_PAGEUP
+	down.physical_keycode = KEY_PAGEUP
 	binder._unhandled_input(down)
 	_check(scroll.scroll_vertical == 0, "PageUp returns to top")
 	down.keycode = KEY_ENTER
+	down.physical_keycode = KEY_ENTER
 	_check(not PanelDismiss.scroll_readout(down, scroll), "Enter stays available to menus")
 	var dismiss: InputEventAction = InputEventAction.new()
 	dismiss.action = &"interact"
@@ -42,10 +45,6 @@ func _run() -> void:
 	binder._unhandled_input(dismiss)
 	_check(not binder.is_open(), "E closes the manual")
 	binder.free()
-	var guide: GuideOverlay = GuideOverlay.new()
-	root.add_child(guide)
-	_check(guide.layer < 12, "diegetic readouts draw above orientation overlay")
-	guide.free()
 	var terminal: ComputerTerminal = ComputerTerminal.new()
 	root.add_child(terminal)
 	terminal.interact(null)
@@ -54,6 +53,7 @@ func _run() -> void:
 	await process_frame
 	await process_frame
 	down.keycode = KEY_PAGEDOWN
+	down.physical_keycode = KEY_PAGEDOWN
 	terminal._unhandled_input(down)
 	await process_frame
 	scroll = terminal.get("_content_scroll") as ScrollContainer

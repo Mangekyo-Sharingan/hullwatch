@@ -90,6 +90,50 @@ func _run() -> void:
 	restored.sim_tick(2.0)
 	_check(int(stores.get_count(&"gasket")) == 2, "the restored job finishes into stores")
 
+
+	var fixed_recipe: FabricatorRecipe = FabricatorRecipe.new()
+	fixed_recipe.recipe_id = &"paid_fixture"
+	fixed_recipe.material_kind = &"ice"
+	fixed_recipe.material_units = 2.0
+	fixed_recipe.output_part_id = &"water_filter"
+	fixed_recipe.output_count = 3
+	fixed_recipe.hours = 2.0
+	var paid: FabricatorSystem = FabricatorSystem.new()
+	paid.recipes = [fixed_recipe]
+	root.add_child(paid)
+	var ice_before: float = cargo.get_units(&"ice")
+	_check(paid.start(&"paid_fixture") == &"", "paid fixture starts")
+	paid.sim_tick(0.5)
+	var checkpoint: Dictionary = JSON.parse_string(JSON.stringify(paid.save_state())) as Dictionary
+	_check(int(checkpoint["state_version"]) == 2 and checkpoint["job_terms"]["material_units"] == 2.0, "JSON preserves paid recipe terms")
+	fixed_recipe.output_count = 50
+	fixed_recipe.output_part_id = &"gasket"
+	fixed_recipe.hours = 0.01
+	paid.recipes.clear()
+	paid.load_state(checkpoint)
+	paid.load_state(checkpoint)
+	_check(is_equal_approx(cargo.get_units(&"ice"), ice_before - 2.0), "repeated job restore never repays materials")
+	root.remove_child(stores)
+	var events_before: int = _completed.size()
+	paid.sim_tick(5.0)
+	_check(paid.is_busy() and paid.get_job_remaining_hours() == 0.0 and _completed.size() == events_before, "missing receiver retains zero-hour output without completion event")
+	checkpoint = JSON.parse_string(JSON.stringify(paid.save_state())) as Dictionary
+	paid.load_state(checkpoint)
+	paid.sim_tick(1.0)
+	_check(paid.is_busy(), "pending paid output survives load without catalog or receiver")
+	root.add_child(stores)
+	var filters_before: int = stores.get_count(&"water_filter")
+	paid.sim_tick(0.1)
+	paid.sim_tick(0.1)
+	_check(stores.get_count(&"water_filter") == filters_before + 3 and stores.get_count(&"gasket") == 2, "changed and deleted recipe cannot change paid output")
+	_check(not paid.is_busy() and _completed.size() == events_before + 1, "pending output delivers exactly once")
+	paid.load_state({"state_version": 1, "job_recipe_id": "gasket", "job_remaining_hours": 0.5})
+	_check(not paid.is_busy(), "missing legacy recipe is not invented by simulator (SaveManager rejects it)")
+	paid.recipes = _recipes()
+	paid.load_state({"state_version": 1, "job_recipe_id": "gasket", "job_remaining_hours": 0.5})
+	_check(paid.is_busy() and paid.save_state()["job_terms"]["output_count"] == 2, "legacy paid job snapshots catalog terms once")
+	paid.free()
+
 	unit.free()
 	cargo.free()
 	stores.free()

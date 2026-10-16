@@ -1,0 +1,997 @@
+{
+  "date": "2026-10-14",
+  "scope": "local v10 notebook + v9 foundations + imported-instance correction; isolated Linux source",
+  "source_commit": "ef8aab9af3aad0022666cfd565b8b91731d42403",
+  "modified_game_files": {
+    "game/assets/locale/strings.csv": "86f52997a876f20b541684ca6ecddb9ff101027539c483cdc274f40322861dc8",
+    "game/scenes/dock_pod.tscn": "7fdc9c8c0d9ce1b52a01ad0cb5755f03f4479e4e0bcc567fc47ab13e2087a82b",
+    "game/scenes/main.tscn": "5bac28bfcc44687cee5cbd5cdccc890d93ab01c85a62c9a75baee0086f9fb121",
+    "game/scenes/ship_geometry.tscn": "d44bc9b3d5e4dfa08a5ab44c1cebe96d48ca24e91cdfbed6cff2a0683af0396f",
+    "game/scenes/world_layout.tscn": "6f2ced6316649fdc574bb55495e2954958aa54ad0f2f43b551b6390c65fc2248",
+    "game/src/autoload/save_manager.gd": "6990fe7ac0924d69bc4bb8af8931c1ee078a1795bac93356d74639bccf20b645",
+    "game/src/data/fabrication/recipe_sealant_charge.tres": "35b5d7a779b3ee4c6a766f1763a6d2692d40f462d94c16d851d44388f3e47c45",
+    "game/src/data/fabrication/recipe_water_charge.tres": "cdc934fa5e636dde6b3e5d8d4bd3b17b47eb3f1b25812cb316527bed54a25811",
+    "game/src/data/machines/machine_survey_sensor.tres": "eb047eb7b8f0078c1cfb654fdf91bdccbb393d1223c57cfcd09c49baa1eb7b17",
+    "game/src/data/manual/page_damage_control.tres": "c1522b48db53a3b430ca29b4f493d73f3d3315dcdef77728a1dbd64a183bce90",
+    "game/src/data/manual/page_field_work.tres": "81953fe8aaa9241bc6dbaf938864df2f03d8af8f536f0f5d391f0095e9dd231a",
+    "game/src/interactables/approach_console.gd": "411a34c64a9d1f3e1b87955e2d1e77e0dfb5605e3eb54e3fc6ce2bf038fab37d",
+    "game/src/interactables/cargo_port.gd": "5040e80a058587ab5cc12034876f3000341ecdc84dd30d7b242ae0ae22903384",
+    "game/src/interactables/carriable.gd": "4b274963123a5644ff93fcee8b3315d619be4997af94e50a3f25cf8198f1f157",
+    "game/src/interactables/computer_terminal.gd": "6ba554db5cbbc348b505c118b4ba14c901b78d0c5dce0998abf51ac23c903722",
+    "game/src/interactables/cutter_tool.gd": "ed69931a6eabd6631f5613c87578722eb70e7a0ac0337ba837c2a0ab01e98132",
+    "game/src/interactables/fabricator_unit.gd": "76412431e5d3ca40d74afe56e439c134c0e8f60cfdb689d9ac205793584ae51a",
+    "game/src/interactables/hull_patch.gd": "ea5df953c34608c85ff08872c4a1633bf06b5943a8732a1a93a294d67e6aa65f",
+    "game/src/interactables/interactable.gd": "860da7c3981fe3ad6d61639d3535f350d5786d650b6e28998dfd87bd755edafb",
+    "game/src/interactables/machine_socket.gd": "a02182f65eb7a321f53bbec8c07e1f49bc59f3c4f6a6f50fc588f3846c654b41",
+    "game/src/interactables/module_mount.gd": "c411d8b077a5c2a73d2f97c5bc8279309d33e4b366bbdca5e462b2434f96e8b6",
+    "game/src/interactables/sample_canister.gd": "8c129246fd78d19240a99d2d6aa7258ed5dddc688ca8a70c3dbb9d44c10536ab",
+    "game/src/interactables/sealant_cartridge.gd": "8ca5361764c0f4dc1bdbe2d1df71c51141d4e4cc9947cf90db1a83c42b8f93f7",
+    "game/src/interactables/sealant_cartridge.gd.uid": "6d2659eaf2b5f97fa3e44d44ddeb7831fb2fa2bce2cb5cc58a1287bf042c39f2",
+    "game/src/interactables/suit_locker.gd": "80c64a488c60c4ffdfde89de7e4fc0c65c38b6684e143c60189d887d9cbb5b17",
+    "game/src/interactables/wall_computer.gd": "1754b82f9b40b660ac5dbab58672daea496bc27ba827f1797598025300575020",
+    "game/src/interactables/water_reclaimer.gd": "be6e5ceed95e4c750320d68f53583663786facf03fab09177b3d97c6b14ab62a",
+    "game/src/player/player.gd": "492a9ad82fab0334442b6b99d98da0dd506311a76241f26cebfd653087ef45cf",
+    "game/src/systems/airlock.gd": "7ab433c06b5f4ffdf52a6671d8da16ba4782760af44d9e19dd5c75fba6ceee4b",
+    "game/src/systems/cargo.gd": "d30ed3ae8419254e61e33b2402eb9337c0b1ec2cecd76ed64024fe23a9b8bd32",
+    "game/src/systems/fabricator.gd": "34e2b9b5e26ca63debc4de44ea901b9f49564f107f02892e734f0f5ba8922a81",
+    "game/src/systems/modules.gd": "b1b8e8c306d1b6a1ec44972b061fedcfee850b0336f584a64ef08dea929a5868",
+    "game/src/systems/nav.gd": "541ed62600a60b35441cda2cd6ec8ea5541a990db2a9c901594cb31b58122221",
+    "game/src/systems/salvage.gd": "40e391780368430533d0220e3e1f5efb0a13e5ebb155fa366dc410e7fdf07c19",
+    "game/src/systems/sector.gd": "5e847fab163724db4146a6468db7c522bf7833c8ff1643cd1f3221d15027ded0",
+    "game/src/systems/stores.gd": "02f6c088bec5488cbe683e727d9c9fd415598623cefb628f38489dd93b347109",
+    "game/src/systems/vitals.gd": "6819c8ee90521ad6d17a8348084d5dfc117e21b22260ed2261f8676aba169096",
+    "game/src/systems/water.gd": "462adc85c2ce8cc9f2d25a3ff118ed4e7fce62c4b7f3903b89f48d8c24cbdf6c",
+    "game/src/ui/computer/program_notices.gd": "62eb9f2f66f3de43b2ba814dfa792cbf203de0b4c748c95772af9282e09510ad",
+    "game/src/ui/computer/program_notices.gd.uid": "9423daef6d3cb0f50f5ec88fdd9522b6c051f396c6034e80c63eb3316571f668",
+    "game/src/ui/computer/program_status.gd": "5d3d7492b36bbc9735d595dbef806171c5d9557cd3fb29dfc4b754aabba9e790",
+    "game/src/ui/computer/program_survey.gd": "36d81ea87453e18d1d8120622f7b95fc9fbcd2501b515e37d86ec70b52dd9030",
+    "game/src/ui/computer/program_survey.gd.uid": "4f2a38ee377ba5fe71292a6b3a608d5eeb3e1b0d5dd7e9c94ff31dfa08657cc0",
+    "game/src/ui/guide_overlay.gd": "efe2d9842df4490f394d3f756142fa1c96ce1e558e896c9395a27bf3ff511ba0",
+    "game/src/ui/hud.gd": "73199ee9d518aa05b68709468d2f854e64318958a8edc92d16f85eb786635482",
+    "game/src/world/compartment_zone.gd": "b6f28736d503d7ae8c0125ceb7f06236c36b29b45ba1baf637da71f60280ae6f",
+    "game/src/world/field_streamer.gd": "d2c9672ce1f0ebc5128cc3c5b7c679d1362bb479293f194a6dae613e90114695",
+    "game/tests/test_airlock.gd": "6c2f70e9dd1fc939fdbcf8331132d7283eef78b75ac10672019dd5c90b432837",
+    "game/tests/test_cargo.gd": "7993eb67a1ab162b542bdb09278c0912d9929c016764f637aa4dac8c5f771fbf",
+    "game/tests/test_carry.gd": "da36b3b7a0af2781f1840ccc59b4b64d7563a6f9e46f258c360f5bf5c44cf624",
+    "game/tests/test_eva_flow.gd": "24f7ee99854dae3a5394d93ebe609785a0ac5cf4ebe3f908d1d53a155ddd3e9d",
+    "game/tests/test_fabricator.gd": "91ca0b9abcf3cf1deadb5bb6e7ea398e6fb4271198e13f36be4e674e845db324",
+    "game/tests/test_hull.gd": "e66432aed496ca937eacd22031e160d1c0cd7dbde7dbe725ac569caa278419a5",
+    "game/tests/test_hull_exterior.gd": "dd4e3117f37fd8fd2f98be1b583d568f3b25e97fc4c3adb1a04d77219315131b",
+    "game/tests/test_interior_gate.gd": "2e234bd4d2427ce9580d614ca04f3c561e4182c33ddea386c7da52015f2d5b2c",
+    "game/tests/test_m11_voyage.gd": "3807ae69ce255f622a630529ff105b93d6296b05e55267182cb895cf298b1400",
+    "game/tests/test_machine_fitting.gd": "afe8652255cac892010cc42ec2ee3baa6d6bb79117c4f7a17d4945f92a19ae58",
+    "game/tests/test_module_catalog.gd": "f4276c54592e230f7cab4be704442297b2a538f4245967412430f1ec5f0f66a5",
+    "game/tests/test_module_effects.gd": "77becd8e2dce6a7f10b22e1b6da258bd3822282f6fbc2980a2dadcaa6eeb2a10",
+    "game/tests/test_modules.gd": "11e350022b87555fc27df73b7363dc5a97ee3520405c5df589c4ddd76f8c70ef",
+    "game/tests/test_nav.gd": "0cdf35c2c63b707f4b4dd9c6266e50e02dbf4daf91d772de805ec39404015606",
+    "game/tests/test_occupancy.gd": "80a6754e3d124a5d892993052100945082011ee4322fa39a288d0a668574984b",
+    "game/tests/test_persistence_foundations.gd": "ba350e7179e820c6c93f82c5ac669c7e2f4a37d91f0e1cc105f8abe8442991db",
+    "game/tests/test_persistence_foundations.gd.uid": "0b2d2576f8a70f677c6131ccb9a3065e6982f336da13efbfbc0cc216772ab416",
+    "game/tests/test_replenishment.gd": "c3b006424ead34f0b40decaf1056f0d1bca7b06cb3e2d9df9081d48622398735",
+    "game/tests/test_replenishment.gd.uid": "62ec23b6e2da7bed94975a3058109263e0cbb4aea35a0f673a168488b034bc87",
+    "game/tests/test_resource_continuity.gd": "f323369ecc8f107c3245ae6e95a7845cc06b738b91d6646e4096bdcfd2e10781",
+    "game/tests/test_salvage.gd": "1b668d9dee01a655f1ac3a37e3bf14168fc783edf044cd75dd581d049f929c29",
+    "game/tests/test_save_load.gd": "71b85cd6664a05eb7bd14988f976cacd9c54c68c2b9d3960a360050f2ad08233",
+    "game/tests/test_save_migration.gd": "ac41fe35783481cd3075cb9e822e3a2d567122e6637f6894846cb89ab7867104",
+    "game/tests/test_scene_loop.gd": "4dd4d4e93a742bdabc5aca9c1cbfab60c5d887bc6ee7f6e72468c86efb028b3b",
+    "game/tests/test_scene_save_load.gd": "8831d325dfcf8e0488eb0dc6096cd33fa460daa7aa5c566407c648c629fc003c",
+    "game/tests/test_session_flow.gd": "17c89b3f31193bd5f76f5f72bd712b07ea6d3a69be2644296384efdaa59c467c",
+    "game/tests/test_ship_specialization.gd": "e8cd028d597c0a417eb09169a9ff4ef1d70576b4dc91506bdf31d6e12337b11b",
+    "game/tests/test_ship_specialization.gd.uid": "6d7102d3ff4dd7e4d4a113d06c080b964d4c1d8830b56319182e6784fecef51a",
+    "game/tests/test_stores.gd": "6fbd3e04118850ad0f2a3414a6c3d9f156d318f788139b7d0bf9f246842c457a",
+    "game/tests/test_survey.gd": "2414a705be5c69dfdada2c5567c7499d9b9ebb468003b020f9d5674fbe6f566a",
+    "game/tests/test_survey.gd.uid": "d8bdb63781996a99975a6f0e42c1672a4967a5381183167d2be701de633ede8d",
+    "game/tests/test_wall_computer.gd": "dcb39855572427164a73576820e02a22bd6c5ba6166a9dddc2b1110e9860f5c2",
+    "game/tests/test_water.gd": "5d3299f6f471cd17a79b2cdcd4fa1ac51d0af8619aa45c8700799a49a16cac01",
+    "game/tools/build_ship_geometry.gd": "7b28bff71dd1de8b4c1eff25c46cf68eb5412897e9dc7a3e1fe5cfcf410e1922",
+    "game/tools/build_world_layout.gd": "f809cf89ff2d6bb8f3d6a8c2f4164fc89edb53d5b0ce4b0dfddc2a39343e6535"
+  },
+  "source_unchanged_during_run": true,
+  "suite_count": 99,
+  "total_check_count": 100,
+  "results": [
+    {
+      "suite": "startup",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.51,
+      "log": "/tmp/hullwatch-survey-final3/startup.log"
+    },
+    {
+      "suite": "smoke_test",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 1.63,
+      "log": "/tmp/hullwatch-survey-final3/smoke_test.log"
+    },
+    {
+      "suite": "test_airlock",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.69,
+      "log": "/tmp/hullwatch-survey-final3/test_airlock.log"
+    },
+    {
+      "suite": "test_airlock_scene",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 2.0,
+      "log": "/tmp/hullwatch-survey-final3/test_airlock_scene.log"
+    },
+    {
+      "suite": "test_analogue_filter",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.51,
+      "log": "/tmp/hullwatch-survey-final3/test_analogue_filter.log"
+    },
+    {
+      "suite": "test_anomaly_salvage",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.51,
+      "log": "/tmp/hullwatch-survey-final3/test_anomaly_salvage.log"
+    },
+    {
+      "suite": "test_approach",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.6,
+      "log": "/tmp/hullwatch-survey-final3/test_approach.log"
+    },
+    {
+      "suite": "test_atmosphere",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.5,
+      "log": "/tmp/hullwatch-survey-final3/test_atmosphere.log"
+    },
+    {
+      "suite": "test_audio",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.68,
+      "log": "/tmp/hullwatch-survey-final3/test_audio.log"
+    },
+    {
+      "suite": "test_cabin_light",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 3.77,
+      "log": "/tmp/hullwatch-survey-final3/test_cabin_light.log"
+    },
+    {
+      "suite": "test_cargo",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.5,
+      "log": "/tmp/hullwatch-survey-final3/test_cargo.log"
+    },
+    {
+      "suite": "test_carry",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.59,
+      "log": "/tmp/hullwatch-survey-final3/test_carry.log"
+    },
+    {
+      "suite": "test_cockpit_instrument_panel",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.51,
+      "log": "/tmp/hullwatch-survey-final3/test_cockpit_instrument_panel.log"
+    },
+    {
+      "suite": "test_comms",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 3.86,
+      "log": "/tmp/hullwatch-survey-final3/test_comms.log"
+    },
+    {
+      "suite": "test_component_breadth",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.7,
+      "log": "/tmp/hullwatch-survey-final3/test_component_breadth.log"
+    },
+    {
+      "suite": "test_computer_log",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.5,
+      "log": "/tmp/hullwatch-survey-final3/test_computer_log.log"
+    },
+    {
+      "suite": "test_computer_terminal",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.79,
+      "log": "/tmp/hullwatch-survey-final3/test_computer_terminal.log"
+    },
+    {
+      "suite": "test_crt_panels",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.59,
+      "log": "/tmp/hullwatch-survey-final3/test_crt_panels.log"
+    },
+    {
+      "suite": "test_day_loop",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.59,
+      "log": "/tmp/hullwatch-survey-final3/test_day_loop.log"
+    },
+    {
+      "suite": "test_destination_data",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.5,
+      "log": "/tmp/hullwatch-survey-final3/test_destination_data.log"
+    },
+    {
+      "suite": "test_detection",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.6,
+      "log": "/tmp/hullwatch-survey-final3/test_detection.log"
+    },
+    {
+      "suite": "test_diagnostics",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.6,
+      "log": "/tmp/hullwatch-survey-final3/test_diagnostics.log"
+    },
+    {
+      "suite": "test_diagnostics_api",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.59,
+      "log": "/tmp/hullwatch-survey-final3/test_diagnostics_api.log"
+    },
+    {
+      "suite": "test_door",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 2.46,
+      "log": "/tmp/hullwatch-survey-final3/test_door.log"
+    },
+    {
+      "suite": "test_eva_flow",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 2.65,
+      "log": "/tmp/hullwatch-survey-final3/test_eva_flow.log"
+    },
+    {
+      "suite": "test_fabricator",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.59,
+      "log": "/tmp/hullwatch-survey-final3/test_fabricator.log"
+    },
+    {
+      "suite": "test_failures",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.6,
+      "log": "/tmp/hullwatch-survey-final3/test_failures.log"
+    },
+    {
+      "suite": "test_field_streamer",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.69,
+      "log": "/tmp/hullwatch-survey-final3/test_field_streamer.log"
+    },
+    {
+      "suite": "test_footsteps",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.9,
+      "log": "/tmp/hullwatch-survey-final3/test_footsteps.log"
+    },
+    {
+      "suite": "test_hero_cabins",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 1.63,
+      "log": "/tmp/hullwatch-survey-final3/test_hero_cabins.log"
+    },
+    {
+      "suite": "test_hull",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.88,
+      "log": "/tmp/hullwatch-survey-final3/test_hull.log"
+    },
+    {
+      "suite": "test_hull_exterior",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 1.25,
+      "log": "/tmp/hullwatch-survey-final3/test_hull_exterior.log"
+    },
+    {
+      "suite": "test_hull_profile",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.5,
+      "log": "/tmp/hullwatch-survey-final3/test_hull_profile.log"
+    },
+    {
+      "suite": "test_humidity",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.51,
+      "log": "/tmp/hullwatch-survey-final3/test_humidity.log"
+    },
+    {
+      "suite": "test_interactables",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.51,
+      "log": "/tmp/hullwatch-survey-final3/test_interactables.log"
+    },
+    {
+      "suite": "test_interior_gate",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 14.07,
+      "log": "/tmp/hullwatch-survey-final3/test_interior_gate.log"
+    },
+    {
+      "suite": "test_interior_kit",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.88,
+      "log": "/tmp/hullwatch-survey-final3/test_interior_kit.log"
+    },
+    {
+      "suite": "test_localization",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.5,
+      "log": "/tmp/hullwatch-survey-final3/test_localization.log"
+    },
+    {
+      "suite": "test_m11_voyage",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 56.57,
+      "log": "/tmp/hullwatch-survey-final3/test_m11_voyage.log"
+    },
+    {
+      "suite": "test_m4_extras",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 3.86,
+      "log": "/tmp/hullwatch-survey-final3/test_m4_extras.log"
+    },
+    {
+      "suite": "test_m9_loop",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.59,
+      "log": "/tmp/hullwatch-survey-final3/test_m9_loop.log"
+    },
+    {
+      "suite": "test_machine_fitting",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.59,
+      "log": "/tmp/hullwatch-survey-final3/test_machine_fitting.log"
+    },
+    {
+      "suite": "test_maintenance_isolation",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.6,
+      "log": "/tmp/hullwatch-survey-final3/test_maintenance_isolation.log"
+    },
+    {
+      "suite": "test_manifest_updater",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.52,
+      "log": "/tmp/hullwatch-survey-final3/test_manifest_updater.log"
+    },
+    {
+      "suite": "test_manual",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.59,
+      "log": "/tmp/hullwatch-survey-final3/test_manual.log"
+    },
+    {
+      "suite": "test_mining",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.51,
+      "log": "/tmp/hullwatch-survey-final3/test_mining.log"
+    },
+    {
+      "suite": "test_module_catalog",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.78,
+      "log": "/tmp/hullwatch-survey-final3/test_module_catalog.log"
+    },
+    {
+      "suite": "test_module_effects",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.59,
+      "log": "/tmp/hullwatch-survey-final3/test_module_effects.log"
+    },
+    {
+      "suite": "test_module_geometry",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.78,
+      "log": "/tmp/hullwatch-survey-final3/test_module_geometry.log"
+    },
+    {
+      "suite": "test_module_scene",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 1.63,
+      "log": "/tmp/hullwatch-survey-final3/test_module_scene.log"
+    },
+    {
+      "suite": "test_modules",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.6,
+      "log": "/tmp/hullwatch-survey-final3/test_modules.log"
+    },
+    {
+      "suite": "test_nav",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 3.31,
+      "log": "/tmp/hullwatch-survey-final3/test_nav.log"
+    },
+    {
+      "suite": "test_new_watch_wear",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 1.53,
+      "log": "/tmp/hullwatch-survey-final3/test_new_watch_wear.log"
+    },
+    {
+      "suite": "test_o2_candle_stock",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.5,
+      "log": "/tmp/hullwatch-survey-final3/test_o2_candle_stock.log"
+    },
+    {
+      "suite": "test_occupancy",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.52,
+      "log": "/tmp/hullwatch-survey-final3/test_occupancy.log"
+    },
+    {
+      "suite": "test_operator_maintenance",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.6,
+      "log": "/tmp/hullwatch-survey-final3/test_operator_maintenance.log"
+    },
+    {
+      "suite": "test_persistence_foundations",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 2.28,
+      "log": "/tmp/hullwatch-survey-final3/test_persistence_foundations.log"
+    },
+    {
+      "suite": "test_pilot_chair",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 6.96,
+      "log": "/tmp/hullwatch-survey-final3/test_pilot_chair.log"
+    },
+    {
+      "suite": "test_pilot_seat_flow",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 5.57,
+      "log": "/tmp/hullwatch-survey-final3/test_pilot_seat_flow.log"
+    },
+    {
+      "suite": "test_player",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 6.65,
+      "log": "/tmp/hullwatch-survey-final3/test_player.log"
+    },
+    {
+      "suite": "test_player_traversal",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 9.98,
+      "log": "/tmp/hullwatch-survey-final3/test_player_traversal.log"
+    },
+    {
+      "suite": "test_power",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.51,
+      "log": "/tmp/hullwatch-survey-final3/test_power.log"
+    },
+    {
+      "suite": "test_propulsion",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 6.38,
+      "log": "/tmp/hullwatch-survey-final3/test_propulsion.log"
+    },
+    {
+      "suite": "test_rations",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 7.03,
+      "log": "/tmp/hullwatch-survey-final3/test_rations.log"
+    },
+    {
+      "suite": "test_replenishment",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.69,
+      "log": "/tmp/hullwatch-survey-final3/test_replenishment.log"
+    },
+    {
+      "suite": "test_resource_continuity",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 79.05,
+      "log": "/tmp/hullwatch-survey-final3/test_resource_continuity.log"
+    },
+    {
+      "suite": "test_salvage",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 2.18,
+      "log": "/tmp/hullwatch-survey-final3/test_salvage.log"
+    },
+    {
+      "suite": "test_save_load",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.51,
+      "log": "/tmp/hullwatch-survey-final3/test_save_load.log"
+    },
+    {
+      "suite": "test_save_migration",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.51,
+      "log": "/tmp/hullwatch-survey-final3/test_save_migration.log"
+    },
+    {
+      "suite": "test_scenario_cascade",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.69,
+      "log": "/tmp/hullwatch-survey-final3/test_scenario_cascade.log"
+    },
+    {
+      "suite": "test_scenario_humidity",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 1.15,
+      "log": "/tmp/hullwatch-survey-final3/test_scenario_humidity.log"
+    },
+    {
+      "suite": "test_scenario_power_night",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.61,
+      "log": "/tmp/hullwatch-survey-final3/test_scenario_power_night.log"
+    },
+    {
+      "suite": "test_scene_loop",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 4.61,
+      "log": "/tmp/hullwatch-survey-final3/test_scene_loop.log"
+    },
+    {
+      "suite": "test_scene_save_load",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 5.82,
+      "log": "/tmp/hullwatch-survey-final3/test_scene_save_load.log"
+    },
+    {
+      "suite": "test_scroll_menu",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.5,
+      "log": "/tmp/hullwatch-survey-final3/test_scroll_menu.log"
+    },
+    {
+      "suite": "test_seated_hud",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.5,
+      "log": "/tmp/hullwatch-survey-final3/test_seated_hud.log"
+    },
+    {
+      "suite": "test_sector",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.6,
+      "log": "/tmp/hullwatch-survey-final3/test_sector.log"
+    },
+    {
+      "suite": "test_session_flow",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 2.75,
+      "log": "/tmp/hullwatch-survey-final3/test_session_flow.log"
+    },
+    {
+      "suite": "test_session_menu",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.6,
+      "log": "/tmp/hullwatch-survey-final3/test_session_menu.log"
+    },
+    {
+      "suite": "test_settings",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.6,
+      "log": "/tmp/hullwatch-survey-final3/test_settings.log"
+    },
+    {
+      "suite": "test_ship_compartments",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 1.54,
+      "log": "/tmp/hullwatch-survey-final3/test_ship_compartments.log"
+    },
+    {
+      "suite": "test_ship_layout",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.79,
+      "log": "/tmp/hullwatch-survey-final3/test_ship_layout.log"
+    },
+    {
+      "suite": "test_ship_specialization",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 1.71,
+      "log": "/tmp/hullwatch-survey-final3/test_ship_specialization.log"
+    },
+    {
+      "suite": "test_stores",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.5,
+      "log": "/tmp/hullwatch-survey-final3/test_stores.log"
+    },
+    {
+      "suite": "test_survey",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 1.63,
+      "log": "/tmp/hullwatch-survey-final3/test_survey.log"
+    },
+    {
+      "suite": "test_survival_3day",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 18.13,
+      "log": "/tmp/hullwatch-survey-final3/test_survival_3day.log"
+    },
+    {
+      "suite": "test_tether",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.71,
+      "log": "/tmp/hullwatch-survey-final3/test_tether.log"
+    },
+    {
+      "suite": "test_thermal",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.6,
+      "log": "/tmp/hullwatch-survey-final3/test_thermal.log"
+    },
+    {
+      "suite": "test_tool_kit",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.88,
+      "log": "/tmp/hullwatch-survey-final3/test_tool_kit.log"
+    },
+    {
+      "suite": "test_tube_layout",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.51,
+      "log": "/tmp/hullwatch-survey-final3/test_tube_layout.log"
+    },
+    {
+      "suite": "test_ui",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.79,
+      "log": "/tmp/hullwatch-survey-final3/test_ui.log"
+    },
+    {
+      "suite": "test_ui_scale",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.69,
+      "log": "/tmp/hullwatch-survey-final3/test_ui_scale.log"
+    },
+    {
+      "suite": "test_update_checker",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.51,
+      "log": "/tmp/hullwatch-survey-final3/test_update_checker.log"
+    },
+    {
+      "suite": "test_vitals",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 2.27,
+      "log": "/tmp/hullwatch-survey-final3/test_vitals.log"
+    },
+    {
+      "suite": "test_voice_guide",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.59,
+      "log": "/tmp/hullwatch-survey-final3/test_voice_guide.log"
+    },
+    {
+      "suite": "test_walkway_clearance",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 1.26,
+      "log": "/tmp/hullwatch-survey-final3/test_walkway_clearance.log"
+    },
+    {
+      "suite": "test_wall_computer",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 1.25,
+      "log": "/tmp/hullwatch-survey-final3/test_wall_computer.log"
+    },
+    {
+      "suite": "test_water",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.69,
+      "log": "/tmp/hullwatch-survey-final3/test_water.log"
+    },
+    {
+      "suite": "test_wear_model",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 0.5,
+      "log": "/tmp/hullwatch-survey-final3/test_wear_model.log"
+    },
+    {
+      "suite": "test_world_layout",
+      "returncode": 0,
+      "ok": true,
+      "pass_line": true,
+      "script_errors": false,
+      "seconds": 1.46,
+      "log": "/tmp/hullwatch-survey-final3/test_world_layout.log"
+    }
+  ],
+  "complete": true,
+  "all_passed": true,
+  "modified_game_files_sha256": "79e4648ae8b2904385c6ec499e4696f43cad975eb3483d538a57b79aeae047a2"
+}

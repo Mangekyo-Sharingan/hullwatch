@@ -182,7 +182,7 @@ func store_suit() -> bool:
 
 
 func refill_suit() -> float:
-	if not suit_stored or suit_o2_hours >= suit_o2_capacity_hours:
+	if get_suit_refill_refusal() != &"":
 		return 0.0
 	var atmosphere: Node = _atmosphere_system()
 	if atmosphere == null or not atmosphere.has_method(&"remove_gas_moles"):
@@ -201,9 +201,27 @@ func refill_suit() -> float:
 	return drawn
 
 
+func get_suit_refill_refusal() -> StringName:
+	if not suit_stored or suit_worn:
+		return &"suit_not_stored"
+	if suit_o2_hours >= suit_o2_capacity_hours:
+		return &"suit_tank_full"
+	if not _pump_powered():
+		return &"no_power"
+	if _pressure_of(interior_compartment_id) <= INTERIOR_SUPPLY_FLOOR_KPA:
+		return &"suit_supply_pressure_low"
+	var atmosphere: Node = _atmosphere_system()
+	if atmosphere == null or not atmosphere.has_method(&"get_gas_moles"):
+		return &"suit_supply_unavailable"
+	var gas: Dictionary = atmosphere.call("get_gas_moles", interior_compartment_id)
+	if float(gas.get("o2", 0.0)) <= 0.0:
+		return &"suit_supply_oxygen_low"
+	return &""
+
+
 ## Vitals calls this while the operator stands in vacuum; false means unprotected.
 func consume_suit_o2(hours: float) -> bool:
-	if not suit_worn or hours <= 0.0:
+	if not suit_worn or not is_finite(hours) or hours <= 0.0:
 		return false
 	if suit_o2_hours <= 0.0:
 		_emit_suit_depleted_once()
@@ -264,7 +282,7 @@ func load_state(state_dict: Dictionary) -> void:
 		_refresh_door_summaries()
 	suit_stored = bool(state_dict.get("suit_stored", suit_stored))
 	suit_worn = bool(state_dict.get("suit_worn", suit_worn))
-	suit_o2_hours = maxf(float(state_dict.get("suit_o2_hours", suit_o2_hours)), 0.0)
+	suit_o2_hours = clampf(float(state_dict.get("suit_o2_hours", suit_o2_hours)), 0.0, suit_o2_capacity_hours)
 	_vent_remaining_hours = 0.0
 	_stalled = false
 	_suit_depleted_emitted = suit_o2_hours <= 0.0 and suit_worn

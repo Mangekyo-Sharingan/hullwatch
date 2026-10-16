@@ -192,7 +192,9 @@ func _test_procedure_end_to_end() -> void:
 	var player: Node = (load("res://scenes/player.tscn") as PackedScene).instantiate()
 	_spawn(player)
 	await process_frame
-	var cartridge := Carriable.new()
+	var stores: Stores = harness.add_stores({})
+	_spawned.append(stores)
+	var cartridge: SealantCartridge = SealantCartridge.new()
 	cartridge.item_id = &"sealant"
 	cartridge.item_name = "Sealant cartridge"
 	_spawn(cartridge)
@@ -206,7 +208,7 @@ func _test_procedure_end_to_end() -> void:
 	_check(patch.get_interaction_prompt() == "Apply sealant", "procedure: fit advances to seal")
 	_check(player.call("has_carried_item"), "procedure: cartridge still carried before seal")
 	patch.interact(player)
-	_check(not player.call("has_carried_item"), "procedure: seal consumed the carried cartridge")
+	_check(bool(player.call("has_carried_item")) and cartridge.get_charge_count() == 0, "procedure: seal leaves the carried shell empty")
 	_check(patch.get_interaction_prompt() == "Verify seal", "procedure: seal advances to verify")
 	patch.interact(player)
 	_check(hull.get_puncture_count(&"main") == 0, "procedure: verify patches the puncture")

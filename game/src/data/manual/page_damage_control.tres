@@ -5,15 +5,16 @@
 [resource]
 script = ExtResource("1_page")
 title = "DAMAGE CONTROL"
-body = "THE HULL is xenon-metal: a grown lattice, seamless and load-bearing. No weld, rivet or fastener exists anywhere on the primary structure, and no yard in service can manufacture or duplicate it. Repair what you can reach; do not cut into the frame.
+body = "THE HULL is xenon-metal. Service accessible fittings and patch breaches; do not cut into the sealed primary structure.
 
-MICRO-PUNCTURES are normal on a hull this age. Each one raises the compartment leak rate; pressure falls, and the leak keeps working while you sleep. Each of the eight main compartments has a wall-mounted patch point. Use the patch point in the leaking compartment; a patch elsewhere does not seal that room.
+MICRO-PUNCTURES raise the compartment leak rate; pressure falls, and leaks keep working while you sleep. Each occupied compartment has a wall-mounted patch point. Use the point in the leaking compartment; a patch elsewhere does not seal that room. MAIN on the readout means the life-support compartment.
 
 PATCH PROCEDURE
-  1  CLEAN the breach
-  2  FIT the patch
-  3  APPLY SEALANT   (one cartridge per patch)
-  4  VERIFY the seal
-Verify against the panel's leak rate. A failed verify means a failed seal - do it again.
+  At the leaking room's patch point, press {interact} for each prompt:
+  1  CLEAN THE BREACH
+  2  FIT THE PATCH
+  3  APPLY SEALANT (one charge from the carried cartridge)
+  4  VERIFY SEAL
+Check STATUS for fewer punctures and reduced leak rate. A patch seals one puncture, not all leaks; repeat if more remain. Some background leakage remains even in a sound compartment.
 
-Take a sealant cartridge from the locker before you go; it must be in your hands at the seal step. The hull will not wait for a second trip."
+Take a charged sealant cartridge before you go; it must be in your hands at the seal step. An empty shell cannot seal. Fabricate a sealant charge, then refill the carried shell at the fabricator. The hull will not wait for a second trip."

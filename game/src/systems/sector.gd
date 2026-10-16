@@ -28,6 +28,8 @@ var _offset: Vector3 = Vector3.ZERO
 var _holding: bool = false
 var _approach_target_id: String = ""
 var _mined_fields: Dictionary = {}
+var _survey_sources: Dictionary = {}
+var _survey_records: Dictionary = {}
 var asteroid_frequency: float = 1.0
 var anomaly_frequency: float = 1.0
 
@@ -39,6 +41,8 @@ func _ready() -> void:
 	var event_bus: Node = _get_autoload(&"EventBus")
 	if event_bus != null and not event_bus.is_connected(&"destination_arrived", _on_destination_arrived):
 		event_bus.connect(&"destination_arrived", _on_destination_arrived)
+	if event_bus != null:
+		event_bus.connect(&"sim_event", _on_survey_event)
 	var settings: Node = _get_autoload(&"GameSettings")
 	if settings != null:
 		asteroid_frequency = float(settings.call(&"get_value", &"asteroid_frequency"))
@@ -106,7 +110,9 @@ func get_active_objects() -> Array[Dictionary]:
 
 
 ## Active objects within `max_range_m` of the ship, nearest first.
-func get_contacts(max_range_m: float = CONTACT_RANGE_M) -> Array[Dictionary]:
+func get_contacts(max_range_m: float = -1.0) -> Array[Dictionary]:
+	if max_range_m < 0.0:
+		max_range_m = get_detection_range()
 	var ship: Vector3 = get_ship_position()
 	var found: Array[Dictionary] = []
 	for entry: Dictionary in _active:
@@ -117,6 +123,137 @@ func get_contacts(max_range_m: float = CONTACT_RANGE_M) -> Array[Dictionary]:
 			found.append(contact)
 	found.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return float(a["distance_m"]) < float(b["distance_m"]))
 	return found
+
+
+func set_survey_source(source_id: StringName, range_m: float) -> void:
+	if source_id == &"" or not is_finite(range_m) or range_m < 0.0:
+		return
+	if is_equal_approx(float(_survey_sources.get(source_id, 0.0)), range_m):
+		return
+	if range_m == 0.0:
+		_survey_sources.erase(source_id)
+	else:
+		_survey_sources[source_id] = range_m
+	_update_contacts()
+
+
+func get_detection_range() -> float:
+	var range_m: float = CONTACT_RANGE_M
+	for contribution: Variant in _survey_sources.values():
+		range_m += float(contribution)
+	return range_m
+
+
+func record_survey(object_id: String) -> bool:
+	var player: Node = get_tree().get_first_node_in_group(&"player") if is_inside_tree() else null
+	if player == null or not player.has_method(&"get_carried_item_id") or StringName(player.call(&"get_carried_item_id")) != &"scanner":
+		return false
+	for contact: Dictionary in get_contacts():
+		if String(contact["id"]) == object_id:
+			_observe_contact(contact, str(field_seed))
+			return true
+	return false
+
+
+func get_survey_records() -> Array[Dictionary]:
+	var records: Array[Dictionary] = []
+	for record: Dictionary in _survey_records.values():
+		records.append(record.duplicate(true))
+	records.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return String(a["record_id"]) < String(b["record_id"]))
+	return records
+
+
+func _observe_contact(contact: Dictionary, field: String) -> Dictionary:
+	var object_id: String = String(contact["id"])
+	var record_id: String = field + ":" + object_id
+	if not _survey_records.has(record_id):
+		_survey_records[record_id] = {"record_id": record_id, "field_seed": field, "object_id": object_id,
+			"kind": String(contact["kind"]), "observed_hours": 0.0, "distance_m": 0.0,
+			"confidence": "contact", "resource": "", "sampled_units": 0.0,
+			"observed_remaining_units": -1.0, "equipment_id": "", "equipment_condition": -1.0}
+	var record: Dictionary = _survey_records[record_id]
+	var clock: Node = _get_autoload(&"SimClock")
+	record["observed_hours"] = float(clock.call(&"get_total_hours")) if clock != null else 0.0
+	if contact.has("distance_m"):
+		record["distance_m"] = float(contact["distance_m"])
+	return record
+
+
+func _on_survey_event(event_name: StringName, payload: Dictionary) -> void:
+	if event_name == &"scanner_ping":
+		record_survey(String(payload.get("id", "")))
+	elif event_name in [&"sample_taken", &"anomaly_logged"]:
+		var units: Variant = payload.get("units", 0.0)
+		var remaining: Variant = payload.get("remaining", -1.0)
+		if not (units is int or units is float) or not is_finite(float(units)) or float(units) <= 0.0 or not (remaining is int or remaining is float) or not is_finite(float(remaining)) or float(remaining) < 0.0:
+			return
+		for contact: Dictionary in get_active_objects():
+			if String(contact["id"]) != String(payload.get("object_id", "")):
+				continue
+			var resource: String = String(payload.get("resource", ""))
+			if StringName(resource) not in CargoSystem.KNOWN_KINDS or resource != String(contact["resource"]):
+				return
+			contact["distance_m"] = (contact["position"] as Vector3).distance_to(get_ship_position())
+			var record: Dictionary = _observe_contact(contact, str(field_seed))
+			record["resource"] = resource
+			record["sampled_units"] = float(record["sampled_units"]) + float(units)
+			record["observed_remaining_units"] = float(remaining)
+			if String(record["confidence"]) != "diagnosed":
+				record["confidence"] = "sampled"
+			return
+	elif event_name == &"salvage_diagnosed":
+		var salvage: Node = get_tree().get_first_node_in_group(&"salvage_system") if is_inside_tree() else null
+		if salvage == null:
+			return
+		var unit_id: String = String(payload.get("unit_id", ""))
+		var unit: Dictionary = salvage.call(&"get_unit", unit_id)
+		if unit.is_empty() or not bool(unit.get("diagnosed", false)):
+			return
+		# The durable unit id keeps origin provenance when its current field changes in transport.
+		var field: String = unit_id.get_slice(":", 0)
+		if not field.is_valid_int():
+			return
+		var record: Dictionary = _observe_contact({"id": unit["object_id"], "kind": "debris"}, field)
+		record["confidence"] = "diagnosed"
+		record["equipment_id"] = String(unit["machine_id"])
+		record["equipment_condition"] = float(unit["condition"])
+
+
+static func valid_survey_records(records: Variant) -> bool:
+	if not records is Dictionary:
+		return false
+	for key: Variant in records:
+		var record: Variant = records[key]
+		if not key is String or not record is Dictionary or (record as Dictionary).size() != 12:
+			return false
+		for field: String in ["record_id", "field_seed", "object_id", "kind", "confidence", "resource", "equipment_id"]:
+			if not record.get(field) is String:
+				return false
+		if String(record["object_id"]).is_empty() or not String(record["field_seed"]).is_valid_int() or str(int(record["field_seed"])) != String(record["field_seed"]) or String(record["record_id"]) != String(key) or String(key) != String(record["field_seed"]) + ":" + String(record["object_id"]):
+			return false
+		if String(record["kind"]) not in ["asteroid", "debris", "anomaly"] or String(record["confidence"]) not in ["contact", "sampled", "diagnosed"] or (String(record["resource"]) != "" and StringName(record["resource"]) not in CargoSystem.KNOWN_KINDS):
+			return false
+		for field: String in ["observed_hours", "distance_m", "sampled_units", "observed_remaining_units", "equipment_condition"]:
+			var value: Variant = record.get(field)
+			if not (value is int or value is float) or not is_finite(float(value)) or float(value) < (0.0 if field in ["observed_hours", "distance_m", "sampled_units"] else -1.0):
+				return false
+		if float(record["equipment_condition"]) > 1.0:
+			return false
+		if String(record["resource"]) == "" and (float(record["sampled_units"]) != 0.0 or float(record["observed_remaining_units"]) != -1.0):
+			return false
+		if String(record["resource"]) != "" and (float(record["sampled_units"]) <= 0.0 or float(record["observed_remaining_units"]) < 0.0):
+			return false
+		if String(record["equipment_id"]) == "" and float(record["equipment_condition"]) != -1.0:
+			return false
+		if String(record["equipment_id"]) != "" and (float(record["equipment_condition"]) < 0.0 or String(record["confidence"]) != "diagnosed"):
+			return false
+		if String(record["confidence"]) == "contact" and (String(record["resource"]) != "" or String(record["equipment_id"]) != ""):
+			return false
+		if String(record["confidence"]) == "sampled" and (String(record["resource"]) == "" or float(record["sampled_units"]) <= 0.0 or float(record["observed_remaining_units"]) < 0.0):
+			return false
+		if String(record["confidence"]) == "diagnosed" and (String(record["equipment_id"]) == "" or float(record["equipment_condition"]) < 0.0):
+			return false
+	return true
 
 
 func get_chunk_size() -> float:
@@ -308,17 +445,24 @@ func _update_contacts() -> void:
 func save_state() -> Dictionary:
 	return {
 		"system_id": String(system_id),
-		"state_version": 2,
+		"state_version": 3,
 		"field_seed": str(field_seed),
 		"drift_distance_m": _drift_distance_m,
 		"offset": {"x": _offset.x, "y": _offset.y, "z": _offset.z},
 		"holding": _holding,
 		"approach_target_id": _approach_target_id,
 		"mined_fields": _mined_fields.duplicate(true),
+		"survey_records": _survey_records.duplicate(true),
 	}
 
 
 func load_state(state: Dictionary) -> void:
+	if int(state.get("state_version", 1)) >= 3 and not state.has("survey_records"):
+		return
+	var records: Variant = state.get("survey_records", {}) if int(state.get("state_version", 1)) >= 3 else {}
+	if not valid_survey_records(records):
+		return
+	_survey_records = records.duplicate(true)
 	field_seed = int(state.get("field_seed", field_seed))
 	_drift_distance_m = maxf(float(state.get("drift_distance_m", _drift_distance_m)), 0.0)
 	var offset_data: Dictionary = state.get("offset", {})

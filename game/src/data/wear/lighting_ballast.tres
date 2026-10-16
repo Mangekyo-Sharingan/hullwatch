@@ -7,7 +7,8 @@
 script = ExtResource("2")
 id = &"ballast_open"
 display_name = "Ballast Open"
-base_mtbf_hours = 2600.0
+base_mtbf_hours = 2.0
+max_condition = 0.7
 environmental_factors = {
 "humidity": 2.0
 }
@@ -19,6 +20,7 @@ script = ExtResource("2")
 id = &"ballast_short"
 display_name = "Ballast Short"
 base_mtbf_hours = 3400.0
+max_condition = 0.35
 environmental_factors = {
 "humidity": 2.0
 }
@@ -30,6 +32,8 @@ resource_local_to_scene = true
 script = ExtResource("1")
 component_id = &"lighting_ballast"
 display_name = "Lighting Ballast"
+condition = 0.7004
+hours_operated = 1498.0
 wear_rate_per_hour = 0.0002
 failure_modes = Array[ExtResource("2")]([SubResource("FailureMode_ballast_open"), SubResource("FailureMode_ballast_short")])
 service_circuit = &"lighting"

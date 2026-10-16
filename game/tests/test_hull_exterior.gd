@@ -35,6 +35,7 @@ func _run() -> void:
 	_test_solar_arrays()
 	_test_thrusters_outside_skin()
 	_test_ion_drives()
+	_test_authored_instances_not_duplicated()
 	_test_floodlights()
 	_test_airlock_opens_onto_the_platform()
 	_test_platform_railing()
@@ -404,6 +405,8 @@ func _test_ion_drives() -> void:
 		var plume: MeshInstance3D = model.find_child("IonPlume", true, false) as MeshInstance3D if model != null else null
 		_check(chamber != null and plume != null and model.find_child("XenoniteCore", true, false) == null, "%s conceals its core behind a sealed chamber and carries an ion wake" % String(drive.name))
 		_check(plume != null and not plume.visible, "%s wake starts off at idle" % String(drive.name))
+		var material: StandardMaterial3D = plume.material_override as StandardMaterial3D if plume != null else null
+		_check(material != null and material.transparency == BaseMaterial3D.TRANSPARENCY_ALPHA and material.shading_mode == BaseMaterial3D.SHADING_MODE_UNSHADED and material.albedo_color.a > 0.0 and material.albedo_color.a < 0.2, "%s retains its translucent ion-wake override" % String(drive.name))
 		if plume != null and plume.mesh != null:
 			var plume_size: Vector3 = plume.mesh.get_aabb().size
 			_check(maxf(plume_size.x, plume_size.y) <= 0.25, "%s wake stays narrow" % String(drive.name))
@@ -463,3 +466,21 @@ func _check(condition: bool, label: String) -> void:
 var _failures: int = 0
 var _geometry: Node3D
 var _layout: Node3D
+
+
+func _test_authored_instances_not_duplicated() -> void:
+	var checked: int = 0
+	for candidate: Node in _geometry.find_children("Model", "Node3D", true, false):
+		if candidate.scene_file_path == "":
+			continue
+		var packed: PackedScene = load(candidate.scene_file_path) as PackedScene
+		_check(packed != null, "authored instance source loads: " + candidate.scene_file_path)
+		if packed == null:
+			continue
+		var original: Node = packed.instantiate()
+		var original_count: int = original.find_children("*", "", true, false).size()
+		var actual_count: int = candidate.find_children("*", "", true, false).size()
+		_check(actual_count == original_count, "authored instance has exactly one subtree: %s (%d vs %d)" % [_geometry.get_path_to(candidate), actual_count, original_count])
+		original.free()
+		checked += 1
+	_check(checked > 0, "authored-instance duplication guard inspects ship fittings")

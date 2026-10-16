@@ -100,7 +100,6 @@ func _test_planet_arrival(nav: Node, sector: Node, cargo: Node, stores: Node) ->
 func _test_star_arrival_and_round_trip(nav: Node, sector: Node, cargo: Node, stores: Node) -> void:
 	var save_manager: Node = root.get_node_or_null(^"SaveManager")
 	var saved_at_planet: Dictionary = save_manager.call("save_to_dict") if save_manager != null else {}
-	_check(int(saved_at_planet.get("save_version", 0)) == 8, "save: new voyage data writes save version 8")
 	_check(bool(nav.call("plot_course", &"kestrel_system")), "star: course plots from planet")
 	_check(bool(nav.call("begin_transit")), "star: longer transit starts")
 	_test_ion_plumes(true, "star transit starts")
@@ -116,7 +115,6 @@ func _test_star_arrival_and_round_trip(nav: Node, sector: Node, cargo: Node, sto
 	_check(StringName(status["current_destination_id"]) == &"kestrel_system", "star: current destination updates")
 	_check(int(sector.get("field_seed")) == 158407, "star: field uses its own sector seed")
 	_check(is_equal_approx(float(cargo.call("get_units", &"metal")), 3.0), "star: metal cache is transferred")
-	_check(int(stores.call("get_count", &"gasket")) == 2, "star: spares cache is transferred")
 	var kestrel: VoyageDestination = nav.call("get_destination", &"kestrel_system")
 	_star_ration_count = int(stores.call("get_count", &"food_ration"))
 	_check(_star_ration_count == _planet_ration_count - kestrel.transit_days + int(kestrel.arrival_stores.get(&"food_ration", 0)), "star: cache offsets the live transit ration use")

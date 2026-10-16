@@ -277,7 +277,8 @@ func _dock_routes() -> void:
 			if pod == null:
 				continue
 		var room: ModuleMount = pod.get_node("PodRoom") as ModuleMount
-		_check(room.select_action(&"teardown"), id + " fixture teardown", room.global_position, room)
+		var teardown_position: Vector3 = room.global_position
+		_check(room.select_action(&"teardown"), id + " fixture teardown", teardown_position, room)
 		await process_frame
 		await physics_frame
 		await physics_frame
@@ -406,7 +407,8 @@ func _machine_clearance(pod: Node3D, plate: ModuleMount, modules: Node, cargo: N
 		else:
 			# Bolted machinery leaves through pod teardown, preserving catalog portability.
 			var room: ModuleMount = current.get_node("PodRoom") as ModuleMount
-			_check(room.select_action(&"teardown"), label + " teardown clears bolted machines", current.global_position, room)
+			var teardown_position: Vector3 = current.global_position
+			_check(room.select_action(&"teardown"), label + " teardown clears bolted machines", teardown_position, room)
 			await process_frame
 			var module: ShipModule = modules.call("get_module", &"utility_pod") as ShipModule
 			_check(plate.select_action(&"build:utility_pod"), label + " rebuild bare fixture", plate.global_position, plate)
